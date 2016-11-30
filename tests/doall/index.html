@@ -1,0 +1,745 @@
+<html>
+<head>
+	<title>TaskFinder</title>
+	<style>
+		li.L0, li.L1, li.L2, li.L3,
+		li.L5, li.L6, li.L7, li.L8
+		{ list-style-type: decimal !important }
+	</style>
+
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+
+<body>
+
+	<table width=90% border="1" cellpadding=5 cellspacing=0 align=center>
+
+		<tr><td colspan=3 height=50 align=center><h1>Report for DOALL Programs</h1></td></tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+		<tr>
+			<td colspan=3>
+				<b>Programs were compiled using:</b> clang++-3.9 -emit-llvm -S source.cpp -o source.cpp.ll
+				<br/>
+				<b>Graphs were created using:</b> opt -disable-opt -load LLVMTaskFinder.so -mem2reg -TaskFinder source.cpp.ll
+			</td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+		<tr><td colspan=3>DOALL 1</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall1() {
+	int v[N];
+
+	for (int i=0; i&lt;N; i++)
+		v[i] = 0;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall1v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 10
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  store i32 0, i32* %arrayidx, align 4
+[8]  br label %for.inc
+for.inc
+[9]  %inc = add nsw i32 %i.0, 1
+[10]  br label %for.cond
+for.end
+[11]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall1v.dot.png" width="450em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+		<tr><td colspan=3>DOALL 2</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall2() {
+	int v[N], i=0;
+
+	for (; i&lt;N/2; i++)
+		v[i] = 0;
+
+	for (; i&lt;N; i++)
+		v[i] = 0;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px; border: 0px;">
+Dumping instructions for function :: _Z6doall2v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 5
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  store i32 0, i32* %arrayidx, align 4
+[8]  br label %for.inc
+for.inc
+[9]  %inc = add nsw i32 %i.0, 1
+[10]  br label %for.cond
+for.end
+[11]  br label %for.cond1
+for.cond1
+[12]  %i.1 = phi i32 [ %i.0, %for.end ], [ %inc7, %for.inc6 ]
+[13]  %cmp2 = icmp slt i32 %i.1, 10
+[14]  br i1 %cmp2, label %for.body3, label %for.end8
+for.body3
+[15]  %idxprom4 = sext i32 %i.1 to i64
+[16]  %arrayidx5 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom4
+[17]  store i32 0, i32* %arrayidx5, align 4
+[18]  br label %for.inc6
+for.inc6
+[19]  %inc7 = add nsw i32 %i.1, 1
+[20]  br label %for.cond1
+for.end8
+[21]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall2v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+		<tr><td colspan=3>DOALL 3</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall3() {
+	int v[N];
+
+	// printf has side-effects, will we still consider this as doall?
+	for (int i=0; i&lt;N; i++)
+		printf("v[%i] = %d\n", i, v[i]);
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall3v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 10
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  %0 = load i32, i32* %arrayidx, align 4
+[8]  %call = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str, i32 0, i32 0), i32 %i.0, i32 %0)
+[9]  br label %for.inc
+for.inc
+[10]  %inc = add nsw i32 %i.0, 1
+[11]  br label %for.cond
+for.end
+[12]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall3v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+		<tr><td colspan=3>DOALL 4</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall4() {
+	int v[N];
+
+	for (int i=0; i&lt;N; i++)
+		v[i] = 2 * v[i];
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall4v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 10
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  %0 = load i32, i32* %arrayidx, align 4
+[8]  %mul = mul nsw i32 2, %0
+[9]  %idxprom1 = sext i32 %i.0 to i64
+[10]  %arrayidx2 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom1
+[11]  store i32 %mul, i32* %arrayidx2, align 4
+[12]  br label %for.inc
+for.inc
+[13]  %inc = add nsw i32 %i.0, 1
+[14]  br label %for.cond
+for.end
+[15]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall4v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOALL 5</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall5() {
+	int u[N], v[N];
+
+	for (int i=0; i&lt;N; i++)
+		v[i] = u[i];
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall5v
+entry
+[0]  %u = alloca [10 x i32], align 16
+[1]  %v = alloca [10 x i32], align 16
+[2]  br label %for.cond
+for.cond
+[3]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[4]  %cmp = icmp slt i32 %i.0, 10
+[5]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[6]  %idxprom = sext i32 %i.0 to i64
+[7]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %u, i64 0, i64 %idxprom
+[8]  %0 = load i32, i32* %arrayidx, align 4
+[9]  %idxprom1 = sext i32 %i.0 to i64
+[10]  %arrayidx2 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom1
+[11]  store i32 %0, i32* %arrayidx2, align 4
+[12]  br label %for.inc
+for.inc
+[13]  %inc = add nsw i32 %i.0, 1
+[14]  br label %for.cond
+for.end
+[15]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall5v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOALL 6</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall6() {
+	int u[N], v[N];
+
+	for (int i=0; i&lt;N; i++) {
+		int aux = u[i];
+		u[i] = v[i];
+		v[i] = aux;
+	}
+}
+
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall6v
+entry
+[0]  %u = alloca [10 x i32], align 16
+[1]  %v = alloca [10 x i32], align 16
+[2]  br label %for.cond
+for.cond
+[3]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[4]  %cmp = icmp slt i32 %i.0, 10
+[5]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[6]  %idxprom = sext i32 %i.0 to i64
+[7]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %u, i64 0, i64 %idxprom
+[8]  %0 = load i32, i32* %arrayidx, align 4
+[9]  %idxprom1 = sext i32 %i.0 to i64
+[10]  %arrayidx2 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom1
+[11]  %1 = load i32, i32* %arrayidx2, align 4
+[12]  %idxprom3 = sext i32 %i.0 to i64
+[13]  %arrayidx4 = getelementptr inbounds [10 x i32], [10 x i32]* %u, i64 0, i64 %idxprom3
+[14]  store i32 %1, i32* %arrayidx4, align 4
+[15]  %idxprom5 = sext i32 %i.0 to i64
+[16]  %arrayidx6 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom5
+[17]  store i32 %0, i32* %arrayidx6, align 4
+[18]  br label %for.inc
+for.inc
+[19]  %inc = add nsw i32 %i.0, 1
+[20]  br label %for.cond
+for.end
+[21]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall6v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOALL 7</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+int v[N];
+
+void doall7() {
+	for (int i=0; i&lt;N; i++)
+		v[i] = 0;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall7v
+entry
+[0]  br label %for.cond
+for.cond
+[1]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[2]  %cmp = icmp slt i32 %i.0, 10
+[3]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[4]  %idxprom = sext i32 %i.0 to i64
+[5]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* @v, i64 0, i64 %idxprom
+[6]  store i32 0, i32* %arrayidx, align 4
+[7]  br label %for.inc
+for.inc
+[8]  %inc = add nsw i32 %i.0, 1
+[9]  br label %for.cond
+for.end
+[10]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall7v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+		<tr><td colspan=3>DOALL 8</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+
+int v[N];
+int init = 0;
+
+void doall8() {
+	for (int i=0; i&lt;N; i++)
+		v[i] = init;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall8v
+entry
+[0]  br label %for.cond
+for.cond
+[1]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[2]  %cmp = icmp slt i32 %i.0, 10
+[3]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[4]  %0 = load i32, i32* @init, align 4
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* @v, i64 0, i64 %idxprom
+[7]  store i32 %0, i32* %arrayidx, align 4
+[8]  br label %for.inc
+for.inc
+[9]  %inc = add nsw i32 %i.0, 1
+[10]  br label %for.cond
+for.end
+[11]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall8v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOALL 9</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+
+int v[N];
+int init = 0;
+
+void doall8() {
+	for (int i=0; i&lt;N; i++)
+		v[i] = init;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z6doall9v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc7, %for.inc6 ]
+[3]  %cmp = icmp slt i32 %i.0, 10
+[4]  br i1 %cmp, label %for.body, label %for.end8
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  store i32 0, i32* %arrayidx, align 4
+[8]  br label %for.cond1
+for.cond1
+[9]  %j.0 = phi i32 [ 0, %for.body ], [ %inc, %for.inc ]
+[10]  %cmp2 = icmp slt i32 %j.0, 10
+[11]  br i1 %cmp2, label %for.body3, label %for.end
+for.body3
+[12]  %idxprom4 = sext i32 %i.0 to i64
+[13]  %arrayidx5 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom4
+[14]  store i32 0, i32* %arrayidx5, align 4
+[15]  br label %for.inc
+for.inc
+[16]  %inc = add nsw i32 %j.0, 1
+[17]  br label %for.cond1
+for.end
+[18]  br label %for.inc6
+for.inc6
+[19]  %inc7 = add nsw i32 %i.0, 1
+[20]  br label %for.cond
+for.end8
+[21]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall9v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+		<tr><td colspan=3>DOALL 10</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall10() {
+	int v[N];
+
+	for (int i=0; i&lt;N/2; i++)
+		v[N/2 + i] = 0;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z7doall10v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 5
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %add = add nsw i32 5, %i.0
+[6]  %idxprom = sext i32 %add to i64
+[7]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[8]  store i32 0, i32* %arrayidx, align 4
+[9]  br label %for.inc
+for.inc
+[10]  %inc = add nsw i32 %i.0, 1
+[11]  br label %for.cond
+for.end
+[12]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z7doall10v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+		<tr><td colspan=3>DOALL 11</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void f1(int* ptr) {
+	int a = *ptr;
+}
+
+void doall11() {
+	int v[N];
+
+	for (int i=0; i&lt;N; i++)
+		f1(&v[i]);
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z7doall11v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 10
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  call void @_Z2f1Pi(i32* %arrayidx)
+[8]  br label %for.inc
+for.inc
+[9]  %inc = add nsw i32 %i.0, 1
+[10]  br label %for.cond
+for.end
+[11]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;">
+				PDG for function doall11:<br/>
+				<img src="_Z7doall11v.dot.png" width="400em" />
+				<br/><br/>
+				PDG for function f1:<br/>
+				<img src="_Z2f1Pi.dot.png" width="100em" />
+			</td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+		
+		<tr><td colspan=3>DOALL 12</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOALL loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doall12() {
+	int v[N];
+
+	for (int i=0; i&lt;N; i++)
+		v[i] = 0;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z7doall12v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 10
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %idxprom = sext i32 %i.0 to i64
+[6]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[7]  store i32 0, i32* %arrayidx, align 4
+[8]  br label %for.inc
+for.inc
+[9]  %inc = add nsw i32 %i.0, 1
+[10]  br label %for.cond
+for.end
+[11]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z7doall11v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+		
+
+
+	</table>
+
+
+</body>
+</html>

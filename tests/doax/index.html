@@ -1,0 +1,555 @@
+
+
+
+
+
+
+<head>
+	<title>TaskFinder</title>
+	<style>
+		li.L0, li.L1, li.L2, li.L3,
+		li.L5, li.L6, li.L7, li.L8
+		{ list-style-type: decimal !important }
+	</style>
+
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+
+<body>
+
+	<table width=90% border="1" cellpadding=5 cellspacing=0 align=center>
+		<tr><td colspan=3 height=50 align=center><h1>Report for DOACROSS Programs</h1></td></tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+		<tr>
+			<td colspan=3>
+				<b>Programs were compiled using:</b> clang++-3.9 -emit-llvm -S source.cpp -o source.cpp.ll
+				<br/>
+				<b>Graphs were created using:</b> opt -disable-opt -load LLVMTaskFinder.so -mem2reg -TaskFinder source.cpp.ll
+			</td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+		<tr><td colspan=3>DOACROSS 1</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		10
+
+void doax1() {
+	int v[N];
+
+	v[0] = 0;
+	for (int i=1; i&lt;N; i++)
+		v[i] = v[i-1] + i;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax1v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 0
+[2]  store i32 0, i32* %arrayidx, align 16
+[3]  br label %for.cond
+for.cond
+[4]  %i.0 = phi i32 [ 1, %entry ], [ %inc, %for.inc ]
+[5]  %cmp = icmp slt i32 %i.0, 10
+[6]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[7]  %sub = sub nsw i32 %i.0, 1
+[8]  %idxprom = sext i32 %sub to i64
+[9]  %arrayidx1 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[10]  %0 = load i32, i32* %arrayidx1, align 4
+[11]  %add = add nsw i32 %0, %i.0
+[12]  %idxprom2 = sext i32 %i.0 to i64
+[13]  %arrayidx3 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom2
+[14]  store i32 %add, i32* %arrayidx3, align 4
+[15]  br label %for.inc
+for.inc
+[16]  %inc = add nsw i32 %i.0, 1
+[17]  br label %for.cond
+for.end
+[18]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax1v.dot.png" width="600em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+		<tr><td colspan=3>DOACROSS 2</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		100
+
+void doax2() {
+	int v[N];
+
+	v[0] = 0;
+	for (int i=1; i&lt;N; i++) {
+		v[i + 1] = v[i] + 1;
+	}
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px; border: 0px;">
+Dumping instructions for function :: _Z5doax1v
+entry
+[0]  %v = alloca [10 x i32], align 16
+[1]  %arrayidx = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 0
+[2]  store i32 0, i32* %arrayidx, align 16
+[3]  br label %for.cond
+for.cond
+[4]  %i.0 = phi i32 [ 1, %entry ], [ %inc, %for.inc ]
+[5]  %cmp = icmp slt i32 %i.0, 10
+[6]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[7]  %idxprom = sext i32 %i.0 to i64
+[8]  %arrayidx1 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom
+[9]  %0 = load i32, i32* %arrayidx1, align 4
+[10]  %add = add nsw i32 %0, 1
+[11]  %add2 = add nsw i32 %i.0, 1
+[12]  %idxprom3 = sext i32 %add2 to i64
+[13]  %arrayidx4 = getelementptr inbounds [10 x i32], [10 x i32]* %v, i64 0, i64 %idxprom3
+[14]  store i32 %add, i32* %arrayidx4, align 4
+[15]  br label %for.inc
+for.inc
+[16]  %inc = add nsw i32 %i.0, 1
+[17]  br label %for.cond
+for.end
+[18]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax2v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+		<tr><td colspan=3>DOACROSS 3</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		100
+
+void doax3() {
+	int v[N];
+
+	v[0] = 0;
+	v[1] = 1;
+	for (int i=2; i&lt;N; i++) {
+		v[i] = v[i-1] + v[i-2];
+	}
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax3v
+entry
+[0]  %v = alloca [100 x i32], align 16
+[1]  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 0
+[2]  store i32 0, i32* %arrayidx, align 16
+[3]  %arrayidx1 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 1
+[4]  store i32 1, i32* %arrayidx1, align 4
+[5]  br label %for.cond
+for.cond
+[6]  %i.0 = phi i32 [ 2, %entry ], [ %inc, %for.inc ]
+[7]  %cmp = icmp slt i32 %i.0, 100
+[8]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[9]  %sub = sub nsw i32 %i.0, 1
+[10]  %idxprom = sext i32 %sub to i64
+[11]  %arrayidx2 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom
+[12]  %0 = load i32, i32* %arrayidx2, align 4
+[13]  %sub3 = sub nsw i32 %i.0, 2
+[14]  %idxprom4 = sext i32 %sub3 to i64
+[15]  %arrayidx5 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom4
+[16]  %1 = load i32, i32* %arrayidx5, align 4
+[17]  %add = add nsw i32 %0, %1
+[18]  %idxprom6 = sext i32 %i.0 to i64
+[19]  %arrayidx7 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom6
+[20]  store i32 %add, i32* %arrayidx7, align 4
+[21]  br label %for.inc
+for.inc
+[22]  %inc = add nsw i32 %i.0, 1
+[23]  br label %for.cond
+for.end
+[24]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax3v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+		<tr><td colspan=3>DOACROSS 4</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		100
+
+void doax4() {
+	int v[N];
+
+	v[0] = 0;
+	for (int i=1, x=0; i&lt;N; i++) {
+		if (i % 2)
+			x = v[i-1];
+		else
+			x = i;
+
+		v[i] = x;
+	}
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax4v
+entry
+[0]  %v = alloca [100 x i32], align 16
+[1]  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 0
+[2]  store i32 0, i32* %arrayidx, align 16
+[3]  br label %for.cond
+for.cond
+[4]  %i.0 = phi i32 [ 1, %entry ], [ %inc, %for.inc ]
+[5]  %cmp = icmp slt i32 %i.0, 100
+[6]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[7]  %rem = srem i32 %i.0, 2
+[8]  %tobool = icmp ne i32 %rem, 0
+[9]  br i1 %tobool, label %if.then, label %if.else
+if.then
+[10]  %sub = sub nsw i32 %i.0, 1
+[11]  %idxprom = sext i32 %sub to i64
+[12]  %arrayidx1 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom
+[13]  %0 = load i32, i32* %arrayidx1, align 4
+[14]  br label %if.end
+if.else
+[15]  br label %if.end
+if.end
+[16]  %x.0 = phi i32 [ %0, %if.then ], [ %i.0, %if.else ]
+[17]  %idxprom2 = sext i32 %i.0 to i64
+[18]  %arrayidx3 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom2
+[19]  store i32 %x.0, i32* %arrayidx3, align 4
+[20]  br label %for.inc
+for.inc
+[21]  %inc = add nsw i32 %i.0, 1
+[22]  br label %for.cond
+for.end
+[23]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax4v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOACROSS 5</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		100
+
+void doax5() {
+	int v[N];
+
+	v[0] = 0;
+	v[1] = 1;
+	for (int i=2, x=0; i&lt;N; i++) {
+		if (i % 2)
+			x = v[i-1];
+		else
+			x = v[i-2];
+
+		v[i] = x;
+	}
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax4v
+entry
+[0]  %v = alloca [100 x i32], align 16
+[1]  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 0
+[2]  store i32 0, i32* %arrayidx, align 16
+[3]  br label %for.cond
+for.cond
+[4]  %i.0 = phi i32 [ 1, %entry ], [ %inc, %for.inc ]
+[5]  %cmp = icmp slt i32 %i.0, 100
+[6]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[7]  %rem = srem i32 %i.0, 2
+[8]  %tobool = icmp ne i32 %rem, 0
+[9]  br i1 %tobool, label %if.then, label %if.else
+if.then
+[10]  %sub = sub nsw i32 %i.0, 1
+[11]  %idxprom = sext i32 %sub to i64
+[12]  %arrayidx1 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom
+[13]  %0 = load i32, i32* %arrayidx1, align 4
+[14]  br label %if.end
+if.else
+[15]  br label %if.end
+if.end
+[16]  %x.0 = phi i32 [ %0, %if.then ], [ %i.0, %if.else ]
+[17]  %idxprom2 = sext i32 %i.0 to i64
+[18]  %arrayidx3 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom2
+[19]  store i32 %x.0, i32* %arrayidx3, align 4
+[20]  br label %for.inc
+for.inc
+[21]  %inc = add nsw i32 %i.0, 1
+[22]  br label %for.cond
+for.end
+[23]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax5v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOACROSS 6</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		100
+
+void doax6() {
+	int v[N];
+
+	for (int i=0; i&lt;N; i++) {
+		v[i] = v[N/2] + 1;
+	}
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax6v
+entry
+[0]  %v = alloca [100 x i32], align 16
+[1]  br label %for.cond
+for.cond
+[2]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[3]  %cmp = icmp slt i32 %i.0, 100
+[4]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[5]  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 50
+[6]  %0 = load i32, i32* %arrayidx, align 8
+[7]  %add = add nsw i32 %0, 1
+[8]  %idxprom = sext i32 %i.0 to i64
+[9]  %arrayidx1 = getelementptr inbounds [100 x i32], [100 x i32]* %v, i64 0, i64 %idxprom
+[10]  store i32 %add, i32* %arrayidx1, align 4
+[11]  br label %for.inc
+for.inc
+[12]  %inc = add nsw i32 %i.0, 1
+[13]  br label %for.cond
+for.end
+[14]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax6v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+
+		<tr><td colspan=3>DOACROSS 7</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+class node {
+public:
+	int value;
+	node* next;
+}; 
+
+int doax7(node* head) {
+	int sum = 0;
+
+	while (head != NULL) {
+		sum = sum + head-&gt;value;
+		head = head-&gt;next;
+	}
+
+	return sum;
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax7P4node
+entry
+[0]  br label %while.cond
+while.cond
+[1]  %sum.0 = phi i32 [ 0, %entry ], [ %add, %while.body ]
+[2]  %head.addr.0 = phi %class.node* [ %head, %entry ], [ %1, %while.body ]
+[3]  %cmp = icmp ne %class.node* %head.addr.0, null
+[4]  br i1 %cmp, label %while.body, label %while.end
+while.body
+[5]  %value = getelementptr inbounds %class.node, %class.node* %head.addr.0, i32 0, i32 0
+[6]  %0 = load i32, i32* %value, align 8
+[7]  %add = add nsw i32 %sum.0, %0
+[8]  %next = getelementptr inbounds %class.node, %class.node* %head.addr.0, i32 0, i32 1
+[9]  %1 = load %class.node*, %class.node** %next, align 8
+[10]  br label %while.cond
+while.end
+[11]  ret i32 %sum.0
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax7P4node.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+
+
+		<tr><td colspan=3>DOACROSS 8</td></tr>
+		<tr>
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+/**
+ * Example of DOAX loop.
+ * Author: Divino Cesar <divcesar@gmail.com>
+ */
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+#define N 		1000
+
+void doax8() {
+	int v[N] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+	for (int i=0; i<10; i++) {
+		v[ v[i] ] = i;
+	}
+}
+</pre>
+			</td>
+
+			<td style="padding: 20px;" valign=top>
+<pre class="prettyprint lang-cpp" style="font-size: 0.8em; border: 0px;">
+Dumping instructions for function :: _Z5doax8v
+entry
+[0]  %v = alloca [1000 x i32], align 16
+[1]  %0 = bitcast [1000 x i32]* %v to i8*
+[2]  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %0, i8* bitcast ([1000 x i32]* @_ZZ5doax8vE1v to i8*), i64 4000, i32 16, i1 false)
+[3]  br label %for.cond
+for.cond
+[4]  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+[5]  %cmp = icmp slt i32 %i.0, 10
+[6]  br i1 %cmp, label %for.body, label %for.end
+for.body
+[7]  %idxprom = sext i32 %i.0 to i64
+[8]  %arrayidx = getelementptr inbounds [1000 x i32], [1000 x i32]* %v, i64 0, i64 %idxprom
+[9]  %1 = load i32, i32* %arrayidx, align 4
+[10]  %idxprom1 = sext i32 %1 to i64
+[11]  %arrayidx2 = getelementptr inbounds [1000 x i32], [1000 x i32]* %v, i64 0, i64 %idxprom1
+[12]  store i32 %i.0, i32* %arrayidx2, align 4
+[13]  br label %for.inc
+for.inc
+[14]  %inc = add nsw i32 %i.0, 1
+[15]  br label %for.cond
+for.end
+[16]  ret void
+</pre>
+			</td>
+
+			<td style="padding: 20px; text-align: center;"><img src="_Z5doax8v.dot.png" width="500em" /></td>
+		</tr>
+		<tr><td colspan=3 height=50>&nbsp;</td></tr>
+
+
+
+	</table>
+
+</body>
