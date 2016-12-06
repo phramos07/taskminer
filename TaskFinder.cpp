@@ -1,27 +1,4 @@
-#include "llvm/ADT/Statistic.h"
-#include "llvm/IR/Function.h"
-#include "llvm/Pass.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/Debug.h"
-
-#include "ControlDependenceGraph.h"
-#include "ProgramDependenceGraph.h"
-#include "llvm/IR/InstIterator.h"
-#include "llvm/Analysis/AliasAnalysis.h"
-#include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Analysis/ScalarEvolution.h"
-#include "llvm/Analysis/ScalarEvolutionExpressions.h"
-#include "llvm/Analysis/ValueTracking.h"
-#include "llvm/Analysis/DependenceAnalysis.h"
-#include "llvm/Analysis/DominanceFrontier.h"
-#include "llvm/Analysis/PostDominators.h"
-using namespace llvm;
-
-#include <set>
-#include <map>
-#include <string>
-#include <fstream>
-#include <iomanip>
+#include "TaskFinder.h"
 
 INITIALIZE_PASS_BEGIN(DependenceAnalysisWrapperPass, "TaskFinder", "Run the TaskFinder algorithm", true, true)
 INITIALIZE_PASS_DEPENDENCY(LoopInfoWrapperPass)
@@ -33,28 +10,6 @@ INITIALIZE_PASS_DEPENDENCY(PostDominatorTreeWrapperPass);
 INITIALIZE_PASS_END(DependenceAnalysisWrapperPass, "TaskFinder", "Run the TaskFinder algorithm", true, true)
 
 namespace {
-	// Only edge type are necessary for now. We don't keep track of distances.
-	enum DependenceType {RAR, WAW, RAW, WAR, CTR, SCA, RAWLC};
-
-	inline std::string getDependenceName(DependenceType V) {
-		switch (V) {
-			case RAR: return "RAR";
-			case RAWLC: return "RAW*";
-			case WAW: return "WAW";
-			case RAW: return "RAW";
-			case WAR: return "WAR";
-			case CTR: return "CTR";
-			case SCA: return "SCA";
-			default: return std::to_string(V);
-		}
-	}
-
-	inline llvm::raw_ostream & operator<<(llvm::raw_ostream & Str, DependenceType V) {
-		return Str << getDependenceName(V);
-	}
-
-
-
 	struct TaskFinder : public FunctionPass {
 		// Pass identification placeholder - required by LLVM
 		static char ID;
