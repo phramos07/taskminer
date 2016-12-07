@@ -18,9 +18,9 @@
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
 		<tr>
 			<td colspan=3>
-				<b>Programs were compiled using:</b> clang++-3.9 -emit-llvm -S source.cpp -o source.cpp.ll
+				<b>Programs were compiled using:</b> clang++-3.7 -emit-llvm -S source.cpp -o source.cpp.ll
 				<br/>
-				<b>Graphs were created using:</b> opt -disable-opt -load LLVMTaskFinder.so -mem2reg -TaskFinder source.cpp.ll
+				<b>Graphs were created using:</b> opt -disable-opt -load $OBJ_ROOT/LLVMTaskMiner.so -mem2reg -TaskMiner source.cpp.ll
 			</td>
 		</tr>
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
@@ -71,10 +71,9 @@ for.end
 </pre>
 			</td>
 
-			<td style="padding: 20px; text-align: center;"><img src="_Z6doall1v.dot.png" width="450em" /></td>
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall1v.dot.png" /></td>
 		</tr>
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
-
 
 
 		<tr><td colspan=3>DOALL 2</td></tr>
@@ -140,7 +139,7 @@ for.end8
 </pre>
 			</td>
 
-			<td style="padding: 20px; text-align: center;"><img src="_Z6doall2v.dot.png" width="500em" /></td>
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall2v.dot.png" /></td>
 		</tr>
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
 
@@ -194,10 +193,9 @@ for.end
 </pre>
 			</td>
 
-			<td style="padding: 20px; text-align: center;"><img src="_Z6doall3v.dot.png" width="500em" /></td>
+			<td style="padding: 20px; text-align: center;"><img src="_Z6doall3v.dot.png" /></td>
 		</tr>
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
-
 
 		<tr><td colspan=3>DOALL 4</td></tr>
 		<tr>
@@ -733,9 +731,6 @@ for.end
 			<td style="padding: 20px; text-align: center;"><img src="_Z7doall11v.dot.png" width="500em" /></td>
 		</tr>
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
-
-
-		
 
 
 	</table>

@@ -1,21 +1,22 @@
 #ifndef PROGRAM_DEPENDENCE_GRAPH_H
 #define PROGRAM_DEPENDENCE_GRAPH_H
 
-//#include "llvm/ADT/Statistic.h"
-//#include "llvm/IR/Function.h"
-//#include "llvm/Pass.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/ADT/Statistic.h"
+#include "llvm/IR/Function.h"
+#include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
-//#include "llvm/Support/Debug.h"
+#include "llvm/Support/Debug.h"
 
 #include "llvm/IR/InstIterator.h"
-//#include "llvm/Analysis/AliasAnalysis.h"
-//#include "llvm/Analysis/LoopInfo.h"
-//#include "llvm/Analysis/ScalarEvolution.h"
-//#include "llvm/Analysis/ScalarEvolutionExpressions.h"
-//#include "llvm/Analysis/ValueTracking.h"
-//#include "llvm/Analysis/DependenceAnalysis.h"
-//#include "llvm/Analysis/DominanceFrontier.h"
-//#include "llvm/Analysis/PostDominators.h"
+#include "llvm/Analysis/AliasAnalysis.h"
+#include "llvm/Analysis/LoopInfo.h"
+#include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/Analysis/ScalarEvolutionExpressions.h"
+#include "llvm/Analysis/ValueTracking.h"
+#include "llvm/Analysis/DependenceAnalysis.h"
+#include "llvm/Analysis/DominanceFrontier.h"
+#include "llvm/Analysis/PostDominators.h"
 
 using namespace llvm;
 
@@ -27,35 +28,50 @@ using namespace llvm;
 // Only edge type are necessary for now. We don't keep track of distances.
 enum DependenceType {RAR, WAW, RAW, WAR, CTR, SCA, RAWLC};
 
-extern std::string getDependenceName(DependenceType V);
+// Currently GraphNode is just a wrap around Instruction*, however
+// I imagine that in the future we will want to add other properties
+// to PDG nodes which is what motivated the creation of this class.
+class GraphNode {
+public:
+	Instruction* instr;
 
-//llvm::raw_ostream & operator<<(llvm::raw_ostream & Str, DependenceType V) {
-//	return Str << getDependenceName(V);
-//}
+	GraphNode(Instruction* _instr) : instr(_instr)
+	{}
+};
+
+// Represent an edge in the PDG. We store whether the edge is a data
+// or control dependence as well as the source and sink of the dependence.
+class GraphEdge {
+public:
+	DependenceType type;
+	GraphNode* src;
+	GraphNode* dst;
+
+	GraphEdge(GraphNode* _src, GraphNode* _dst, DependenceType _type) : type(_type), src(_src), dst(_dst)
+	{}
+
+
+	std::string edgeLabel() {
+		switch (type) {
+			case RAR: return "RAR";
+			case RAWLC: return "RAW*";
+			case WAW: return "WAW";
+			case RAW: return "RAW";
+			case WAR: return "WAR";
+			case CTR: return "CTR";
+			case SCA: {
+				if (src->instr->hasName())
+					return src->instr->getName();
+				else
+					return "SCA";
+			}
+			default: return std::to_string(type);
+		}
+	}
+};
+
 
 class ProgramDependenceGraph {
-	// Currently GraphNode is just a wrap around Instruction*, however
-	// I imagine that in the future we will want to add other properties
-	// to PDG nodes which is what motivated the creation of this class.
-	class GraphNode {
-	public:
-		Instruction* instr;
-
-		GraphNode(Instruction* _instr) : instr(_instr)
-		{}
-	};
-
-	// Represent an edge in the PDG. We store whether the edge is a data
-	// or control dependence as well as the source and sink of the dependence.
-	class GraphEdge {
-	public:
-		DependenceType type;
-		GraphNode* src;
-		GraphNode* dst;
-
-		GraphEdge(GraphNode* _src, GraphNode* _dst, DependenceType _type) : type(_type), src(_src), dst(_dst)
-		{}
-	};
 
 	// Name of the function that this graph was created from. Just for reference/debugging/printing.
 	std::string functionName;
@@ -165,7 +181,7 @@ class ProgramDependenceGraph {
 						if (dst->type == CTR)
 							dotStream << "\t\"" << instrToNode[src.first->instr].first << "\" -> \"" << instrToNode[dst->dst->instr].first << "\" [style=dotted];\n";
 						else
-							dotStream << "\t\"" << instrToNode[src.first->instr].first << "\" -> \"" << instrToNode[dst->dst->instr].first << "\" [label=\"" << getDependenceName(dst->type)  << "\"];\n";
+							dotStream << "\t\"" << instrToNode[src.first->instr].first << "\" -> \"" << instrToNode[dst->dst->instr].first << "\" [label=\"" << dst->edgeLabel() << "\"];\n";
 					}
 
 					dotStream << "\n";

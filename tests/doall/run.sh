@@ -9,7 +9,7 @@ do
 	printf "done. ";
 
 	printf "Creating graph...";
-	$OBJ_ROOT/bin/opt -disable-opt -load LLVMTaskFinder.so -mem2reg -TaskFinder $filename.ll >> $filename.out 2>&1
+	$OBJ_ROOT/bin/opt -disable-opt -load $OBJ_ROOT/lib/LLVMTaskMiner.so -mem2reg -TaskMiner $filename.ll >> $filename.out 2>&1
 	printf "done.\n";
 done
 

@@ -22,9 +22,9 @@
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>
 		<tr>
 			<td colspan=3>
-				<b>Programs were compiled using:</b> clang++-3.9 -emit-llvm -S source.cpp -o source.cpp.ll
+				<b>Programs were compiled using:</b> clang++-3.7 -emit-llvm -S source.cpp -o source.cpp.ll
 				<br/>
-				<b>Graphs were created using:</b> opt -disable-opt -load LLVMTaskFinder.so -mem2reg -TaskFinder source.cpp.ll
+				<b>Graphs were created using:</b> opt -disable-opt -load $OBJ_ROOT/lib/LLVMTaskMiner.so -mem2reg -TaskMiner source.cpp.ll
 			</td>
 		</tr>
 		<tr><td colspan=3 height=50>&nbsp;</td></tr>

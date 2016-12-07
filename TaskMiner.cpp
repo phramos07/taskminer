@@ -1,29 +1,22 @@
-#include "TaskFinder.h"
-
-INITIALIZE_PASS_BEGIN(DependenceAnalysisWrapperPass, "TaskFinder", "Run the TaskFinder algorithm", true, true)
-INITIALIZE_PASS_DEPENDENCY(LoopInfoWrapperPass)
-INITIALIZE_PASS_DEPENDENCY(ScalarEvolutionWrapperPass)
-INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)
-INITIALIZE_PASS_DEPENDENCY(DependenceAnalysisWrapperPass)
-INITIALIZE_PASS_DEPENDENCY(DominanceFrontierWrapperPass);
-INITIALIZE_PASS_DEPENDENCY(PostDominatorTreeWrapperPass);
-INITIALIZE_PASS_END(DependenceAnalysisWrapperPass, "TaskFinder", "Run the TaskFinder algorithm", true, true)
+#include "TaskMiner.h"
 
 namespace {
-	struct TaskFinder : public FunctionPass {
+	struct TaskMiner : public FunctionPass {
 		// Pass identification placeholder - required by LLVM
 		static char ID;
-		TaskFinder() : FunctionPass(ID) {}
+		TaskMiner() : FunctionPass(ID) {}
 
 		void getAnalysisUsage(AnalysisUsage &AU) const {
 			AU.setPreservesAll();
-			AU.addRequired<PostDominatorTreeWrapperPass>();
-			AU.addRequiredTransitive<DependenceAnalysisWrapperPass>();
+
+			AU.addRequired<PostDominatorTree>();
+			AU.addRequired<DependenceAnalysis>();
+			AU.addRequired<DominanceFrontier>();
 		}
 
 		bool runOnFunction(Function &F) override {
-			auto &DI = getAnalysis<DependenceAnalysisWrapperPass>().getDI();
-			auto &PDT = getAnalysis<PostDominatorTreeWrapperPass>().getPostDomTree();
+			auto &DI = getAnalysis<DependenceAnalysis>();
+			auto &PDT = getAnalysis<PostDominatorTree>();
 
 			// This is going to represent the graph
 			ProgramDependenceGraph g(F.getName());
@@ -119,5 +112,5 @@ namespace {
 	};
 }
 
-char TaskFinder::ID = 0;
-static RegisterPass<TaskFinder> X("TaskFinder", "Run the TaskFinder algorithm");
+char TaskMiner::ID = 0;
+static RegisterPass<TaskMiner> X("TaskMiner", "Run the TaskMiner algorithm", false, false);
