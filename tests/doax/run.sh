@@ -1,5 +1,10 @@
 #!/bin/bash
 
+command -v $OBJ_ROOT/bin/clang++ >/dev/null 2>&1 || { echo >&2 "Please set the correct path to clang++ in the script. Aborting."; exit 1; }
+command -v $OBJ_ROOT/bin/opt >/dev/null 2>&1 || { echo >&2 "Please set the correct path to opt in the script. Aborting."; exit 1; }
+
+echo "#############################"
+echo "Compiling all cpp files:"
 for filename in `ls *.cpp`
 do
 	printf "%s: \n\t" $filename;
