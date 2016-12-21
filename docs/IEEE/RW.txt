@@ -1,0 +1,18 @@
+* Paper: The Tao of Parallelism in Algorithms
+[Insights]
+- Parallelism in irregular applications depends on data.
+- Dependence graph is not able to find this parallelism.
+- Proposes new primitives to code algorithms.
+[Similarities]
+- Seek to find parallelism in irregular applications.
+- "Dependences between activities in irregular algorithms are usu- ally complex
+   functions of runtime data values, so they cannot be usefully captured by a
+   static dependence graph."
+- We agree with the above sentence. Our approach uses a static analysis to
+  detect tasks, but it is up to the runtime if we can run that task in
+  parallel with other tasks already in flight.
+- We can use Delaunay Triangulation as an example of program that we can
+  parallelize.
+[Differences]
+- Requires a new language, or at least new abstractions, to write parallel
+  algorithms. Our approach should be totally automatic.
