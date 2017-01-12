@@ -25,6 +25,18 @@ We need to write our abstract here.
 \section{Introduction}
 \label{sec:intro}
 
+The key contribution of this paper is a technique to run programs in parallel.
+This technique consists of a data-flow like hardware,
+a runtime environment that detects dependences between data, plus a
+static analysis that finds potentially dependent code.
+Instructions are scheduled to run in parallel if they do not contain data
+dependences, which are detected on the fly by the runtime environment.
+However, not every pair of instructions need to be checked -- only those pairs
+that a static analysis points as potentially interdependent.
+The final product of this combination of hardware, static analysis, runtime checks
+and code generator is a high-performant framework that lets us run algorithms that
+are traditionally difficult to parallelize.
+
 \section{Overview}
 \label{sec:ovf}
 
