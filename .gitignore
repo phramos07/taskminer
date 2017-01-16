@@ -4,3 +4,4 @@
 *.out
 *.ll
 *.dot
+Makefile

@@ -28,6 +28,7 @@ namespace llvm
 		ValueAccessType args;
 		void addValue(Value* V, AccessType T=AccessType::UNKNOWN);
 		AccessType getTypeFromInst(Instruction* I);
+		void matchFormalParametersWithArguments();
 
 	public:
 		static char ID;
