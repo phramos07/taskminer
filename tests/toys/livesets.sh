@@ -1,0 +1,1 @@
+opt -load LLVMTaskMiner.dylib $1 -disable-output -livesets

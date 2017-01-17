@@ -96,7 +96,7 @@ bool DepAnalysis::runOnFunction(Function &F) {
 		}
 	}
 
-	G->dumpToDot(F);
+	// G->dumpToDot(F);
 
 	return true;
 }
