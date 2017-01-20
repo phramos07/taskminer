@@ -33,7 +33,7 @@ bool TaskMiner::runOnFunction(Function &F)
 	{
 		//If BB is in loop, then we can try to get the induction var from this loop
 		Loop* loop = LI->getLoopFor(BB);
-		if (loop && !loop->isAnnotatedParallel())
+		if (loop)
 		{
 			if (loops.find(loop) == loops.end()) //If the loop hasn't been added to the loopdata yet
 			{
@@ -65,6 +65,7 @@ bool TaskMiner::runOnFunction(Function &F)
 	//Now go through the loops and extract which sort of task it is. for now
 	//we don't have any heuristics to decide whether it will be a code fragment
 	//task or a mere function call task. So we're focused only on function calls.
+	Function* calledF;
 	for (auto &l : loops)
 	{
 		for (auto &bb : l.second.innerBBs)
@@ -73,7 +74,10 @@ bool TaskMiner::runOnFunction(Function &F)
 			{
 				if (CallInst* CI = dyn_cast<CallInst>(func))
 				{
-					if ((CI->getModule() == F.getParent()) && !CI->getCalledFunction()->isIntrinsic())
+					calledF = CI->getCalledFunction();
+					if ((CI->getModule() == F.getParent()) 
+								&& !calledF->isDeclaration() 
+								&& !calledF->isIntrinsic())
 							{
 								Task* functionCallTask = new FunctionCallTask(l.first, CI);
 								tasks.push_back(functionCallTask);
@@ -125,7 +129,17 @@ std::set<Value*> Task::getLiveINOUT() const { return liveINOUT; }
 
 AccessType Task::getTypeFromInst(Instruction* I)
 {
-	if (dyn_cast<LoadInst>(I)) return AccessType::READ;
+	if (dyn_cast<GetElementPtrInst>(I))
+	{
+		AccessType T = AccessType::UNKNOWN;
+		for (auto user : I->users())
+		{
+			if (Instruction* inst = dyn_cast<Instruction>(user))
+				T = T | getTypeFromInst(inst);
+		}
+		return T;
+	}
+	else if (dyn_cast<LoadInst>(I)) return AccessType::READ;
 	else if (dyn_cast<StoreInst>(I)) return AccessType::WRITE;
 	else return AccessType::UNKNOWN;
 }
