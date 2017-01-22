@@ -1,0 +1,127 @@
+; ModuleID = 'toy2/toy2.c.bc'
+target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-macosx10.11.0"
+
+@.str = private unnamed_addr constant [27 x i8] c"[one_read] a = %d\0A c = %d\0A\00", align 1
+
+; Function Attrs: nounwind ssp uwtable
+define void @one_read(i32* %a, i32* %b, i32* %c) #0 {
+entry:
+  call void @llvm.dbg.value(metadata i32* %a, i64 0, metadata !16, metadata !17), !dbg !18
+  call void @llvm.dbg.value(metadata i32* %b, i64 0, metadata !19, metadata !17), !dbg !20
+  call void @llvm.dbg.value(metadata i32* %c, i64 0, metadata !21, metadata !17), !dbg !22
+  store i32 100, i32* %a, align 4, !dbg !23
+  store i32 100, i32* %b, align 4, !dbg !24
+  %tmp3 = load i32, i32* %a, align 4, !dbg !25
+  %tmp5 = load i32, i32* %c, align 4, !dbg !26
+  %call = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str, i32 0, i32 0), i32 %tmp3, i32 %tmp5), !dbg !27
+  ret void, !dbg !28
+}
+
+; Function Attrs: nounwind readnone
+declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
+
+declare i32 @printf(i8*, ...) #2
+
+; Function Attrs: nounwind ssp uwtable
+define i32 @main() #0 {
+entry:
+  %u = alloca [100000 x i32], align 16
+  call void @llvm.dbg.value(metadata i32 100000, i64 0, metadata !29, metadata !17), !dbg !31
+  call void @llvm.dbg.declare(metadata [100000 x i32]* %u, metadata !32, metadata !17), !dbg !36
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !37, metadata !17), !dbg !40
+  br label %for.cond, !dbg !41
+
+for.cond:                                         ; preds = %for.inc, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+  %cmp = icmp slt i32 %i.0, 100000, !dbg !42
+  br i1 %cmp, label %for.body, label %for.end, !dbg !44
+
+for.body:                                         ; preds = %for.cond
+  %idxprom = sext i32 %i.0 to i64, !dbg !45
+  %arrayidx = getelementptr inbounds [100000 x i32], [100000 x i32]* %u, i32 0, i64 %idxprom, !dbg !45
+  %add = add nsw i32 %i.0, 1, !dbg !47
+  %idxprom1 = sext i32 %add to i64, !dbg !48
+  %arrayidx2 = getelementptr inbounds [100000 x i32], [100000 x i32]* %u, i32 0, i64 %idxprom1, !dbg !48
+  %add3 = add nsw i32 %i.0, 2, !dbg !49
+  %idxprom4 = sext i32 %add3 to i64, !dbg !50
+  %arrayidx5 = getelementptr inbounds [100000 x i32], [100000 x i32]* %u, i32 0, i64 %idxprom4, !dbg !50
+  call void @one_read(i32* %arrayidx, i32* %arrayidx2, i32* %arrayidx5), !dbg !51
+  br label %for.inc, !dbg !52
+
+for.inc:                                          ; preds = %for.body
+  %inc = add nsw i32 %i.0, 1, !dbg !53
+  call void @llvm.dbg.value(metadata i32 %inc, i64 0, metadata !37, metadata !17), !dbg !40
+  br label %for.cond, !dbg !54
+
+for.end:                                          ; preds = %for.cond
+  ret i32 0, !dbg !55
+}
+
+; Function Attrs: nounwind readnone
+declare void @llvm.dbg.value(metadata, i64, metadata, metadata) #1
+
+attributes #0 = { nounwind ssp uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="core2" "target-features"="+cx16,+sse,+sse2,+sse3,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind readnone }
+attributes #2 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="core2" "target-features"="+cx16,+sse,+sse2,+sse3,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!12, !13, !14}
+!llvm.ident = !{!15}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "clang version 3.7.0 (tags/RELEASE_370/final 268275)", isOptimized: false, runtimeVersion: 0, emissionKind: 1, enums: !2, subprograms: !3)
+!1 = !DIFile(filename: "toy2/toy2.c", directory: "/Users/pedroramos/programs/llvm/lib/Transforms/taskminer/tests/toys")
+!2 = !{}
+!3 = !{!4, !9}
+!4 = !DISubprogram(name: "one_read", scope: !1, file: !1, line: 21, type: !5, isLocal: false, isDefinition: true, scopeLine: 21, flags: DIFlagPrototyped, isOptimized: false, function: void (i32*, i32*, i32*)* @one_read, variables: !2)
+!5 = !DISubroutineType(types: !6)
+!6 = !{null, !7, !7, !7}
+!7 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !8, size: 64, align: 64)
+!8 = !DIBasicType(name: "int", size: 32, align: 32, encoding: DW_ATE_signed)
+!9 = !DISubprogram(name: "main", scope: !1, file: !1, line: 27, type: !10, isLocal: false, isDefinition: true, scopeLine: 27, isOptimized: false, function: i32 ()* @main, variables: !2)
+!10 = !DISubroutineType(types: !11)
+!11 = !{!8}
+!12 = !{i32 2, !"Dwarf Version", i32 2}
+!13 = !{i32 2, !"Debug Info Version", i32 3}
+!14 = !{i32 1, !"PIC Level", i32 2}
+!15 = !{!"clang version 3.7.0 (tags/RELEASE_370/final 268275)"}
+!16 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "a", arg: 1, scope: !4, file: !1, line: 21, type: !7)
+!17 = !DIExpression()
+!18 = !DILocation(line: 21, column: 20, scope: !4)
+!19 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "b", arg: 2, scope: !4, file: !1, line: 21, type: !7)
+!20 = !DILocation(line: 21, column: 28, scope: !4)
+!21 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "c", arg: 3, scope: !4, file: !1, line: 21, type: !7)
+!22 = !DILocation(line: 21, column: 36, scope: !4)
+!23 = !DILocation(line: 22, column: 5, scope: !4)
+!24 = !DILocation(line: 23, column: 5, scope: !4)
+!25 = !DILocation(line: 24, column: 41, scope: !4)
+!26 = !DILocation(line: 24, column: 45, scope: !4)
+!27 = !DILocation(line: 24, column: 2, scope: !4)
+!28 = !DILocation(line: 25, column: 1, scope: !4)
+!29 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "N", scope: !9, file: !1, line: 28, type: !30)
+!30 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !8)
+!31 = !DILocation(line: 28, column: 12, scope: !9)
+!32 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "u", scope: !9, file: !1, line: 29, type: !33)
+!33 = !DICompositeType(tag: DW_TAG_array_type, baseType: !8, size: 3200000, align: 32, elements: !34)
+!34 = !{!35}
+!35 = !DISubrange(count: 100000)
+!36 = !DILocation(line: 29, column: 6, scope: !9)
+!37 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "i", scope: !38, file: !1, line: 34, type: !8)
+!38 = distinct !DILexicalBlock(scope: !39, file: !1, line: 34, column: 3)
+!39 = distinct !DILexicalBlock(scope: !9, file: !1, line: 33, column: 2)
+!40 = !DILocation(line: 34, column: 11, scope: !38)
+!41 = !DILocation(line: 34, column: 7, scope: !38)
+!42 = !DILocation(line: 34, column: 17, scope: !43)
+!43 = distinct !DILexicalBlock(scope: !38, file: !1, line: 34, column: 3)
+!44 = !DILocation(line: 34, column: 3, scope: !38)
+!45 = !DILocation(line: 37, column: 14, scope: !46)
+!46 = distinct !DILexicalBlock(scope: !43, file: !1, line: 35, column: 3)
+!47 = !DILocation(line: 37, column: 24, scope: !46)
+!48 = !DILocation(line: 37, column: 21, scope: !46)
+!49 = !DILocation(line: 37, column: 33, scope: !46)
+!50 = !DILocation(line: 37, column: 30, scope: !46)
+!51 = !DILocation(line: 37, column: 4, scope: !46)
+!52 = !DILocation(line: 38, column: 3, scope: !46)
+!53 = !DILocation(line: 34, column: 22, scope: !43)
+!54 = !DILocation(line: 34, column: 3, scope: !43)
+!55 = !DILocation(line: 42, column: 2, scope: !9)

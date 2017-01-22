@@ -1,32 +1,109 @@
-#ifndef TASK_FINDER_H
-#define TASK_FINDER_H
+//===------------------------------- TaskMiner.h --------------------------===//
+//
+// Author: Pedro Ramos (pedroramos@dcc.ufmg.br)
+//
+//===----------------------------------------------------------------------===//
+//
+//                           The LLVM Compiler Infrastructure
+//
+//
+//===----------------------------------------------------------------------===//
+#ifndef TASKMINER_H
+#define TASKMINER_H
 
-#include "llvm/ADT/Statistic.h"
-#include "llvm/IR/Function.h"
+//LLVM IMPORTS
 #include "llvm/Pass.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/Debug.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/ADT/SmallSet.h"
 
-#include "ControlDependenceGraph.h"
-#include "ProgramDependenceGraph.h"
-#include "llvm/IR/InstIterator.h"
-#include "llvm/Analysis/AliasAnalysis.h"
-#include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Analysis/ScalarEvolution.h"
-#include "llvm/Analysis/ScalarEvolutionExpressions.h"
-#include "llvm/Analysis/ValueTracking.h"
-#include "llvm/Analysis/DependenceAnalysis.h"
-#include "llvm/Analysis/DominanceFrontier.h"
-#include "llvm/Analysis/PostDominators.h"
+//LOCAL IMPORTS
+#include "DepAnalysis.h"
 
-using namespace llvm;
-
+//STL IMPORTS
+#include <list>
 #include <set>
-#include <map>
+#include <iostream>
 #include <string>
-#include <fstream>
-#include <iomanip>
 
+namespace llvm
+{
+	class Task;
+	class FunctionCallTask;
+	// class NestedLoopTask;
+	// class CodeFragmentTask;
 
+	enum AccessType {UNKNOWN=0, READ=1, WRITE=2, READWRITE=3};
+
+	inline AccessType operator|(AccessType a, AccessType b)
+	{
+		return static_cast<AccessType>(static_cast<int>(a) | static_cast<int>(b)); 
+	}
+
+	class TaskMiner : public FunctionPass
+	{
+	public:
+
+		static char ID;
+		TaskMiner() : FunctionPass(ID) {}
+		~TaskMiner() {};
+		void getAnalysisUsage(AnalysisUsage &AU) const override;
+		bool runOnFunction(Function &func) override;
+		std::list<Task*>* getTasks();
+		Task* getTaskFromParentLoop(Loop* L);
+
+		struct LoopData
+		{
+			Instruction* indVar;
+			std::list<BasicBlock*> innerBBs;
+
+			//Debugginf purposes only
+			void print();
+		};
+
+	private:
+		std::list<Task*> tasks;
+		void resolveInsAndOutsSets();
+	};
+
+	class Task
+	{
+	public:
+		Task(Loop* parent) : parent(parent) {};
+		virtual ~Task() {};
+		Loop* getParent();
+		virtual bool resolveInsAndOutsSets() { return false; };
+		std::set<Value*> getLiveIN() const;
+		std::set<Value*> getLiveOUT() const;
+		std::set<Value*> getLiveINOUT() const;
+
+		//Only for debugging purposes. STDOUT/errs()
+		virtual void print();
+		void printLiveSets();
+
+	protected:
+		Loop* parent;
+		std::set<Value*> liveIN;
+		std::set<Value*> liveOUT;
+		std::set<Value*> liveINOUT;
+		AccessType getTypeFromInst(Instruction* I);
+		std::string accessTypeToStr(AccessType T);	
+	};
+
+	class FunctionCallTask : public Task
+	{
+	public:
+		FunctionCallTask(Loop* parent, CallInst* CI) : Task(parent), functionCall(CI) {};
+		~FunctionCallTask() {};
+		CallInst* getFunctionCall();
+		bool resolveInsAndOutsSets() override;
+		void print() override;
+		
+	private:
+		CallInst* functionCall;
+	};
+
+}
 
 #endif

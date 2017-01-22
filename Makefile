@@ -1,10 +1,11 @@
 LLVM_CONFIG?=$(OBJ_ROOT)/bin/llvm-config
-CXX=g++
+CXX=g
 
 SRC_DIR=./
 PASS_SO=release/libTaskMiner.so
 
 CPP_FILES=$(wildcard $(SRC_DIR)/*.cpp)  
+Add a comment to this line
 OBJ_FILES=$(addprefix $(SRC_DIR)/, $(notdir $(CPP_FILES:.cpp=.o)))
 
 ifeq ($(shell uname),Darwin)
@@ -14,13 +15,13 @@ LOADABLE_MODULE_OPTIONS=-shared -Wl,-O1
 endif
 
 COMMON_FLAGS=-Wall -Wextra -fvisibility=hidden
-CXXFLAGS+=$(COMMON_FLAGS) $(shell $(LLVM_CONFIG) --cxxflags) 
+CXXFLAGS=$(COMMON_FLAGS) $(shell $(LLVM_CONFIG) --cxxflags) 
 
 
-CPP_OPTIONS+=$(CPPFLAGS) $(shell $(LLVM_CONFIG) --cppflags) \
+CPP_OPTIONS=$(CPPFLAGS) $(shell $(LLVM_CONFIG) --cppflags) \
 	     -MD -MP -I$(SRC_DIR) 
 
-LD_OPTIONS+=$(LDFLAGS) $(shell $(LLVM_CONFIG) --ldflags)
+LD_OPTIONS=$(LDFLAGS) $(shell $(LLVM_CONFIG) --ldflags)
 
 default: $(PASS_SO)
 
@@ -35,5 +36,4 @@ $(PASS_SO): $(OBJ_FILES)
 
 clean::
 	$(QUIET)rm -f $(SRC_DIR)/*.o $(PASS_SO)
-
 
