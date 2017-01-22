@@ -1,4 +1,16 @@
-* Paper: The Tao of Parallelism in Algorithms
+* Kreaseck00 - Limits of Task-based Parallelism in Irregular Applications
+[Insights]
+- Speculative Task Parallelism.
+- Use of futures.
+- Execute task speculatively, based on profiling, and rollback if necessary.
+[Similarities]
+- Search for parallelism in irregular loops.
+[Differences]
+- We use a concrete execution model. They use a hypothetical machine.
+- We implement actual parallelization.
+- We do not do speculation.
+
+* Pingali11 - The Tao of Parallelism in Algorithms
 [Insights]
 - Parallelism in irregular applications depends on data.
 - Dependence graph is not able to find this parallelism.
