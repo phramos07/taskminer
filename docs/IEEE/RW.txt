@@ -10,6 +10,15 @@
 - We implement actual parallelization.
 - We do not do speculation.
 
+* Li12 - Automatic Extraction of Coarse-Grained Data-Flow Threads from
+         Imperative Programs
+[Insights]
+- Static analysis to find data-flow parallelism in imperative programs.
+- Optimizations to coarsen the grain of parallelism
+[Differences]
+- Does not seem to have support of the runtime?
+- Does not handle pointers and aggregate types.
+
 * Pingali11 - The Tao of Parallelism in Algorithms
 [Insights]
 - Parallelism in irregular applications depends on data.
