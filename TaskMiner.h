@@ -17,6 +17,7 @@
 #include "llvm/IR/Instruction.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/ADT/SmallSet.h"
+#include "llvm/Support/Casting.h"
 
 //LOCAL IMPORTS
 #include "DepAnalysis.h"
@@ -44,7 +45,6 @@ namespace llvm
 	class TaskMiner : public FunctionPass
 	{
 	public:
-
 		static char ID;
 		TaskMiner() : FunctionPass(ID) {}
 		~TaskMiner() {};
@@ -70,8 +70,16 @@ namespace llvm
 	class Task
 	{
 	public:
-		Task(Loop* parent) : parent(parent) {};
+		enum TaskKind
+		{
+			FCALL_TASK,
+			CFRAGMENT_TASK,
+			NLOOP_TASK
+		};
+
+		Task(TaskKind k, Loop* p) : kind(k), parent(p) {};
 		virtual ~Task() {};
+		TaskKind getKind() const { return kind; };
 		Loop* getParent();
 		virtual bool resolveInsAndOutsSets() { return false; };
 		std::set<Value*> getLiveIN() const;
@@ -89,17 +97,21 @@ namespace llvm
 		std::set<Value*> liveINOUT;
 		AccessType getTypeFromInst(Instruction* I);
 		std::string accessTypeToStr(AccessType T);	
+
+	private:
+		const TaskKind kind;
 	};
 
 	class FunctionCallTask : public Task
 	{
 	public:
-		FunctionCallTask(Loop* parent, CallInst* CI) : Task(parent), functionCall(CI) {};
+		FunctionCallTask(Loop* parent, CallInst* CI) : Task(FCALL_TASK, parent), functionCall(CI) {};
 		~FunctionCallTask() {};
 		CallInst* getFunctionCall();
 		bool resolveInsAndOutsSets() override;
 		void print() override;
-		
+		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; };
+	
 	private:
 		CallInst* functionCall;
 	};

@@ -97,6 +97,8 @@ bool TaskMiner::runOnFunction(Function &F)
 			errs() << "Task #" << i;
 			task->print();
 			i++;
+			if (isa<FunctionCallTask>(task))
+				//anything
 		}
 	#endif
 
