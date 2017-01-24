@@ -100,6 +100,8 @@ bool TaskMiner::runOnFunction(Function &F)
 		}
 	#endif
 
+
+
 	return false;
 }
 
@@ -120,6 +122,11 @@ void TaskMiner::resolveInsAndOutsSets()
 {
 	for (auto &t : tasks)
 		t->resolveInsAndOutsSets();
+}
+
+std::list<Task*>* TaskMiner::getTasks()
+{
+	return &tasks;
 }
 
 Loop* Task::getParent() { return parent; }
