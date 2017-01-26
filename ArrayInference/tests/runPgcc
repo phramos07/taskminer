@@ -1,0 +1,6 @@
+PATH=${PATH}:/opt/pgi/linux86-64/2016/bin
+
+pgcc -acc -lm $1 -o $2
+
+#pgcc -fast -Mipa=fast,inline -Msmartalloc -acc $1 -o $2
+
