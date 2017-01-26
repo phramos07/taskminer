@@ -65,6 +65,7 @@ namespace llvm
 	private:
 		std::list<Task*> tasks;
 		void resolveInsAndOutsSets();
+		DepAnalysis *DA;
 	};
 
 	class Task
@@ -107,9 +108,10 @@ namespace llvm
 	public:
 		FunctionCallTask(Loop* parent, CallInst* CI) : Task(FCALL_TASK, parent), functionCall(CI) {};
 		~FunctionCallTask() {};
-		CallInst* getFunctionCall();
+		CallInst* getFunctionCall() { return functionCall; };
 		bool resolveInsAndOutsSets() override;
 		void print() override;
+		
 		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; };
 	
 	private:

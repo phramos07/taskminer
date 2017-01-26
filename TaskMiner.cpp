@@ -24,6 +24,7 @@ bool TaskMiner::runOnFunction(Function &F)
 {
 	LoopInfoWrapperPass* LIWP = &(getAnalysis<LoopInfoWrapperPass>());
 	LoopInfo *LI = &(LIWP->getLoopInfo());
+	DA = &(getAnalysis<DepAnalysis>());
 	
 	//Store loops refs in here
 	std::map<Loop*, TaskMiner::LoopData> loops;
@@ -192,6 +193,8 @@ void Task::print()
 {
 	printLiveSets();
 }
+
+CallInst* FunctionCallTask::getFunctionCall() { return functionCall; }
 
 void FunctionCallTask::print()
 {
