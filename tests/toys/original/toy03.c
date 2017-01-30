@@ -29,15 +29,10 @@ int main()
 {
 	int u[N];
 	srand(time(NULL));
-	#pragma omp parallel
-	#pragma omp single
+	for(int i=0; i<N; i++)
 	{
-		for(int i=0; i<N; i++)
-		{
-			#pragma omp task
-			u[i] = func();
-		}
+		u[i] = func();
 	}
 
-	return 0;
+	return u[rand()%N];
 }

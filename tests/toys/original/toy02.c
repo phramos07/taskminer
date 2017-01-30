@@ -25,16 +25,10 @@ void one_read(int* a, int* b, int* c) {
 
 int main()
 {
-	#pragma omp parallel
-	#pragma omp single
+	for(int i=0; i<N; i++)
 	{
-		for(int i=0; i<N; i++)
-		{
-			#pragma omp task depend(inout:u[i])
-			one_read(&u[i], &u[i+1], &u[i+2]);
-		}
+		one_read(&u[i], &u[i+1], &u[i+2]);
 	}
 
-	// printf("Finished. %d\n", u[rand() % N]);
 	return 0;
 }
