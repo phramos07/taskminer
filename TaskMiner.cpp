@@ -194,7 +194,7 @@ void Task::print()
 	printLiveSets();
 }
 
-CallInst* FunctionCallTask::getFunctionCall() { return functionCall; }
+//CallInst* FunctionCallTask::getFunctionCall() { return functionCall; }
 
 void FunctionCallTask::print()
 {

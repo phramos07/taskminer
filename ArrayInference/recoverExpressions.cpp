@@ -96,6 +96,7 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
                                                 const DataLayout *DT,
                                                 RecoverCode *RC) {
   Value *V = CI->getCalledValue();
+  CI->dump();
   if (!isa<Function>(V))
     return std::string();
   Function *F = cast<Function>(V);
@@ -109,13 +110,11 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     return output;
   }  
 
-  if (CI->getNumArgOperands() == 0)
-    return output;
-
   // Define if this CALL INST is contained in the knowed tasks well
   // define by Task Miner
   bool isTask = false;
-  for (auto &I: *(this->tm->getTasks())) {
+  
+for (auto &I: *(this->tm->getTasks())) {
     if (FunctionCallTask *FCT = dyn_cast<FunctionCallTask>(I)) {
       if (FCT->getFunctionCall() == CI) {
         isTask = true;
@@ -125,6 +124,9 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   }
   if (isTask == false)
     return output;
+
+  if (CI->getNumArgOperands() == 0)
+    return "\n\n[UNDEF\nVALUE]\n\n";
 
   output = analyzeValue(CI->getArgOperand(0), DT, RC);
   if (output == std::string()) {
@@ -260,7 +262,7 @@ void RecoverExpressions::annotateExternalLoop(Instruction *I) {
 void RecoverExpressions::analyzeFunction(Function *F) {
   const DataLayout DT = F->getParent()->getDataLayout();
   RecoverCode RC;
-  std::string computationName = "TM" + std::to_string(getNewIndex());
+  std::string computationName = "TM" + std::to_string(getIndex());
   RC.setNAME(computationName);
   RC.setRecoverNames(rn);
   RC.initializeNewVars();
@@ -270,6 +272,8 @@ void RecoverExpressions::analyzeFunction(Function *F) {
     for (auto I = BB->begin(), IE = BB->end(); I != IE; I++) {
       if (isa<CallInst>(I)) {
         valid = true;
+        computationName = "TM" + std::to_string(getNewIndex());
+        RC.setNAME(computationName);
         std::string result = analyzeValue(I, &DT, &RC);
         if (result != std::string()) {
           std::string output = std::string();
@@ -282,7 +286,11 @@ void RecoverExpressions::analyzeFunction(Function *F) {
                continue;
             }
           }
-          output += "#pragma omp task depend(inout:" + result + ")\n";
+          if (result != "\n\n[UNDEF\nVALUE]\n\n")
+            output += "#pragma omp task depend(inout:" + result + ")\n";
+          else
+            output += "#pragma omp task\n";
+
           Region *R = rp->getRegionInfo().getRegionFor(BB);
           int line = getLineNo(I);
           Loop *L = this->li->getLoopFor(I->getParent());
