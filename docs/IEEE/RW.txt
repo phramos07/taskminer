@@ -39,3 +39,38 @@
   algorithms. Our approach should be totally automatic.
 - Our approach still relies on static dependance graphs to find parallelism 
 	opportunities.
+
+* ke2011safe - Safe Parallel programing Using Dynamic Dependence Hints
+[Insights]
+- Speculative parallelism divides sequential program into tasks
+- A runtime environment resolve the task's dependences correctly in a way that it
+might be executed sequentially or parallel, either way the program will be correct
+- Most previous systems allow speculation to succeed only if program tasks are 
+completely independent (also called do- all parallelism or embarrassingly parallel).
+This one deals with frequent but not definite parallelism.
+- Dependence hints: an interface (directives) for a user to suggest dependence between 
+code.
+[Similarities]
+- We both deal with uncertain parallelism.
+- We both deal with annotating techniques.
+[Differences]
+- Their technique doesn't seem to analyse the program statically.
+- It is up to the PROGRAMMER to annotate the code with the speculative parallelism.
+
+[PEDRO: INSIGHT I JUST HAD]
+In the previous paper, they present a framework to annotate code that might be parallel.
+So the programmer reads their code and annotate parts which can be parallel, and their runtime will
+speculate over these annotated code. What WE'RE DOING is: we're analysing the code automatically to find
+possible parallel sites, and then we annotate them correctly and finally the runtime resolves the dependences
+and execute the tasks. The key insight in our work is to annotate code that is irregular but has
+greater probability of being parallel during execution.
+
+* Generating Task Clauses for OpenMP Programs
+[Insights]
+- They generate correct open MP task annotations for a code fragment
+- They still rely on the programmer or the compiler to find this pieces of code
+[Similarities]
+- We both generate annotations for task-parallelism
+[Differences]
+- Our approach eases the burden on the programmer and finds parallel code automatically.
+
