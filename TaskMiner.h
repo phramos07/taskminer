@@ -34,6 +34,7 @@ namespace llvm
 	class FunctionCallTask;
 	// class NestedLoopTask;
 	// class CodeFragmentTask;
+	// class RecursiveTask;
 
 	enum AccessType {UNKNOWN=0, READ=1, WRITE=2, READWRITE=3};
 
@@ -75,7 +76,8 @@ namespace llvm
 		{
 			FCALL_TASK,
 			CFRAGMENT_TASK,
-			NLOOP_TASK
+			NLOOP_TASK,
+			RECURSIVE_TASK
 		};
 
 		Task(TaskKind k, Loop* p) : kind(k), parent(p) {};
@@ -108,10 +110,10 @@ namespace llvm
 	public:
 		FunctionCallTask(Loop* parent, CallInst* CI) : Task(FCALL_TASK, parent), functionCall(CI) {};
 		~FunctionCallTask() {};
-		CallInst* getFunctionCall() { return functionCall; };
+		CallInst* getFunctionCall();
 		bool resolveInsAndOutsSets() override;
 		void print() override;
-		
+
 		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; };
 	
 	private:

@@ -1,5 +1,6 @@
 //LLVM IMPORTS
 #include "llvm/Analysis/LoopInfo.h" 
+#include "llvm/ADT/Statistic.h"
 
 //MY IMPORTS
 #include "TaskMiner.h"
@@ -8,6 +9,10 @@
 #define DEBUG_ 
 
 using namespace llvm;
+
+STATISTIC(NumTasks, "Total Number of Tasks");
+STATISTIC(NumFunctionCallTasks, "Number of FunctionCallTasks");
+STATISTIC(NumIrregularLoops, "Number of irregular loops");
 
 char TaskMiner::ID = 0;
 static RegisterPass<TaskMiner> B("taskminer", "Task Miner: finds regions or \
