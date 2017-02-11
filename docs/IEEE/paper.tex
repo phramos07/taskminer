@@ -27,40 +27,57 @@ We need to write our abstract here.
 
 
 % CONTEXT
-Applications are usually written sequentially, regardless of the availability of a parallel architecture. Sequential code is often very irregular, and it is difficult for the compiler to be precise about whether a piece of code is independent or not. 
-
-%- Applications are usually written sequentially regardless of the availability of a parallel architecture
-%- Hence sequential code is often irregular
-%- However, sometimes many paralellism opportunities are missed during a sequential execution
+It is undeniable that parallel computing is nowadays the most pursued alternative by the developers 
+when striving for more application performance \cite{hwu2014ahead}. Two main reasons stand behind 
+the actual urge for parallel programming. First, programmers often code in simple parallel patterns 
+\cite{pinto2015large}, which evidences their awareness and will for parallelism. Second, the ever 
+increasing industry of multi-cores and many-cores architectures propitiates the development of software 
+with such behaviour \cite{haugen2016performance, vandierendonck2013analysis}. And although extensive 
+work has been done to scavenge parallelism in regular applications \cite{kulkarni2009much}, finding good 
+parallel opportunities in irregular code remains a grueling task.
 
 % PROBLEM
-Extensive work has been done to decide whether loops are irregular or parallel. However, due to the conservatively trait of the static analyses, very often a
-loop or a code fragment is marked as irregular and dependent when in reality it might run in parallel most of the time. Finding this parallelism opportunities in irregular sequential code is hard because the programmer has to bear many aspects of it such as dependences between array-like structures.
-The OpenMP tasking model allows the programmer to point out regions in the sequential code that can be parallelized, and although some work has been done to generate OpenMP annotations automatically, the burden of finding code regions to be annotated still lies upon the programmer.
+Finding parallelism in sequentially-written code is hard because the programmer has to bear many aspects 
+such as dependences between arrays, synchronization, scalability and race conditions.
+Besides, even if we rely on static analyses to infer parallel regions, the results are imprecise 
+\cite{kulkarni2007optimistic}. Due to the conservative trait of the static analyses, a
+loop is frequently marked as iteration-dependent when, in reality, it might run in parallel most of the time. 
+Some dependences pointed by the compiler might never occur during runtime. 
+The OpenMP task scheduling model allows the programmer to point out regions in the sequential code that 
+can be parallelized \cite{openmp2009}, which provides an easy way of parallelizing without reimplementation. 
+Work has been carried out to generate OpenMP annotations automatically given a set of instructions that define 
+a region \cite{gleison2016, pingali2011tao, wanggenerating}. Yet, the burden of finding code regions to be 
+annotated with task directives still lies upon the programmer.
 
 % SOLUTION
-Our work focuses on finding irregular parallelism and automatic generating compiler directives to make this parallelism explicit.
-We present a fully automatic technique based on parallelism speculation that finds parallelism in programs and correctly annotates them so to make this parallelism explicit.
-It is a speculative technique that consists in the combination of static and dynamic analyses that increase the volume of tasks that can run in parallel.
-The static analysis finds irregular loops (i.e., loops with loop-carried dependences) and then speculates whether these loops can be safely executed in parallel. These loops
-are annotated with compiler directives, to point out the possibility of task-parallelization within that sequence of code. Then a runtime able to compile these directives shall run them
-and create the tasks for the annotated code. If the code is independent, the task-parallelized code will yield a great increase in performance. 
-However, if the code is indeed dependent and cannot be executed in parallel, the runtime will solve the dependences and execute the code sequentially. 
-This ensures correctness and makes the technique safe.
+%Our work focuses on finding irregular code  and automatic generating compiler directives to make the parallelism explicit.
+We present a fully automatic technique that finds parallelism in irregular programs and correctly annotates 
+them so to make this pattern explicit.
+It is a speculative technique that consists in the combination of static and dynamic analyses that increase 
+the volume of tasks that can run in parallel.
+The static analysis finds irregular loops (i.e., loops with loop-carried dependences) and then speculates 
+whether these loops can be safely executed in parallel or not. These loops
+are annotated with compiler directives, to point out the possibility of task-parallelization within that sequence of code. 
+Then a runtime able to compile these directives runs the tasks for the annotated code. 
+During execution, the dependences are resolved by the runtime and the code is executed in parallel. 
+
+The key insight of the tool is that it does not rely on the programmer to find possible parallel sites. 
+It does so automatically, and the runtime is solely responsible for unraveling the dependences between tasks. 
+The final product of this combination is a high-performant framework that
+lets us run algorithms that are traditionally difficult to parallelize.
 
 % TESTS AND RESULTS
 We have implemented this technique in the LLVM compiler infrastructure. We tested our technique on three large benchmarks (CASTOR, LG Graphical Application, ???) and compared it to the manually annotated version. We show that XX\% of the manually annotated regions are found by our technique. Our technique also finds XX\% more possible task regions than what is manually annotated. Regarding performance, the automatically annotated code can be up to X times faster than the manually annotated one.
 
 
 %Fernando's first draft
-//DRAFT
-The key contribution of this paper is a fully automatic technique to find parallelism in programs, and to annotate them so to make this parallelism explicit.
-This technique consists in the combination of static and a dynamic analyses that increase the volume of tasks that can run in parallel.
-The static analysis finds independent code, which can be safely executed in parallel.
-However, due to its conservative nature, the static analysis misses potential parallelization opportunities.
-These tasks, which we cannot show to be independent due, for instance, to poor aliasing information, are solved at runtime by the data-flow engine.
-The final product of this combination is a high-performant framework that
-lets us run algorithms that are traditionally difficult to parallelize.
+%//DRAFT
+%The key contribution of this paper is a fully automatic technique to find parallelism in programs, and to annotate them so to make this parallelism explicit.
+%This technique consists in the combination of static and a dynamic analyses that increase the volume of tasks that can run in parallel.
+%The static analysis finds independent code, which can be safely executed in parallel.
+%However, due to its conservative nature, the static analysis misses potential parallelization opportunities.
+%These tasks, which we cannot show to be independent due, for instance, to poor aliasing information, are solved at runtime by the data-flow engine.
+
 
 
 
