@@ -9,9 +9,33 @@
 
 \usepackage[normalem]{ulem}
 
+% To turn comments OFF simply comment out the \Commentstrue line
+\newif\ifComments\Commentstrue
+
+\ifComments
+\newcommand{\marcio}[1]{\noindent\textcolor{violet}{Marcio: {#1}}}
+\newcommand{\guido}[1]{\noindent\textcolor{magenta}{Guido: {#1}}}
+\newcommand{\fernando}[1]{\noindent\textcolor{brown}{Fernando: {#1}}}
+\newcommand{\cesar}[1]{\noindent\textcolor{magenta}{Cesar: {#1}}}
+\newcommand{\pedro}[1]{\noindent\textcolor{brown}{Pedro: {#1}}}
+\newcommand{\rmv}[1]{\noindent\textcolor{gray}{Removed: {#1}}}
+\newcommand{\new}[1]{\noindent\textcolor{blue}{ {#1}}}
+\newcommand{\ed}[1]{\noindent\textcolor{red}{ {#1}}}
+\else
+\newcommand{\marcio}[1]{}
+\newcommand{\guido}[1]{}
+\newcommand{\fernando}[1]{}
+\newcommand{\cesar}[1]{}
+\newcommand{\pedro}[1]{}
+\newcommand{\rmv}[1]{}
+\newcommand{\new}[1]{#1}
+\newcommand{\ed}[1]{}
+\fi
+
 \begin{document}
 
-\title{Task Mining in Irregular Programs.}
+\guido{Not sure if we should dive into a discussion of what is a regular or an irregular program; to be even more precise we are actually mining task parallelism (for this moment) only within loops; hence I propose this new title}
+\title{\rmv{Task Mining in Irregular Programs.}\new{Automatic Mining of Task Parallelism in Loops}}
 
 \date{}
 \maketitle
@@ -27,34 +51,26 @@ We need to write our abstract here.
 
 
 % CONTEXT
-It is undeniable that parallel computing is nowadays the most pursued alternative by the developers 
-when striving for more application performance \cite{hwu2014ahead}. Two main reasons stand behind 
-the actual urge for parallel programming. First, programmers often code in simple parallel patterns 
-\cite{pinto2015large}, which evidences their awareness and will for parallelism. Second, the ever 
-increasing industry of multi-cores and many-cores architectures propitiates the development of software 
-with such behaviour \cite{haugen2016performance, vandierendonck2013analysis}. And although extensive 
-work has been done to scavenge parallelism in regular applications \cite{kulkarni2009much}, finding good 
-parallel opportunities in irregular code remains a grueling task.
+It is undeniable that parallel computing is nowadays the most pursued alternative by the developers  when striving for more application performance \cite{hwu2014ahead}. Two main reasons stand behind  the actual urge for parallel programming. \ed{First, the ever  increasing industry of multi-cores and many-cores architectures propitiates the development of software  with such behaviour \cite{haugen2016performance, vandierendonck2013analysis}.} \guido{Fine, but it seems to me a very convoluted way to say that this was due to the emergence of multicore/manycore  architectures as the alternative to maintain transistor power-density under control.} \rem{Second, programmers often code in simple parallel patterns  \cite{pinto2015large}, which evidences their awareness and will for parallelism}. \guido{Not sure if programming using patterns is an evidence that supports the urge for interest in parallel programming; on the contrary, it seems to me that it is more a consequence to tackle the complexity of the problem.} 
+
+Although extensive  work has been done to scavenge parallelism in regular applications \cite{kulkarni2009much}, finding good  parallel opportunities in irregular code remains a grueling task. \guido{We need to re-phrase this if we want to use this statement to introduce the motivation to our work; a number of the examples that we are using do not have pointers, and thus could not be classified as irregular code....} 
 
 % PROBLEM
-Finding parallelism in sequentially-written code is hard because the programmer has to bear many aspects 
-such as dependences between arrays, synchronization, scalability and race conditions.
-Besides, even if we rely on static analyses to infer parallel regions, the results are imprecise 
-\cite{kulkarni2007optimistic}. Due to the conservative trait of the static analyses, a
-loop is frequently marked as iteration-dependent when, in reality, it might run in parallel most of the time. 
-Some dependences pointed by the compiler might never occur during runtime. 
-The OpenMP task scheduling model allows the programmer to point out regions in the sequential code that 
-can be parallelized \cite{openmp2009}, which provides an easy way of parallelizing without reimplementation. 
-Work has been carried out to generate OpenMP annotations automatically given a set of instructions that define 
-a region \cite{gleison2016, pingali2011tao, wanggenerating}. Yet, the burden of finding code regions to be 
-annotated with task directives still lies upon the programmer.
+\ed{Programming parallel applications is a hard task, as programmers have to take care of many aspects of the job such as identify and keep variable dependences correct and assure synchronization and scalability of threads/processes while avoiding race conditions.} \ed{On the other hand, finding parallelism in \rem{sequentially-written} \guido{programs are typically "sequentially written"}  \ed{annotated sequential  code is not a simple task} as compiler static analyses is not precise enough to identify  parallel regions~\cite{kulkarni2007optimistic}. For example,} due  to the conservative trait of static analyses, loops are frequently marked as iteration-dependent when, in reality, \ed{their iterations might run in parallel most of the time. As a matter of fact,  many dependences pointed by the compiler might never occur during runtime, resulting in missing opportunities for parallelization.} 
+
+\new{A way to approach this problem is to use a programming model that can capture and enforce dependences between iterations at runtime when they occur. In such model  those iterations that do not have {\it loop-carried} dependencies are free to run in parallel, while iterations that dynamically create loop-carried dependences are serialized and dispatched in dependence order by  a system runtime.  In recent years, task-based execution models  have proven itself to be a scalable and quite flexible approach to extract regular and irregular parallelism from sequential code ~\cite{starss,bddt,cilk,sequoia,dandelion,legion,ooojava,dague}. In this model the programmer uses a {\it task} directive to mark  code regions in the program that are potential tasks and lists their corresponding dependecies.  OpenMP task scheduling~\cite{openmp2009}  is an example of such model. Although OpenMP task simplifies the mechanics of dispatching and running tasks, the burden of finding code regions to be  annotated with task directives still lies upon the programmer.}
+
+Work has been carried out to generate OpenMP annotations automatically given a set of instructions that define  a region \cite{gleison2016, pingali2011tao, wanggenerating}. \guido{Need to provide a short paragraph here to give an idea why these works do not solve the problem of automatically extracting parallelism from loops with loop carried-depedenciss}.
 
 % SOLUTION
+%Guido: This is an ambitious objective; ou work is more modest.
 %Our work focuses on finding irregular code  and automatic generating compiler directives to make the parallelism explicit.
-We present a fully automatic technique that finds parallelism in irregular programs and correctly annotates 
-them so to make this pattern explicit.
-It is a speculative technique that consists in the combination of static and dynamic analyses that increase 
-the volume of tasks that can run in parallel.
+\ed{This paper presents an automatic technique that extracts task parallelism from loops which cannot be proved by static analysis to be loop-carried independent. } 
+\rmv{It is a speculative technique that consists in the combination of static and dynamic analyses that increase 
+the volume of tasks that can run in parallel.} \guido{Do not mention speculation here as it usually is applied to TLS or TM} 
+
+\guido{I HAVE STOPPED HERE; WILL CONTINUE LATER}
+
 The static analysis finds irregular loops (i.e., loops with loop-carried dependences) and then speculates 
 whether these loops can be safely executed in parallel or not. These loops
 are annotated with compiler directives, to point out the possibility of task-parallelization within that sequence of code. 
@@ -101,4 +117,3 @@ We have implemented this technique in the LLVM compiler infrastructure. We teste
 \bibliography{references}
 
 \end{document}
-
