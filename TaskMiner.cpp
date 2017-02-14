@@ -6,7 +6,7 @@
 #include "TaskMiner.h"
 #include "llvm/IR/Instructions.h"
 #define DEBUG_TYPE "TaskMiner"
-#define DEBUG_ 
+#define DEBUG_PRINT 
 
 using namespace llvm;
 
@@ -18,6 +18,13 @@ char TaskMiner::ID = 0;
 static RegisterPass<TaskMiner> B("taskminer", "Task Miner: finds regions or \
 	function calls inside loops that can be parallelized by tasks");
 
+
+TaskMiner::~TaskMiner()
+{
+	for (auto &t : tasks)
+		delete t;
+}
+
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 {
 	AU.addRequired<LoopInfoWrapperPass>();
@@ -27,86 +34,28 @@ void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 
 bool TaskMiner::runOnFunction(Function &F)
 {
-	LoopInfoWrapperPass* LIWP = &(getAnalysis<LoopInfoWrapperPass>());
-	LoopInfo *LI = &(LIWP->getLoopInfo());
+	LIWP = &(getAnalysis<LoopInfoWrapperPass>());
+	LI = &(LIWP->getLoopInfo());
 	DA = &(getAnalysis<DepAnalysis>());
-	
-	//Store loops refs in here
-	std::map<Loop*, TaskMiner::LoopData> loops;
 
-	//Find all Loops
-	for (Function::iterator BB = F.begin(); BB != F.end(); ++BB)
-	{
-		//If BB is in loop, then we can try to get the induction var from this loop
-		Loop* loop = LI->getLoopFor(BB);
-		if (loop)
-		{
-			if (loops.find(loop) == loops.end()) //If the loop hasn't been added to the loopdata yet
-			{
-				TaskMiner::LoopData LD;
-				loops[loop] = LD;
-				loops[loop].innerBBs.push_back(BB);
-				Instruction* inst = loop->getCanonicalInductionVariable();
-				loops[loop].indVar = inst;
-			}
-			else
-			{
-				loops[loop].innerBBs.push_back(BB);
-			}
-		}
-	}
-
-	#ifdef DEBUG_
-		for (auto &l : loops)
-		{
-			errs() << "LOOP AT: " << l.first << "\n";
-			l.second.print();
-		}
-	#endif
-
-	//If LOOP is irregular, finds the region inside the loop
-	//TODO: DEPANALYSIS
-	//HYPOTHESIS ZERO: ALL LOOPS ARE IRREGULAR/TASK-PARALLELIZABLE
-
-	//Now go through the loops and extract which sort of task it is. for now
-	//we don't have any heuristics to decide whether it will be a code fragment
-	//task or a mere function call task. So we're focused only on function calls.
-	Function* calledF;
-	for (auto &l : loops)
-	{
-		for (auto &bb : l.second.innerBBs)
-		{
-			for (BasicBlock::iterator func = bb->begin(); func != bb->end(); ++func)
-			{
-				if (CallInst* CI = dyn_cast<CallInst>(func))
-				{
-					calledF = CI->getCalledFunction();
-					if ((CI->getModule() == F.getParent()) 
-								&& !calledF->isDeclaration() 
-								&& !calledF->isIntrinsic())
-							{
-								Task* functionCallTask = new FunctionCallTask(l.first, CI);
-								tasks.push_back(functionCallTask);
-							}
-				}
-			}
-		}
-	}
+	getLoopsInfo(F);
+	mineFunctionCallTasks(F);
 
 	//Resolve each task's ins and outs sets
 	resolveInsAndOutsSets();
 
-	#ifdef DEBUG_
+	#ifdef DEBUG_PRINT
 		int i = 0;
 		for (auto &task : tasks)
 		{
 			errs() << "Task #" << i;
-			task->print();
+			// task->print(errs());
+			task->print(errs());
 			i++;
 		}
 	#endif
 
-
+	getStats();
 
 	return false;
 }
@@ -130,9 +79,78 @@ void TaskMiner::resolveInsAndOutsSets()
 		t->resolveInsAndOutsSets();
 }
 
-std::list<Task*>* TaskMiner::getTasks()
+void TaskMiner::getStats()
 {
-	return &tasks;
+	for (auto &t : tasks)
+	{
+		NumTasks++;
+		if (FunctionCallTask* FCT = dyn_cast<FunctionCallTask>(t))
+			NumFunctionCallTasks++;
+	}
+}
+
+void TaskMiner::getLoopsInfo(Function &F)
+{
+	//Find all Loops
+	for (Function::iterator BB = F.begin(); BB != F.end(); ++BB)
+	{
+		//If BB is in loop, then we can try to get the induction var from this loop
+		Loop* loop = LI->getLoopFor(BB);
+		if (loop)
+		{
+			if (loops.find(loop) == loops.end()) //If the loop hasn't been added to the loopdata yet
+			{
+				TaskMiner::LoopData LD;
+				loops[loop] = LD;
+				loops[loop].innerBBs.push_back(BB);
+				Instruction* inst = loop->getCanonicalInductionVariable();
+				loops[loop].indVar = inst;
+			}
+			else
+			{
+				loops[loop].innerBBs.push_back(BB);
+			}
+		}
+	}
+}
+
+void TaskMiner::mineFunctionCallTasks(Function &F)
+{
+	//If LOOP is irregular, finds the region inside the loop
+	//TODO: DEPANALYSIS
+	//HYPOTHESIS ZERO: ALL LOOPS ARE IRREGULAR/TASK-PARALLELIZABLE
+
+	//Now go through the loops and extract which sort of task it is. for now
+	//we don't have any heuristics to decide whether it will be a code fragment
+	//task or a mere function call task. So we're focused only on function calls.
+	Function* calledF;
+	for (auto &l : loops)
+	{
+		if (l.second.indVar == nullptr)
+			continue;
+		for (auto &bb : l.second.innerBBs)
+		{
+			for (BasicBlock::iterator func = bb->begin(); func != bb->end(); ++func)
+			{
+				if (CallInst* CI = dyn_cast<CallInst>(func))
+				{
+					calledF = CI->getCalledFunction();
+					if ((CI->getModule() == F.getParent()) 
+								&& !calledF->isDeclaration() 
+								&& !calledF->isIntrinsic())
+							{
+								Task* functionCallTask = new FunctionCallTask(l.first, CI);
+								tasks.push_back(functionCallTask);
+							}
+				}
+			}
+		}
+	}
+}
+
+std::list<Task*>& TaskMiner::getTasks()
+{
+	return tasks;
 }
 
 Loop* Task::getParent() { return parent; }
@@ -172,43 +190,43 @@ std::string Task::accessTypeToStr(AccessType T)
 	}
 }
 
-void Task::printLiveSets()
+raw_ostream& Task::printLiveSets(raw_ostream& os) const
 {
-	errs() << "\nIN:\n\t";
+	os << "\nIN:\n\t";
 	for (auto &in : liveIN)
 	{
-		in->print(errs());
-		errs() << "\n";
+		in->print(os);
+		os << "\n";
 	}
-	errs() << "OUT:\n\t";
+	os << "OUT:\n\t";
 	for (auto &out : liveOUT)
 	{
-		out->print(errs());
-		errs() << "\n";
+		out->print(os);
+		os << "\n";
 	}
-	errs() << "INOUT:\n\t";
+	os << "INOUT:\n\t";
 	for (auto &inout : liveINOUT)
 	{
-		inout->print(errs());
-		errs() << "\n";
+		inout->print(os);
+		os << "\n";
 	}
 }
 
-void Task::print()
+raw_ostream& Task::print(raw_ostream& os) const
 {
-	printLiveSets();
+	return printLiveSets(os);
 }
 
 //CallInst* FunctionCallTask::getFunctionCall() { return functionCall; }
 
-void FunctionCallTask::print()
+raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 {
-	errs() << "\n===========\n" 
+	os << "\n===========\n" 
 					<< "Type: Function Call Task"
 					<< "\n===========\n"
 					<< "Function Call: \n\t";
-	functionCall->print(errs());
-	printLiveSets();
+	functionCall->print(os);
+	printLiveSets(os);
 }
 
 bool FunctionCallTask::resolveInsAndOutsSets()
@@ -226,15 +244,6 @@ bool FunctionCallTask::resolveInsAndOutsSets()
 		matchArgsParameters[arg_aux] = V;
 		arg_aux++;
 	}
-
-	// for (auto &m : matchArgsParameters)
-	// {
-	// 	errs() 	<< "Parameter: " 
-	// 					<< m.first->getName()
-	// 					<< " Argument: "
-	// 					<< m.second->getName()
-	// 					<< "\n";
-	// }
 
 	//Find the access types of the parameters
 	// errs() << "Function " << F->getName() << ":\n";

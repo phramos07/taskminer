@@ -18,6 +18,7 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/ADT/SmallSet.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Support/raw_ostream.h"
 
 //LOCAL IMPORTS
 #include "DepAnalysis.h"
@@ -48,11 +49,10 @@ namespace llvm
 	public:
 		static char ID;
 		TaskMiner() : FunctionPass(ID) {}
-		~TaskMiner() {};
+		~TaskMiner();
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
 		bool runOnFunction(Function &func) override;
-		std::list<Task*>* getTasks();
-		Task* getTaskFromParentLoop(Loop* L);
+		std::list<Task*>& getTasks();
 
 		struct LoopData
 		{
@@ -66,7 +66,13 @@ namespace llvm
 	private:
 		std::list<Task*> tasks;
 		void resolveInsAndOutsSets();
-		DepAnalysis *DA;
+		void getStats();
+		void getLoopsInfo(Function &F);
+		void mineFunctionCallTasks(Function &F);
+		std::map<Loop*, TaskMiner::LoopData> loops;
+		DepAnalysis* DA = 0;
+		LoopInfo* LI = 0;
+		LoopInfoWrapperPass* LIWP = 0;
 	};
 
 	class Task
@@ -82,16 +88,23 @@ namespace llvm
 
 		Task(TaskKind k, Loop* p) : kind(k), parent(p) {};
 		virtual ~Task() {};
+		
+		//Getters
 		TaskKind getKind() const { return kind; };
 		Loop* getParent();
-		virtual bool resolveInsAndOutsSets() { return false; };
 		std::set<Value*> getLiveIN() const;
 		std::set<Value*> getLiveOUT() const;
 		std::set<Value*> getLiveINOUT() const;
 
-		//Only for debugging purposes. STDOUT/errs()
-		virtual void print();
-		void printLiveSets();
+		//Methods
+		virtual bool resolveInsAndOutsSets() { return false; };
+
+		//Printing to output stream methods
+		virtual raw_ostream& print(raw_ostream& os) const;
+		raw_ostream& printLiveSets(raw_ostream& os) const;
+	
+	private:
+		const TaskKind kind;
 
 	protected:
 		Loop* parent;
@@ -100,9 +113,6 @@ namespace llvm
 		std::set<Value*> liveINOUT;
 		AccessType getTypeFromInst(Instruction* I);
 		std::string accessTypeToStr(AccessType T);	
-
-	private:
-		const TaskKind kind;
 	};
 
 	class FunctionCallTask : public Task
@@ -112,7 +122,7 @@ namespace llvm
 		~FunctionCallTask() {};
 		CallInst* getFunctionCall();
 		bool resolveInsAndOutsSets() override;
-		void print() override;
+		raw_ostream& print(raw_ostream& os) const override;
 
 		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; };
 	
@@ -120,6 +130,9 @@ namespace llvm
 		CallInst* functionCall;
 	};
 
+
+
 }
+
 
 #endif
