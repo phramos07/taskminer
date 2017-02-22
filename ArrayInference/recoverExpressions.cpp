@@ -249,9 +249,11 @@ RecoverCode *RC) {
 }
 
 void RecoverExpressions::annotateExternalLoop(Instruction *I) {
+  errs() << "To aqui\n";
   Region *R = rp->getRegionInfo().getRegionFor(I->getParent());
   if (!st->isSafetlyRegionLoops(R))
     return;
+  errs() << "Cheguei de novo\n";
   Loop *L = this->li->getLoopFor(I->getParent());
   int line = st->getStartRegionLoops(R).first;
   std::string output = std::string();
