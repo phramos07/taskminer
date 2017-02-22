@@ -148,7 +148,7 @@ void TaskMiner::mineFunctionCallTasks(Function &F)
 	}
 }
 
-std::list<Task*>& TaskMiner::getTasks()
+std::list<Task*> TaskMiner::getTasks()
 {
 	return tasks;
 }
@@ -210,6 +210,8 @@ raw_ostream& Task::printLiveSets(raw_ostream& os) const
 		inout->print(os);
 		os << "\n";
 	}
+
+	return os;
 }
 
 raw_ostream& Task::print(raw_ostream& os) const
@@ -227,6 +229,7 @@ raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 					<< "Function Call: \n\t";
 	functionCall->print(os);
 	printLiveSets(os);
+	return os;
 }
 
 bool FunctionCallTask::resolveInsAndOutsSets()

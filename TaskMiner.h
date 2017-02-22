@@ -52,7 +52,7 @@ namespace llvm
 		~TaskMiner();
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
 		bool runOnFunction(Function &func) override;
-		std::list<Task*>& getTasks();
+		std::list<Task*> getTasks();
 
 		struct LoopData
 		{
