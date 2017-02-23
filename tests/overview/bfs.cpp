@@ -1,41 +1,78 @@
 #include <iostream>
+#include <vector>
+#include <map>
 #include <omp.h>
 #include <math.h>
+#include <chrono>
+#include <thread>
 #define N 10000
+#define MAX_COORD 100
+#define MAX_DIST 1000000.0;
+// #define DEBUG
 
-void bfs(long unsigned* G, long unsigned* node, int* neigh, int index, bool* visited);
+struct Coord
+{
+	int x;
+	int y;
+};
 
-void fillgraph(long unsigned* G);
+std::map<int, Coord> nodesCoord;
+std::vector<double> nodesMinDist(N);
+std::vector<int> nodesMinDistIndex(N);
 
-void printGraph(long unsigned* G);
+void bfs(int* G, int* node, int index, bool* visited);
+
+void fillgraph(int* G);
+
+void printGraph(int* G);
+
+void fillRandomTree(int* G);
+
+void findNearestNeighbor(int src, int dst);
 
 int main(int argc, char* argv[])
 {
-	long unsigned* G = (long unsigned*)malloc(N*N*sizeof(long unsigned));
-	int* neigh = (int*)malloc(N*sizeof(int));
-	bool* visited = (bool*)malloc(N*sizeof(bool));
+	int* G = new int[N*N];
+	int* neigh = new int[N];
+	bool* visited = new bool[N];
 	for (unsigned i = 0; i<N; i++)
 	{
 		visited[i] = false;
 		neigh[i] = 0;
+		nodesMinDist[i] = MAX_DIST;
 	}
 
 	fillgraph(G);
-	// printGraph(G);
+	// fillRandomTree(G);
 
-	bfs(G, &G[0], neigh, 0, visited);
+	bfs(G, &G[0], 0, visited);
 
-	// for (int i = 0; i < N; i++)
-	// 	std::cout << "Node " << i << " has " << neigh[i] << " in-edges" << std::endl;
+	#ifdef DEBUG
+		printGraph(G);
 
-	free(G);
-	free(neigh);
-	free(visited);
+		for (unsigned i = 0; i < N; i++)
+			std::cout << "Node " << i << " has " << neigh[i] << " in-edges" << std::endl;
+
+		for (unsigned i = 0; i< N; i++)
+		{
+			std::cout << "Node "
+								<< i
+								<< " Min dist, node: "
+								<< nodesMinDistIndex[i]
+								<< " at "
+								<< nodesMinDist[i]
+								<< "\n";
+		}		
+	#endif
+
+	delete G;
+	delete neigh;
+	delete visited;
 
 	return 0;
 }
 
-void bfs(long unsigned* G, long unsigned* node,int* neigh, int index, bool* visited)
+void bfs(int* G, int* node, int index, bool* visited)
 {
 	if (!visited[index])
 	{
@@ -45,24 +82,47 @@ void bfs(long unsigned* G, long unsigned* node,int* neigh, int index, bool* visi
 		for (long unsigned i=0; i<N; i++)
 			if (*(node + i) != 0)
 			{
-				neigh[i]++;
+				findNearestNeighbor(index, i);
 				#pragma omp task depend(in:G[i*N])
-				bfs(G, &G[i*N], neigh, i, visited);			
+				bfs(G, &G[i*N], i, visited);			
 			}
 	}
 	return;
 }
 
-void fillgraph(long unsigned* G)
+void findNearestNeighbor(int src, int dst)
 {
-	for (long unsigned i = 0; i < N; i++)
-		for (long unsigned j = 0; j < N; j++)
-		{
-			*(G + i*N + j) = rand()%4;
-		}
+	double dist = sqrt(pow(nodesCoord[src].x - nodesCoord[dst].x, 2) + pow(nodesCoord[src].y - nodesCoord[dst].y, 2));
+	if (dist < nodesMinDist[src])
+	{
+		nodesMinDist[src] = dist;
+		nodesMinDistIndex[src] = dst;
+	}
 }
 
-void printGraph(long unsigned* G)
+void fillgraph(int* G)
+{
+	for (long unsigned i = 0; i < N; i++)
+	{
+		for (long unsigned j = 0; j < N; j++)
+		{
+			*(G + i*N + j) = rand()%5;
+		}
+		nodesCoord[i].x = rand()%MAX_COORD;
+		nodesCoord[i].y = rand()%MAX_COORD;		
+	}
+}
+
+void fillRandomTree(int* G)
+{
+	int* pruferCode = new int[N-2];
+	for (unsigned i = 0; i < N-2; i++)
+		pruferCode[i] = rand()%100;
+
+	int* degree = new int[N];
+}
+
+void printGraph(int* G)
 {
 	for (long unsigned i = 0; i < N; i++)
 	{
