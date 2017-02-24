@@ -1,6 +1,14 @@
 #include "DepAnalysis.h"
+#define DEBUG_TYPE "DepAnalysis"
 
 using namespace llvm;		
+
+STATISTIC(RARDeps, "RAR Total num of input dependences");
+STATISTIC(WARDeps, "RAR Total num of anti dependences");
+STATISTIC(RAWDeps, "RAW Total num of flow/true dependences");
+STATISTIC(WAWDeps, "RAR Total num of output dependences");
+STATISTIC(SCADeps, "SCA Total num of scalar dependences");
+STATISTIC(CTRDeps, "CTR Total num of control dependences");
 
 void DepAnalysis::getAnalysisUsage(AnalysisUsage &AU) const {
 	AU.setPreservesAll();
@@ -34,13 +42,24 @@ bool DepAnalysis::runOnFunction(Function &F) {
 
 					if (auto D = DI.depends(&*SrcI, &*DstI, true)) {
 						if (D->isInput())
+						{
 							G->addEdge(&*SrcI, &*DstI, DependenceType::RAR);
+							RARDeps++;
+						}
 						else if (D->isOutput())
+						{
 							G->addEdge(&*SrcI, &*DstI, DependenceType::WAW);
+							WAWDeps++;
+						}
 						else if (D->isFlow())
+						{
 							G->addEdge(&*SrcI, &*DstI, DependenceType::RAW);
-						else if (D->isAnti()) {
+							RAWDeps++;
+						}
+						else if (D->isAnti())
+						{
 							G->addEdge(&*DstI, &*SrcI, DependenceType::RAWLC);
+							WARDeps++;
 						}
 						else
 							errs() << "Error decoding dependence type.\n";
@@ -59,6 +78,7 @@ bool DepAnalysis::runOnFunction(Function &F) {
 		for (User *U : SrcI->users()) {
 			if (Instruction *Inst = dyn_cast<Instruction>(U)) {
 				G->addEdge(&*SrcI, Inst, DependenceType::SCA);
+				SCADeps++;
 			}
 		}
 	}
@@ -79,6 +99,7 @@ bool DepAnalysis::runOnFunction(Function &F) {
 			if (cdgBuilder.controls(A, B)) {
 				for (BasicBlock::iterator i = B->begin(), e = B->end(); i != e; ++i) {
 					G->addEdge(term, &*i, DependenceType::CTR);
+					CTRDeps++;
 				}
 			}
 		}

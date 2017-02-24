@@ -16,6 +16,8 @@ int main() {
 }
 
 void bfs(int *G, int *node, int *neigh) {
+	#pragma omp parallel
+	#pragma omp single
   for (int i = 0; i < N; i++)
     if (node[i]) {
       neigh[i]++;
