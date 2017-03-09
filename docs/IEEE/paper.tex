@@ -96,6 +96,8 @@ We have implemented this technique in the LLVM compiler infrastructure. We teste
 \section{Overview}
 \label{sec:ovf}
 
+
+
 %EXAMPLE - BFS
 
 
@@ -105,6 +107,22 @@ We have implemented this technique in the LLVM compiler infrastructure. We teste
 
 \section{Evaluation}
 \label{sec:eval}
+
+We aimed to show that our tool exceeded in three main aspects that surround parallel programming. Thus our work evaluation stands on these 3 pillars:
+
+\begin{itemize}
+
+\item Practicality
+\item Applicability
+\item Performance
+
+\end{itemize}
+
+\textbf{\textit{Practicality}}. Programming in a parallel pattern is deemed difficult by programmers mainly because of the complexity of its data structures and algorithms. We show that our tool is simple and practical, for it does not involve changing the code and data structures in order to fit in a parallel pattern. The code is simply annotated by compiler directives.
+
+\textbf{\textit{Applicability}}. 
+
+\textbf{\textit{Performance}}. When it comes to parallel computing, it is undeniable that the main achievable goal should be performance. There's no reason why programmers would opt for parallelism other than the desire for faster programs. Therefore, we ought to show that the programs annotated with TaskMiner are faster than their serial counterparts. 
 
 \section{Related Work}
 \label{sec:rw}

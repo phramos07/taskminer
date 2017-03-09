@@ -52,6 +52,7 @@ namespace llvm
 		~TaskMiner();
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
 		bool runOnFunction(Function &func) override;
+		bool doFinalization(Module &M) override;
 		std::list<Task*> getTasks();
 
 		struct LoopData
@@ -69,10 +70,15 @@ namespace llvm
 		void getStats();
 		void getLoopsInfo(Function &F);
 		void mineFunctionCallTasks(Function &F);
+		void insertNewFunctionCallTask(Task &T);
+
 		std::map<Loop*, TaskMiner::LoopData> loops;
 		DepAnalysis* DA = 0;
 		LoopInfo* LI = 0;
 		LoopInfoWrapperPass* LIWP = 0;
+
+		//Debugging purposes only
+		void printLoops();
 	};
 
 	class Task
@@ -120,7 +126,7 @@ namespace llvm
 	public:
 		FunctionCallTask(Loop* parent, CallInst* CI) : Task(FCALL_TASK, parent), functionCall(CI) {};
 		~FunctionCallTask() {};
-		CallInst* getFunctionCall();
+		CallInst* getFunctionCall() const;
 		bool resolveInsAndOutsSets() override;
 		raw_ostream& print(raw_ostream& os) const override;
 

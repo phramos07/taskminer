@@ -1,6 +1,7 @@
 //LLVM IMPORTS
 #include "llvm/Analysis/LoopInfo.h" 
 #include "llvm/ADT/Statistic.h"
+#include "llvm/IR/Attributes.h"
 
 //MY IMPORTS
 #include "TaskMiner.h"
@@ -28,15 +29,18 @@ TaskMiner::~TaskMiner()
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 {
 	AU.addRequired<LoopInfoWrapperPass>();
-	AU.addRequired<DepAnalysis>();
+	// AU.addRequired<DepAnalysis>();
 	AU.setPreservesAll();
 }
 
 bool TaskMiner::runOnFunction(Function &F)
 {
+	if (F.isDiscardableIfUnused())
+		return false;
+
 	LIWP = &(getAnalysis<LoopInfoWrapperPass>());
 	LI = &(LIWP->getLoopInfo());
-	DA = &(getAnalysis<DepAnalysis>());
+	// DA = &(getAnalysis<DepAnalysis>());
 
 	getLoopsInfo(F);
 	mineFunctionCallTasks(F);
@@ -44,20 +48,36 @@ bool TaskMiner::runOnFunction(Function &F)
 	//Resolve each task's ins and outs sets
 	resolveInsAndOutsSets();
 
+	return false;
+}
+
+bool TaskMiner::doFinalization(Module &M)
+{
+	getStats();
+
 	#ifdef DEBUG_PRINT
 		int i = 0;
 		for (auto &task : tasks)
 		{
 			errs() << "Task #" << i;
-			// task->print(errs());
 			task->print(errs());
 			i++;
 		}
+		printLoops();
 	#endif
 
-	getStats();
-
 	return false;
+}
+
+
+void TaskMiner::printLoops()
+{
+	for (auto &loop : loops)
+	{
+		errs() << loop.first << ":\n";
+		loop.second.print();
+		errs() << "\n";
+	}
 }
 
 void TaskMiner::LoopData::print()
@@ -111,7 +131,8 @@ void TaskMiner::getLoopsInfo(Function &F)
 				loops[loop].innerBBs.push_back(BB);
 			}
 		}
-	}
+	}		
+	//colaesce loops by induction variable
 }
 
 void TaskMiner::mineFunctionCallTasks(Function &F)
@@ -124,8 +145,10 @@ void TaskMiner::mineFunctionCallTasks(Function &F)
 	//we don't have any heuristics to decide whether it will be a code fragment
 	//task or a mere function call task. So we're focused only on function calls.
 	Function* calledF;
+	std::set<Instruction*> fCalls;
 	for (auto &l : loops)
 	{
+		// l.second.print();
 		if (l.second.indVar == nullptr)
 			continue;
 		for (auto &bb : l.second.innerBBs)
@@ -136,15 +159,33 @@ void TaskMiner::mineFunctionCallTasks(Function &F)
 				{
 					calledF = CI->getCalledFunction();
 					if ((CI->getModule() == F.getParent()) 
-								&& !calledF->isDeclaration() 
-								&& !calledF->isIntrinsic())
+								&& (!calledF->isDeclaration())
+								&& (!calledF->isIntrinsic())
+								&& (fCalls.find(CI) == fCalls.end())
+								&& (!CI->getDereferenceableBytes(0)))
 							{
 								Task* functionCallTask = new FunctionCallTask(l.first, CI);
-								tasks.push_back(functionCallTask);
+								insertNewFunctionCallTask(*functionCallTask);
+								fCalls.insert(CI);
 							}
 				}
 			}
 		}
+	}
+}
+
+void TaskMiner::insertNewFunctionCallTask(Task &T)
+{
+	if (FunctionCallTask* FCT = dyn_cast<FunctionCallTask>(&T))
+	{
+		for (auto &t : tasks)
+		{
+			if (FunctionCallTask* FCT_cmp = dyn_cast<FunctionCallTask>(t))
+				if (FCT_cmp->getFunctionCall() == FCT->getFunctionCall())
+					return;
+		}
+
+		tasks.push_back(&T);
 	}
 }
 
@@ -290,3 +331,6 @@ bool FunctionCallTask::resolveInsAndOutsSets()
 
 	return true;
 }
+
+CallInst* FunctionCallTask::getFunctionCall() const { return functionCall; }
+
