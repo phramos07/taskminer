@@ -1,32 +1,107 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-// include <omp.h>
-#define N 100
+#include <vector>
+#include <map>
+#include <math.h>
+#define N 1000
+#define MAX_COORD 100
+#define MAX_DIST 1000000.0;
+// #define DEBUG
 
-void bfs(int *G, int *node, int *neigh);
+struct Coord {
+  int x;
+  int y;
+};
 
-int main() {
-  int *G = (int *)malloc(N * N * sizeof(int));
-  int neigh[N];
+std::map<int, Coord> nodesCoord;
+std::vector<double> nodesMinDist(N);
+std::vector<int> nodesMinDistIndex(N);
 
-  bfs(G, &G[0], neigh);
+void bfs(int *G, int *node, int index, bool *visited);
+
+void fillgraph(int *G);
+
+void printGraph(int *G);
+
+void findNearestNeighbor(int src, int dst);
+
+int main(int argc, char *argv[]) {
+  int *G = new int[N * N];
+  int *neigh = new int[N];
+  bool *visited = new bool[N];
+  for (unsigned i = 0; i < N; i++) {
+    visited[i] = false;
+    neigh[i] = 0;
+    nodesMinDist[i] = MAX_DIST;
+  }
+
+  fillgraph(G);
+  bfs(G, &G[0], 0, visited);
+
+#ifdef DEBUG
+  printGraph(G);
+
+  for (unsigned i = 0; i < N; i++)
+    std::cout << "Node " << i << " has " << neigh[i] << " in-edges"
+              << std::endl;
+
+  for (unsigned i = 0; i < N; i++) {
+    std::cout << "Node " << i << " Min dist, node: " << nodesMinDistIndex[i]
+              << " at " << nodesMinDist[i] << "\n";
+  }
+#endif
+
+  delete[] G;
+  delete[] neigh;
+  delete[] visited;
 
   return 0;
 }
 
-void bfs(int *G, int *node, int *neigh) {
-	#pragma omp parallel
-	#pragma omp single
-  for (int i = 0; i < N; i++)
-    if (node[i]) {
-      neigh[i]++;
-      long long int TM5[3];
-      TM5[0] = i * 100;
-      TM5[1] = TM5[0] * 4;
-      TM5[2] = (TM5[1] / 4);
-      #pragma omp task depend(inout:G,G[TM5[2]],neigh)
-      bfs(G, &G[i * N], neigh);
+void bfs(int *G, int *node, int index, bool *visited) {
+  if (!visited[index]) {
+    visited[index] = true;
+    #pragma omp parallel
+    #pragma omp single
+    for (unsigned i = 0; i < N; i++)
+      if (*(node + i) != 0) {
+        #pragma omp task depend(inout:index,i)
+        findNearestNeighbor(index, i);
+        long long int TM7[3];
+        TM7[0] = i * 1000;
+        TM7[1] = TM7[0] * 4;
+        TM7[2] = (TM7[1] / 4);
+        #pragma omp task depend(inout:G,G[TM7[2]],i,visited)
+        bfs(G, &G[i * N], i, visited);
+      }
+  }
+  return;
+}
+
+void findNearestNeighbor(int src, int dst) {
+  double dist = sqrt(pow(nodesCoord[src].x - nodesCoord[dst].x, 2) +
+                     pow(nodesCoord[src].y - nodesCoord[dst].y, 2));
+  if (dist < nodesMinDist[src]) {
+    nodesMinDist[src] = dist;
+    nodesMinDistIndex[src] = dst;
+  }
+}
+
+void fillgraph(int *G) {
+  for (long unsigned i = 0; i < N; i++) {
+    for (long unsigned j = 0; j < N; j++) {
+      *(G + i * N + j) = rand() % 5;
     }
+    nodesCoord[i].x = rand() % MAX_COORD;
+    nodesCoord[i].y = rand() % MAX_COORD;
+  }
+}
+
+void printGraph(int *G) {
+  for (long unsigned i = 0; i < N; i++) {
+    for (long unsigned j = 0; j < N; j++) {
+      std::cout << *(G + i * N + j) << " ";
+    }
+    std::cout << std::endl;
+  }
 }
 
