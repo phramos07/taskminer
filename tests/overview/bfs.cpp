@@ -3,9 +3,7 @@
 #include <map>
 #include <omp.h>
 #include <math.h>
-#include <chrono>
-#include <thread>
-#define N 10000
+#define N 1000
 #define MAX_COORD 100
 #define MAX_DIST 1000000.0;
 // #define DEBUG
@@ -26,8 +24,6 @@ void fillgraph(int* G);
 
 void printGraph(int* G);
 
-void fillRandomTree(int* G);
-
 void findNearestNeighbor(int src, int dst);
 
 int main(int argc, char* argv[])
@@ -43,8 +39,6 @@ int main(int argc, char* argv[])
 	}
 
 	fillgraph(G);
-	// fillRandomTree(G);
-
 	bfs(G, &G[0], 0, visited);
 
 	#ifdef DEBUG
@@ -65,9 +59,9 @@ int main(int argc, char* argv[])
 		}		
 	#endif
 
-	delete G;
-	delete neigh;
-	delete visited;
+	delete [] G;
+	delete [] neigh;
+	delete [] visited;
 
 	return 0;
 }
@@ -79,7 +73,7 @@ void bfs(int* G, int* node, int index, bool* visited)
 		visited[index] = true;
 		#pragma omp parallel
 		#pragma omp single
-		for (long unsigned i=0; i<N; i++)
+		for (unsigned i=0; i<N; i++)
 			if (*(node + i) != 0)
 			{
 				findNearestNeighbor(index, i);
@@ -111,15 +105,6 @@ void fillgraph(int* G)
 		nodesCoord[i].x = rand()%MAX_COORD;
 		nodesCoord[i].y = rand()%MAX_COORD;		
 	}
-}
-
-void fillRandomTree(int* G)
-{
-	int* pruferCode = new int[N-2];
-	for (unsigned i = 0; i < N-2; i++)
-		pruferCode[i] = rand()%100;
-
-	int* degree = new int[N];
 }
 
 void printGraph(int* G)
