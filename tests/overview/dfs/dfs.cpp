@@ -2,7 +2,7 @@
 
 static const int SIZE = 100;
 
-Graph* G = new Graph(SIZE);
+Graph G(SIZE);
 
 void dfs(Node<NT, ET>& N);
 
@@ -10,16 +10,16 @@ void graph_dfs();
 
 int main(int argc, char const *argv[])
 {
-	/* code */
+
 	return 0;
 }
 
 void graph_dfs()
 {
-	for (unsigned i = 0; i < G->size; i++)
-		(*G)[i]->visited = false;
+	for (unsigned i = 0; i < G.size; i++)
+		G[i]->visited = false;
 
-	dfs(*(*G)[0]);
+	dfs(*G[0]);
 }
 
 void dfs(Node<NT, ET>& N)
@@ -33,7 +33,7 @@ void dfs(Node<NT, ET>& N)
 		for (auto &e : N.edges)
 		{
 			int index = e->dst->index;
-			dfs(*(*G)[index]);
+			dfs(*G[index]);
 		}
 	}
 }
