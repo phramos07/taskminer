@@ -42,7 +42,7 @@ bool TaskMiner::runOnFunction(Function &F)
 	LI = &(LIWP->getLoopInfo());
 	// DA = &(getAnalysis<DepAnalysis>());
 
-	// getLoopsInfo(F);
+	getLoopsInfo(F);
 	mineFunctionCallTasks(F);
 
 	//Resolve each task's ins and outs sets
