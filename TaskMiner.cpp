@@ -22,8 +22,8 @@ static RegisterPass<TaskMiner> B("taskminer", "Task Miner: finds regions or \
 
 TaskMiner::~TaskMiner()
 {
-	for (auto &t : tasks)
-		delete t;
+	// for (auto &t : tasks)
+	// 	delete t;
 }
 
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
