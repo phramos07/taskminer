@@ -1,7 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #define N 1000
 #define MAX_COORD 100
 #define MAX_DIST 1000000.0;
@@ -64,13 +66,16 @@ void bfs(int *G, int *node, int index, bool *visited) {
     #pragma omp single
     for (unsigned i = 0; i < N; i++)
       if (*(node + i) != 0) {
-        #pragma omp task depend(inout:index,i)
-        findNearestNeighbor(index, i);
-        long long int TM7[3];
-        TM7[0] = i * 1000;
-        TM7[1] = TM7[0] * 4;
-        TM7[2] = (TM7[1] / 4);
-        #pragma omp task depend(inout:G,G[TM7[2]],i,visited)
+        // eventual computations
+        double dist = sqrt(pow(nodesCoord[index].x - nodesCoord[i].x, 2) +
+                           pow(nodesCoord[index].y - nodesCoord[i].y, 2));
+
+        // recursive call
+        long long int TM14[3];
+        TM14[0] = i * 1000;
+        TM14[1] = TM14[0] * 4;
+        TM14[2] = (TM14[1] / 4);
+        #pragma omp task depend(in:G,G[TM14[2]]) depend(out:i) depend(inout:visited)
         bfs(G, &G[i * N], i, visited);
       }
   }
