@@ -71,13 +71,13 @@ void bfs(int* G, int* node, int index, bool* visited)
 	if (!visited[index])
 	{
 		visited[index] = true;
-		#pragma omp parallel
-		#pragma omp single
 		for (unsigned i=0; i<N; i++)
 			if (*(node + i) != 0)
 			{
-				findNearestNeighbor(index, i);
-				#pragma omp task depend(in:G[i*N])
+				//eventual computations 
+				double dist = sqrt(pow(nodesCoord[src].x - nodesCoord[dst].x, 2) + pow(nodesCoord[src].y - nodesCoord[dst].y, 2));
+				
+				//recursive call
 				bfs(G, &G[i*N], i, visited);			
 			}
 	}
