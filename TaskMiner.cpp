@@ -162,7 +162,7 @@ void TaskMiner::mineFunctionCallTasks(Function &F)
 								&& (!calledF->isDeclaration())
 								&& (!calledF->isIntrinsic())
 								&& (fCalls.find(CI) == fCalls.end())
-								&& (!CI->getDereferenceableBytes(0)))
+								/* && (!CI->getDereferenceableBytes(0))*/)
 							{
 								Task* functionCallTask = new FunctionCallTask(l.first, CI);
 								insertNewFunctionCallTask(*functionCallTask);
