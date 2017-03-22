@@ -38,10 +38,10 @@ double dfs(Node<NT, ET>& N)
 		//dfs recursive visit
 		#pragma omp parallel
 		#pragma omp single
-		for (auto &e : N.edges)
+		for (unsigned i = 0; i < N.edges.size(); i++)
 		{
-			int index = e->dst->index;
-			#pragma omp task depend(inout:(*G)[index])
+			int index = edges[i]->dst->index;
+			#pragma omp task
 			dfs(*G[index]);
 		}
 	}

@@ -23,7 +23,7 @@ struct Node
 {
 	int index;
 	NodeType weight;
-	std::list<Edge<NodeType, EdgeType>* > edges;
+	std::vector<Edge<NodeType, EdgeType>* > edges;
 	bool visited;
 
 	Node(int i, NodeType w) : index(i), weight(w) {};
