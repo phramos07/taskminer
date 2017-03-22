@@ -27,7 +27,7 @@ struct Node
 	bool visited;
 
 	Node(int i, NodeType w) : index(i), weight(w) {};
-	~Node() { delete[] edges; };
+	~Node() {};
 	void addEdge(Edge<NodeType, EdgeType> &e) { edges.push_back(&e); };
 };
 
@@ -40,7 +40,7 @@ struct Edge
 
 	Edge(Node<NodeType, EdgeType>* s, Node<NodeType, EdgeType>* d, EdgeType w) :
 		src(s), dst(d), weight(w) {};
-	~Edge() { delete src, dst;}
+	~Edge() {}
 };
 
 typedef int NT;
