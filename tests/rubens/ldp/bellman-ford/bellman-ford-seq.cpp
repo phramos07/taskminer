@@ -32,9 +32,12 @@ void relax_edges(struct Graph& graph, int u_id, int k_id) {
 void bellman_ford(struct Graph& graph, int root) {
 
 	graph.node[root].distance[root] = 0;
-	for (int i = 0; i < graph.num_nodes - 1; ++i) {
-		for (int j = 0; j < graph.num_nodes; ++j) {
-			if (graph.node[j].length > 0) relax_edges(graph, root, j);
+	for (int i = 0; i < graph.num_nodes - 1; ++i)
+	{
+		for (int j = 0; j < graph.num_nodes; ++j)
+		{
+			if (graph.node[j].length > 0)
+				relax_edges(graph, root, j);
 		}
 	}
 
