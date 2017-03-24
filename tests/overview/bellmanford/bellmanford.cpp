@@ -1,124 +1,49 @@
-#include <iostream>
-#include <vector>
-#include <map>
+#include "../lib/Graph.hpp"
+#include <cmath>
+#include <ctime>
 #include <omp.h>
-#include <math.h>
-#define N 1000
-#define MAX_COORD 100
-#define MAX_DIST 1000000.0;
-#define INF (1 << 29)
 
-// #define DEBUG
+static const int SIZE = 1500;
 
-struct Coord
+Graph G(SIZE);
+
+void graph_bellmanFord();
+
+void udpate();
+
+int main(int argc, char const *argv[])
 {
-	int x;
-	int y;
-};
+	clock_t begin = std::clock();
 
-std::map<int, Coord> nodesCoord;
-std::vector<double> nodesMinDist(N);
-std::vector<int> nodesMinDistIndex(N);
+	graph_bellmanFord();
 
-void bfs(int* G, int* node, int index, bool* visited);
+	clock_t end = std::clock();
 
-void fillgraph(int* G);
+	double elapsed_time = double(end-begin) / CLOCKS_PER_SEC;
 
-void printGraph(int* G);
-
-void findNearestNeighbor(int src, int dst);
-
-int main(int argc, char* argv[])
-{
-	int* G = new int[N*N];
-	int* neigh = new int[N];
-	bool* visited = new bool[N];
-	for (unsigned i = 0; i<N; i++)
-	{
-		visited[i] = false;
-		neigh[i] = 0;
-		nodesMinDist[i] = MAX_DIST;
-	}
-
-	fillgraph(G);
-	bfs(G, &G[0], 0, visited);
-
-	#ifdef DEBUG
-		printGraph(G);
-
-		for (unsigned i = 0; i < N; i++)
-			std::cout << "Node " << i << " has " << neigh[i] << " in-edges" << std::endl;
-
-		for (unsigned i = 0; i< N; i++)
-		{
-			std::cout << "Node "
-								<< i
-								<< " Min dist, node: "
-								<< nodesMinDistIndex[i]
-								<< " at "
-								<< nodesMinDist[i]
-								<< "\n";
-		}		
-	#endif
-
-	delete [] G;
-	delete [] neigh;
-	delete [] visited;
+	std::cout << "\nElapsed time: " << elapsed_time << "s \n";
 
 	return 0;
 }
 
-void bfs(int* G, int* node, int index, bool* visited)
+void graph_bellmanFord()
 {
-	if (!visited[index])
-	{
-		visited[index] = true;
-		#pragma omp parallel
-		#pragma omp single
-		for (unsigned i=0; i<N; i++)
-			if (*(node + i) != 0)
-			{
-				findNearestNeighbor(index, i);
-				#pragma omp task depend(in:G[i*N])
-				bfs(G, &G[i*N], i, visited);			
-			}
-	}
-	return;
+	for (unsigned i = 0; i < G.size; i++)
+		G[i]->visited = false;
+
+	int * dist new int(SIZE);
+
+
+	//for every V in G:
+	// dist(V) = INF
+	// prev(V) = nil
+
+	//dist(start) = 0;
+
+	//repeat(|V| - 1):
+	//for every e in Edges:
+	//update(e);
 }
 
-void findNearestNeighbor(int src, int dst)
-{
-	double dist = sqrt(pow(nodesCoord[src].x - nodesCoord[dst].x, 2) + pow(nodesCoord[src].y - nodesCoord[dst].y, 2));
-	if (dist < nodesMinDist[src])
-	{
-		nodesMinDist[src] = dist;
-		nodesMinDistIndex[src] = dst;
-	}
-}
-
-void fillgraph(int* G)
-{
-	for (long unsigned i = 0; i < N; i++)
-	{
-		for (long unsigned j = 0; j < N; j++)
-		{
-			*(G + i*N + j) = rand()%5;
-		}
-		nodesCoord[i].x = rand()%MAX_COORD;
-		nodesCoord[i].y = rand()%MAX_COORD;		
-	}
-}
-
-void printGraph(int* G)
-{
-	for (long unsigned i = 0; i < N; i++)
-	{
-		for (long unsigned j = 0; j < N; j++)
-		{
-			std::cout << *(G + i*N + j) << " ";
-		}
-		std::cout << std::endl;
-	}
-}
-
-
+//update((u,v) in E)
+//dist(v) = min{dist(v), dist(u)+l(u,v)}
