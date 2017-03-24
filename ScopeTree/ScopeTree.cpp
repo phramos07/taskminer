@@ -1,4 +1,4 @@
-//===---------------------------- ScopeTree.cpp --------------------------===//
+//===---------------------------- tcopeTree.cpp --------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -361,7 +361,6 @@ void ScopeTree::printData () {
 
 void ScopeTree::associateLoopstoRegion (std::map<Loop*, STnode> & Loops,
                                         Region *R) {
- 
   for (auto BB = R->block_begin(), BE = R->block_end(); BB != BE; BB++) {
     Loop *L = li->getLoopFor(*BB);
     if (!L || Loops.count(L))
