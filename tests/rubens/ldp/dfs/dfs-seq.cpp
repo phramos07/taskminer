@@ -2,9 +2,8 @@
 # include <iomanip>
 # include <iostream>
 
-# include "../../timing.h"
-# include "ldp/graph.hpp"
-# include "ldp/common.hpp"
+# include "../ldp/graph.hpp"
+# include "../ldp/common.hpp"
 
 
 // Traverses the matrix in a depth-first fashion (no-LDP)
@@ -72,12 +71,12 @@ int main (int argc, char *argv[]) {
 
 	float *f = new float[num_nodes];
 
-	reset_and_start_timer();
+	// reset_and_start_timer();
 	for (int i(0); i < num_nodes; ++i) graph_dfs(graph, i, f);
-	elapsed += get_elapsed_mcycles();
+	// elapsed += get_elapsed_mcycles();
 
 	// graph_dump(graph);
-	print_runtime(elapsed);
+	// print_runtime(elapsed);
 
 	delete[] f;
 	delete[] node;

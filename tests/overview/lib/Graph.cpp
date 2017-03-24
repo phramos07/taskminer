@@ -26,6 +26,7 @@ Graph::Graph(int s) : size(s)
 					node1 = this->operator[](i);
 					node2 = this->operator[](j);
 					Edge<NT, ET>* edge = new Edge<NT, ET>(node1, node2, weight);
+					node1->edges.push_back(edge);
 					edges.push_back(edge);
 				}
 			}

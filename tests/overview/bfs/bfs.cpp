@@ -75,7 +75,7 @@ void bfs(int* G, int* node, int index, bool* visited)
 			if (*(node + i) != 0)
 			{
 				//eventual computations 
-				double dist = sqrt(pow(nodesCoord[src].x - nodesCoord[dst].x, 2) + pow(nodesCoord[src].y - nodesCoord[dst].y, 2));
+				double dist = sqrt(pow(nodesCoord[index].x - nodesCoord[i].x, 2) + pow(nodesCoord[index].y - nodesCoord[i].y, 2));
 				
 				//recursive call
 				bfs(G, &G[i*N], i, visited);			

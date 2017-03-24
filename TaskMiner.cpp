@@ -149,8 +149,8 @@ void TaskMiner::mineFunctionCallTasks(Function &F)
 	for (auto &l : loops)
 	{
 		// l.second.print();
-		if (l.second.indVar == nullptr)
-			continue;
+		// if (l.second.indVar == nullptr)
+		// 	continue;
 		for (auto &bb : l.second.innerBBs)
 		{
 			for (BasicBlock::iterator func = bb->begin(); func != bb->end(); ++func)
