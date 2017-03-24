@@ -56,6 +56,10 @@ class RecoverExpressions : public FunctionPass {
   std::string NAME;
 
   int index;
+
+  std::set<Value*> liveIN;
+  std::set<Value*> liveOUT;
+  std::set<Value*> liveINOUT;
   //===---------------------------------------------------------------------===
 
   // Methods to manage the correct computation auxiliar names.

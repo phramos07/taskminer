@@ -28,6 +28,8 @@
 
 #include "recoverExpressions.h"
 
+#define JNON0 (j > 0) ? "," : "";
+
 using namespace llvm;
 using namespace std;
 using namespace lge;
@@ -96,7 +98,6 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
                                                 const DataLayout *DT,
                                                 RecoverCode *RC) {
   Value *V = CI->getCalledValue();
-  CI->dump();
   if (!isa<Function>(V))
     return std::string();
   Function *F = cast<Function>(V);
@@ -109,14 +110,20 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     valid = false;
     return output;
   }  
-
+  errs() << "HERE\n";
   // Define if this CALL INST is contained in the knowed tasks well
   // define by Task Miner
   bool isTask = false;
-  
-for (auto &I: *(this->tm->getTasks())) {
+  this->liveIN.erase(this->liveIN.begin(), this->liveIN.end());
+  this->liveOUT.erase(this->liveOUT.begin(), this->liveOUT.end());
+  this->liveINOUT.erase(this->liveINOUT.begin(), this->liveINOUT.end());
+  for (auto &I: this->tm->getTasks()) {
+    I->print(errs());
     if (FunctionCallTask *FCT = dyn_cast<FunctionCallTask>(I)) {
       if (FCT->getFunctionCall() == CI) {
+        this->liveIN = FCT->getLiveIN();
+        this->liveOUT = FCT->getLiveOUT();
+        this->liveINOUT = FCT->getLiveINOUT();
         isTask = true;
         break;
       }
@@ -124,21 +131,62 @@ for (auto &I: *(this->tm->getTasks())) {
   }
   if (isTask == false)
     return output;
-
   if (CI->getNumArgOperands() == 0)
     return "\n\n[UNDEF\nVALUE]\n\n";
 
-  output = analyzeValue(CI->getArgOperand(0), DT, RC);
-  if (output == std::string()) {
-    return std::string();
-  }
-  for (unsigned int i = 1; i < CI->getNumArgOperands(); i++) {
+  output = std::string();
+  std::map<Value*, std::string> strVal;
+  for (unsigned int i = 0; i < CI->getNumArgOperands(); i++) {
+    /*if (!isa<LoadInst>(CI->getArgOperand(i)) &&
+        !isa<StoreInst>(CI->getArgOperand(i)) &&
+        !isa<GetElementPtrInst>(CI->getArgOperand(i)) &&
+        !isa<Argument>(CI->getArgOperand(i)) &&
+        !isa<GlobalValue>(CI->getArgOperand(i)) &&
+        !isa<AllocaInst>(CI->getArgOperand(i)))
+      continue;
+    }*/
+     
     std::string str = analyzeValue(CI->getArgOperand(i), DT, RC);
     if (str == std::string()) {
       return std::string();
     }
-      output += "," + str;
+    strVal[CI->getArgOperand(i)] = str;
   }
+  if (this->liveIN.size() != 0) {
+    output += " depend(in:";
+    bool isused = false;
+    for (auto J = this->liveIN.begin(), JE = this->liveIN.end(); J != JE; J++) {
+      if (isused)
+        output += ",";
+      isused = true;
+      output += strVal[*J];
+    }
+    output += ")";
+  }
+  if (this->liveOUT.size() != 0) {
+    output += " depend(out:";
+    bool isused = false;
+    for (auto J = this->liveOUT.begin(), JE = this->liveOUT.end(); J != JE; J++) {
+      if (isused)
+        output += ",";
+      isused = true;
+      output += strVal[*J];
+    }
+    output += ")";
+  }
+  if (this->liveINOUT.size() != 0) {
+    output += " depend(inout:";
+    bool isused = false;
+    for (auto J = this->liveINOUT.begin(), JE = this->liveINOUT.end(); J != JE;
+      J++) {
+      if (isused)
+        output += ",";
+      isused = true;
+      output += strVal[*J];
+    } 
+    output += ")";
+  }
+  errs() << "OUTPUT = " << output << "\n";
   return output;
 }
 
@@ -249,13 +297,18 @@ RecoverCode *RC) {
 }
 
 void RecoverExpressions::annotateExternalLoop(Instruction *I) {
-  errs() << "To aqui\n";
   Region *R = rp->getRegionInfo().getRegionFor(I->getParent());
-  if (!st->isSafetlyRegionLoops(R))
+  Loop *LL = this->li->getLoopFor(I->getParent());
+  if (LL) {
+    if (LL->getHeader())
+      R = rp->getRegionInfo().getRegionFor(LL->getHeader());
+  }
+  /*if (!st->isSafetlyRegionLoops(R)) {
     return;
-  errs() << "Cheguei de novo\n";
+  }*/
   Loop *L = this->li->getLoopFor(I->getParent());
   int line = st->getStartRegionLoops(R).first;
+  errs() << "Writing in the line = " << std::to_string(line) << "\n";
   std::string output = std::string();
   output += "#pragma omp parallel\n#pragma omp single\n";
   addCommentToLine(output, line);
@@ -264,6 +317,7 @@ void RecoverExpressions::annotateExternalLoop(Instruction *I) {
 void RecoverExpressions::analyzeFunction(Function *F) {
   const DataLayout DT = F->getParent()->getDataLayout();
   RecoverCode RC;
+
   std::string computationName = "TM" + std::to_string(getIndex());
   RC.setNAME(computationName);
   RC.setRecoverNames(rn);
@@ -289,16 +343,17 @@ void RecoverExpressions::analyzeFunction(Function *F) {
             }
           }
           if (result != "\n\n[UNDEF\nVALUE]\n\n")
-            output += "#pragma omp task depend(inout:" + result + ")\n";
+            output += "#pragma omp task" + result + "\n";
           else
             output += "#pragma omp task\n";
-
+          
           Region *R = rp->getRegionInfo().getRegionFor(BB);
           int line = getLineNo(I);
           Loop *L = this->li->getLoopFor(I->getParent());
           if (!isUniqueinLine(I))
             continue;
-          if (!loops.count(L)) {
+          
+          if (loops.count(L) == 0) {
             annotateExternalLoop(I);
             loops[L] = true;
           }

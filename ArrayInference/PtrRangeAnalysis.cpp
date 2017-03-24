@@ -178,8 +178,7 @@ void PtrRangeAnalysis::analyzeRegionPointers (Region *R,
           if (GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(BasePtrV))
             BasePtrV = GEP->getPointerOperand();
         }
-        if (isa<LoadInst>(I) || isa<GetElementPtrInst>(I))
-          PointerAccessRegion[R][BasePtrV] |= LOAD;
+        PointerAccessRegion[R][BasePtrV] |= LOAD;
         if (isa<StoreInst>(I))
           PointerAccessRegion[R][BasePtrV] |= LOADSTORE;
       }
@@ -221,6 +220,7 @@ void PtrRangeAnalysis::analyzeRegionPointers (Region *R,
              PointerAccessRegion[R][args[J->first]] |= J->second;
            else if(isa<GlobalValue>(J->first))
              PointerAccessRegion[R][J->first] |= J->second;
+          
         }
       }
     }
