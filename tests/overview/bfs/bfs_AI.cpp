@@ -75,7 +75,7 @@ void bfs(int *G, int *node, int index, bool *visited) {
         TM14[0] = i * 1000;
         TM14[1] = TM14[0] * 4;
         TM14[2] = (TM14[1] / 4);
-        #pragma omp task depend(in:G,G[TM14[2]]) depend(out:i) depend(inout:visited)
+        #pragma omp task depend(in:G,G[TM14[2]]) depend(inout:visited)
         bfs(G, &G[i * N], i, visited);
       }
   }

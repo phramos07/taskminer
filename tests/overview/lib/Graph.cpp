@@ -1,7 +1,7 @@
 #include "Graph.hpp"
 #include <cmath>
 
-static const int MAX_WEIGHT=1000;
+static const int MAX_WEIGHT=100;
 
 Graph::Graph(int s) : size(s) 
 {

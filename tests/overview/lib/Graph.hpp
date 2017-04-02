@@ -49,7 +49,7 @@ typedef int ET;
 struct Graph 
 {	
 	std::vector<Node<NT, ET>* > nodes;
-	std::list<Edge<NT, ET>* > edges;
+	std::vector<Edge<NT, ET>* > edges;
 	int size=0;
 
 	Graph() {};
