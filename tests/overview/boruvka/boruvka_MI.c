@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#define SIZE 5
+#define SIZE 5500
 
 void fillgraph(int* G, int N)
 {
@@ -34,7 +34,7 @@ struct edge
 typedef struct edge edgeType;
 
 edgeType* edgeTab;
-int numVertices, numEdges;
+int numVertices, numEdges, usefulEdges;
 int *parent, *weight, numTrees;
 int* bestEdgeNum;
 int* G;
@@ -49,15 +49,36 @@ int find(int x)
   
   /* path compression */
   for (i = x; parent[i] != i; )
+  {
   	j = parent[i];
   	parent[i] = root;
-  	i = j;
-  
+  	i = j;  	
+  }
+
   return root;
+}
+
+void findRootsOfEdge(int i)
+{
+	int root1, root2;
+  root1 = find(edgeTab[i].src);
+  root2 = find(edgeTab[i].dst);
+  if (root1 != root2)
+  {
+    usefulEdges++;
+    if (bestEdgeNum[root1] == (-1) ||
+        edgeTab[bestEdgeNum[root1]].weight > edgeTab[i].weight)
+      bestEdgeNum[root1] = i;  // Have a new best edge from this component
+
+    if (bestEdgeNum[root2] == (-1) ||
+        edgeTab[bestEdgeNum[root2]].weight > edgeTab[i].weight)
+      bestEdgeNum[root2] = i;  // Have a new best edge from this component
+  }
 }
 
 void union_(int i, int j)
 {
+	// printf("Union of %d and %d\n", i, j);
   if (weight[i] > weight[j])
   {
     parent[j] = i;
@@ -75,7 +96,6 @@ int main()
 {
   int i, j, MSTweight = 0;
   int root1, root2;
-  int usefulEdges;
 
   edgeTab = (edgeType*)malloc(SIZE*SIZE* sizeof(edgeType));
   parent = (int*)malloc(SIZE * sizeof(int));
@@ -84,7 +104,7 @@ int main()
   G = (int*)malloc(SIZE*SIZE*sizeof(int));
 
   fillgraph(G, SIZE);
-  printGraph(G, SIZE);
+  // printGraph(G, SIZE);
 
   //fillEdgeInfo
   for (i = 0; i < SIZE; i++)
@@ -111,10 +131,14 @@ int main()
 
   	usefulEdges = 0;
 
+  	#pragma omp parallel
+  	#pragma omp single
     for (i = 0; i < SIZE*SIZE; i++)
     {
-    	if (edgeTab[i].weight == 0)
+    	if (edgeTab[i].weight <= 0)
     		continue;
+    	#pragma omp task
+    	// findRootsOfEdge(i);
       root1 = find(edgeTab[i].src);
       root2 = find(edgeTab[i].dst);
       if (root1 != root2)
@@ -138,15 +162,15 @@ int main()
         if (root1 == root2)
           continue;  // This round has already connected these components.
         MSTweight += edgeTab[bestEdgeNum[i]].weight;
-        printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
-               edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
+        // printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
+        //        edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
         union_(root1, root2);
       }
-    printf("numTrees is %d\n", numTrees);
+    // printf("numTrees is %d\n", numTrees);
   }
 
   if (numTrees != 1)
     printf("MST does not exist\n");
 
-  printf("Sum of weights of spanning edges %d\n", MSTweight);
+  // printf("Sum of weights of spanning edges %d\n", MSTweight);
 }

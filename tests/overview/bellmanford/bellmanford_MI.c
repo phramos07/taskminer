@@ -61,10 +61,9 @@ void graph_bellmanFord()
 		for (unsigned j = 0; j < SIZE; j++)
 			for (unsigned k = 0; k < SIZE; k++)
 			{
-				#pragma omp task depend(inout:dist[k])
+				// #pragma omp task depend(inout:dist[k])
 				relax_edges(j, k, &dist[k]);
 			}
-
 }
 
 //update((u,v) in E)
