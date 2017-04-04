@@ -110,7 +110,6 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     valid = false;
     return output;
   }  
-  errs() << "HERE\n";
   // Define if this CALL INST is contained in the knowed tasks well
   // define by Task Miner
   bool isTask = false;
@@ -120,6 +119,8 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   for (auto &I: this->tm->getTasks()) {
     I->print(errs());
     if (FunctionCallTask *FCT = dyn_cast<FunctionCallTask>(I)) {
+      FCT->getFunctionCall()->dump();
+      CI->dump();
       if (FCT->getFunctionCall() == CI) {
         this->liveIN = FCT->getLiveIN();
         this->liveOUT = FCT->getLiveOUT();
@@ -133,7 +134,6 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     return output;
   if (CI->getNumArgOperands() == 0)
     return "\n\n[UNDEF\nVALUE]\n\n";
-
   output = std::string();
   std::map<Value*, std::string> strVal;
   for (unsigned int i = 0; i < CI->getNumArgOperands(); i++) {
@@ -186,7 +186,6 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     } 
     output += ")";
   }
-  errs() << "OUTPUT = " << output << "\n";
   return output;
 }
 
@@ -346,19 +345,22 @@ void RecoverExpressions::analyzeFunction(Function *F) {
             output += "#pragma omp task" + result + "\n";
           else
             output += "#pragma omp task\n";
-          
           Region *R = rp->getRegionInfo().getRegionFor(BB);
           int line = getLineNo(I);
           Loop *L = this->li->getLoopFor(I->getParent());
           if (!isUniqueinLine(I))
             continue;
           
-          if (loops.count(L) == 0) {
+          if ((loops.count(L) == 0) && st->isSafetlyRegionLoops(R)) {
             annotateExternalLoop(I);
             loops[L] = true;
           }
           if(st->isSafetlyRegionLoops(R))
             addCommentToLine(output, line);
+          else {
+            errs() << "ERROR\n";
+            R->dump(); 
+          }
         }
       }
     }
