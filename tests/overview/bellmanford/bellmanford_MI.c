@@ -3,7 +3,7 @@
 #include <omp.h>
 // #define DEBUG
 
-static int const SIZE = 100;
+static int const SIZE = 800;
 static int const INF = 10000000;
 static int const NODE_START = 0;
 
@@ -59,10 +59,15 @@ void graph_bellmanFord()
 	#pragma omp single
 	for (unsigned i = 0; i < SIZE - 1; i++)
 		for (unsigned j = 0; j < SIZE; j++)
-			for (unsigned k = 0; k < SIZE; k++)
+			for (unsigned k = 0; k < SIZE; k += 4)
 			{
-				// #pragma omp task depend(inout:dist[k])
+				#pragma omp task
+				{
 				relax_edges(j, k, &dist[k]);
+				relax_edges(j, k+1, &dist[k+1]);
+				relax_edges(j, k+2, &dist[k+2]);
+				relax_edges(j, k+3, &dist[k+3]);					
+				}
 			}
 }
 
