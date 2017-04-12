@@ -1,9 +1,9 @@
 import sys
 import random
 
-NUM_LINES_DEFAULT=1000
-NUM_CHARS_DEFAULT=80000
-VARIATION=1000
+NUM_LINES_DEFAULT=50
+NUM_CHARS_DEFAULT=8000
+VARIATION=100
 
 def genBook(fileName, numLines=NUM_LINES_DEFAULT, numChars=NUM_CHARS_DEFAULT):
 	with open(fileName, "w") as f:

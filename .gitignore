@@ -4,4 +4,12 @@
 *.out
 *.ll
 *.dot
+*.input
+*.bc
+*.d
+*.aux
+*.bbl
+*.blg
+*.log
+*.gz
 Makefile

@@ -15,7 +15,7 @@ Line* getLines(const char* name, int* numLines);
 
 void printLines(Line* line);
 
-void filterLine(const Line line, const char* word, int wordSize, int* occurrences);
+void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet);
 
 int main(int argc, char const *argv[])
 {
@@ -29,6 +29,8 @@ int main(int argc, char const *argv[])
 	Line* lines = getLines(argv[1], &numLines);
 
 	int* filtered = (int*)malloc(numLines*sizeof(int));
+	int* alphabet = malloc(numLines*sizeof(int));
+
 
 	const char* word = argv[2];
 	const int wordSize = strlen(word);
@@ -37,8 +39,8 @@ int main(int argc, char const *argv[])
 	#pragma omp single
 	for (int i = 0; i < numLines; i++)
 	{
-		#pragma omp task depend(in:lines[i])
-		filterLine(lines[i], word, wordSize, &filtered[i]);
+		#pragma omp task depend(in:lines[i]) depend(out: filtered[i], alphabet[i])
+		filterLine(lines[i], word, wordSize, &filtered[i], &alphabet[i]);
 	}
 
 	#ifdef DEBUG
@@ -46,7 +48,7 @@ int main(int argc, char const *argv[])
 		// printLines(lines);
 		for (int i = 0; i < numLines; i++)
 		{
-			printf("Found %d matches in line %d\n", filtered[i], i);
+			printf("Found %d matches and %d alphabet sequences in line %d\n", filtered[i], alphabet[i],i);
 		}
 	#endif
 
@@ -86,7 +88,7 @@ Line* getLines(const char* name, int* numLines)
 }
 
 
-void filterLine(const Line l, const char* word, int wordSize, int* occurrences)
+void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet)
 {
 	for (int i = 0; i < l.size; i++)
 	{
@@ -105,6 +107,22 @@ void filterLine(const Line l, const char* word, int wordSize, int* occurrences)
 			}
 		}
 	}
+
+	int a, b;
+
+	for (int i= 0; i < l.size; i++)
+		for (int j = i+1; j < l.size-1; j++)
+		{
+			a = atoi(&l.line[i]);
+			b = atoi(&l.line[j]);
+
+			if (a == (b-1))
+				(*alphabet)++;
+		}
+
+	// for (int i = 0 + *occurrences; i < l.size; i++)
+	// 	for (int j = *occurrences; j < 5000; j++);
+
 }
 
 
