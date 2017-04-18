@@ -10,11 +10,15 @@ struct Line
 
 }typedef Line;
 
-Line* getLines(const char* name, int* numLines);
+// Line* getLines(const char* name, int* numLines);
 
-void printLines(Line* line);
+char** getLines(const char* name, int* numLines, int* size);
 
-void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet);
+void printLines(char** lines, const int numLines);
+
+// void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet);
+
+void filterLine(const char* line, const int lineSize, const char* word, const int wordSize, int* occurrences, int* alphabet);
 
 int main(int argc, char const *argv[])
 {
@@ -23,76 +27,168 @@ int main(int argc, char const *argv[])
 		printf("Not enough arguments to main. <BOOK> <WORD> \n");
 		return 0;
 	}
-	int numLines;
-	Line* lines = getLines(argv[1], &numLines);
 
-	int* filtered = malloc(numLines*sizeof(int));
-	int* alphabet = malloc(numLines*sizeof(int));
+	int numLines, numChars;
+	int* size;
+	// char** lines = getLines(argv[1], &numLines, &(*size));
+
+	char** lines;
+	FILE* in;
+	in = fopen(argv[1], "r");
+	fscanf(in, "%d\n", &(numLines));
+	size = (int*)malloc((numLines)*sizeof(int));
+	lines = (char**)malloc((numLines)*sizeof(char*));
+	for (int i = 0; i < (numLines); i++)
+	{
+		fscanf(in, "%d ", &numChars);
+		size[i] = numChars;
+		lines[i] = (char*)malloc((numChars+1)*sizeof(char));
+		for (int j = 0; j < numChars; j++)
+		{
+			fscanf(in, "%c", &lines[i][j]);
+		}
+		fscanf(in, "\n", NULL);
+	}
+
+	int* filtered = (int*)malloc(numLines*sizeof(int));
+	int* alphabet = (int*)malloc(numLines*sizeof(int));
 
 	const char* word = argv[2];
 	const int wordSize = strlen(word);
 
+	// #pragma omp parallel
+	// #pragma omp single
 	for (int i = 0; i < numLines; i++)
 	{
-		filterLine(lines[i], word, wordSize, &filtered[i], &alphabet[i]);
+		// #pragma omp task depend(in:lines[i], size[i]) depend(out: filtered[i], alphabet[i])
+		filterLine(lines[i], size[i], word, wordSize, &filtered[i], &alphabet[i]);
 	}
 
 	#ifdef DEBUG
 		//debugging
-		// printLines(lines);
+		// printLines(lines, numLines);
 		for (int i = 0; i < numLines; i++)
 		{
 			printf("Found %d matches and %d alphabet sequences in line %d\n", filtered[i], alphabet[i],i);
 		}
 	#endif
 
+	// free(filtered);
+	// free(alphabet);
+	// free(lines);
+	// free(size);
+
 	return 0;
 }
 
-void printLines(Line* line)
+void printLines(char** lines, const int numLines)
 {
-	for (; line->line != NULL; line++)
+	int i;
+	for (i=0; i < numLines; i++)
 	{
-		printf("%s\n", line->line);
+		printf("%s\n", lines[i]);
 	}
 }
 
-Line* getLines(const char* name, int* numLines)
+// Line* getLines(const char* name, int* numLines)
+// {
+// 	Line* lines;
+// 	int numChars;
+// 	FILE* in;
+// 	in = fopen(name, "r");
+// 	fscanf(in, "%d\n", &(*numLines));
+// 	lines = (Line*)malloc((*numLines)*sizeof(Line));
+// 	for (int i = 0; i < (*numLines); i++)
+// 	{
+// 		fscanf(in, "%d ", &numChars);
+// 		lines[i].size = numChars;
+// 		lines[i].line = (char*)malloc((numChars+1)*sizeof(char));
+// 		for (int j = 0; j < numChars; j++)
+// 		{
+// 			fscanf(in, "%c", &lines[i].line[j]);
+// 		}
+// 		fscanf(in, "\n", NULL);
+// 	}
+// 	// fscanf(in, "\n", NULL);
+
+// 	return lines;
+// }
+
+char** getLines(const char* name, int* numLines, int* size)
 {
-	Line* lines;
+	char** lines;
 	int numChars;
 	FILE* in;
 	in = fopen(name, "r");
 	fscanf(in, "%d\n", &(*numLines));
-	lines = malloc((*numLines)*sizeof(Line));
+	size = (int*)malloc((*numLines)*sizeof(int));
+	lines = (char**)malloc((*numLines)*sizeof(char*));
 	for (int i = 0; i < (*numLines); i++)
 	{
 		fscanf(in, "%d ", &numChars);
-		lines[i].size = numChars;
-		lines[i].line = malloc((numChars+1)*sizeof(char));
+		size[i] = numChars;
+		lines[i] = (char*)malloc((numChars+1)*sizeof(char));
 		for (int j = 0; j < numChars; j++)
 		{
-			fscanf(in, "%c", &lines[i].line[j]);
+			fscanf(in, "%c", &lines[i][j]);
 		}
 		fscanf(in, "\n", NULL);
 	}
-	// fscanf(in, "\n", NULL);
 
 	return lines;
 }
 
-void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet)
+
+// void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet)
+// {
+// 	for (int i = 0; i < l.size; i++)
+// 	{
+// 		if(l.line[i] == word[0]) //found first letter
+// 		{
+// 			for (int k = 1; k < wordSize; k++)
+// 			{
+// 				if (i+k >= l.size)
+// 					break;
+
+// 				if (l.line[i+k] != l.line[k])
+// 					break;
+
+// 				if (k == wordSize-1)
+// 					(*occurrences)++;
+// 			}
+// 		}
+// 	}
+
+// 	int a, b;
+
+// 	for (int i= 0; i < l.size; i++)
+// 		for (int j = i+1; j < l.size-1; j++)
+// 		{
+// 			a = atoi(&l.line[i]);
+// 			b = atoi(&l.line[j]);
+
+// 			if (a == (b-1))
+// 				(*alphabet)++;
+// 		}
+
+// 	// for (int i = 0 + *occurrences; i < l.size; i++)
+// 	// 	for (int j = *occurrences; j < 5000; j++);
+
+// }
+
+
+void filterLine(const char* line, const int lineSize, const char* word, const int wordSize, int* occurrences, int* alphabet)
 {
-	for (int i = 0; i < l.size; i++)
+	for (int i = 0; i < lineSize; i++)
 	{
-		if(l.line[i] == word[0]) //found first letter
+		if(line[i] == word[0]) //found first letter
 		{
 			for (int k = 1; k < wordSize; k++)
 			{
-				if (i+k >= l.size)
+				if (i+k >= lineSize)
 					break;
 
-				if (l.line[i+k] != l.line[k])
+				if (line[i+k] != line[k])
 					break;
 
 				if (k == wordSize-1)
@@ -103,23 +199,20 @@ void filterLine(const Line l, const char* word, int wordSize, int* occurrences, 
 
 	int a, b;
 
-	for (int i= 0; i < l.size; i++)
-		for (int j = i+1; j < l.size-1; j++)
-		{
-			a = atoi(&l.line[i]);
-			b = atoi(&l.line[j]);
+	for (int i= 0; i < lineSize; i++)
+	{
+		a = (int)(line[i]);
+		b = (int)(line[i+1]);
 
-			if (a == (b-1))
-				(*alphabet)++;
-		}
+		// printf("%d %d\n", a, b);
 
-	// for (int i = 0 + *occurrences; i < l.size; i++)
-	// 	for (int j = *occurrences; j < 5000; j++);
+		if (a == b+1)
+			(*alphabet)++;		
+	}
 
+	for (int i = 0 + *occurrences; i < lineSize; i++)
+		for (int j = *occurrences; j < lineSize; j++);
 }
-
-
-
 
 
 
