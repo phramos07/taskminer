@@ -3,13 +3,6 @@
 #include <string.h>
 #define DEBUG
 
-struct Line
-{
-	char* line;
-	int size;
-
-}typedef Line;
-
 // Line* getLines(const char* name, int* numLines);
 
 char** getLines(const char* name, int* numLines, int* size);
