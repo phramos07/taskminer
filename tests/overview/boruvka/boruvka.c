@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#define SIZE 10
+#define SIZE 10000
 
 void fillgraph(int* G, int N)
 {

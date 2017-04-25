@@ -8,7 +8,7 @@
 
 char** getLines(const char* name, int* numLines, int* size);
 
-void printLines(char** lines, const int numLines);
+void printLines(char* lines, const int numLines, const int numChars);
 
 // void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet);
 
@@ -28,41 +28,49 @@ int main(int argc, char const *argv[])
 	int* size;
 	// char** lines = getLines(argv[1], &numLines, &(*size));
 
-	char** lines;
+	char* lines;
 	FILE* in;
 	in = fopen(argv[1], "r");
 	fscanf(in, "%d\n", &(numLines));
+	fscanf(in, "%d\n", &numChars);
 	size = (int*)malloc((numLines)*sizeof(int));
-	lines = (char**)malloc((numLines)*sizeof(char*));
+	lines = (char*)malloc((numLines*numChars + 1)*sizeof(char*));
 	for (int i = 0; i < (numLines); i++)
 	{
-		fscanf(in, "%d ", &numChars);
 		size[i] = numChars;
-		lines[i] = (char*)malloc((numChars+1)*sizeof(char));
+		// lines[i] = (char*)malloc((numChars+1)*sizeof(char));
 		for (int j = 0; j < numChars; j++)
 		{
-			fscanf(in, "%c", &lines[i][j]);
+			fscanf(in, "%c", &lines[i*numChars + j]);
 		}
 		fscanf(in, "\n", NULL);
 	}
 
 	int* filtered = (int*)malloc(numLines*sizeof(int));
 	int* alphabet = (int*)malloc(numLines*sizeof(int));
+	for (int i = 0;  i< numLines; i++)
+	{
+		filtered[i] = 0;
+		alphabet[i] = 0;
+	}
 
 	const char* word = argv[2];
 	const int wordSize = strlen(word);
+
+	// printLines(lines, numLines, numChars);
+
 
 	#pragma omp parallel
 	#pragma omp single
 	for (int i = 0; i < numLines; i++)
 	{
-		#pragma omp task depend(in:lines[i], size[i]) depend(inout: filtered[i], alphabet[i])
-		filterLine(lines[i], size[i], word, wordSize, &filtered[i], &alphabet[i]);
+		#pragma omp task depend(in:lines[i*numChars], size[i]) depend(inout: filtered[i], alphabet[i])
+		filterLine(&lines[i*numChars], size[i], word, wordSize, &filtered[i], &alphabet[i]);
 	}
 
 	#ifdef DEBUG
 		//debugging
-		// printLines(lines, numLines);
+		// printLines(lines, numLines, numChars);
 		for (int i = 0; i < numLines; i++)
 		{
 			printf("Found %d matches and %d alphabet sequences in line %d\n", filtered[i], alphabet[i],i);
@@ -77,12 +85,14 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
-void printLines(char** lines, const int numLines)
+void printLines(char* lines, const int numLines, const int numChars)
 {
-	int i;
+	int i, j;
 	for (i=0; i < numLines; i++)
 	{
-		printf("%s\n", lines[i]);
+		for (j = 0; j < numChars; j++)
+			printf("%c", lines[i*numChars + j]);
+		printf("\n");
 	}
 }
 
@@ -177,14 +187,14 @@ void filterLine(const char* line, const int lineSize, const char* word, const in
 {
 	for (int i = 0; i < lineSize; i++)
 	{
-		if(line[i] == word[0]) //found first letter
+		if(*(line + i) == word[0]) //found first letter
 		{
 			for (int k = 1; k < wordSize; k++)
 			{
 				if (i+k >= lineSize)
 					break;
 
-				if (line[i+k] != line[k])
+				if (*(line + i + k) != word[k])
 					break;
 
 				if (k == wordSize-1)
@@ -197,8 +207,8 @@ void filterLine(const char* line, const int lineSize, const char* word, const in
 
 	for (int i= 0; i < lineSize-1; i++)
 	{
-		a = (int)(line[i]);
-		b = (int)(line[i+1]);
+		a = (int)(*(line + i));
+		b = (int)(*(line + i + 1));
 
 		// printf("%d %d\n", a, b);
 
