@@ -13,3 +13,7 @@
 *.log
 *.gz
 Makefile
+ser
+par
+*.out
+*.dot

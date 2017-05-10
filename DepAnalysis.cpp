@@ -4,7 +4,7 @@
 using namespace llvm;		
 
 STATISTIC(RARDeps, "RAR Total num of input dependences");
-STATISTIC(WARDeps, "RAR Total num of anti dependences");
+STATISTIC(WARDeps, "WAR Total num of anti dependences");
 STATISTIC(RAWDeps, "RAW Total num of flow/true dependences");
 STATISTIC(WAWDeps, "RAR Total num of output dependences");
 STATISTIC(SCADeps, "SCA Total num of scalar dependences");

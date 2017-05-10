@@ -10,7 +10,7 @@ using namespace std;
 
 void doax1() {
 	int v[N];
-
+	
 	v[0] = 0;
 	for (int i=1; i<N; i++)
 		v[i] = v[i-1] + i;

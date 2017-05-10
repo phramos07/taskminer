@@ -74,6 +74,7 @@
   /Users/pedroramos/programs/llvm/include/llvm/Support/Atomic.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/Valgrind.h \
   /Users/pedroramos/programs/llvm/include/llvm/PassAnalysisSupport.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/TaskMiner.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Module.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Comdat.h \
@@ -90,9 +91,9 @@
   /Users/pedroramos/programs/llvm/include/llvm/Config/AsmParsers.def \
   /Users/pedroramos/programs/llvm/include/llvm/Config/Disassemblers.def \
   /Users/pedroramos/programs/llvm/include/llvm/Support/CommandLine.h \
-  /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallSet.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/raw_ostream.h \
+  /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/Debug.h \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/ControlDependenceGraph.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/DepthFirstIterator.h \
@@ -264,6 +265,8 @@
 
 /Users/pedroramos/programs/llvm/include/llvm/PassAnalysisSupport.h:
 
+/Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h:
+
 /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/TaskMiner.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/IR/Module.h:
@@ -296,11 +299,11 @@
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/CommandLine.h:
 
-/Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h:
+/Users/pedroramos/programs/llvm/include/llvm/ADT/SmallSet.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/raw_ostream.h:
+
+/Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/Debug.h:
 

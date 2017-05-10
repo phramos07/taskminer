@@ -24,6 +24,7 @@ using namespace llvm;
 #include <map>
 #include <string>
 #include <fstream>
+#include <stack>
 
 // Only edge type are necessary for now. We don't keep track of distances.
 enum DependenceType {RAR, WAW, RAW, WAR, CTR, SCA, RAWLC};
@@ -35,39 +36,22 @@ class GraphNode {
 public:
 	Instruction* instr;
 
-	GraphNode(Instruction* _instr) : instr(_instr)
-	{}
+	GraphNode(Instruction* _instr) : instr(_instr) {}
 };
 
 // Represent an edge in the PDG. We store whether the edge is a data
 // or control dependence as well as the source and sink of the dependence.
-class GraphEdge {
+class GraphEdge
+{
 public:
 	DependenceType type;
 	GraphNode* src;
 	GraphNode* dst;
 
-	GraphEdge(GraphNode* _src, GraphNode* _dst, DependenceType _type) : type(_type), src(_src), dst(_dst)
-	{}
+	GraphEdge(GraphNode* _src, GraphNode* _dst, DependenceType _type)
+		: type(_type), src(_src), dst(_dst) {}
 
-
-	std::string edgeLabel() {
-		switch (type) {
-			case RAR: return "RAR";
-			case RAWLC: return "RAW*";
-			case WAW: return "WAW";
-			case RAW: return "RAW";
-			case WAR: return "WAR";
-			case CTR: return "CTR";
-			case SCA: {
-				if (src->instr->hasName())
-					return src->instr->getName();
-				else
-					return "SCA";
-			}
-			default: return std::to_string(type);
-		}
-	}
+	std::string edgeLabel();
 };
 
 
@@ -92,107 +76,34 @@ class ProgramDependenceGraph {
 	unsigned int nextInstrID;
 
 	private:
-		GraphNode* getGraphNode(Instruction* instr) {
-			if (instrToNode.find(instr) == instrToNode.end())  {
-				instrToNode[instr] = std::make_pair(nextInstrID, new GraphNode(instr));
-				nextInstrID++;
-			}
-
-			return instrToNode[instr].second;
-		}
+		GraphNode* getGraphNode(Instruction* instr);
 
 	public:
-		ProgramDependenceGraph(std::string _functionName) : functionName(_functionName), nextInstrID(0)
-		{}
+		ProgramDependenceGraph(std::string _functionName) 
+			: functionName(_functionName), nextInstrID(0) {}
 
-		void addNode(Instruction* ins) {
-			getGraphNode(ins);
-		}
+		void addNode(Instruction* ins);
 
-		void addEntryNode(Instruction* ins) {
-			this->entry = getGraphNode(ins);
-		}
+		void addEntryNode(Instruction* ins);
 
-		void addExitNode(Instruction* ins) {
-			this->exit = getGraphNode(ins);
-		}
+		void addExitNode(Instruction* ins);
 
-		void addEdge(Instruction* srcI, Instruction* dstI, DependenceType type) {
-			auto src = getGraphNode(srcI);	
-			auto dst = getGraphNode(dstI);	
-			auto edge = new GraphEdge(src, dst, type);
+		void addEdge(Instruction* srcI, Instruction* dstI, DependenceType type);
 
-			outEdges[src].insert(edge);
-			inEdges[dst].insert(edge);
-		}
+		void connectToEntry(Instruction* dstI);
 
+		void connectToExit(Instruction* srcI);
 
-		void connectToEntry(Instruction* dstI) {
-			addEdge(entry->instr, dstI, DependenceType::CTR);
-		}
+		void dumpToDot(Function& F);
 
-		void connectToExit(Instruction* srcI) {
-			addEdge(srcI, exit->instr, DependenceType::CTR);
-		}
+		int tarjanVisit(GraphNode *v,
+                       std::map<GraphNode *, std::pair<int, int>> *indexLowLink,
+                       std::stack<GraphNode *> *stack,
+                       std::map<GraphNode *, bool> *onStack,
+                       std::set<std::set<GraphNode *>> *SCCs, int index);
 
-		void dumpToDot(Function& F) {
-			errs() << "Dumping instructions for function :: " << F.getName() << "\n";
+		std::set<std::set<GraphNode *>> findStrongConnectedComponents();
 
-			// Dump the function source with instruction IDs for reference. We also
-			// assign for each instruction address a smaller numerical ID for easy
-			// visual inspection of the graph.
-			for (Function::iterator bbIt = F.begin(), e = F.end(); bbIt != e; ++bbIt) {
-				if (bbIt->hasName())
-					errs() << bbIt->getName() << "\n";
-				else
-					errs() << "Unnamed Basic Block\n";
-
-				for (BasicBlock::iterator insIt = bbIt->begin(), e = bbIt->end(); insIt != e; ++insIt) {
-					errs() << "[" << instrToNode[&*insIt].first << "]" << *insIt << "\n";
-				}
-			}
-
-			// Write the graph to a DOT file
-			std::string graphName = functionName + ".dot";
-			std::ofstream dotStream;
-			dotStream.open(graphName);
-
-			if (!dotStream.is_open()) {
-				errs() << "Problem opening DOT file: " << graphName << "\n";
-			}	
-			else {
-				dotStream << "digraph g {\n";
-
-				// Create all nodes in DOT format
-				for (auto node : instrToNode) {
-					if (node.second.second == this->entry) 
-						dotStream << "\t\"" << instrToNode[node.second.second->instr].first << "\" [label=entry];\n";
-					else if (node.second.second == this->exit)
-						dotStream << "\t\"" << instrToNode[node.second.second->instr].first << "\" [label=exit];\n";
-					else
-						dotStream << "\t\"" << instrToNode[node.second.second->instr].first << "\";\n";
-				}
-
-				dotStream << "\n\n";
-
-				// Now print all outgoing edges and their labels
-				for (auto src : outEdges) {
-					for (auto dst : src.second) {
-						if (dst->type == CTR)
-							dotStream << "\t\"" << instrToNode[src.first->instr].first << "\" -> \"" << instrToNode[dst->dst->instr].first << "\" [style=dotted];\n";
-						else
-							dotStream << "\t\"" << instrToNode[src.first->instr].first << "\" -> \"" << instrToNode[dst->dst->instr].first << "\" [label=\"" << dst->edgeLabel() << "\"];\n";
-					}
-
-					dotStream << "\n";
-				}
-
-				dotStream << "}";
-				dotStream.close();
-			}
-
-			errs() << "\n\n";
-		}
 };
 
 #endif
