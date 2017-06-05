@@ -3,17 +3,19 @@
 #include <string.h>
 #define DEBUG
 
-// Line* getLines(const char* name, int* numLines);
+// Line* getLines( char* name, int* numLines);
 
-char** getLines(const char* name, int* numLines, int* size);
+char** getLines( char* name, int* numLines, int* size);
 
-void printLines(char* lines, const int numLines, const int numChars);
+void printLines(char* lines,  int numLines,  int numChars);
 
-// void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet);
+// void filterLine( Line l,  char* word, int wordSize, int* occurrences, int* alphabet);
 
-void filterLine(const char* line, const int lineSize, const char* word, const int wordSize, int* occurrences, int* alphabet);
+void filterLines(char* lines, int* size, int numLines, int numChars, char* word,  int wordSize, int* occurrences, int* alphabet);
 
-int main(int argc, char const *argv[])
+void filterLine( char* line,  int lineSize,  char* word,  int wordSize, int* occurrences, int* alphabet);
+
+int main(int argc, char  *argv[])
 {
 	if (argc < 3)
 	{
@@ -51,15 +53,17 @@ int main(int argc, char const *argv[])
 		alphabet[i] = 0;
 	}
 
-	const char* word = argv[2];
-	const int wordSize = strlen(word);
+	 char* word = argv[2];
+	 int wordSize = strlen(word);
 
 	// printLines(lines, numLines, numChars);
 
-	for (int i = 0; i < numLines; i++)
-	{
-		filterLine(&lines[i*numChars], size[i], word, wordSize, &filtered[i], &alphabet[i]);
-	}
+ filterLines(lines, size, numLines, numChars, word, wordSize, filtered, alphabet);
+
+	// for (int i = 0; i < numLines; i++)
+	// {
+	// 	filterLine(&lines[i*numChars], size[i], word, wordSize, &filtered[i], &alphabet[i]);
+	// }
 
 	#ifdef DEBUG
 		//debugging
@@ -78,7 +82,7 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
-void printLines(char* lines, const int numLines, const int numChars)
+void printLines(char* lines,  int numLines,  int numChars)
 {
 	int i, j;
 	for (i=0; i < numLines; i++)
@@ -89,7 +93,7 @@ void printLines(char* lines, const int numLines, const int numChars)
 	}
 }
 
-// Line* getLines(const char* name, int* numLines)
+// Line* getLines( char* name, int* numLines)
 // {
 // 	Line* lines;
 // 	int numChars;
@@ -113,7 +117,7 @@ void printLines(char* lines, const int numLines, const int numChars)
 // 	return lines;
 // }
 
-char** getLines(const char* name, int* numLines, int* size)
+char** getLines( char* name, int* numLines, int* size)
 {
 	char** lines;
 	int numChars;
@@ -138,7 +142,7 @@ char** getLines(const char* name, int* numLines, int* size)
 }
 
 
-// void filterLine(const Line l, const char* word, int wordSize, int* occurrences, int* alphabet)
+// void filterLine( Line l,  char* word, int wordSize, int* occurrences, int* alphabet)
 // {
 // 	for (int i = 0; i < l.size; i++)
 // 	{
@@ -175,8 +179,15 @@ char** getLines(const char* name, int* numLines, int* size)
 
 // }
 
+void filterLines(char* lines, int* size, int numLines, int numChars, char* word,  int wordSize, int* occurrences, int* alphabet)
+{
+	for (int i = 0; i < numLines; i++)
+	{
+		filterLine(&lines[i*numChars], size[i], word, wordSize, &occurrences[i], &alphabet[i]);
+	}	
+}
 
-void filterLine(const char* line, const int lineSize, const char* word, const int wordSize, int* occurrences, int* alphabet)
+void filterLine( char* line,  int lineSize,  char* word,  int wordSize, int* occurrences, int* alphabet)
 {
 	for (int i = 0; i < lineSize; i++)
 	{
