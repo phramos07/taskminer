@@ -1,9 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <omp.h>
-#define N 10000
+#define N 10500
 #define MAX_COORD 100
-#define MAX_DIST 100000;
+#define MAX_DIST 100;
 // #define DEBUG
 
 int nodesCoordX[N];
@@ -65,6 +65,10 @@ void dfs(int* G, int* node, int index)
 		for (unsigned i=0; i<N; i++)
 			if (*(node + i) != 0)
 			{
+				//recursive call
+				#pragma omp task
+				dfs(G, &G[i*N], i);
+
 				//eventual computations
 				neigh[i]++; 
 				double dist = sqrt(pow(nodesCoordX[index] - nodesCoordX[i], 2) + pow(nodesCoordY[index] - nodesCoordY[i], 2));
@@ -72,11 +76,7 @@ void dfs(int* G, int* node, int index)
 				{
 					nodesMinDist[index] = dist;
 					nodesMinDistIndex[index] = i;
-				}
-
-				//recursive call
-				#pragma omp task
-				dfs(G, &G[i*N], i);			
+				}			
 			}
 	}
 	return;

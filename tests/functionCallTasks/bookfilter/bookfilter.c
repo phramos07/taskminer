@@ -56,7 +56,6 @@ int main(int argc, char const *argv[])
 
 	// printLines(lines, numLines, numChars);
 
-
 	for (int i = 0; i < numLines; i++)
 	{
 		filterLine(&lines[i*numChars], size[i], word, wordSize, &filtered[i], &alphabet[i]);

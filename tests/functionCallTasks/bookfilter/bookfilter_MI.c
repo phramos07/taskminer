@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <omp.h>
-#define DEBUG
+// #define DEBUG
 
 // Line* getLines(const char* name, int* numLines);
 
