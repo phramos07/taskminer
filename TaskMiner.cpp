@@ -7,7 +7,7 @@
 #include "TaskMiner.h"
 #include "llvm/IR/Instructions.h"
 #define DEBUG_TYPE "TaskMiner"
-#define DEBUG_PRINT 
+//define DEBUG_PRINT 
 
 using namespace llvm;
 
@@ -59,8 +59,8 @@ bool TaskMiner::doFinalization(Module &M)
 		int i = 0;
 		for (auto &task : tasks)
 		{
-			errs() << "Task #" << i;
-			task->print(errs());
+			//errs() << "Task #" << i;
+			//task->print(errs());
 			i++;
 		}
 		// printLoops();
@@ -74,8 +74,8 @@ void TaskMiner::printLoops()
 {
 	for (auto &loop : loops)
 	{
-		errs() << loop.first << ":\n";
-		loop.second.print();
+//		errs() << loop.first << ":\n";
+//		loop.second.print();
 		errs() << "\n";
 	}
 }
