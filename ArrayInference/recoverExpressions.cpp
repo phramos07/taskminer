@@ -27,6 +27,7 @@
 #include "llvm/ADT/Statistic.h"
 
 #include "recoverExpressions.h"
+#include "recoverFunctionCall.h"
 
 #define JNON0 (j > 0) ? "," : "";
 
@@ -97,6 +98,13 @@ bool RecoverExpressions::isUniqueinLine(Instruction *I) {
 std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
                                                 const DataLayout *DT,
                                                 RecoverCode *RC) {
+  RecoverFunctionCall rfc;
+  std::string computationName = "TM" + std::to_string(getIndex());
+  rfc.setNAME(computationName);
+  rfc.setRecoverNames(rn);
+  rfc.initializeNewVars();
+
+  rfc.annotataFunctionCall(CI, ptrRa, rp, aa, se, li, dt);
   Value *V = CI->getCalledValue();
   if (!isa<Function>(V))
     return std::string();
@@ -130,10 +138,14 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
       }
     }
   }
-  if (isTask == false)
+  if (isTask == false) {
+    errs() << "ERROR 6\n";
     return output;
-  if (CI->getNumArgOperands() == 0)
+  }
+  if (CI->getNumArgOperands() == 0) {
+    errs() << "ERROR 5\n";
     return "\n\n[UNDEF\nVALUE]\n\n";
+  }
   output = std::string();
   std::map<Value*, std::string> strVal;
   for (unsigned int i = 0; i < CI->getNumArgOperands(); i++) {
@@ -148,6 +160,8 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
      
     std::string str = analyzeValue(CI->getArgOperand(i), DT, RC);
     if (str == std::string()) {
+      errs() << "ERROR 4:\n";
+      CI->getArgOperand(i)->dump();
       return std::string();
     }
     strVal[CI->getArgOperand(i)] = str;
@@ -338,6 +352,7 @@ void RecoverExpressions::analyzeFunction(Function *F) {
             output += RC.getUniqueString();
             RC.clearCommands();
             if (!RC.isValid()) {
+               errs() << "ERROR 3\n";
                continue;
             }
           }
@@ -348,8 +363,10 @@ void RecoverExpressions::analyzeFunction(Function *F) {
           Region *R = rp->getRegionInfo().getRegionFor(BB);
           int line = getLineNo(I);
           Loop *L = this->li->getLoopFor(I->getParent());
-          if (!isUniqueinLine(I))
+          if (!isUniqueinLine(I)) {
+            errs() << "ERROR 1\n";
             continue;
+          }
           
           if ((loops.count(L) == 0) && st->isSafetlyRegionLoops(R)) {
             annotateExternalLoop(I);
@@ -358,7 +375,7 @@ void RecoverExpressions::analyzeFunction(Function *F) {
           if(st->isSafetlyRegionLoops(R))
             addCommentToLine(output, line);
           else {
-            errs() << "ERROR\n";
+            errs() << "ERROR 2\n";
             R->dump(); 
           }
         }

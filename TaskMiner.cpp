@@ -6,8 +6,13 @@
 //MY IMPORTS
 #include "TaskMiner.h"
 #include "llvm/IR/Instructions.h"
+<<<<<<< HEAD
 #define DEBUG_TYPE "print-tasks"
 #define DEBUG_TYPE "print-loop"
+=======
+#define DEBUG_TYPE "TaskMiner"
+//define DEBUG_PRINT 
+>>>>>>> b50642b2cf609c4bffc2dc6cd485e8de4f87ddac
 
 using namespace llvm;
 
@@ -58,6 +63,7 @@ bool TaskMiner::doFinalization(Module &M)
 {
 	getStats();
 
+<<<<<<< HEAD
 	int i = 0;
 	for (auto &task : tasks)
 	{
@@ -67,6 +73,18 @@ bool TaskMiner::doFinalization(Module &M)
 		i++;
 	}
 	DEBUG(printLoops());
+=======
+	#ifdef DEBUG_PRINT
+		int i = 0;
+		for (auto &task : tasks)
+		{
+			//errs() << "Task #" << i;
+			//task->print(errs());
+			i++;
+		}
+		// printLoops();
+	#endif
+>>>>>>> b50642b2cf609c4bffc2dc6cd485e8de4f87ddac
 
 	return false;
 }
@@ -76,8 +94,8 @@ void TaskMiner::printLoops()
 {
 	for (auto &loop : loops)
 	{
-		errs() << loop.first << ":\n";
-		loop.second.print();
+//		errs() << loop.first << ":\n";
+//		loop.second.print();
 		errs() << "\n";
 	}
 }

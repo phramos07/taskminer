@@ -14,5 +14,7 @@ add_library(LLVMArrayInference MODULE
   annotateLoopParallel.cpp
   regionReconstructor.cpp
   recoverExpressions.cpp
+  recoverFunctionCall.cpp
+  testRFCall.cpp
 )
 
