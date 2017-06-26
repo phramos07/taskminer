@@ -183,8 +183,9 @@ void filterLines(char* lines, int* size, int numLines, int numChars, char* word,
 {
 	for (int i = 0; i < numLines; i++)
 	{
+		int size_ = size[i];
 		filterLine(&lines[i*numChars], size[i], word, wordSize, &occurrences[i], &alphabet[i]);
-	}	
+	}
 }
 
 void filterLine( char* line,  int lineSize,  char* word,  int wordSize, int* occurrences, int* alphabet)

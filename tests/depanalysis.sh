@@ -1,1 +1,1 @@
-opt -load LLVMTaskMiner.dylib $1 -disable-output -depanalysis
+opt -load LLVMTaskMiner.dylib $1 -disable-output -depanalysis -printToDot -stats -debug-only=loop-data

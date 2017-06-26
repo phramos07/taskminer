@@ -117,7 +117,9 @@
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/DependenceAnalysis.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallBitVector.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/BitVector.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h
+  /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Analysis/RegionInfo.h \
+  /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/Task.h
 
 /Users/pedroramos/programs/llvm/include/llvm/Analysis/LoopInfo.h:
 
@@ -352,3 +354,7 @@
 /Users/pedroramos/programs/llvm/include/llvm/ADT/BitVector.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Analysis/RegionInfo.h:
+
+/Users/pedroramos/programs/llvm/lib/Transforms/taskminer/Task.h:

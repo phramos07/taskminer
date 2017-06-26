@@ -187,8 +187,9 @@ void filterLines(char* lines, int* size, int numLines, int numChars, char* word,
 	#pragma omp single
 	for (int i = 0; i < numLines; i++)
 	{
+		int size_ = size[i];
 		#pragma omp task depend(in:lines[i*numChars], size[i]) depend(inout: occurrences[i], alphabet[i])
-		filterLine(&lines[i*numChars], size[i], word, wordSize, &occurrences[i], &alphabet[i]);
+		filterLine(&lines[i*numChars], size_, word, wordSize, &occurrences[i], &alphabet[i]);
 	}
 }
 

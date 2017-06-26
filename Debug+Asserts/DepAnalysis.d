@@ -1,33 +1,35 @@
 /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/Debug+Asserts/DepAnalysis.o \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/Debug+Asserts/DepAnalysis.d: \
   DepAnalysis.cpp \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/CommandLine.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/ArrayRef.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/None.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallVector.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/iterator_range.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/AlignOf.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/Compiler.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Config/llvm-config.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/MathExtras.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/SwapByteOrder.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/DataTypes.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/type_traits.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/StringMap.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/StringRef.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/Allocator.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/Memory.h \
+  /Users/pedroramos/programs/llvm/include/llvm/ADT/Twine.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Support/ErrorHandling.h \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/Atomic.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/DataTypes.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/Valgrind.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Config/llvm-config.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/Compiler.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Function.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/iterator_range.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/Optional.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/None.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/AlignOf.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Argument.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/Twine.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallVector.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/MathExtras.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/SwapByteOrder.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/type_traits.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/StringRef.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/ErrorHandling.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/ilist_node.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Attributes.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/ArrayRef.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/FoldingSet.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/iterator.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/Allocator.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Support/Memory.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/PointerLikeTypeTraits.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Value.h \
   /Users/pedroramos/programs/llvm/include/llvm-c/Core.h \
@@ -47,7 +49,6 @@
   /Users/pedroramos/programs/llvm/include/llvm/ADT/DenseMapInfo.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/Hashing.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/Host.h \
-  /Users/pedroramos/programs/llvm/include/llvm/ADT/StringMap.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/SymbolTableListTraits.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/User.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Instruction.def \
@@ -114,7 +115,44 @@
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/DependenceAnalysis.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallBitVector.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/BitVector.h \
-  /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h
+  /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Analysis/RegionInfo.h
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/CommandLine.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/ArrayRef.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/None.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/SmallVector.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/iterator_range.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/AlignOf.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/Compiler.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Config/llvm-config.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/MathExtras.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/SwapByteOrder.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/DataTypes.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/type_traits.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/StringMap.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/StringRef.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/Allocator.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/Memory.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/ADT/Twine.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Support/ErrorHandling.h:
 
 /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h:
 
@@ -122,53 +160,21 @@
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/Atomic.h:
 
-/Users/pedroramos/programs/llvm/include/llvm/Support/DataTypes.h:
-
 /Users/pedroramos/programs/llvm/include/llvm/Support/Valgrind.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Config/llvm-config.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/Compiler.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/IR/Function.h:
 
-/Users/pedroramos/programs/llvm/include/llvm/ADT/iterator_range.h:
-
 /Users/pedroramos/programs/llvm/include/llvm/ADT/Optional.h:
 
-/Users/pedroramos/programs/llvm/include/llvm/ADT/None.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/AlignOf.h:
-
 /Users/pedroramos/programs/llvm/include/llvm/IR/Argument.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/ADT/Twine.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/ADT/SmallVector.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/MathExtras.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/SwapByteOrder.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/type_traits.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/ADT/StringRef.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/ErrorHandling.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/ADT/ilist_node.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/IR/Attributes.h:
 
-/Users/pedroramos/programs/llvm/include/llvm/ADT/ArrayRef.h:
-
 /Users/pedroramos/programs/llvm/include/llvm/ADT/FoldingSet.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/ADT/iterator.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/Allocator.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/Support/Memory.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/PointerLikeTypeTraits.h:
 
@@ -207,8 +213,6 @@
 /Users/pedroramos/programs/llvm/include/llvm/ADT/Hashing.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/Host.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/ADT/StringMap.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/IR/SymbolTableListTraits.h:
 
@@ -343,3 +347,5 @@
 /Users/pedroramos/programs/llvm/include/llvm/ADT/BitVector.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/Analysis/RegionInfo.h:

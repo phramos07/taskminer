@@ -21,6 +21,7 @@
 using namespace llvm;
 
 #include <set>
+#include <list>
 #include <map>
 #include <string>
 #include <fstream>
@@ -57,28 +58,28 @@ public:
 
 class ProgramDependenceGraph {
 
-	// Name of the function that this graph was created from. Just for reference/debugging/printing.
-	std::string functionName;
-
-	GraphNode* entry;
-	GraphNode* exit;
-
-	// using this data structure we can easily obtain all edges leaving a node
-	std::map<GraphNode*, std::set<GraphEdge*>> outEdges;
-
-	// using this data structure we can easily obtain all edges directly reaching a node
-	std::map<GraphNode*, std::set<GraphEdge*>> inEdges;
-
-	// we use this data structure to retrieve informations about a node representing
-	// an instruction.
-	std::map<Instruction*, std::pair<unsigned int, GraphNode*>> instrToNode;
-
 	unsigned int nextInstrID;
 
 	private:
 		GraphNode* getGraphNode(Instruction* instr);
 
 	public:
+		// Name of the function that this graph was created from. Just for reference/debugging/printing.
+		std::string functionName;
+
+		GraphNode* entry;
+		GraphNode* exit;
+
+		// using this data structure we can easily obtain all edges leaving a node
+		std::map<GraphNode*, std::set<GraphEdge*>> outEdges;
+
+		// using this data structure we can easily obtain all edges directly reaching a node
+		std::map<GraphNode*, std::set<GraphEdge*>> inEdges;
+
+		// we use this data structure to retrieve informations about a node representing
+		// an instruction.
+		std::map<Instruction*, std::pair<unsigned int, GraphNode*>> instrToNode;
+
 		ProgramDependenceGraph(std::string _functionName) 
 			: functionName(_functionName), nextInstrID(0) {}
 
@@ -96,13 +97,22 @@ class ProgramDependenceGraph {
 
 		void dumpToDot(Function& F);
 
-		int tarjanVisit(GraphNode *v,
-                       std::map<GraphNode *, std::pair<int, int>> *indexLowLink,
-                       std::stack<GraphNode *> *stack,
-                       std::map<GraphNode *, bool> *onStack,
-                       std::set<std::set<GraphNode *>> *SCCs, int index);
+		int tarjanVisit(GraphNode* v,
+                       std::map<GraphNode*, std::pair<int, int> >* indexLowLink,
+                       std::stack<GraphNode*>* stack,
+                       std::map<GraphNode*, bool>*onStack,
+                       std::set<std::set<GraphNode*> >*SCCs, int index);
 
-		std::set<std::set<GraphNode *>> findStrongConnectedComponents();
+		std::set<std::set<GraphNode*> > findStrongConnectedComponents();
+
+		void getSubgraphOnNode(GraphNode* node, 
+			std::set<GraphNode*>& subgraph);
+
+		void getSubgraphOnSCC(const std::set<GraphNode*>& scc, 
+			std::set<GraphNode*>& subgraph);
+
+		bool isSubSetOf(const std::set<GraphNode*> &subset, 
+			const std::set<GraphNode*> &superset);
 
 };
 

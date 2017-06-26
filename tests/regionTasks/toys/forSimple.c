@@ -23,7 +23,7 @@ int main()
 				a--;
 			}
 
-			for (int j = 0; j < SIZE; j++)
+			for (int k = 0; k < SIZE; k++)
 				results_2[a] += results[a];
 
 			results_2[j] += results_2[j] + j + results[j];

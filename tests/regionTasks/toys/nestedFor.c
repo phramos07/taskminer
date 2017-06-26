@@ -13,13 +13,13 @@ int main()
 	#pragma omp single
 	for (int a = HOP; a < SIZE; a+=HOP)
 	{
-		#pragma omp task depend(inout: results[a], results_2[a])
+		#pragma omp task depend(inout: results[a], results_2[a], results[a-1])
 		{
 			results[a] = 0;
 			for (int j=1; j < SIZE; j++)
 			{
 				results[a] += j;
-				results[a] = results[a] || 0x0000FFFF + j;
+				results[a] += results[a-1] || 0x0000FFFF + j;
 				// results[a] += results[a-HOP] && 0x0000FFFF + j;
 			}
 

@@ -253,3 +253,62 @@ int ProgramDependenceGraph::tarjanVisit(GraphNode *v,
 
   return maxIndex;
 }
+
+void ProgramDependenceGraph::getSubgraphOnNode(GraphNode* node, 
+	std::set<GraphNode*>& subgraph)
+{
+	for (auto e : outEdges[node])
+	{		
+		if (subgraph.find(e->dst) != subgraph.end())
+		{
+			if (e->dst != exit)
+				subgraph.insert(e->dst);
+			getSubgraphOnNode(e->dst, subgraph);
+		}
+	}
+}
+
+void ProgramDependenceGraph::getSubgraphOnSCC(const std::set<GraphNode*>& scc, 
+	std::set<GraphNode*>& subgraph)
+{
+	std::list<GraphEdge*> sccOutEdges;
+
+	for (auto n : scc)
+	{
+		for (auto e : outEdges[n])
+		{
+			if (scc.find(e->dst) == scc.end())
+			{
+				sccOutEdges.push_back(e);
+			}
+		}
+	}
+
+	for (auto out_ : sccOutEdges)
+	{
+		if (out_->dst != exit)
+			subgraph.insert(out_->dst);
+		(out_->dst, subgraph);
+	}
+
+	return;
+}
+
+bool ProgramDependenceGraph::isSubSetOf(const std::set<GraphNode*> &subset, 
+	const std::set<GraphNode*> &superset)
+{
+	bool isSubset = true;
+	for (const auto &node : subset)
+	{
+		if (std::find(superset.begin(), superset.end(), node) == std::end(superset))
+		{
+			isSubset = false;
+			break;
+		}
+	}
+	
+	return isSubset;
+}
+
+
+
