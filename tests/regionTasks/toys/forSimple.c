@@ -8,6 +8,7 @@ int main()
 {
 	int *results = (int*)malloc(sizeof(int) * SIZE);
 	int *results_2 = (int*)malloc(sizeof(int) * SIZE);
+
 	int i, a;
 
 	#pragma omp parallel
@@ -24,10 +25,17 @@ int main()
 			}
 
 			for (int k = 0; k < SIZE; k++)
-				results_2[a] += results[a];
+				results_2[k] += results[k];
 
 			results_2[j] += results_2[j] + j + results[j];
 		}
+	}
+
+	int i_ = 0;
+	while (i_ < SIZE-1)
+	{
+		printf("%d\n", i + results_2[i]);
+		i++;
 	}
 
 	return 0;

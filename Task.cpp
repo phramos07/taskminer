@@ -5,10 +5,10 @@
 
 using namespace llvm;
 
-Loop* Task::getParent() { return parent; }
 std::set<Value*> Task::getLiveIN() const { return liveIN; }
 std::set<Value*> Task::getLiveOUT() const { return liveOUT; }
 std::set<Value*> Task::getLiveINOUT() const { return liveINOUT; }
+std::set<BasicBlock*> Task::getbbs() const { return bbs; }
 
 AccessType Task::getTypeFromInst(Instruction* I)
 {
@@ -73,7 +73,16 @@ raw_ostream& Task::print(raw_ostream& os) const
 	return printLiveSets(os);
 }
 
-//CallInst* FunctionCallTask::getFunctionCall() { return functionCall; }
+FunctionCallTask::FunctionCallTask(CallInst* CI)
+	: Task(FCALL_TASK)
+	, functionCall(CI)
+	{
+		Function* F = functionCall->getCalledFunction();
+		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+		{
+			bbs.insert(BB);
+		}
+	}
 
 raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 {

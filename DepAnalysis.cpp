@@ -1,8 +1,16 @@
+//LLVM IMPORTS
 #include "llvm/Support/CommandLine.h"
+
+//LOCAL IMPORTS
 #include "DepAnalysis.h"
-#define DEBUG_TYPE "loops-data"
+#include "ControlDependenceGraph.h"
+
+#define DEBUG_TYPE "dep-analysis"
 
 using namespace llvm;
+
+char DepAnalysis::ID = 0;
+static RegisterPass<DepAnalysis> X("depanalysis", "Run the DepAnalysis algorithm. Generates a dependence graph", false, false);
 
 static cl::opt<bool, false> printToDot("printToDot",
   cl::desc("Print dot file containing the depgraph"), cl::NotHidden);
@@ -13,8 +21,6 @@ STATISTIC(RAWDeps, "RAW Total num of flow/true dependences");
 STATISTIC(WAWDeps, "RAR Total num of output dependences");
 STATISTIC(SCADeps, "SCA Total num of scalar dependences");
 STATISTIC(CTRDeps, "CTR Total num of control dependences");
-
-int DepAnalysis::numberOfLoopData = 0;
 
 void DepAnalysis::getAnalysisUsage(AnalysisUsage &AU) const {
 	AU.setPreservesAll();
@@ -35,53 +41,29 @@ bool DepAnalysis::runOnFunction(Function &F) {
 
 	//Step1: Create PDG
 	createProgramDependenceGraph(F);
-	
-	//Step2: Get info about the loops
-	getLoopsInfo(F);
-	
-	//Step3: Find windmills
-	SCCs = G->findStrongConnectedComponents();
-	findWindmills();
-	
-	//Step4: For each Windmill, find helices
-	findHelices();
 
-	findMinimumRegionForEachHelix();
+	//Step2: Create RegionTree
+	createRegionTree(F);
 
-	// DEBUG_WITH_TYPE("loop-data", printWindmillsRegions());
-	DEBUG_WITH_TYPE("loop-data", print());
-	// DEBUG_WITH_TYPE("loop-data", dumpWindmillsToDot(F));
-	if (printToDot)	
-		G->dumpToDot(F);
+	// //Printing region tree
+	// RT->print(errs());
+
+	if (printToDot)
+	{
+		G->dumpToDot();
+		RT->dumpToDot(F.getName(), true);
+	}
 
 	return true;
 }
 
-void DepAnalysis::findMinimumRegionForEachHelix()
-{
-	std::set<Instruction*> insts;
-
-	for (auto &l : loops)
-	{
-		for (auto &node : l.second->W->H->subgraph)
-		{
-			insts.insert(node->instr);
-		}
-
-		Region *R = getMinimumCoverRegion(insts);
-		l.second->R = R;
-
-		insts.clear();
-	}
-}
-
-void DepAnalysis::createProgramDependenceGraph(Function &F) 
+void DepAnalysis::createProgramDependenceGraph(Function &F)
 {
 	auto &DI = getAnalysis<DependenceAnalysis>();
 	auto &PDT = getAnalysis<PostDominatorTree>();
 
 	// This is going to represent the graph
-	G = new ProgramDependenceGraph(F.getName());
+	G = new PDG(F.getName(), &F);
 
 	// Add all nodes to the graph
 	for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
@@ -102,22 +84,22 @@ void DepAnalysis::createProgramDependenceGraph(Function &F)
 					if (auto D = DI.depends(&*SrcI, &*DstI, true)) {
 						if (D->isInput())
 						{
-							G->addEdge(&*SrcI, &*DstI, DependenceType::RAR);
+							G->addEdge(&*SrcI, &*DstI, EdgeDepType::RAR);
 							RARDeps++;
 						}
 						else if (D->isOutput())
 						{
-							G->addEdge(&*SrcI, &*DstI, DependenceType::WAW);
+							G->addEdge(&*SrcI, &*DstI, EdgeDepType::WAW);
 							WAWDeps++;
 						}
 						else if (D->isFlow())
 						{
-							G->addEdge(&*SrcI, &*DstI, DependenceType::RAW);
+							G->addEdge(&*SrcI, &*DstI, EdgeDepType::RAW);
 							RAWDeps++;
 						}
 						else if (D->isAnti())
 						{
-							G->addEdge(&*DstI, &*SrcI, DependenceType::RAWLC);
+							G->addEdge(&*DstI, &*SrcI, EdgeDepType::RAWLC);
 							WARDeps++;
 						}
 						else
@@ -133,10 +115,13 @@ void DepAnalysis::createProgramDependenceGraph(Function &F)
 	}
 
 	// Collect data dependence edges
-	for (inst_iterator SrcI = inst_begin(F), SrcE = inst_end(F); SrcI != SrcE; ++SrcI) {
-		for (User *U : SrcI->users()) {
-			if (Instruction *Inst = dyn_cast<Instruction>(U)) {
-				G->addEdge(&*SrcI, Inst, DependenceType::SCA);
+	for (inst_iterator SrcI = inst_begin(F), SrcE = inst_end(F); SrcI != SrcE; ++SrcI)
+	{
+		for (User *U : SrcI->users())
+		{
+			if (Instruction *Inst = dyn_cast<Instruction>(U))
+			{
+				G->addEdge(&*SrcI, Inst, EdgeDepType::SCA);
 				SCADeps++;
 			}
 		}
@@ -145,19 +130,19 @@ void DepAnalysis::createProgramDependenceGraph(Function &F)
 	// Collect control dependence edges
 	ControlDependenceGraphBase cdgBuilder;
 	cdgBuilder.graphForFunction(F, PDT);
-	G->addEntryNode((Instruction*)1000000);
-	G->addExitNode((Instruction*)2000000);
 
-	for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB) {
+	for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
+	{
 		BasicBlock *A = &*BB;
 		auto term = dyn_cast<Instruction>(A->getTerminator());
-
-		for (Function::iterator BB2 = F.begin(), E2 = F.end(); BB2 != E2; ++BB2) {
+		for (Function::iterator BB2 = F.begin(), E2 = F.end(); BB2 != E2; ++BB2)
+		{
 			BasicBlock *B = &*BB2;
-
-			if (cdgBuilder.controls(A, B)) {
-				for (BasicBlock::iterator i = B->begin(), e = B->end(); i != e; ++i) {
-					G->addEdge(term, &*i, DependenceType::CTR);
+			if (cdgBuilder.controls(A, B))
+			{
+				for (BasicBlock::iterator i = B->begin(), e = B->end(); i != e; ++i)
+				{
+					G->addEdge(term, &*i, EdgeDepType::CTR);
 					CTRDeps++;
 				}
 			}
@@ -177,409 +162,92 @@ void DepAnalysis::createProgramDependenceGraph(Function &F)
 	}
 }
 
-ProgramDependenceGraph* DepAnalysis::getDepGraph() { return G; }
-
-void DepAnalysis::getLoopsInfo(Function &F)
+void DepAnalysis::createRegionTree(Function &F)
 {
-	//iterate over basic blocks and find all loops
-	//Find all Loops
-	for (Function::iterator BB = F.begin(); BB != F.end(); ++BB)
+	RT = new RegionTree();
+	std::set<Region*> allRegions;
+
+	//Create all region wrappers
+	std::map<Region*, RegionWrapper*> regionWrappers;
+	for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
 	{
-		//If BB is in loop, then we can try to get the induction var from this loop
-		Loop* loop = LI->getLoopFor(BB);
-		if (loop)
+		RegionWrapper* RW = new RegionWrapper();
+		Region* R = RI->getRegionFor(BB);
+		regionWrappers[R] = RW;
+
+		RW->topLevel = R->isTopLevelRegion();
+		Loop* L = LI->getLoopFor(BB);
+		RW->F = &F;
+		if (L)
 		{
-			if (loops.find(loop) == loops.end()) //If the loop hasn't been added to the loopdata yet
+			if (R->contains(L))
 			{
-				LoopData* LD = new LoopData();
-				LD->id = numberOfLoopData;
-				numberOfLoopData++;
-				loops[loop] = LD;
-				Instruction* inst = loop->getCanonicalInductionVariable();
-				loops[loop]->indVar = inst;
+				RW->L = L;
+				RW->hasLoop = true;
 			}
 		}
 	}
-}
 
-void DepAnalysis::findWindmills()
-{
-	//find windmills -> SCC's with loop's ind var
-	std::vector<std::set<std::set<GraphNode*>>::iterator > toBeRemoved;
-	for (auto scc = SCCs.begin(); scc != SCCs.end(); scc++)
+	//Collect all region data and insert the nodes in the region tree
+	for (auto &r : regionWrappers)
 	{
-		//if SCC contains loop ind var and it's a windmill centre.
-		if ((*scc).size() > 2)
+		r.second->entry = r.first->getEntry();
+		r.second->exit = r.first->getExit();
+		if (!r.first->isTopLevelRegion())
+			r.second->parent = regionWrappers[r.first->getParent()];
+		else
+			r.second->parent = nullptr;
+		r.second->F = &F;
+
+		RT->addNode(r.second);
+	}
+	
+	//Collect dependencies edges
+	Edge<RegionWrapper*, EdgeDepType> *e_;
+	for (auto e : G->getEdges())
+	{
+		if ((e->getType() != EdgeDepType::WAW)
+			&& (e->getType() != EdgeDepType::RAR)
+			&& (e->getType() != EdgeDepType::SCA) 
+			&& (e->getSrc() != G->getEntry()) 
+			&& (e->getDst() != G->getExit()))
 		{
-			for (auto &node : *scc)
+			Region *src = RI->getRegionFor(e->getSrc()->getItem()->getParent());
+			Region *dst = RI->getRegionFor(e->getDst()->getItem()->getParent());
+			if (src != dst)
 			{
-				for (auto &l : loops)
+				if (!(e_ = RT->checkEdge(regionWrappers[src], regionWrappers[dst], e->getType())))
 				{
-					if (l.second->indVar != nullptr 
-							&& l.second->indVar == node->instr)
-					{
-						Windmill* W = new Windmill();
-						toBeRemoved.push_back(scc);
-						W->nodes = *scc;
-						l.second->W = W;
-					}
+					e_ = RT->addEdge(regionWrappers[src], regionWrappers[dst], e->getType());
 				}
+				e_->addIntensity();
 			}			
 		}
 	}
 
-	for (const auto tbr : toBeRemoved)
-	{
-		SCCs.erase(tbr);
-	}
-	toBeRemoved.clear();
-
-	//if loop's ind var is null, let's try to find it geographically.
-	//we look for scc's of size 4, with phi/arithmetic/compare/branch inst
-	//then we take the basic blocks of this four insts, check if the basic
-	//blocks are inside loop. If they are, then check if phi node is ind var
-	//from a different loop already analysed. If after that more than one candidate
-	//exists, it's okay, just pick a random one, we're interested in the 
-	//SCC, not in the ind var.
-	std::set<std::set<GraphNode*> > candidateSCCs;
-	bool foundPattern = true;
-	for (auto &scc : SCCs)
-	{
-		if (scc.size() == 4)
+	//Collect Recursive Edges
+	for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
+		for (BasicBlock::iterator i = BB->begin(), e = BB->end(); i != e; ++i)
 		{
-			for (auto &node : scc)
+			if (CallInst* CI = dyn_cast<CallInst>(i))
 			{
-				if (!((isa<PHINode>(node->instr))
-					|| (isa<BranchInst>(node->instr))
-					|| (isa<BinaryOperator>(node->instr))
-					|| (isa<CmpInst>(node->instr))))
+				if ((CI->getCalledFunction()) == &F)
 				{
-					foundPattern = false;
+					Region *src = RI->getRegionFor(BB);
+					Region *dst = RI->getTopLevelRegion();
+					RT->addEdge(regionWrappers[src], regionWrappers[dst], EdgeDepType::RECURSIVE);
 				}
 			}
-			if (foundPattern)
-			{
-				candidateSCCs.insert(scc);
-			}
 		}
-	}
 
-	//Look for loops with these candidate SCC's
-	std::map<Loop*, std::set<GraphNode*> > loopIndVarSCCs;
-	bool found;
-	for (const auto &scc : candidateSCCs)
+	//Collect parent edges
+	for (auto n : RT->getNodes())
 	{
-		for (const auto &l : loops)
+		if (n->getItem()->parent != nullptr)
 		{
-			found = false;
-			if (!l.second->indVar)
-			{
-				for (const auto &node : scc)
-				{
-					auto bbs = l.first->getBlocks();
-					auto bb = node->instr->getParent();
-					for (BasicBlock* b : bbs)
-					{
-						if (b == bb)
-						{
-							found = true;
-							break;
-						}
-					}
-				}
-				//TODO: WHAT ABOUT WHEN I FIND TWO OR MORE SCCS THAT FIT THAT PATTERN
-				//FOR THE SAME LOOP? 
-				if (found)
-				{
-					loopIndVarSCCs[l.first] = scc;
-				}				
-			}
+			RT->addEdge(n->getItem()->parent, n->getItem(), EdgeDepType::PARENT);
 		}
 	}
-	
-	std::vector<std::map<Loop*, std::set<GraphNode*> >::iterator > toBeRemoved2;
-	for (std::map<Loop*, std::set<GraphNode*> >::iterator l = loopIndVarSCCs.begin();
-		l != loopIndVarSCCs.end(); l++) 
-	{
-		loops[l->first]->W = new Windmill();
-		loops[l->first]->W->nodes = l->second;
-		toBeRemoved2.push_back(l);
-	}
-
-	//Also remove these from the SCC's list
-	for (const auto tbr : toBeRemoved2)
-	{
-		SCCs.erase(tbr->second);
-	}
-}
-
-void DepAnalysis::findHelices()
-{
-	std::set<GraphNode*> nodeSet;
-	for (auto &l : loops)
-	{
-		Windmill* W_ = l.second->W;
-		auto scc = W_->nodes;
-		if (scc.empty())
-		{
-			errs() << "Trying to find Helices but Windmill has got no nodes.";
-			return;
-		}
-		G->getSubgraphOnSCC(scc, nodeSet);
-		if (!nodeSet.empty())
-		{
-			Helix* H = new Helix();
-			H->subgraph = nodeSet;
-			W_->H = H;				
-		}
-		nodeSet.clear();
-	}
-	//check if helices contain any SCC's that ARE NOT the indvars scc's
-
-}
-
-Region *DepAnalysis::getMinimumCoverRegion(std::set<Instruction*> insts)
-{
-	Region *R;
-	std::set<Region*> regions;
-	std::set<BasicBlock*> bbs;
-
-	for (auto &i : insts)
-	{
-		bbs.insert(i->getParent());
-	}
-
-	for (auto &bb : bbs)
-	{
-		regions.insert(RI->getRegionFor(bb));
-	}
-
-	Region* r1 = *(regions.begin());
-	for (auto &r2 : regions)
-	{
-		r1 = RI->getCommonRegion(r1, r2);
-	}
-
-	return r1;
 }
 
 
-raw_ostream& DepAnalysis::print(raw_ostream& os) const
-{
-	os << "\nPrinting LoopData";
-	for (const auto &l : loops)
-	{
-		os <<"\n=============================";
-		os << "\nLOOPDATA\n " << *l.first;
-		l.second->print(os);
-		if (l.second->R)
-		{
-		os << "\nREGION:\n";
-		l.second->R->print(errs());			
-		}
-		os <<"\n=============================\n";
-	}
-
-	return os;
-}
-
-void DepAnalysis::dumpWindmillsToDot(Function &F)
-{
-	int i = 0;
-	for (auto &l : loops)
-	{
-		dumpWindmillsToDot(F, *(l.second->W), i);
-		i++;
-	}
-} 
-
-void DepAnalysis::dumpWindmillsToDot(Function &F, Windmill &W, int windmillId) 
-{
-	// Write the graph to a DOT file
-	std::string functionName = F.getName();
-	std::string graphName = functionName + "-windmill-" + std::to_string(windmillId) + ".dot";
-	std::ofstream dotStream;
-	dotStream.open(graphName);
-
-	if (!dotStream.is_open()) {
-		errs() << "Problem opening DOT file: " << graphName << "\n";
-	}	
-	else {
-		dotStream << "digraph g {\n";
-
-		// Create all nodes in DOT format
-		for (auto node : G->instrToNode) {
-			if (node.second.second == G->entry) 
-				dotStream << "\t\"" << G->instrToNode[node.second.second->instr].first << "\" [label=entry];\n";
-			else if (node.second.second == G->exit)
-				dotStream << "\t\"" << G->instrToNode[node.second.second->instr].first << "\" [label=exit];\n";
-			else
-				dotStream << "\t\"" << G->instrToNode[node.second.second->instr].first << "\" [label=\"" << G->instrToNode[node.second.second->instr].first << ": " << (node.second.second->instr->getOpcodeName()) << "\"];\n";
-		}
-
-		dotStream << "\n\n";
-
-		// Now print all outgoing edges and their labels
-		for (auto src : G->outEdges) {
-			for (auto dst : src.second) {
-				if (dst->type == CTR)
-					dotStream << "\t\"" << G->instrToNode[src.first->instr].first << "\" -> \"" << G->instrToNode[dst->dst->instr].first << "\" [style=dotted];\n";
-				else
-					dotStream << "\t\"" << G->instrToNode[src.first->instr].first << "\" -> \"" << G->instrToNode[dst->dst->instr].first << "\" [label=\"" << dst->edgeLabel() << "\"];\n";
-			}
-
-			dotStream << "\n";
-		}
-
-		//print SCCS
-	  std::set<GraphNode *> q;
-	  GraphNode *node;
-		int i=0;
-		// for (std::set<std::set<GraphNode *>>::iterator it = SCCs.begin();
-  //      it != SCCs.end(); ++it)
-	 //  {
-	 //  	if ((*it).size() <= 1)
-	 //  		continue;
-	 //    dotStream << "\nsubgraph cluster_" << i << " {\n"
-	 //              << " color=red4;"
-	 //              << " label=SCC" << i + 1 << ";"
-	 //              << " fillcolor=paleturquoise1;"
-	 //              << " style=filled;\n";
-	 //    i++;
-	 //    q = (*it);
-  //     std::set<GraphNode *>::iterator s = q.begin();
-  //     do
-  //     {
-  //       node = *s;
-  //       dotStream << G->instrToNode[node->instr].first;
-  //       s++;
-  //       if (s != q.end())
-  //       {
-  //         dotStream << ",";
-  //       }
-  //     } while (s != q.end());
-  //     dotStream << ";";
-
-	 //    dotStream << "\n} ";
-	 //  }
-
-	  //printWindmills
-	  int helixCount = 1;
-	  int windmillCount = 1;
-    std::set<GraphNode*> scc_ = W.nodes;
-    dotStream << "\nsubgraph cluster_" << i << " {\n"
-              << " color=red4;"
-              << " label=WINDMILL" << windmillCount << ";"
-              << " fillcolor=orange;"
-              << " style=filled;\n";
-    i++;
-    q = W.nodes;
-    if (q.size() > 1)
-    {
-      std::set<GraphNode *>::iterator s = q.begin();
-      do
-      {
-        node = *s;
-        dotStream << G->instrToNode[node->instr].first;
-        s++;
-        if (s != q.end())
-        {
-          dotStream << ",";
-        }
-      } while (s != q.end());
-      dotStream << ";";
-    }
-
-    dotStream << "\n} ";
-    windmillCount++;
-
-    //printHelices
-  	auto h = W.H;
-		dotStream << "\nsubgraph cluster_" << i << " {\n"
-              << " color=red4;"
-              << " label=helix" << helixCount << ";"
-              << " fillcolor=wheat;"
-              << " style=filled;\n";
-    i++;
-    q = h->subgraph;
-    if (q.size() > 1)
-    {
-	    auto s = q.begin();
-	    bool empty = true;
-	    do
-	    {
-	      node = *s;
-	      if (std::find(std::begin(scc_), std::end(scc_), node) == std::end(scc_))
-	      {
-	      	empty = false;
-	        dotStream << G->instrToNode[node->instr].first;
-	      }
-	      s++;
-	      if (!empty)
-	      {
-	        if (s != q.end())
-		      {
-	  	      dotStream << ",";
-	  	      empty = true;
-	    	  }
-	      }
-	    } while (s != q.end());
-	    if (!empty)
-	      dotStream << ";";
-	    dotStream << "\n} ";
-	    helixCount++;    	
-    }
-	  
-
-		dotStream << "\n}}";
-
-		dotStream.close();
-	
-	}
-}
-
-raw_ostream& LoopData::print(raw_ostream& os) const
-{
-	os <<"# " << id << "\n";
-	os << "INDVAR: ";
-	if (indVar)
-		indVar->print(os);
-	else
-		os << "nullptr ";
-	os << "\nRegular ? " << (regular ? "yes" : "no");
-	if (W)
-		W->print(os);
-
-	return os;
-}
-
-raw_ostream& Windmill::print(raw_ostream& os) const
-{
-	os << "\nWINDMILLDATA";
-	os << "\nCentre Nodes: \n";
-	for (const auto &n : nodes)
-	{
-		if (const auto i = n->instr)
-			i->print(os);
-		os << "\n";
-	}
-	os << "\nHELIX:\n";
-	H->print(os);
-
-	return os;
-}
-
-raw_ostream& Helix::print(raw_ostream& os) const
-{
-	for (auto n : subgraph)
-	{
-		if (n->instr != nullptr)
-			n->instr->print(os);
-		os << "\n";
-	}
-
-	return os;
-}
-
-char DepAnalysis::ID = 0;
-static RegisterPass<DepAnalysis> X("depanalysis", "Run the DepAnalysis algorithm. Generates a dependence graph", false, false);

@@ -1,215 +1,255 @@
-//LLVM IMPORTS
-#include "llvm/Analysis/LoopInfo.h" 
-#include "llvm/ADT/Statistic.h"
-#include "llvm/IR/Attributes.h"
+//llvm imports
+#include "llvm/Analysis/DominanceFrontier.h"
+#include "llvm/Analysis/PostDominators.h"
+#include "llvm/Support/CommandLine.h"
 
-//MY IMPORTS
+//local imports
 #include "TaskMiner.h"
-#include "llvm/IR/Instructions.h"
-<<<<<<< HEAD
+#include "DepAnalysis.h"
 #define DEBUG_TYPE "print-tasks"
-#define DEBUG_TYPE "print-loop"
-=======
-#define DEBUG_TYPE "TaskMiner"
-//define DEBUG_PRINT 
->>>>>>> b50642b2cf609c4bffc2dc6cd485e8de4f87ddac
 
 using namespace llvm;
 
-STATISTIC(NumTasks, "Total Number of Tasks");
-STATISTIC(NumFunctionCallTasks, "Number of FunctionCallTasks");
-STATISTIC(NumIrregularLoops, "Number of irregular loops");
-
 char TaskMiner::ID = 0;
-static RegisterPass<TaskMiner> B("taskminer", "Task Miner: finds regions or \
-	function calls inside loops that can be parallelized by tasks");
+static RegisterPass<TaskMiner> E("taskminer", "Run the TaskMiner algorithm on a Module", false, false);
 
+static cl::opt<bool, false> printTaskGraph("print-task-graph",
+  cl::desc("Print dot file containing the TASKGRAPH"), cl::NotHidden);
 
-TaskMiner::~TaskMiner()
-{
-	for (auto &t : tasks)
-		delete t;
-}
+STATISTIC(NTASKS, "Total number of tasks");
+STATISTIC(NFCALLTASKS, "Total number of function call (non-recursive) tasks");
+STATISTIC(NRECURSIVETASKS, "Total number of recursive tasks");
+STATISTIC(NREGIONTASKS, "Total number of region tasks");
 
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 {
-	AU.addRequired<LoopInfoWrapperPass>();
-	// AU.addRequired<DepAnalysis>();
+	AU.addRequired<DepAnalysis>();
+	AU.addRequired<RegionInfoPass>();
 	AU.setPreservesAll();
 }
 
-bool TaskMiner::runOnFunction(Function &F)
+bool TaskMiner::runOnModule(Module &M)
 {
-	if (F.isDiscardableIfUnused())
-		return false;
+	//STEP 1: GET TASK GRAPH FOR THE WHOLE MODULE
+	taskGraph = gettaskGraph(M);
 
-	LIWP = &(getAnalysis<LoopInfoWrapperPass>());
-	LI = &(LIWP->getLoopInfo());
-	// DA = &(getAnalysis<DepAnalysis>());
+	if (printTaskGraph)
+	{
+		taskGraph->dumpToDot(M.getName(), true);
+	}
 
-	//DEPENDENCE ANALYSIS MUST RETURN WINDMILLS WITH HELICES
+	//STEP2: FIND SCC'S IN THE TASKGRAPH.
+	SCCs = taskGraph->getStronglyConnectedSubgraphs();
 
-
-	getLoopsInfo(F); //should be in depanalysis
-	mineFunctionCallTasks(F); //should be more general
-
-	//Resolve each task's ins and outs sets for every task
+	//STEP3: MINE FOR TASKS
+	mineTasks();
+	
+	//STEP4: FIND THE INS/OUTS OF EACH TASK. INCLUDING ALIASING.
 	resolveInsAndOutsSets();
 
-	return false;
-}
+	//STEP5: COMPUTE THE COSTS OF EACH TASK.
 
-bool TaskMiner::doFinalization(Module &M)
-{
-	getStats();
+	//STEP6: GIVE IT OUT TO THE ANNOTATOR.
 
-<<<<<<< HEAD
-	int i = 0;
-	for (auto &task : tasks)
-	{
-
-		DEBUG_WITH_TYPE("print-tasks", errs() << "Task #" << i);
-		DEBUG_WITH_TYPE("print-tasks", task->print(errs()));
-		i++;
-	}
-	DEBUG(printLoops());
-=======
-	#ifdef DEBUG_PRINT
-		int i = 0;
-		for (auto &task : tasks)
-		{
-			//errs() << "Task #" << i;
-			//task->print(errs());
-			i++;
-		}
-		// printLoops();
-	#endif
->>>>>>> b50642b2cf609c4bffc2dc6cd485e8de4f87ddac
+	DEBUG_WITH_TYPE("print-tasks", printRegionInfo());
+	DEBUG_WITH_TYPE("print-tasks", printTasks());
 
 	return false;
 }
 
-
-void TaskMiner::printLoops()
+std::map<Function*, RegionTree*> TaskMiner::getAllRegionTrees(Module &M)
 {
-	for (auto &loop : loops)
+	std::map<Function*, RegionTree*> RTs;
+
+	for (Module::iterator F = M.begin(); F != M.end(); ++F)
 	{
-//		errs() << loop.first << ":\n";
-//		loop.second.print();
-		errs() << "\n";
-	}
-}
-
-void TaskMiner::LoopData::print()
-{
-	errs()	<< "INDVAR: " 
-					<< indVar->getName()
-					<< "\nBASICBLOCKS: ";
-	for (std::list<BasicBlock*>::iterator it = innerBBs.begin(); 
-		it != innerBBs.end(); ++it)
-	{
-		errs () << (*it)->getName() << " | ";
-	}
-	errs() << "\n";
-}
-
-void TaskMiner::resolveInsAndOutsSets()
-{
-	for (auto &t : tasks)
-		t->resolveInsAndOutsSets();
-}
-
-void TaskMiner::getStats()
-{
-	for (auto &t : tasks)
-	{
-		NumTasks++;
-		if (FunctionCallTask* FCT = dyn_cast<FunctionCallTask>(t))
-			NumFunctionCallTasks++;
-	}
-}
-
-void TaskMiner::getLoopsInfo(Function &F)
-{
-	//Find all Loops
-	for (Function::iterator BB = F.begin(); BB != F.end(); ++BB)
-	{
-		//If BB is in loop, then we can try to get the induction var from this loop
-		Loop* loop = LI->getLoopFor(BB);
-		if (loop)
-		{
-			if (loops.find(loop) == loops.end()) //If the loop hasn't been added to the loopdata yet
-			{
-				TaskMiner::LoopData LD;
-				loops[loop] = LD;
-				loops[loop].innerBBs.push_back(BB);
-				Instruction* inst = loop->getCanonicalInductionVariable();
-				loops[loop].indVar = inst;
-			}
-			else
-			{
-				loops[loop].innerBBs.push_back(BB);
-			}
+		if (!F->empty())
+		{	
+			DepAnalysis *DP = &(getAnalysis<DepAnalysis>(*F));
+			RTs[F] = std::move((DP->getRegionTree()));
 		}
-	}		
-	//colaesce loops by induction variable
+	}
+
+	return RTs;
 }
 
-void TaskMiner::mineFunctionCallTasks(Function &F)
+void TaskMiner::printRegionInfo()
 {
-	//If LOOP is irregular, finds the region inside the loop
-	//TODO: DEPANALYSIS
-	//HYPOTHESIS ZERO: ALL LOOPS ARE IRREGULAR/TASK-PARALLELIZABLE
+	// for (auto rt : RTs)
+	// {
+	// 	errs() << "\n\nREGIONTREE FOR FUNCTION: " << rt.first->getName();
+	// 	rt.second->print(errs());
+	// }
 
-	//Now go through the loops and extract which sort of task it is. for now
-	//we don't have any heuristics to decide whether it will be a code fragment
-	//task or a mere function call task. So we're focused only on function calls.
-	Function* calledF;
-	std::set<Instruction*> fCalls;
-	for (auto &l : loops)
+	errs() << "\n\nWHOLE REGION GRAPH:";
+	if (taskGraph)
+		taskGraph->print(errs());
+}
+
+RegionTree* TaskMiner::gettaskGraph(Module &M)
+{
+	//0: Get all region graphs for each function.
+	taskGraph = new RegionTree();
+	if (RTs.empty())
+		RTs = getAllRegionTrees(M);
+
+	//1: Merge all the region graphs into a single one 
+	//that will be our task graph
+	auto it = RTs.begin();
+	for (auto rt = RTs.begin(); rt != RTs.end(); rt++)
 	{
-		// l.second.print();
-		// if (l.second.indVar == nullptr)
-		// 	continue;
-		for (auto &bb : l.second.innerBBs)
+		taskGraph->mergeWith(rt->second);
+	}
+
+	//2: GET ALL RECURSIVE EDGES AND COPY A HUB FOR EACH.
+	//WE'LL HAVE ALL THE RT'S HUBS AND THEIR DESIGNED EDGES->SRC().
+	//FOR EACH EDGE->SRC() WE'LL CONNECT THEM TO THE TOP LEVEL OF THE HUB (GET TOP LEVEL() REGION TREE METHOD)
+	//THAT'S IT. 
+	std::map<Edge<RegionWrapper*, EdgeDepType>*, RegionTree*> recToHub;
+	for (auto e : taskGraph->getEdges())
+	{
+		if (e->getType() == EdgeDepType::RECURSIVE)
 		{
-			for (BasicBlock::iterator func = bb->begin(); func != bb->end(); ++func)
+			Function *F = e->getDst()->getItem()->F;
+			auto recHub = taskGraph->copyRegionTree(RTs[F]);
+			recToHub[e] = recHub;
+		}
+	}
+
+	//Remove recursive edges before merging ? (maybe)
+
+	//3: Now we merge each hub into the taskGraph
+	for (auto pair : recToHub)
+	{
+		taskGraph->mergeWith(pair.second);
+	}
+
+	//Now add fcall edges
+
+	//THIS SHOULD BE THE LAST THING:
+	//4: Go through every instruction to create the FCALL edges.
+	//only do it if FCALL != FUNCTION, don't do that for recursive cases.
+	//ALWAYS CONNECT TO THE REAL TOPLEVEL. I'll need to connect real -> toplevel and hub -> toplevel
+	for (Module::iterator F = M.begin(); F != M.end(); ++F)
+	{
+		if (F->empty())
+			continue;
+		RegionInfoPass* RIP = &(getAnalysis<RegionInfoPass>(*F));
+		RegionInfo* RI = &(RIP->getRegionInfo());
+		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+		{
+			for (BasicBlock::iterator I = BB->begin(); I != BB->end(); ++I)
 			{
-				if (CallInst* CI = dyn_cast<CallInst>(func))
+				if (CallInst* CI = dyn_cast<CallInst>(I))
 				{
-					calledF = CI->getCalledFunction();
-					if ((CI->getModule() == F.getParent()) 
-								&& (!calledF->isDeclaration())
-								&& (!calledF->isIntrinsic())
-								&& (fCalls.find(CI) == fCalls.end())
-								&& (!CI->getDereferenceableBytes(0)))
-							{
-								Task* functionCallTask = new FunctionCallTask(l.first, CI);
-								insertNewFunctionCallTask(*functionCallTask);
-								fCalls.insert(CI);
-							}
+					Function* calledF = CI->getCalledFunction();
+					if ((calledF != F) && (!calledF->empty()))
+					{
+						Region* R = RI->getRegionFor(CI->getParent());
+						Node<RegionWrapper*>* src = 
+							taskGraph->getNode(R->getEntry(), R->getExit(), R->isTopLevelRegion());
+						Node<RegionWrapper*>* dst = 
+							taskGraph->getTopLevelRegionNode(calledF);
+
+						auto e_ =	taskGraph->addEdge(src, dst, EdgeDepType::FCALL);
+						//add to the map Edge -> CallInst
+						callInsts[e_] = CI;
+					}					
 				}
 			}
 		}
 	}
+
+	//And add Fcall for recursive hubs
+	for (auto pair : recToHub)
+	{
+		auto F = pair.first->getSrc()->getItem()->F;
+		auto dst = pair.second->getTopLevelRegionNode(F, true);
+		auto dstHub = taskGraph->getNode(dst->getItem());
+		if (dstHub)
+		{
+			taskGraph->addEdge(pair.first->getSrc(), dstHub, EdgeDepType::FCALL);
+		}
+	}
+
+	return taskGraph;
 }
 
-void TaskMiner::insertNewFunctionCallTask(Task &T)
+void	TaskMiner::mineFunctionCallTasks()
 {
-	if (FunctionCallTask* FCT = dyn_cast<FunctionCallTask>(&T))
+	//For each FCALL edge, check if
+	// A) it comes from an SCC
+	// B) it goes to an SCC
+	// C) src and dst are different functions
+	for (auto e : taskGraph->getEdges())
 	{
-		for (auto &t : tasks)
+		auto type = e->getType();
+		if (type == EdgeDepType::FCALL)
 		{
-			if (FunctionCallTask* FCT_cmp = dyn_cast<FunctionCallTask>(t))
-				if (FCT_cmp->getFunctionCall() == FCT->getFunctionCall())
-					return;
-		}
+			auto srcRW = e->getSrc()->getItem();
+			auto dstRW = e->getDst()->getItem();
+			if (taskGraph->nodeReachesSCC(dstRW))
+				errs() << "IT REACHES OMG";
 
-		tasks.push_back(&T);
+			if ((srcRW->F != dstRW->F)
+				&& ((srcRW->hasLoop))
+				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
+			{
+				CallInst* CI = callInsts[e];
+				Task* TASK = new FunctionCallTask(CI);
+				tasks.push_back(TASK);
+				NTASKS++;
+				NFCALLTASKS++;
+			}
+		}
 	}
 }
 
-std::list<Task*> TaskMiner::getTasks()
+bool TaskMiner::findRegionWrapperInSCC(RegionWrapper* RW)
 {
-	return tasks;
+	for (auto scc : SCCs)
+	{
+		if (scc->getNodeIndex(RW) != -1)
+			return true;
+	}
+
+	return false;
+}
+
+void TaskMiner::mineTasks()
+{
+	mineFunctionCallTasks();
+	// mineRegionTasks();
+	// mineRecursiveTasks();
+}
+
+std::list<CallInst*> TaskMiner::getLastRecursiveCalls() const
+{
+	std::list<CallInst*> CIs;
+	for (auto task : tasks)
+	{
+		if (RecursiveTask* RT = dyn_cast<RecursiveTask>(task))
+		{
+			if (RT->getPrev() && !RT->getNext())
+			{
+				CIs.push_back(RT->getRecursiveCall());
+			}
+		}
+	}
+
+	return CIs;
+}
+
+void TaskMiner::resolveInsAndOutsSets()
+{
+	for (auto task : tasks)
+		task->resolveInsAndOutsSets();
+}
+
+void TaskMiner::printTasks()
+{
+	for (auto task : tasks)
+	{
+		task->print(errs());
+	}
 }
