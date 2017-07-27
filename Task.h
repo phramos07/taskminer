@@ -122,10 +122,11 @@ namespace llvm
 		RecursiveTask* getNext() const { return next; }
 		void setPrev(RecursiveTask* prev) { this->prev = prev; }
 		void setNext(RecursiveTask* next) { this->next = next; }
+		bool hasSyncBarrier() { if (prev && !next) return true; else return false;}
 
 	private:
-		RecursiveTask* prev=0;
-		RecursiveTask* next=0;
+		RecursiveTask* prev=nullptr;
+		RecursiveTask* next=nullptr;
 		CallInst *recursiveCall;
 		bool isInsideLoop=false;
 	};

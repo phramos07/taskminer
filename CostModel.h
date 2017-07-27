@@ -22,7 +22,7 @@ namespace llvm
 		uint32_t nInDeps;
 		uint32_t nOutDeps;
 		static const uint32_t minInstCost = 500;
-		static const float constexpr THRESHOLD = 2.0;
+		static const float constexpr THRESHOLD = 1.5;
 
 	public:
 		CostModel() {};

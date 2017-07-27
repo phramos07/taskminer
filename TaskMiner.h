@@ -15,7 +15,7 @@ namespace llvm
 	private:
 		//ModuleTaskGraph 
 		RegionTree* taskGraph;
-		DepAnalysis* DP=0;
+		DepAnalysis* DP=nullptr;
 		std::map<Function*, RegionTree*> RTs;	
 		std::map<Function*, RegionTree*> getAllRegionTrees(Module &M);
 
