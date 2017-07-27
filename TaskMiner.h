@@ -6,6 +6,7 @@
 #include "RegionTree.h"
 #include "Graph.hpp"
 #include "Task.h"
+#include "CostModel.h"
 
 namespace llvm
 {
@@ -24,13 +25,13 @@ namespace llvm
 		//record of each instcall and their edges in the task graph
 		std::map<Edge<RegionWrapper*, EdgeDepType>*, CallInst*> callInsts;
 
-		//record of which SCC's have been already analysed
-		std::set<Graph<RegionWrapper*, EdgeDepType>* > doneSCCs;
-
 		//record of every scc in the taskgraph
 		std::set<Graph<RegionWrapper*, EdgeDepType>* > SCCs;
 
 		//keep alias sets
+
+		//Keep functions that have been turned into tasks
+		std::set<Function*> function_tasks;
 
 	public:
 		static char ID;
@@ -46,6 +47,10 @@ namespace llvm
 		void mineFunctionCallTasks();
 		void mineTasks();
 		void resolveInsAndOutsSets();
+		void computeCosts();
+		void computeStats(Module &M);
+		void computeTotalCost();
+
 		std::list<CallInst*> getLastRecursiveCalls() const;
 
 		//printing method

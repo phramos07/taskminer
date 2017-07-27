@@ -92,6 +92,8 @@ raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 					<< "Function Call: \n\t";
 	functionCall->print(os);
 	printLiveSets(os);
+	CM.print(os);
+
 	return os;
 }
 
@@ -156,3 +158,125 @@ bool FunctionCallTask::resolveInsAndOutsSets()
 
 CallInst* FunctionCallTask::getFunctionCall() const { return functionCall; }
 
+CostModel FunctionCallTask::computeCost()
+{
+	uint32_t n_insts = 0;
+	uint32_t n_indeps = liveIN.size();
+	uint32_t n_outdeps = liveOUT.size();
+
+	Function* F = functionCall->getCalledFunction();
+	std::stack<Function*> funcs;
+	funcs.push(F);
+	while (!funcs.empty())
+	{
+		Function* func = funcs.top();
+		funcs.pop();
+		if (func->empty())
+			continue;
+		for (Function::iterator bb = func->begin(); bb != func->end(); ++bb)
+			for (BasicBlock::iterator it = bb->begin(); it != bb->end(); ++it)
+			{
+				n_insts++;
+				if (CallInst* CI = dyn_cast<CallInst>(it))
+				{
+					funcs.push(CI->getCalledFunction());
+				}
+			}
+	}
+
+	n_insts = n_insts*10;
+
+	CM.setData(n_insts, n_indeps, n_outdeps);
+
+	return CM;
+}
+
+
+RecursiveTask::RecursiveTask(CallInst *CI, bool isInsideLoop)
+	: recursiveCall(CI)
+	, isInsideLoop(isInsideLoop)
+	, Task(RECURSIVE_TASK)
+	{
+		Function* F = recursiveCall->getCalledFunction();
+		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+		{
+			bbs.insert(BB);
+		}		
+	}
+
+CallInst* RecursiveTask::getRecursiveCall() const
+{
+	return recursiveCall;
+}
+
+bool RecursiveTask::resolveInsAndOutsSets()
+{
+	return true;
+}
+
+raw_ostream& RecursiveTask::print(raw_ostream& os) const
+{
+	os << "\n===========\n" 
+					<< "Type: Recursive Call Task"
+					<< "\n===========\n"
+					<< "Recursive Call: \n\t";
+	recursiveCall->print(os);
+	printLiveSets(os);
+	CM.print(os);
+
+	return os;	
+}
+
+CostModel RecursiveTask::computeCost()
+{
+	uint32_t n_insts = 0;
+	uint32_t n_indeps = liveIN.size();
+	uint32_t n_outdeps = liveOUT.size();
+
+	Function* func = recursiveCall->getCalledFunction();
+	for (Function::iterator bb = func->begin(); bb != func->end(); ++bb)
+			for (BasicBlock::iterator it = bb->begin(); it != bb->end(); ++it)
+				n_insts++;
+
+	n_insts = n_insts * 10;
+
+	CM.setData(n_insts, n_indeps, n_outdeps);
+
+	return CM;
+}
+
+bool RegionTask::resolveInsAndOutsSets()
+{
+	return true;
+}
+
+raw_ostream& RegionTask::print(raw_ostream& os) const
+{
+	os << "\n===========\n" 
+					<< "Type: Region Task"
+					<< "\n===========\n"
+					<< "BBs: \n\t";
+	for (auto bb : bbs)
+		os << " " << bb->getName();
+	printLiveSets(os);
+	CM.print(os);
+
+	return os;	
+}
+
+CostModel RegionTask::computeCost()
+{
+	uint32_t n_insts = 0;
+	uint32_t n_indeps = liveIN.size();
+	uint32_t n_outdeps = liveOUT.size();
+
+	for (auto bb : bbs)
+			for (BasicBlock::iterator it = bb->begin(); it != bb->end(); ++it)
+				n_insts++;
+
+	n_insts = n_insts * 10;
+
+	CM.setData(n_insts, n_indeps, n_outdeps);
+
+	return CM;
+}

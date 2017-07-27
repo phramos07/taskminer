@@ -5,6 +5,7 @@
 
 //local imports
 #include "TaskMiner.h"
+#include "Task.h"
 #include "DepAnalysis.h"
 #define DEBUG_TYPE "print-tasks"
 
@@ -20,11 +21,17 @@ STATISTIC(NTASKS, "Total number of tasks");
 STATISTIC(NFCALLTASKS, "Total number of function call (non-recursive) tasks");
 STATISTIC(NRECURSIVETASKS, "Total number of recursive tasks");
 STATISTIC(NREGIONTASKS, "Total number of region tasks");
+STATISTIC(NINSTSTASKS, "Total number of task instruction costs");
+STATISTIC(NINDEPS, "Total number of task input dep costs");
+STATISTIC(NOUTDEPS, "Total number of task output dep costs");
+STATISTIC(NMODULEINSTS, "Total number of module instructions");
+
 
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 {
 	AU.addRequired<DepAnalysis>();
 	AU.addRequired<RegionInfoPass>();
+	AU.addRequired<LoopInfoWrapperPass>();
 	AU.setPreservesAll();
 }
 
@@ -48,11 +55,14 @@ bool TaskMiner::runOnModule(Module &M)
 	resolveInsAndOutsSets();
 
 	//STEP5: COMPUTE THE COSTS OF EACH TASK.
+	computeCosts();
 
 	//STEP6: GIVE IT OUT TO THE ANNOTATOR.
 
 	DEBUG_WITH_TYPE("print-tasks", printRegionInfo());
 	DEBUG_WITH_TYPE("print-tasks", printTasks());
+
+	computeStats(M);
 
 	return false;
 }
@@ -181,6 +191,7 @@ void	TaskMiner::mineFunctionCallTasks()
 	// A) it comes from an SCC
 	// B) it goes to an SCC
 	// C) src and dst are different functions
+	bool indirectRecursion;
 	for (auto e : taskGraph->getEdges())
 	{
 		auto type = e->getType();
@@ -188,11 +199,21 @@ void	TaskMiner::mineFunctionCallTasks()
 		{
 			auto srcRW = e->getSrc()->getItem();
 			auto dstRW = e->getDst()->getItem();
-			if (taskGraph->nodeReachesSCC(dstRW))
-				errs() << "IT REACHES OMG";
-
+			indirectRecursion=false;
+			//Check if they're indirect recursion 
+			//(if both src and dst are in the same SCC)
+			for (auto scc : SCCs)
+			{
+				if ((scc->getNodeIndex(srcRW) != -1)
+					&& (scc->getNodeIndex(dstRW) != -1))
+				{
+					indirectRecursion=true;
+					break;
+				}
+			}
 			if ((srcRW->F != dstRW->F)
 				&& ((srcRW->hasLoop))
+				&& (!indirectRecursion)
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
 				CallInst* CI = callInsts[e];
@@ -200,10 +221,172 @@ void	TaskMiner::mineFunctionCallTasks()
 				tasks.push_back(TASK);
 				NTASKS++;
 				NFCALLTASKS++;
+				function_tasks.insert(srcRW->F);
 			}
 		}
 	}
 }
+
+void TaskMiner::mineRecursiveTasks()
+{
+	//For mining recursive tasks, check
+	//A) If edgetype is FCALL and srcF == dstF
+	//B) Go through every Fcall inside F that matches F
+	//C) Create a task for each and set prev/next
+	std::list<Function*> rec_funcs;
+
+	for (auto e : taskGraph->getEdges())
+	{
+		auto type = e->getType();
+		if (type == EdgeDepType::FCALL)
+		{
+			auto srcRW = e->getSrc()->getItem();
+			auto dstRW = e->getDst()->getItem();
+			if (srcRW->F == dstRW->F)
+			{
+				//add to a list of Functions;
+				rec_funcs.push_back(srcRW->F);
+			}
+		}
+	}
+
+
+	std::map<Function*, std::list<CallInst*> > rec_calls;
+
+	//Go through the list of Functions
+	for (auto F : rec_funcs)
+	{
+		for (Function::iterator bb = F->begin(); bb != F->end(); ++bb)
+		{
+			for (BasicBlock::iterator I = bb->begin(); I != bb->end(); ++I)
+			{
+				if (CallInst* CI = dyn_cast<CallInst>(I))
+				{
+					Function* calledF = CI->getCalledFunction();
+					if (calledF == F)
+					{
+						rec_calls[F].push_back(CI);
+					}
+				}
+			}
+		}
+	}
+
+	bool isInsideLoop;
+	RecursiveTask* prev;
+	Function* func;
+	//Create task for each recursive call
+	for (auto pair : rec_calls)
+	{
+		prev = nullptr;
+		isInsideLoop = false;
+		func = pair.first;
+		LoopInfoWrapperPass *LIWP = &(getAnalysis<LoopInfoWrapperPass>(*func));
+		LoopInfo* LI = &(LIWP->getLoopInfo());
+		auto bb = (*pair.second.begin())->getParent();
+		if (LI->getLoopFor(bb)) //the fcall is inside loop
+		{
+			isInsideLoop = true;
+		}
+		for (auto CI = pair.second.begin(); CI != pair.second.end(); ++CI)
+		{
+			function_tasks.insert(func);
+			RecursiveTask* TASK = new RecursiveTask(*CI, isInsideLoop);
+			TASK->setPrev(prev);
+			if (prev)
+				prev->setNext(TASK);
+			prev = TASK;
+
+			tasks.push_back((Task*)TASK);
+			NTASKS++;
+			NRECURSIVETASKS++;
+		}
+	}
+
+}
+
+void TaskMiner::mineRegionTasks()
+{
+	//1: go through every SCC >= 2
+	//2: check the function in every SCC. only analyse those which
+	//haven't been added as a functioncall task or recursive task
+	//3: Find the largest region that covers that SCC
+	//4: Build RegionTask with those BB's that are within the largest region
+	std::set<Graph<RegionWrapper*, EdgeDepType>* > candidate_sccs;
+
+	for (auto scc : SCCs)
+	{
+		if (scc->size() > 1)
+		{
+			for (auto n : scc->getNodes())
+			{
+				if (std::find(function_tasks.begin(), 
+					function_tasks.end(), n->getItem()->F) == function_tasks.end())
+				{
+					candidate_sccs.insert(scc);
+				}
+			}
+		}
+	}
+
+	//For each candidate SCC, check if they're SCC's originated
+	//from indirect recursion
+	std::list<std::set<Graph<RegionWrapper*, EdgeDepType>* >::iterator> to_be_removed;
+	for (std::set<Graph<RegionWrapper*, EdgeDepType>* >::iterator 
+		scc = candidate_sccs.begin(); scc != candidate_sccs.end(); ++scc)
+		for (auto e : (*scc)->getEdges())
+		{
+			if (e->getType() == EdgeDepType::FCALL)
+			{
+				to_be_removed.push_back(scc);
+				break;
+			}
+		}
+
+	//remove these scc's from indirect recursion
+	for (auto scc : to_be_removed)
+		candidate_sccs.erase(scc);
+
+	//Now for every candidate scc,
+	//1: find the largest region that covers all the nodes
+	//2: create regiontask
+	//3: add BB's to it
+	for (auto scc : candidate_sccs)
+	{
+		auto firstRW = (*scc->getNodes().begin())->getItem();
+		Function* F = firstRW->F;
+		RegionInfoPass *RIP = &(getAnalysis<RegionInfoPass>(*F));
+		RegionInfo* RI = &RIP->getRegionInfo();
+		Region *R = RI->getRegionFor(firstRW->entry);
+		for (auto node : scc->getNodes())
+		{
+			auto currentRW = node->getItem();
+			Region* currentRegion = RI->getRegionFor(currentRW->entry);
+			R = RI->getCommonRegion(R, currentRegion);
+		}
+
+		RegionTask* TASK = new RegionTask();
+
+		//Now with the region R in hands, let's build the regiontask!
+		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+		{
+			if (R->contains(BB))
+				TASK->addBasicBlock(BB);
+		}
+
+		tasks.push_back(TASK);
+		NTASKS++;
+		NREGIONTASKS++;
+	}
+}
+
+void TaskMiner::mineTasks()
+{
+	mineFunctionCallTasks();
+	mineRecursiveTasks();
+	mineRegionTasks();
+}
+
 
 bool TaskMiner::findRegionWrapperInSCC(RegionWrapper* RW)
 {
@@ -214,13 +397,6 @@ bool TaskMiner::findRegionWrapperInSCC(RegionWrapper* RW)
 	}
 
 	return false;
-}
-
-void TaskMiner::mineTasks()
-{
-	mineFunctionCallTasks();
-	// mineRegionTasks();
-	// mineRecursiveTasks();
 }
 
 std::list<CallInst*> TaskMiner::getLastRecursiveCalls() const
@@ -244,6 +420,45 @@ void TaskMiner::resolveInsAndOutsSets()
 {
 	for (auto task : tasks)
 		task->resolveInsAndOutsSets();
+}
+
+void TaskMiner::computeCosts()
+{
+	for (auto task : tasks)
+		task->computeCost();
+}
+
+void TaskMiner::computeTotalCost()
+{
+	NOUTDEPS = 0;
+	NINDEPS = 0;
+	NINSTSTASKS = 0;
+
+	for (auto task : tasks)
+	{
+		auto cost = task->getCost();
+		NINSTSTASKS += cost.getNInsts();
+		NINDEPS += cost.getNInDeps();
+		NOUTDEPS += cost.getNOutDeps();
+	}
+}
+
+void TaskMiner::computeStats(Module &M)
+{
+	//Compute total cost
+	computeTotalCost();
+
+	//Compute total number of instructions
+	for (Module::iterator F = M.begin(); F != M.end(); ++F)
+	{
+		if (F->empty())
+			continue;
+		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+			for (BasicBlock::iterator I = BB->begin(); I != BB->end(); ++I)
+			{
+				NMODULEINSTS++;
+			}
+	}
 }
 
 void TaskMiner::printTasks()

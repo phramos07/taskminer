@@ -1,3 +1,6 @@
+#ifndef _COST_MODEL_H_
+#define _COST_MODEL_H_
+
 //LLVM IMPORTS
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/LoopInfo.h"
@@ -25,9 +28,16 @@ namespace llvm
 		CostModel() {};
 		~CostModel() {};
 
-		float getCost()
+		void setData(uint32_t nInsts, uint32_t nInDeps, uint32_t nOutDeps)
 		{
-			return nInsts/minInstCost;
+			this->nInsts = nInsts;
+			this->nInDeps = nInDeps;
+			this->nOutDeps = nOutDeps;
+		}
+
+		float getCost() const
+		{
+			return (float)nInsts/(float)minInstCost;
 		}
 
 		float getThreshold()
@@ -39,6 +49,21 @@ namespace llvm
 		{
 			return getCost() >= getThreshold();
 		}
+
+		uint32_t getNInsts() { return nInsts; }
+		uint32_t getNInDeps() { return nInDeps; }
+		uint32_t getNOutDeps() { return nOutDeps; }
+
+		raw_ostream& print(raw_ostream& os) const
+		{
+			os << "\nTASK COST:\n";
+			os << nInsts << " instructions\n";
+			os << nInDeps << " input dependencies\n";
+			os << nOutDeps << " output dependencies\n";
+			os << getCost() << " cost: (inst_count/min_inst_count)\n\n";
+		}
+
 	};
 }
 
+#endif // _COST_MODEL_H_

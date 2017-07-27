@@ -55,6 +55,7 @@ namespace llvm
 		//Methods
 		virtual bool resolveInsAndOutsSets() { return false; }
 		virtual CostModel computeCost() { return CM; }
+		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
@@ -85,7 +86,7 @@ namespace llvm
 		~FunctionCallTask() {}
 		CallInst* getFunctionCall() const;
 		bool resolveInsAndOutsSets() override;
-		// CostModel computeCost() override;
+		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
 		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; }
 
@@ -101,7 +102,7 @@ namespace llvm
 			{}
 		~RegionTask() {}
 		bool resolveInsAndOutsSets() override;
-		// CostModel computeCost() override;
+		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
 		static bool classof(const Task* T) { return T->getKind() == REGION_TASK; }
 		
@@ -110,15 +111,11 @@ namespace llvm
 	class RecursiveTask : public Task
 	{
 	public:
-		RecursiveTask(CallInst *CI, bool isInsideLoop)
-			: recursiveCall(CI)
-			, isInsideLoop(isInsideLoop)
-			, Task(RECURSIVE_TASK)
-			{}
+		RecursiveTask(CallInst *CI, bool isInsideLoop);
 		~RecursiveTask() {}
 		CallInst* getRecursiveCall() const;
 		bool resolveInsAndOutsSets() override;
-		// CostModel computeCost() override;
+		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
 		static bool classof(const Task* T) { return T->getKind() == RECURSIVE_TASK; }		
 		RecursiveTask* getPrev() const { return prev; }
