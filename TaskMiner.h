@@ -50,6 +50,7 @@ namespace llvm
 		void computeCosts();
 		void computeStats(Module &M);
 		void computeTotalCost();
+		std::list<Task*> getTasks() { return tasks; }
 
 		std::list<CallInst*> getLastRecursiveCalls() const;
 
