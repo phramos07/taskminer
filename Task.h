@@ -123,7 +123,7 @@ namespace llvm
 		void setPrev(RecursiveTask* prev) { this->prev = prev; }
 		void setNext(RecursiveTask* next) { this->next = next; }
 		bool hasSyncBarrier() { if (prev && !next) return true; else return false;}
-		bool isInsideLoop() { return isInsideLoop; }
+		bool insideLoop() { return isInsideLoop; }
 
 	private:
 		RecursiveTask* prev=nullptr;
