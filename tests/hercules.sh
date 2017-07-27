@@ -1,1 +1,1 @@
-/Users/pedroramos/programs/llvm/Debug+Asserts/bin/opt -load Hercules.dylib $1 -disable-output -taskminer -print-task-graph -stats -debug-only=print-tasks
+/Users/pedroramos/programs/llvm/Debug+Asserts/bin/opt -load LLVMTaskMiner.dylib $1 -disable-output -taskminer -print-task-graph -stats -debug-only=print-tasks
