@@ -211,6 +211,60 @@ CallInst* RecursiveTask::getRecursiveCall() const
 
 bool RecursiveTask::resolveInsAndOutsSets()
 {
+	Function* F = recursiveCall->getCalledFunction();
+	std::map<Value*, AccessType> parameterAccessType;
+	std::map<Value*, Value*> matchArgsParameters;
+	Value* V;
+
+	//Match parameters with arguments
+	auto arg_aux = F->arg_begin();
+	for (unsigned i = 0; i < recursiveCall->getNumArgOperands(); i++)
+	{
+		V = recursiveCall->getArgOperand(i);
+		matchArgsParameters[arg_aux] = V;
+		arg_aux++;
+	}
+
+	//Find the access types of the parameters
+	// errs() << "Function " << F->getName() << ":\n";
+	for (auto &arg : F->getArgumentList())
+	{
+		// arg.print(errs());
+		errs() << "\n";
+		if (!arg.user_empty())
+			for (auto user : arg.users())
+			{
+				if (Instruction* I = dyn_cast<Instruction>(user))
+				{
+					AccessType T = getTypeFromInst(I);
+					if (parameterAccessType.find(&arg) == parameterAccessType.end())
+						parameterAccessType[&arg] = T;
+					else
+						parameterAccessType[&arg] = parameterAccessType[&arg] | T;
+				}
+			}
+	}
+
+	//Resolve ins and outs sets
+	for (auto &p : parameterAccessType)
+	{
+		switch (p.second)
+		{
+			case AccessType::READ:
+				liveIN.insert(matchArgsParameters[p.first]);
+				break;
+			case AccessType::WRITE:
+				liveOUT.insert(matchArgsParameters[p.first]);
+				break;
+			case AccessType::READWRITE:
+				liveINOUT.insert(matchArgsParameters[p.first]);
+				break;
+			case AccessType::UNKNOWN:
+				liveIN.insert(matchArgsParameters[p.first]);
+				break;
+		}
+	}
+
 	return true;
 }
 
