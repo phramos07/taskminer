@@ -183,9 +183,7 @@ CostModel FunctionCallTask::computeCost()
 				}
 			}
 	}
-
-	n_insts = n_insts*10;
-
+	
 	CM.setData(n_insts, n_indeps, n_outdeps);
 
 	return CM;
@@ -292,8 +290,6 @@ CostModel RecursiveTask::computeCost()
 			for (BasicBlock::iterator it = bb->begin(); it != bb->end(); ++it)
 				n_insts++;
 
-	n_insts = n_insts * 10;
-
 	CM.setData(n_insts, n_indeps, n_outdeps);
 
 	return CM;
@@ -327,8 +323,6 @@ CostModel RegionTask::computeCost()
 	for (auto bb : bbs)
 			for (BasicBlock::iterator it = bb->begin(); it != bb->end(); ++it)
 				n_insts++;
-
-	n_insts = n_insts * 10;
 
 	CM.setData(n_insts, n_indeps, n_outdeps);
 

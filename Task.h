@@ -14,6 +14,7 @@
 #include "CostModel.h"
 
 #include <set>
+#include <stack>
 
 namespace llvm
 {

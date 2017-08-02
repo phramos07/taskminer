@@ -17,6 +17,12 @@ static RegisterPass<TaskMiner> E("taskminer", "Run the TaskMiner algorithm on a 
 static cl::opt<bool, false> printTaskGraph("print-task-graph",
   cl::desc("Print dot file containing the TASKGRAPH"), cl::NotHidden);
 
+static cl::opt<int> NUMBER_OF_THREADS("N_THREADS",
+  cl::desc("Number of threads in the runtime"), cl::NotHidden);
+
+static cl::opt<int> RUNTIME_COST("RUNTIME_COST",
+  cl::desc("Minimum cost per task (in instructions) in the runtime"), cl::NotHidden);
+
 STATISTIC(NTASKS, "Total number of tasks");
 STATISTIC(NFCALLTASKS, "Total number of function call (non-recursive) tasks");
 STATISTIC(NRECURSIVETASKS, "Total number of recursive tasks");
@@ -368,9 +374,12 @@ void TaskMiner::mineRegionTasks()
 		RegionTask* TASK = new RegionTask();
 
 		//Now with the region R in hands, let's build the regiontask!
+		//TODO: REMOVE ALL THE BASIC BLOCKS TAHT BELONG TO LOOP HEADER
+		// THAT IS, ADD ONLY BASIC BLOCKS THAT ARE PART OF THE TASK (INSIDE)
+		// THE OUTER MOST LOOP
 		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
 		{
-			if (R->contains(BB))
+			if (R->contains(BB) && RI->getRegionFor(BB) != R)
 				TASK->addBasicBlock(BB);
 		}
 
@@ -418,6 +427,10 @@ std::list<CallInst*> TaskMiner::getLastRecursiveCalls() const
 
 void TaskMiner::resolveInsAndOutsSets()
 {
+	//Set static values: runtime cost and number of threads
+	// CostModel::setNWorkers(NUMBER_OF_THREADS);
+	// CostModel::setRuntimeCost(RUNTIME_COST);
+
 	for (auto task : tasks)
 		task->resolveInsAndOutsSets();
 }

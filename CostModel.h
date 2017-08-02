@@ -8,62 +8,56 @@
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
-//LOCAL IMPORTS
-#include "RegionTree.h"
-
-namespace llvm
+class CostModel
 {
-	class CostModel
+private:
+	uint32_t nInsts; // TASKSIZE
+	static uint32_t nWorkers; //NUMBER OF THREADS
+	static uint32_t runtimeCost; //RUNTIME COST
+	static const uint32_t THRESHOLD = 1; //THRESHOLD	
+
+	uint32_t tripcount=10; //LOOP'S TRIP COUNT
+	uint32_t nInDeps; // NUMBER OF IN-DEPS
+	uint32_t nOutDeps; // NUMBER OF OUT-DEPS
+
+public:
+	CostModel() {};
+	~CostModel() {};
+
+	static void setRuntimeCost(uint32_t rCost);
+	static void setNWorkers(uint32_t nWorkers);
+	
+	void setTripCount(uint32_t tripcount)
 	{
-	private:
-		uint32_t nInsts;
-		uint32_t nCores;
-		uint32_t nThreads;
-		uint32_t nInDeps;
-		uint32_t nOutDeps;
-		static const uint32_t minInstCost = 500;
-		static const float constexpr THRESHOLD = 1.5;
+		this->tripcount = tripcount;
+	}
 
-	public:
-		CostModel() {};
-		~CostModel() {};
+	void setData(uint32_t nInsts, uint32_t nInDeps, uint32_t nOutDeps)
+	{
+		this->nInsts = nInsts;
+		this->nInDeps = nInDeps;
+		this->nOutDeps = nOutDeps;
+	}
 
-		void setData(uint32_t nInsts, uint32_t nInDeps, uint32_t nOutDeps)
-		{
-			this->nInsts = nInsts;
-			this->nInDeps = nInDeps;
-			this->nOutDeps = nOutDeps;
-		}
+	uint32_t getCost() const { return (getIdealCost()/runtimeCost); }
+	bool aboveThreshold() { return getCost() >= THRESHOLD; }
+	uint32_t getNInsts() { return nInsts; }
+	uint32_t getNInDeps() { return nInDeps; }
+	uint32_t getNOutDeps() { return nOutDeps; }
+	uint32_t getIdealCost() const { return (nInsts*tripcount)/nWorkers; }
 
-		float getCost() const
-		{
-			return (float)nInsts/(float)minInstCost;
-		}
+	llvm::raw_ostream& print(llvm::raw_ostream& os) const
+	{
+		os << "\nTASK COST:\n";
+		os << nInsts << " instructions\n";
+		os << nInsts*tripcount << " instructions * tripcount\n";
+		os << nWorkers << " threads\n";
+		os << nInDeps << " input dependencies\n";
+		os << nOutDeps << " output dependencies\n";
+		os << getCost() << " as the computed cost (ideal_cost/runtime_cost)\n\n";
+	}
 
-		float getThreshold()
-		{
-			return THRESHOLD;
-		}
+};
 
-		bool aboveThreshold()
-		{
-			return getCost() >= getThreshold();
-		}
-
-		uint32_t getNInsts() { return nInsts; }
-		uint32_t getNInDeps() { return nInDeps; }
-		uint32_t getNOutDeps() { return nOutDeps; }
-
-		raw_ostream& print(raw_ostream& os) const
-		{
-			os << "\nTASK COST:\n";
-			os << nInsts << " instructions\n";
-			os << nInDeps << " input dependencies\n";
-			os << nOutDeps << " output dependencies\n";
-			os << getCost() << " cost: (inst_count/min_inst_count)\n\n";
-		}
-
-	};
-}
 
 #endif // _COST_MODEL_H_
