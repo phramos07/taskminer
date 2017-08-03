@@ -313,10 +313,6 @@ bool RegionTask::resolveInsAndOutsSets()
 			{
 				parameterAccessType[I] = AccessType::UNKNOWN;
 				parameterAccessType[I] = parameterAccessType[I] | getTypeFromInst(I);
-				for (auto u : I->users())
-				{
-
-				}
 			}
 		}
 	}
@@ -325,7 +321,36 @@ bool RegionTask::resolveInsAndOutsSets()
 	//if they happen to be read/write or both
 	for (auto pair : parameterAccessType)
 	{
+		for (auto u : pair.first->users())
+		{
+			if (Instruction* I = dyn_cast<Instruction>(u))
+			{
+				if (parameterAccessType.find(u) != parameterAccessType.end())
+					parameterAccessType[pair.first] = parameterAccessType[pair.first] | getTypeFromInst(I);				
+			}
+		}
+	}
 
+	//Resolve ins and outs sets
+	for (auto &p : parameterAccessType)
+	{
+		if (!isPointerValue(p.first))
+			continue;
+		switch (p.second)
+		{
+			case AccessType::READ:
+				liveIN.insert(p.first);
+				break;
+			case AccessType::WRITE:
+				liveOUT.insert(p.first);
+				break;
+			case AccessType::READWRITE:
+				liveINOUT.insert(p.first);
+				break;
+			case AccessType::UNKNOWN:
+				liveIN.insert(p.first);
+				break;
+		}
 	}
 
 	return true;

@@ -380,7 +380,11 @@ void TaskMiner::mineRegionTasks()
 		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
 		{
 			if (R->contains(BB) && RI->getRegionFor(BB) != R)
+			{
+				Region *R_ = RI->getRegionFor(BB);
 				TASK->addBasicBlock(BB);
+				TASK->addBasicBlock(R_->getExit());
+			}
 		}
 
 		tasks.push_back(TASK);
