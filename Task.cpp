@@ -312,7 +312,7 @@ bool RegionTask::resolveInsAndOutsSets()
 			else
 			{
 				parameterAccessType[I] = AccessType::UNKNOWN;
-				parameterAccessType[I] |= getTypeFromInst(I);
+				parameterAccessType[I] = parameterAccessType[I] | getTypeFromInst(I);
 				for (auto u : I->users())
 				{
 
