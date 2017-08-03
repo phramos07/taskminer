@@ -136,6 +136,8 @@ bool FunctionCallTask::resolveInsAndOutsSets()
 	//Resolve ins and outs sets
 	for (auto &p : parameterAccessType)
 	{
+		if (!isPointerValue(matchArgsParameters[p.first]))
+			continue;
 		switch (p.second)
 		{
 			case AccessType::READ:
@@ -183,7 +185,7 @@ CostModel FunctionCallTask::computeCost()
 				}
 			}
 	}
-	
+
 	CM.setData(n_insts, n_indeps, n_outdeps);
 
 	return CM;
@@ -246,6 +248,8 @@ bool RecursiveTask::resolveInsAndOutsSets()
 	//Resolve ins and outs sets
 	for (auto &p : parameterAccessType)
 	{
+		if (!isPointerValue(matchArgsParameters[p.first]))
+			continue;
 		switch (p.second)
 		{
 			case AccessType::READ:
@@ -297,7 +301,49 @@ CostModel RecursiveTask::computeCost()
 
 bool RegionTask::resolveInsAndOutsSets()
 {
+	//Collect values inside region
+	std::map<Value*, AccessType> parameterAccessType;
+	for (auto bb : getbbs())
+	{
+		for (BasicBlock::iterator I = bb->begin(); I != bb->end(); ++I)
+		{
+			if (!isPointerValue(I))
+				continue;
+			else
+			{
+				parameterAccessType[I] = AccessType::UNKNOWN;
+				parameterAccessType[I] |= getTypeFromInst(I);
+				for (auto u : I->users())
+				{
+
+				}
+			}
+		}
+	}
+
+	//Now see the users of each value and check 
+	//if they happen to be read/write or both
+	for (auto pair : parameterAccessType)
+	{
+
+	}
+
 	return true;
+}
+
+bool Task::isPointerValue(Value *V)
+{
+ if (!isa<LoadInst>(V) &&
+      !isa<StoreInst>(V) &&
+      !isa<GetElementPtrInst>(V) &&
+      !isa<Argument>(V) &&
+      !isa<GlobalValue>(V) &&
+      !isa<AllocaInst>(V))
+ {
+ 	return false;
+ }
+
+ return true;
 }
 
 raw_ostream& RegionTask::print(raw_ostream& os) const

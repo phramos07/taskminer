@@ -15,7 +15,7 @@ namespace llvm
 	private:
 		//ModuleTaskGraph 
 		RegionTree* taskGraph;
-		DepAnalysis* DP=nullptr;
+		DepAnalysis *DP=0;
 		std::map<Function*, RegionTree*> RTs;	
 		std::map<Function*, RegionTree*> getAllRegionTrees(Module &M);
 
@@ -29,6 +29,7 @@ namespace llvm
 		std::set<Graph<RegionWrapper*, EdgeDepType>* > SCCs;
 
 		//keep alias sets
+		// std::map<Value*, AliasSet> aliassets;
 
 		//Keep functions that have been turned into tasks
 		std::set<Function*> function_tasks;
@@ -40,8 +41,8 @@ namespace llvm
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
 		bool runOnModule(Module &M) override;
 		RegionTree* gettaskGraph(Module &M);
-		void printRegionInfo();
 		bool findRegionWrapperInSCC(RegionWrapper* RW);
+		std::list<CallInst*> getLastRecursiveCalls() const;
 		void mineRegionTasks();
 		void mineRecursiveTasks();
 		void mineFunctionCallTasks();
@@ -52,10 +53,10 @@ namespace llvm
 		void computeTotalCost();
 		std::list<Task*> getTasks() { return tasks; }
 
-		std::list<CallInst*> getLastRecursiveCalls() const;
-
-		//printing method
+		//printing methods
 		void printTasks();
+		void printRegionInfo();
+
 
 		//method to find all alias sets
 

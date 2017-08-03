@@ -77,7 +77,9 @@ namespace llvm
 
 		//Private methods
 		AccessType getTypeFromInst(Instruction* I);
-		std::string accessTypeToStr(AccessType T);		
+		std::string accessTypeToStr(AccessType T);
+		bool isPointerValue(Value *V);
+
 	};
 
 	class FunctionCallTask : public Task
