@@ -70,7 +70,24 @@ raw_ostream& Task::printLiveSets(raw_ostream& os) const
 
 raw_ostream& Task::print(raw_ostream& os) const
 {
+	if (hasLoadInstructionInDependence())
+		os << "\nTASK HAS LOAD INSTRUCTION IN DEPENDENCIES\n";
 	return printLiveSets(os);
+}
+
+bool Task::hasLoadInstructionInDependence() const
+{
+	for (auto I : getLiveINOUT())
+		if (isa<LoadInst>(I) || isa<StoreInst>(I))
+			return true;
+	for (auto I : getLiveOUT())
+		if (isa<LoadInst>(I) || isa<StoreInst>(I))
+			return true;
+	for (auto I : getLiveIN())
+		if (isa<LoadInst>(I) || isa<StoreInst>(I))
+			return true;
+
+	return false;
 }
 
 FunctionCallTask::FunctionCallTask(CallInst* CI)

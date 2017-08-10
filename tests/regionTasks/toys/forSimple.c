@@ -9,7 +9,8 @@ int main()
 	int *results = (int*)malloc(sizeof(int) * SIZE);
 	int *results_2 = (int*)malloc(sizeof(int) * SIZE);
 
-	int i, a;
+	int *i;
+	i = (int) malloc(sizeof(int));
 
 	#pragma omp parallel
 	#pragma omp single
@@ -17,12 +18,14 @@ int main()
 	{
 		#pragma omp task depend(inout: results[j], results[j-1], results_2[j])
 		{
-			a = SIZE-1;
+			int a = SIZE-1;
 			while (a > 1)
 			{
 				results[j] += results[j-1] ^ 0x0000FFFF;
 				a--;
 			}
+
+			*i += 2;
 
 			for (int k = 0; k < SIZE; k++)
 				results_2[k] += results[k];
@@ -34,8 +37,8 @@ int main()
 	int i_ = 0;
 	while (i_ < SIZE-1)
 	{
-		printf("%d\n", i + results_2[i]);
-		i++;
+		printf("%d\n", *i + results_2[*i]);
+		*i++;
 	}
 
 	return 0;

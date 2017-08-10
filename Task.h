@@ -57,6 +57,7 @@ namespace llvm
 		virtual bool resolveInsAndOutsSets() { return false; }
 		virtual CostModel computeCost() { return CM; }
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
+		bool hasLoadInstructionInDependence() const;
 
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
