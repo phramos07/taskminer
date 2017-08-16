@@ -326,24 +326,19 @@ bool RegionTask::resolveInsAndOutsSets()
 		{
 			if (!isPointerValue(I))
 				continue;
-			else
+			if (LoadInst* LI = dyn_cast<LoadInst>(I))
 			{
-				parameterAccessType[I] = AccessType::UNKNOWN;
-				parameterAccessType[I] = parameterAccessType[I] | getTypeFromInst(I);
+				Value* v = LI->getPointerOperand();
+				if (parameterAccessType.find(v) == parameterAccessType.end())
+					parameterAccessType[v] = AccessType::UNKNOWN;
+				parameterAccessType[v] = parameterAccessType[v] | AccessType::READ;
 			}
-		}
-	}
-
-	//Now see the users of each value and check 
-	//if they happen to be read/write or both
-	for (auto pair : parameterAccessType)
-	{
-		for (auto u : pair.first->users())
-		{
-			if (Instruction* I = dyn_cast<Instruction>(u))
+			if (StoreInst* SI = dyn_cast<StoreInst>(I))
 			{
-				if (parameterAccessType.find(u) != parameterAccessType.end())
-					parameterAccessType[pair.first] = parameterAccessType[pair.first] | getTypeFromInst(I);				
+				Value* v = SI->getPointerOperand();
+				if (parameterAccessType.find(v) == parameterAccessType.end())
+					parameterAccessType[v] = AccessType::UNKNOWN;
+				parameterAccessType[v] = parameterAccessType[v] | AccessType::WRITE;
 			}
 		}
 	}
