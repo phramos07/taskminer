@@ -379,7 +379,7 @@ void TaskMiner::mineRegionTasks()
 		// THE OUTER MOST LOOP
 		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
 		{
-			if (R->contains(BB) && RI->getRegionFor(BB) != R)
+			if (R->contains(BB) && RI->getRegionFor(BB)->getEntry() != BB && RI->getRegionFor(BB)->getExit() != BB)
 			{
 				Region *R_ = RI->getRegionFor(BB);
 				TASK->addBasicBlock(BB);
