@@ -294,6 +294,9 @@ raw_ostream& RecursiveTask::print(raw_ostream& os) const
 					<< "\n===========\n"
 					<< "Recursive Call: \n\t";
 	recursiveCall->print(os);
+	os << "\nHas sync barrier afterwards? ";
+	os << ((hasSyncBarrier()) ? "Yes" : "No");
+	os << "\n";
 	printLiveSets(os);
 	CM.print(os);
 

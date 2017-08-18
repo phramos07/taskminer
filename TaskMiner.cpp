@@ -281,6 +281,9 @@ void TaskMiner::mineRecursiveTasks()
 	bool isInsideLoop;
 	RecursiveTask* prev;
 	Function* func;
+	std::map<Function*, std::list<RecursiveTask*> > rec_tasks;
+
+
 	//Create task for each recursive call
 	for (auto pair : rec_calls)
 	{
@@ -302,12 +305,19 @@ void TaskMiner::mineRecursiveTasks()
 			if (prev)
 				prev->setNext(TASK);
 			prev = TASK;
+			rec_tasks[pair.first].push_back(TASK);
+			
 
 			tasks.push_back((Task*)TASK);
 			NTASKS++;
 			NRECURSIVETASKS++;
 		}
 	}
+
+	//TODO:
+	//Now what do we do here? We go through every recursive task in each function.
+	//we call the region analysis. If the recursive calls are in different regions,
+	//we don't add them to the main list of tasks.
 
 }
 
