@@ -3,13 +3,11 @@
 #include <string.h>
 #define DEBUG
 
-// Line* getLines( char* name, int* numLines);
+// Line* getLines(char* name, int* numLines);
 
 char** getLines( char* name, int* numLines, int* size);
 
 void printLines(char* lines,  int numLines,  int numChars);
-
-// void filterLine( Line l,  char* word, int wordSize, int* occurrences, int* alphabet);
 
 void filterLines(char* lines, int* size, int numLines, int numChars, char* word,  int wordSize, int* occurrences, int* alphabet);
 
@@ -140,44 +138,6 @@ char** getLines( char* name, int* numLines, int* size)
 
 	return lines;
 }
-
-
-// void filterLine( Line l,  char* word, int wordSize, int* occurrences, int* alphabet)
-// {
-// 	for (int i = 0; i < l.size; i++)
-// 	{
-// 		if(l.line[i] == word[0]) //found first letter
-// 		{
-// 			for (int k = 1; k < wordSize; k++)
-// 			{
-// 				if (i+k >= l.size)
-// 					break;
-
-// 				if (l.line[i+k] != l.line[k])
-// 					break;
-
-// 				if (k == wordSize-1)
-// 					(*occurrences)++;
-// 			}
-// 		}
-// 	}
-
-// 	int a, b;
-
-// 	for (int i= 0; i < l.size; i++)
-// 		for (int j = i+1; j < l.size-1; j++)
-// 		{
-// 			a = atoi(&l.line[i]);
-// 			b = atoi(&l.line[j]);
-
-// 			if (a == (b-1))
-// 				(*alphabet)++;
-// 		}
-
-// 	// for (int i = 0 + *occurrences; i < l.size; i++)
-// 	// 	for (int j = *occurrences; j < 5000; j++);
-
-// }
 
 void filterLines(char* lines, int* size, int numLines, int numChars, char* word,  int wordSize, int* occurrences, int* alphabet)
 {
