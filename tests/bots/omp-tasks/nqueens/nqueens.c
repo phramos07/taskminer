@@ -56,7 +56,6 @@ static int solutions[] = {
 
 #ifdef FORCE_TIED_TASKS
 int mycount=0;
-#pragma omp threadprivate(mycount)
 #endif
 
 int total_count;
@@ -157,7 +156,6 @@ void nqueens(int n, int j, char *a, int depth)
 
      	/* try each possible position for queen <j> */
 	for (i = 0; i < n; i++) {
- 		#pragma omp task untied if(depth < bots_cutoff_value)
 		{
 	  		/* allocate a temporary array and copy <a> into it */
 	  		char * b = alloca(n * sizeof(char));
@@ -172,7 +170,6 @@ void nqueens(int n, int j, char *a, int depth)
 		}
 	}
 
-	#pragma omp taskwait
 #ifndef FORCE_TIED_TASKS
 	for ( i = 0; i < n; i++) *solutions += csols[i];
 #endif
@@ -214,7 +211,6 @@ void nqueens(int n, int j, char *a, int depth)
 
      	/* try each possible position for queen <j> */
 	for (i = 0; i < n; i++) {
- 		#pragma omp task untied final(depth+1 >= bots_cutoff_value) mergeable
 		{
                         char *b;
                         int *sol;
@@ -241,7 +237,6 @@ void nqueens(int n, int j, char *a, int depth)
 		}
 	}
 
-	#pragma omp taskwait
 #ifndef FORCE_TIED_TASKS
        if ( !final ) {
 	for ( i = 0; i < n; i++) *solutions += csols[i];
@@ -283,7 +278,6 @@ void nqueens(int n, int j, char *a, int depth)
      	/* try each possible position for queen <j> */
 	for (i = 0; i < n; i++) {
 		if ( depth < bots_cutoff_value ) {
- 			#pragma omp task untied
 			{
 	  			/* allocate a temporary array and copy <a> into it */
 	  			char * b = alloca(n * sizeof(char));
@@ -307,7 +301,6 @@ void nqueens(int n, int j, char *a, int depth)
 		}
 	}
 
-	#pragma omp taskwait
 #ifndef FORCE_TIED_TASKS
 	for ( i = 0; i < n; i++) *solutions += csols[i];
 #endif
@@ -347,7 +340,6 @@ void nqueens(int n, int j, char *a, int depth)
 
      	/* try each possible position for queen <j> */
 	for (i = 0; i < n; i++) {
- 		#pragma omp task untied
 		{
 	  		/* allocate a temporary array and copy <a> into it */
 	  		char * b = alloca(n * sizeof(char));
@@ -362,7 +354,6 @@ void nqueens(int n, int j, char *a, int depth)
 		}
 	}
 
-	#pragma omp taskwait
 #ifndef FORCE_TIED_TASKS
 	for ( i = 0; i < n; i++) *solutions += csols[i];
 #endif
@@ -375,9 +366,7 @@ void find_queens (int size)
 	total_count=0;
 
         bots_message("Computing N-Queens algorithm (n=%d) ", size);
-	#pragma omp parallel
 	{
-		#pragma omp single
 		{
 			char *a;
 
@@ -389,7 +378,6 @@ void find_queens (int size)
 #endif
 		}
 #ifdef FORCE_TIED_TASKS
-		#pragma omp atomic
 			total_count += mycount;
 #endif
 	}

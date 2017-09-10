@@ -438,9 +438,7 @@ int pairalign()
 
    bots_message("Start aligning ");
 
-   #pragma omp parallel
    {
-   #pragma omp for schedule(dynamic) private(i,n,si,sj,len1,m)
       for (si = 0; si < nseqs; si++) {
          n = seqlen_array[si+1];
          for (i = 1, len1 = 0; i <= n; i++) {
@@ -453,9 +451,6 @@ int pairalign()
             if ( n == 0 || m == 0 ) {
                bench_output[si*nseqs+sj] = (int) 1.0;
             } else {
-               #pragma omp task untied \
-               private(i,gg,len2,mm_score) firstprivate(m,n,si,sj,len1) \
-               shared(nseqs, bench_output,seqlen_array,seq_array,gap_pos1,gap_pos2,pw_ge_penalty,pw_go_penalty,mat_avscore)
                {
                   int se1, se2, sb1, sb2, maxscore, seq1, seq2, g, gh;
                   int displ[2*MAX_ALN_LENGTH+1];

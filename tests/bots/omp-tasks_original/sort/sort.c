@@ -349,9 +349,8 @@ void cilkmerge_par(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest)
      cilkmerge_par(low1, split1 - 1, low2, split2, lowdest);
 #pragma omp task untied
      cilkmerge_par(split1 + 1, high1, split2 + 1, high2,
-		     lowdest + lowsize + 2);
+		     lowdest[lowsize + 2]);
 #pragma omp taskwait
-
      return;
 }
 

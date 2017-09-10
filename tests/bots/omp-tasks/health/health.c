@@ -415,7 +415,6 @@ void sim_village_par(struct Village *village)
    vlist = village->forward;
    while(vlist)
    {
-#pragma omp task untied if((sim_level - village->level) < bots_cutoff_value)
       sim_village_par(vlist);
       vlist = vlist->next;
    }
@@ -428,8 +427,6 @@ void sim_village_par(struct Village *village)
 
    /* Uses lists v->hosp->waiting, and v->hosp->assess */
    check_patients_waiting(village);
-
-#pragma omp taskwait
 
    /* Uses lists v->hosp->realloc, v->hosp->asses and v->hosp->waiting */
    check_patients_realloc(village);
@@ -453,7 +450,6 @@ void sim_village_par(struct Village *village)
    {
       while(vlist)
       {
-#pragma omp task untied
          sim_village_par(vlist);
          vlist = vlist->next;
       }
@@ -476,11 +472,6 @@ void sim_village_par(struct Village *village)
    /* Uses lists v->hosp->waiting, and v->hosp->assess */
    check_patients_waiting(village);
 
-   if ((sim_level-village->level) < bots_cutoff_value)
-   {
-#pragma omp taskwait
-   }
-
    /* Uses lists v->hosp->realloc, v->hosp->asses and v->hosp->waiting */
    check_patients_realloc(village);
 
@@ -501,7 +492,6 @@ void sim_village_par(struct Village *village)
    vlist = village->forward;
    while(vlist)
    {
-#pragma omp task untied
       sim_village_par(vlist);
       vlist = vlist->next;
    }
@@ -514,8 +504,6 @@ void sim_village_par(struct Village *village)
 
    /* Uses lists v->hosp->waiting, and v->hosp->assess */
    check_patients_waiting(village);
-
-#pragma omp taskwait
 
    /* Uses lists v->hosp->realloc, v->hosp->asses and v->hosp->waiting */
    check_patients_realloc(village);
@@ -632,9 +620,9 @@ int check_village(struct Village *top)
 void sim_village_main_par(struct Village *top)
 {
    long i;
-#pragma omp parallel
-#pragma omp single
-#pragma omp task untied
-   for (i = 0; i < sim_time; i++) sim_village_par(top);   
+   for (i = 0; i < sim_time; i++)
+   {
+		sim_village_par(top);   
+   }
 }
 

@@ -281,21 +281,17 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
                                RowWidthA, RowWidthB, AdditiveMode);
 
     #pragma omp task depend(in:C,RowWidthC,RowWidthA,RowWidthB,A01,B10)
-    MultiplyByDivideAndConquer(C00, A01, B10, QuadrantSize, RowWidthC,
-                               RowWidthA, RowWidthB, 1);
+    MultiplyByDivideAndConquer(C00, A01, B10, QuadrantSize, RowWidthC, RowWidthA, RowWidthB, 1);
 
     #pragma omp task depend(in:RowWidthC,RowWidthA,RowWidthB,A01,B11,C01)
-    MultiplyByDivideAndConquer(C01, A01, B11, QuadrantSize, RowWidthC,
-                               RowWidthA, RowWidthB, 1);
+    MultiplyByDivideAndConquer(C01, A01, B11, QuadrantSize, RowWidthC, RowWidthA, RowWidthB, 1);
 
     #pragma omp task depend(in:RowWidthC,RowWidthA,RowWidthB,A11,B11,C11)
-    MultiplyByDivideAndConquer(C11, A11, B11, QuadrantSize, RowWidthC,
-                               RowWidthA, RowWidthB, 1);
+    MultiplyByDivideAndConquer(C11, A11, B11, QuadrantSize, RowWidthC, RowWidthA, RowWidthB, 1);
 
     #pragma omp task depend(in:RowWidthC,RowWidthA,RowWidthB,A11,B10,C10)
-    MultiplyByDivideAndConquer(C10, A11, B10, QuadrantSize, RowWidthC,
-                               #pragma omp taskwait
-                               RowWidthA, RowWidthB, 1);
+    MultiplyByDivideAndConquer(C10, A11, B10, QuadrantSize, RowWidthC, RowWidthA, RowWidthB, 1);
+   #pragma omp taskwait 
 
   } else {
 

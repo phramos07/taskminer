@@ -200,9 +200,6 @@ unsigned long long parallel_uts ( Node *root )
 
    bots_message("Computing Unbalance Tree Search algorithm ");
 
-   #pragma omp parallel  
-      #pragma omp single nowait
-      #pragma omp task untied
         num_nodes = parTreeSearch( 0, root, root->numChildren );
 
    bots_message(" completed!");
@@ -231,11 +228,9 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren)
 
      nodePtr->numChildren = uts_numChildren(nodePtr);
 
-     #pragma omp task untied firstprivate(i, nodePtr) shared(partialCount) if(depth < bots_cutoff_value)
 	partialCount[i] = parTreeSearch(depth+1, nodePtr, nodePtr->numChildren);
   }
 
-  #pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
      subtreesize += partialCount[i];
@@ -265,11 +260,9 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren)
 
      nodePtr->numChildren = uts_numChildren(nodePtr);
 
-     #pragma omp task untied firstprivate(i, nodePtr) shared(partialCount) final(depth+1 >= bots_cutoff_value)
 	partialCount[i] = parTreeSearch(depth+1, nodePtr, nodePtr->numChildren);
   }
 
-  #pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
      subtreesize += partialCount[i];
@@ -303,11 +296,9 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren)
 
      nodePtr->numChildren = uts_numChildren(nodePtr);
 
-     #pragma omp task untied firstprivate(i, nodePtr) shared(partialCount)
 	partialCount[i] = parTreeSearch(depth+1, nodePtr, nodePtr->numChildren);
   }
 
-  #pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
      subtreesize += partialCount[i];
@@ -337,11 +328,9 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren)
 
      nodePtr->numChildren = uts_numChildren(nodePtr);
 
-     #pragma omp task untied firstprivate(i, nodePtr) shared(partialCount)
         partialCount[i] = parTreeSearch(depth+1, nodePtr, nodePtr->numChildren);
   }
 
-  #pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
      subtreesize += partialCount[i];

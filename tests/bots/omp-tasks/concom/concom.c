@@ -94,7 +94,6 @@ void CC_par (int i, int cc)
    if (visited[i] == 0) {
       /* add node to current component */
       if (bots_verbose_mode) printf("Adding node %d to component %d\n", i, cc);
-      #pragma omp critical
       {
          visited[i] = 1;
          components[cc]++;
@@ -103,10 +102,8 @@ void CC_par (int i, int cc)
       for (j = 0; j < nodes[i].n; j++)
       {
          n = nodes[i].neighbor[j];
-         #pragma omp task untied firstprivate (i,cc)
          {CC_par(n, cc);}
       }
-      #pragma omp taskwait
    }  
 }
 void CC_seq (int i, int cc)
@@ -143,16 +140,11 @@ void cc_par(int *cc)
    int i;
    *cc = 0;
    /* for all nodes ... unvisited nodes start a new component */
-   #pragma omp parallel
-   #pragma omp single
-   #pragma omp task untied
    for (i = 0; i < bots_arg_size; i++)
    {
       if (visited[i] == 0)
       {
-         #pragma omp task untied firstprivate (i,cc)
          {CC_par(i, *cc);}
-         #pragma omp taskwait
          (*cc)++;
       }
    }

@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "app-desc.h"
-#include "bots.h"
+#include "../../common/bots.h"
 
 #define ROWS 64
 #define COLS 64
@@ -241,7 +241,6 @@ static int add_cell_ser (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
 
 /* if area is minimum, update global values */
 		  if (area < MIN_AREA) {
-#pragma omp critical
 			  if (area < MIN_AREA) {
 				  MIN_AREA         = area;
 				  MIN_FOOTPRINT[0] = footprint[0];
@@ -253,7 +252,6 @@ static int add_cell_ser (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
 
 /* if area is less than best area */
           } else if (area < MIN_AREA) {
-            #pragma omp atomic
              nn2 += add_cell_ser(cells[id].next, footprint, board,cells);
 
 /* if area is greater than or equal to best area, prune search */
@@ -286,10 +284,6 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,int l
       nnl += nn;
 /* for all possible locations */
       for (j = 0; j < nn; j++) {
-#pragma omp task untied private(board, footprint,area) \
-firstprivate(NWS,i,j,id,nn,level) \
-shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,nnc,bots_verbose_mode) \
-if(level<bots_cutoff_value)
 {
 	  struct cell cells[N+1];
 	  memcpy(cells,CELLS,sizeof(struct cell)*(N+1));
@@ -317,7 +311,6 @@ if(level<bots_cutoff_value)
 
 /* if area is minimum, update global values */
 		  if (area < MIN_AREA) {
-#pragma omp critical
 			  if (area < MIN_AREA) {
 				  MIN_AREA         = area;
 				  MIN_FOOTPRINT[0] = footprint[0];
@@ -329,7 +322,6 @@ if(level<bots_cutoff_value)
 
 /* if area is less than best area */
           } else if (area < MIN_AREA) {
- 	    #pragma omp atomic
                 nnc += add_cell(cells[id].next, footprint, board,cells,level+1);
 /* if area is greater than or equal to best area, prune search */
           } else {
@@ -341,7 +333,6 @@ _end:;
 }
       }
 }
-#pragma omp taskwait
 return nnc+nnl;
 }
 
@@ -361,10 +352,6 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,int l
       nnl += nn;
 /* for all possible locations */
       for (j = 0; j < nn; j++) {
-#pragma omp task untied private(footprint,area) \
-firstprivate(NWS,i,j,id,nn,level,bots_cutoff_value) \
-shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,nnc,bots_verbose_mode) \
-final(level >= bots_cutoff_value) mergeable
 {
           ibrd board;
           struct cell *cells;
@@ -400,7 +387,6 @@ final(level >= bots_cutoff_value) mergeable
 
 /* if area is minimum, update global values */
 		  if (area < MIN_AREA) {
-#pragma omp critical
 			  if (area < MIN_AREA) {
 				  MIN_AREA         = area;
 				  MIN_FOOTPRINT[0] = footprint[0];
@@ -412,7 +398,6 @@ final(level >= bots_cutoff_value) mergeable
 
 /* if area is less than best area */
           } else if (area < MIN_AREA) {
- 	    #pragma omp atomic
                 nnc += add_cell(cells[id].next, footprint, board,cells,level+1);
 /* if area is greater than or equal to best area, prune search */
           } else {
@@ -424,7 +409,6 @@ _end:;
 }
       }
 }
-#pragma omp taskwait
 return nnc+nnl;
 }
 
@@ -445,9 +429,6 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,int l
       nnl += nn;
 /* for all possible locations */
       for (j = 0; j < nn; j++) {
-#pragma omp task untied private(board, footprint,area) \
-firstprivate(NWS,i,j,id,nn,level,bots_cutoff_value) shared(nnc) \
-shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,bots_verbose_mode)
 {
 	  struct cell *cells;
           
@@ -478,7 +459,6 @@ shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,bots_verbose_mo
 
 /* if area is minimum, update global values */
 		  if (area < MIN_AREA) {
-#pragma omp critical
 			  if (area < MIN_AREA) {
 				  MIN_AREA         = area;
 				  MIN_FOOTPRINT[0] = footprint[0];
@@ -491,10 +471,8 @@ shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,bots_verbose_mo
 /* if area is less than best area */
           } else if (area < MIN_AREA) {
 	     if(level+1 < bots_cutoff_value ) {
- 	       #pragma omp atomic
                 nnc += add_cell(cells[id].next, footprint, board,cells,level+1);
 	     } else {
- 	       #pragma omp atomic
 		nnc += add_cell_ser(cells[id].next, footprint, board,cells);
 	     }
 /* if area is greater than or equal to best area, prune search */
@@ -505,7 +483,6 @@ _end:;
 }
       }
 }
-#pragma omp taskwait
   
 return nnc+nnl;
 }
@@ -527,9 +504,6 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
       nnl += nn;
 /* for all possible locations */
       for (j = 0; j < nn; j++) {
-#pragma omp task untied private(board, footprint,area) \
-firstprivate(NWS,i,j,id,nn) \
-shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,nnc,bots_verbose_mode) 
 {
 	  struct cell cells[N+1];
 	  memcpy(cells,CELLS,sizeof(struct cell)*(N+1));
@@ -557,7 +531,6 @@ shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,nnc,bots_verbos
 
 /* if area is minimum, update global values */
 		  if (area < MIN_AREA) {
-#pragma omp critical
 			  if (area < MIN_AREA) {
 				  MIN_AREA         = area;
 				  MIN_FOOTPRINT[0] = footprint[0];
@@ -569,7 +542,6 @@ shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,nnc,bots_verbos
 
 /* if area is less than best area */
           } else if (area < MIN_AREA) {
- 	    #pragma omp atomic
  	      nnc += add_cell(cells[id].next, footprint, board,cells);
 /* if area is greater than or equal to best area, prune search */
           } else {
@@ -581,7 +553,6 @@ _end:;
 }
       }
 }
-#pragma omp taskwait
 return nnc+nnl;
 }
 
@@ -617,9 +588,7 @@ void compute_floorplan (void)
     footprint[0] = 0;
     footprint[1] = 0;
     bots_message("Computing floorplan ");
-#pragma omp parallel
 {
-#pragma omp single
 #if defined(MANUAL_CUTOFF) || defined(IF_CUTOFF) || defined(FINAL_CUTOFF)
        bots_number_of_tasks = add_cell(1, footprint, board, gcells,0);
 #else
