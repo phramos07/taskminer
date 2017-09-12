@@ -87,14 +87,14 @@ int maxTreeDepth = 0;
 double b_0 = 4.0;                 // default branching factor at the root
 int rootId = 0;                   // default seed for RNG state at root
                                   /***********************************************************
-                    *  The branching factor at the root is specified by b_0.
-                    *  The branching factor below the root follows an
-                    *     identical binomial distribution at all nodes.
-                    *  A node has m children with prob q, or no children with
-                    *     prob (1-q).  The expected branching factor is q * m.
-                    *
-                    *  Default parameter values
-                    ***********************************************************/
+     *  The branching factor at the root is specified by b_0.
+     *  The branching factor below the root follows an
+     *     identical binomial distribution at all nodes.
+     *  A node has m children with prob q, or no children with
+     *     prob (1-q).  The expected branching factor is q * m.
+     *
+     *  Default parameter values
+     ***********************************************************/
 int nonLeafBF = 4;                // m
 double nonLeafProb = 15.0 / 64.0; // q
 /***********************************************************
@@ -197,9 +197,6 @@ unsigned long long parallel_uts(Node *root) {
 
   bots_message("Computing Unbalance Tree Search algorithm ");
 
-#pragma omp parallel
-#pragma omp single nowait
-#pragma omp task untied
   num_nodes = parTreeSearch(0, root, root->numChildren);
 
   bots_message(" completed!");
@@ -227,12 +224,8 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren) {
 
     nodePtr->numChildren = uts_numChildren(nodePtr);
 
-#pragma omp task untied firstprivate(i, nodePtr) shared( \
-    partialCount) if (depth < bots_cutoff_value)
     partialCount[i] = parTreeSearch(depth + 1, nodePtr, nodePtr->numChildren);
   }
-
-#pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
     subtreesize += partialCount[i];
@@ -261,12 +254,8 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren) {
 
     nodePtr->numChildren = uts_numChildren(nodePtr);
 
-#pragma omp task untied firstprivate(i, nodePtr) shared(partialCount) \
-                                         final(depth + 1 >= bots_cutoff_value)
     partialCount[i] = parTreeSearch(depth + 1, nodePtr, nodePtr->numChildren);
   }
-
-#pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
     subtreesize += partialCount[i];
@@ -299,11 +288,8 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren) {
 
     nodePtr->numChildren = uts_numChildren(nodePtr);
 
-#pragma omp task untied firstprivate(i, nodePtr) shared(partialCount)
     partialCount[i] = parTreeSearch(depth + 1, nodePtr, nodePtr->numChildren);
   }
-
-#pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
     subtreesize += partialCount[i];
@@ -335,12 +321,9 @@ unsigned long long parTreeSearch(int depth, Node *parent, int numChildren) {
     #pragma omp task depend(in:nodePtr)
     nodePtr->numChildren = uts_numChildren(nodePtr);
 
-#pragma omp task untied firstprivate(i, nodePtr) shared(partialCount)
     #pragma omp task depend(in:nodePtr,nodePtr[0][1])
     partialCount[i] = parTreeSearch(depth + 1, nodePtr, nodePtr->numChildren);
   }
-
-#pragma omp taskwait
 
   for (i = 0; i < numChildren; i++) {
     subtreesize += partialCount[i];

@@ -37,8 +37,6 @@
 int best_so_far;
 int number_of_tasks;
 
-#pragma omp threadprivate(number_of_tasks)
-
 int compare(struct item *a, struct item *b) {
   double c = ((double)a->value / a->weight) - ((double)b->value / b->weight);
 
@@ -107,19 +105,14 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
     *sol = INT_MIN;
     return;
   }
-/*
+  /*
       * compute the best solution without the current item in the knapsack
       */
-#pragma omp task untied firstprivate(e, c, n, v, l) shared( \
-    without) if (l < bots_cutoff_value)
   knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
 
-/* compute the best solution with the current item in the knapsack */
-#pragma omp task untied firstprivate(e, c, n, v, l) shared( \
-    with) if (l < bots_cutoff_value)
+  /* compute the best solution with the current item in the knapsack */
   knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
 
-#pragma omp taskwait
   best = with > without ? with : without;
 
   /*
@@ -160,15 +153,12 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
     return;
   }
   if (l < bots_cutoff_value) {
-/* compute the best solution without the current item in the knapsack */
-#pragma omp task untied firstprivate(e, c, n, v, l) shared(without)
+    /* compute the best solution without the current item in the knapsack */
     knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
 
-/* compute the best solution with the current item in the knapsack */
-#pragma omp task untied firstprivate(e, c, n, v, l) shared(with)
+    /* compute the best solution with the current item in the knapsack */
     knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
 
-#pragma omp taskwait
   } else {
     /* compute the best solution without the current item in the knapsack */
     knapsack_seq(e + 1, c, n - 1, v, &without);
@@ -215,17 +205,17 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
     *sol = INT_MIN;
     return;
   }
-/*
+  /*
       * compute the best solution without the current item in the knapsack
       */
   #pragma omp task depend(in:c,e[1]) depend(out:without,v)
   knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
 
-/* compute the best solution with the current item in the knapsack */
+  /* compute the best solution with the current item in the knapsack */
   #pragma omp task depend(in:e[1]) depend(out:with)
   knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
-
 #pragma omp taskwait
+
   best = with > without ? with : without;
 
   /*
@@ -293,14 +283,10 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
 void knapsack_main_par(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
 
-#pragma omp parallel
   {
     number_of_tasks = 0;
-#pragma omp single
-#pragma omp task untied
     { knapsack_par(e, c, n, 0, sol, 0); }
 
-#pragma omp critical
     bots_number_of_tasks += number_of_tasks;
   }
   if (bots_verbose_mode)
