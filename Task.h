@@ -58,6 +58,7 @@ namespace llvm
 		virtual CostModel computeCost() { return CM; }
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 		bool hasLoadInstructionInDependence() const;
+		virtual bool hasSyncBarrier() const {return false; };
 
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
@@ -126,7 +127,7 @@ namespace llvm
 		RecursiveTask* getNext() const { return next; }
 		void setPrev(RecursiveTask* prev) { this->prev = prev; }
 		void setNext(RecursiveTask* next) { this->next = next; }
-		bool hasSyncBarrier() const { if (prev && !next) return true; else return false;}
+		bool hasSyncBarrier() const override;
 		bool insideLoop() { return isInsideLoop; }
 
 	private:

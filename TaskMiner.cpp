@@ -217,12 +217,13 @@ void	TaskMiner::mineFunctionCallTasks()
 					break;
 				}
 			}
+			CallInst* CI = callInsts[e];
 			if ((srcRW->F != dstRW->F)
 				&& ((srcRW->hasLoop))
 				&& (!indirectRecursion)
+				&& (CI->doesNotReturn())
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
-				CallInst* CI = callInsts[e];
 				Task* TASK = new FunctionCallTask(CI);
 				tasks.push_back(TASK);
 				NTASKS++;
@@ -283,7 +284,6 @@ void TaskMiner::mineRecursiveTasks()
 	Function* func;
 	std::map<Function*, std::list<RecursiveTask*> > rec_tasks;
 
-
 	//Create task for each recursive call
 	for (auto pair : rec_calls)
 	{
@@ -312,15 +312,11 @@ void TaskMiner::mineRecursiveTasks()
 			NTASKS++;
 			NRECURSIVETASKS++;
 		}
-	}
 
-	//TODO:
 	//Now what do we do here? We go through every recursive task in each function.
 	//we call the region analysis. If the recursive calls are in different regions,
 	//we don't add them to the main list of tasks.
-
-	
-
+	}
 }
 
 void TaskMiner::mineRegionTasks()

@@ -319,6 +319,11 @@ CostModel RecursiveTask::computeCost()
 	return CM;
 }
 
+bool RecursiveTask::hasSyncBarrier() const
+{ 
+	return (next == nullptr) ? true : false;
+}
+
 bool RegionTask::resolveInsAndOutsSets()
 {
 	//Collect values inside region
