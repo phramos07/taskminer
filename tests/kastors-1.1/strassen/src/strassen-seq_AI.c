@@ -128,6 +128,8 @@ static void OptimizedStrassenMultiply_seq(
   T1sMULT = (double *)Heap;
   Heap += QuadrantSizeInBytes;
 
+  #pragma omp parallel
+  #pragma omp single
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++) {
       S1[Row * QuadrantSize + Column] =
@@ -149,32 +151,40 @@ static void OptimizedStrassenMultiply_seq(
     }
 
   /* M2 = A x B */
+  #pragma omp task depend(in:A,B,RowWidthA,RowWidthB,cutoff_size)
   OptimizedStrassenMultiply_seq(M2, A, B, QuadrantSize, QuadrantSize, RowWidthA,
                                 RowWidthB, cutoff_size);
 
   /* M5 = S1 * S5 */
+  #pragma omp task depend(in:cutoff_size)
   OptimizedStrassenMultiply_seq(M5, S1, S5, QuadrantSize, QuadrantSize,
                                 QuadrantSize, QuadrantSize, cutoff_size);
 
   /* Step 1 of T1 = S2 x S6 + M2 */
+  #pragma omp task depend(in:cutoff_size)
   OptimizedStrassenMultiply_seq(T1sMULT, S2, S6, QuadrantSize, QuadrantSize,
                                 QuadrantSize, QuadrantSize, cutoff_size);
 
   /* Step 1 of T2 = T1 + S3 x S7 */
+  #pragma omp task depend(in:RowWidthC,cutoff_size) depend(inout:C22)
   OptimizedStrassenMultiply_seq(C22, S3, S7, QuadrantSize, RowWidthC /*FIXME*/,
                                 QuadrantSize, QuadrantSize, cutoff_size);
 
   /* Step 1 of C = M2 + A12 * B21 */
+  #pragma omp task depend(in:RowWidthC,RowWidthA,RowWidthB,cutoff_size,A12,B21) depend(inout:C)
   OptimizedStrassenMultiply_seq(C, A12, B21, QuadrantSize, RowWidthC, RowWidthA,
                                 RowWidthB, cutoff_size);
 
   /* Step 1 of C12 = S4 x B22 + T1 + M5 */
+  #pragma omp task depend(in:RowWidthC,RowWidthB,cutoff_size,B22) depend(inout:C12)
   OptimizedStrassenMultiply_seq(C12, S4, B22, QuadrantSize, RowWidthC,
                                 QuadrantSize, RowWidthB, cutoff_size);
 
   /* Step 1 of C21 = T2 - A22 * S8 */
+  #pragma omp task depend(in:RowWidthC,RowWidthA,cutoff_size,A22) depend(inout:C21)
   OptimizedStrassenMultiply_seq(C21, A22, S8, QuadrantSize, RowWidthC,
                                 RowWidthA, QuadrantSize, cutoff_size);
+  #pragma omp taskwait
 
   for (Row = 0; Row < QuadrantSize; Row++) {
     for (Column = 0; Column < QuadrantSize; Column += 1) {
@@ -198,3 +208,4 @@ void strassen_main_seq(double *A, double *B, double *C, int n,
                        unsigned int cutoff_size) {
   OptimizedStrassenMultiply_seq(C, A, B, n, n, n, n, cutoff_size);
 }
+
