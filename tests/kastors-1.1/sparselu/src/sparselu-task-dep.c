@@ -33,26 +33,36 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size)
     {
       lu0(BENCH[kk*matrix_size+kk], submatrix_size);
       for (jj=kk+1; jj<matrix_size; jj++)
+      {
 	      if (BENCH[kk*matrix_size+jj] != NULL)
         {
           fwd(BENCH[kk*matrix_size+kk], BENCH[kk*matrix_size+jj], submatrix_size);
-        }
+        }      	
+      }
       for (ii=kk+1; ii<matrix_size; ii++)
+      {
         if (BENCH[ii*matrix_size+kk] != NULL)
         {
           bdiv(BENCH[kk*matrix_size+kk], BENCH[ii*matrix_size+kk], submatrix_size);
-        }
+        }      	
+      }
       for (ii=kk+1; ii<matrix_size; ii++)
+      {
         if (BENCH[ii*matrix_size+kk] != NULL)
+        {
           for (jj=kk+1; jj<matrix_size; jj++)
-            if (BENCH[kk*matrix_size+jj] != NULL)
-            {
+          {
+	          if (BENCH[kk*matrix_size+jj] != NULL)
+	          {
 	            if (BENCH[ii*matrix_size+jj]==NULL) 
-            	{
-            		BENCH[ii*matrix_size+jj] = allocate_clean_block(submatrix_size);
-            	}
-              bmod(BENCH[ii*matrix_size+kk], BENCH[kk*matrix_size+jj], BENCH[ii*matrix_size+jj], submatrix_size);
-	          }
+	          	{
+	          		BENCH[ii*matrix_size+jj] = allocate_clean_block(submatrix_size);
+	          	}
+	            bmod(BENCH[ii*matrix_size+kk], BENCH[kk*matrix_size+jj], BENCH[ii*matrix_size+jj], submatrix_size);
+	          }          	
+          }
+        }
+      }
     }
   }
 }
