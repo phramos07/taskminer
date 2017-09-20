@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
-#include "sparselu.h"
+#include "../include/sparselu.h"
 
 
 void sparselu_seq_call(float **BENCH, int matrix_size, int submatrix_size)

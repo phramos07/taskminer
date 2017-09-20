@@ -121,95 +121,75 @@ static void OptimizedStrassenMultiply_par(double *C, double *A, double *B,
   if (Depth < cutoff_depth)
   {
 
-#pragma omp task depend(in: A21, A22) depend(out: S1) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S1[Row * QuadrantSize + Column] = A21[RowWidthA * Row + Column] + A22[RowWidthA * Row + Column];
 
-#pragma omp task depend(in: S1, A) depend(out: S2) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S2[Row * QuadrantSize + Column] = S1[Row * QuadrantSize + Column] - A[RowWidthA * Row + Column];
 
-#pragma omp task depend(in: A12, S2) depend(out: S4) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S4[Row * QuadrantSize + Column] = A12[Row * RowWidthA + Column] - S2[QuadrantSize * Row + Column];
 
-#pragma omp task depend(in: B12, B) depend(out: S5) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S5[Row * QuadrantSize + Column] = B12[Row * RowWidthB + Column] - B[Row * RowWidthB + Column];
 
-#pragma omp task depend(in: B22, S5) depend(out: S6) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S6[Row * QuadrantSize + Column] = B22[Row * RowWidthB + Column] - S5[Row * QuadrantSize + Column];
 
-#pragma omp task depend(in: S6, B21) depend(out: S8) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S8[Row * QuadrantSize + Column] = S6[Row * QuadrantSize + Column] - B21[Row * RowWidthB + Column];
 
-#pragma omp task depend(in: A, A21) depend(out: S3) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S3[Row * QuadrantSize + Column] = A[RowWidthA * Row + Column] - A21[RowWidthA * Row + Column];
 
-#pragma omp task depend(in: B22, B12) depend(out: S7) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column++)
       S7[Row * QuadrantSize + Column] = B22[Row * RowWidthB + Column] - B12[Row * RowWidthB + Column];
 
     /* M2 = A x B */
-#pragma omp task depend(in: A, B) depend(out: M2)
     OptimizedStrassenMultiply_par(M2, A, B, QuadrantSize, QuadrantSize, RowWidthA, RowWidthB, Depth+1, cutoff_depth, cutoff_size);
 
     /* M5 = S1 * S5 */
-#pragma omp task untied depend(in: S1, S5) depend(out: M5)
     OptimizedStrassenMultiply_par(M5, S1, S5, QuadrantSize, QuadrantSize, QuadrantSize, QuadrantSize, Depth+1, cutoff_depth, cutoff_size);
 
     /* Step 1 of T1 = S2 x S6 + M2 */
-#pragma omp task untied depend(in: S2, S6) depend(out: T1sMULT)
     OptimizedStrassenMultiply_par(T1sMULT, S2, S6,  QuadrantSize, QuadrantSize, QuadrantSize, QuadrantSize, Depth+1, cutoff_depth, cutoff_size);
 
     /* Step 1 of T2 = T1 + S3 x S7 */
-#pragma omp task untied depend(in: S3, S7) depend(out: C22)
     OptimizedStrassenMultiply_par(C22, S3, S7, QuadrantSize, RowWidthC /*FIXME*/, QuadrantSize, QuadrantSize, Depth+1, cutoff_depth, cutoff_size);
 
     /* Step 1 of C = M2 + A12 * B21 */
-#pragma omp task untied depend(in: A12, B21) depend(out: C)
     OptimizedStrassenMultiply_par(C, A12, B21, QuadrantSize, RowWidthC, RowWidthA, RowWidthB, Depth+1, cutoff_depth, cutoff_size);
 
     /* Step 1 of C12 = S4 x B22 + T1 + M5 */
-#pragma omp task untied depend(in: S4, B22) depend(out: C12)
     OptimizedStrassenMultiply_par(C12, S4, B22, QuadrantSize, RowWidthC, QuadrantSize, RowWidthB, Depth+1, cutoff_depth, cutoff_size);
 
     /* Step 1 of C21 = T2 - A22 * S8 */
-#pragma omp task untied depend(in: A22, S8) depend(out: C21)
     OptimizedStrassenMultiply_par(C21, A22, S8, QuadrantSize, RowWidthC, RowWidthA, QuadrantSize, Depth+1, cutoff_depth, cutoff_size);
 
-#pragma omp task depend(inout: C) depend(in: M2) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column += 1)
       C[RowWidthC * Row + Column] += M2[Row * QuadrantSize + Column];
 
-#pragma omp task depend(inout: C12) depend(in: M5, T1sMULT, M2) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column += 1)
       C12[RowWidthC * Row + Column] += M5[Row * QuadrantSize + Column] + T1sMULT[Row * QuadrantSize + Column] + M2[Row * QuadrantSize + Column];
 
-#pragma omp task depend(inout: C21) depend(in: C22, T1sMULT, M2) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column += 1)
       C21[RowWidthC * Row + Column] = -C21[RowWidthC * Row + Column] + C22[RowWidthC * Row + Column] + T1sMULT[Row * QuadrantSize + Column] + M2[Row * QuadrantSize + Column];
 
-#pragma omp task depend(inout: C22) depend(in: M5, T1sMULT, M2) private(Row, Column)
   for (Row = 0; Row < QuadrantSize; Row++)
     for (Column = 0; Column < QuadrantSize; Column += 1)
       C22[RowWidthC * Row + Column] += M5[Row * QuadrantSize + Column] + T1sMULT[Row * QuadrantSize + Column] + M2[Row * QuadrantSize + Column];
 
-#pragma omp taskwait
   }
   else
   {
@@ -253,7 +233,5 @@ static void OptimizedStrassenMultiply_par(double *C, double *A, double *B,
 
 void strassen_main_par(double *A, double *B, double *C, int n, unsigned int cutoff_size, unsigned int cutoff_depth)
 {
-#pragma omp parallel
-#pragma omp master
   OptimizedStrassenMultiply_par(C, A, B, n, n, n, n, 1, cutoff_depth, cutoff_size);
 }

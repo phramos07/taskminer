@@ -24,15 +24,15 @@
 #include <string.h>
 #include <math.h>
 #include <libgen.h>
-#include "sparselu.h"
-#include "timer.h"
-#include "main.h"
+#include "../include/sparselu.h"
+#include "../../common/timer.h"
+#include "../../common/main.h"
 
 
 /***********************************************************************
  * genmat:
  **********************************************************************/
-static void genmat (float *M[], int matrix_size, int submatrix_size)
+static void genmat(float *M[], int matrix_size, int submatrix_size)
 {
     int null_entry, init_val, i, j, ii, jj;
     float *p;
