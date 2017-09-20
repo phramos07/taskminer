@@ -21,8 +21,7 @@ strassen_seq-main.o: main.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
   /usr/include/sys/_types/_wchar_t.h /usr/include/string.h \
   /usr/include/secure/_string.h \
   /usr/local/Cellar/clang-omp/2015-04-01/libexec/bin/../lib/clang/3.5.0/include/float.h \
-  /usr/include/math.h /usr/local/opt/libiomp/include/libiomp/omp.h \
-  ../common/main.h
+  /usr/include/math.h ../common/main.h
 
 /usr/include/stdio.h:
 
@@ -103,7 +102,5 @@ strassen_seq-main.o: main.c /usr/include/stdio.h /usr/include/sys/cdefs.h \
 /usr/local/Cellar/clang-omp/2015-04-01/libexec/bin/../lib/clang/3.5.0/include/float.h:
 
 /usr/include/math.h:
-
-/usr/local/opt/libiomp/include/libiomp/omp.h:
 
 ../common/main.h:
