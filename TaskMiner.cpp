@@ -218,10 +218,14 @@ void	TaskMiner::mineFunctionCallTasks()
 				}
 			}
 			CallInst* CI = callInsts[e];
+			if (srcRW->hasLoop)
+			{
+				errs() << "mingin function call inside loop: ";
+				CI->dump();
+			}
 			if ((srcRW->F != dstRW->F)
 				&& ((srcRW->hasLoop))
 				&& (!indirectRecursion)
-				&& (CI->doesNotReturn())
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
 				Task* TASK = new FunctionCallTask(CI);

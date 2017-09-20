@@ -35,7 +35,7 @@
  */
 
 #include <stdlib.h>
-#include "strassen.h"
+#include "../include/strassen.h"
 
 
 /*****************************************************************************
