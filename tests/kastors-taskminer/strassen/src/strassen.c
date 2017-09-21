@@ -417,7 +417,8 @@ double run(struct user_parameters* params)
 #ifndef _OPENMP
     strassen_main_seq(C, A, B, matrix_size, cutoff_size);
 #else
-    strassen_main_par(C, A, B, matrix_size, cutoff_size, cutoff_depth);
+    // strassen_main_par(C, A, B, matrix_size, cutoff_size, cutoff_depth);
+    strassen_main_seq_AI(C, A, B, matrix_size, cutoff_size);
 #endif
     END_TIMER;
 
