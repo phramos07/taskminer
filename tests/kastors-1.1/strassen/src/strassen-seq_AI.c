@@ -1,3 +1,4 @@
+#include <omp.h>
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -184,7 +185,7 @@ static void OptimizedStrassenMultiply_seq(
   #pragma omp task depend(in:RowWidthC,RowWidthA,cutoff_size,A22) depend(inout:C21)
   OptimizedStrassenMultiply_seq(C21, A22, S8, QuadrantSize, RowWidthC,
                                 RowWidthA, QuadrantSize, cutoff_size);
-  #pragma omp taskwait
+#pragma omp taskwait
 
   for (Row = 0; Row < QuadrantSize; Row++) {
     for (Column = 0; Column < QuadrantSize; Column += 1) {
@@ -204,7 +205,7 @@ static void OptimizedStrassenMultiply_seq(
   free(StartHeap);
 }
 
-void strassen_main_seq_AI(double *A, double *B, double *C, int n,
+void strassen_main_seq(double *A, double *B, double *C, int n,
                        unsigned int cutoff_size) {
   OptimizedStrassenMultiply_seq(C, A, B, n, n, n, n, cutoff_size);
 }
