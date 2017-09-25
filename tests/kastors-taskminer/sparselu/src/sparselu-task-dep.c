@@ -22,47 +22,47 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
-#include "sparselu.h"
+#include "../include/sparselu.h"
 
 
 void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size)
 {
-    int ii, jj, kk;
-
-#pragma omp parallel private(kk,ii,jj) shared(BENCH)
-#pragma omp single /* nowait */
+  int ii, jj, kk;
+  {
+    for (kk=0; kk<matrix_size; kk++)
     {
-        /*#pragma omp task untied*/
-        for (kk=0; kk<matrix_size; kk++)
+      lu0(BENCH[kk*matrix_size+kk], submatrix_size);
+      for (jj=kk+1; jj<matrix_size; jj++)
+      {
+	      if (BENCH[kk*matrix_size+jj] != NULL)
         {
-#pragma omp task firstprivate(kk) shared(BENCH) depend(inout: BENCH[kk*matrix_size+kk:submatrix_size*submatrix_size])
-            lu0(BENCH[kk*matrix_size+kk], submatrix_size);
-            for (jj=kk+1; jj<matrix_size; jj++)
-                if (BENCH[kk*matrix_size+jj] != NULL)
-                {
-#pragma omp task firstprivate(kk, jj) shared(BENCH) depend(in: BENCH[kk*matrix_size+kk:submatrix_size*submatrix_size]) depend(inout: BENCH[kk*matrix_size+jj:submatrix_size*submatrix_size])
-                    fwd(BENCH[kk*matrix_size+kk], BENCH[kk*matrix_size+jj], submatrix_size);
-                }
-            for (ii=kk+1; ii<matrix_size; ii++)
-                if (BENCH[ii*matrix_size+kk] != NULL)
-                {
-#pragma omp task firstprivate(kk, ii) shared(BENCH) depend(in: BENCH[kk*matrix_size+kk:submatrix_size*submatrix_size]) depend(inout: BENCH[ii*matrix_size+kk:submatrix_size*submatrix_size])
-                    bdiv (BENCH[kk*matrix_size+kk], BENCH[ii*matrix_size+kk], submatrix_size);
-                }
-
-            for (ii=kk+1; ii<matrix_size; ii++)
-                if (BENCH[ii*matrix_size+kk] != NULL)
-                    for (jj=kk+1; jj<matrix_size; jj++)
-                        if (BENCH[kk*matrix_size+jj] != NULL)
-                        {
-                            if (BENCH[ii*matrix_size+jj]==NULL) BENCH[ii*matrix_size+jj] = allocate_clean_block(submatrix_size);
-#pragma omp task firstprivate(kk, jj, ii) shared(BENCH) \
-                            depend(in: BENCH[ii*matrix_size+kk:submatrix_size*submatrix_size], BENCH[kk*matrix_size+jj:submatrix_size*submatrix_size]) \
-                            depend(inout: BENCH[ii*matrix_size+jj:submatrix_size*submatrix_size])
-                            bmod(BENCH[ii*matrix_size+kk], BENCH[kk*matrix_size+jj], BENCH[ii*matrix_size+jj], submatrix_size);
-                        }
-
+          fwd(BENCH[kk*matrix_size+kk], BENCH[kk*matrix_size+jj], submatrix_size);
+        }      	
+      }
+      for (ii=kk+1; ii<matrix_size; ii++)
+      {
+        if (BENCH[ii*matrix_size+kk] != NULL)
+        {
+          bdiv(BENCH[kk*matrix_size+kk], BENCH[ii*matrix_size+kk], submatrix_size);
+        }      	
+      }
+      for (ii=kk+1; ii<matrix_size; ii++)
+      {
+        if (BENCH[ii*matrix_size+kk] != NULL)
+        {
+          for (jj=kk+1; jj<matrix_size; jj++)
+          {
+	          if (BENCH[kk*matrix_size+jj] != NULL)
+	          {
+	            if (BENCH[ii*matrix_size+jj]==NULL) 
+	          	{
+	          		BENCH[ii*matrix_size+jj] = allocate_clean_block(submatrix_size);
+	          	}
+	            bmod(BENCH[ii*matrix_size+kk], BENCH[kk*matrix_size+jj], BENCH[ii*matrix_size+jj], submatrix_size);
+	          }          	
+          }
         }
-#pragma omp taskwait
+      }
     }
+  }
 }
