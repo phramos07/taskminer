@@ -378,17 +378,19 @@ bool RegionTask::resolveInsAndOutsSets()
 
 bool Task::isPointerValue(Value *V)
 {
- if (!isa<LoadInst>(V) &&
-      !isa<StoreInst>(V) &&
-      !isa<GetElementPtrInst>(V) &&
-      !isa<Argument>(V) &&
-      !isa<GlobalValue>(V) &&
-      !isa<AllocaInst>(V))
- {
- 	return false;
- }
+	if (isa<Argument>(V) || isa<GlobalValue>(V))
+	{
+		return V->getType()->isPtrOrPtrVectorTy();
+	}
+	if (!isa<LoadInst>(V) &&
+	  !isa<StoreInst>(V) &&
+	  !isa<GetElementPtrInst>(V) &&
+	  !isa<AllocaInst>(V))
+	{
+		return false;
+	}
 
- return true;
+return true;
 }
 
 raw_ostream& RegionTask::print(raw_ostream& os) const
