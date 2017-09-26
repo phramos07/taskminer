@@ -172,43 +172,43 @@ static void OptimizedStrassenMultiply_par(
             B22[Row * RowWidthB + Column] - B12[Row * RowWidthB + Column];
 
     /* M2 = A x B */
-    #pragma omp task depend(in:A,B,RowWidthA,RowWidthB,cutoff_depth,cutoff_size)
+    #pragma omp task depend(in:A,B)
     OptimizedStrassenMultiply_par(M2, A, B, QuadrantSize, QuadrantSize,
                                   RowWidthA, RowWidthB, Depth + 1, cutoff_depth,
                                   cutoff_size);
 
     /* M5 = S1 * S5 */
-    #pragma omp task depend(in:cutoff_depth,cutoff_size)
+    #pragma omp task
     OptimizedStrassenMultiply_par(M5, S1, S5, QuadrantSize, QuadrantSize,
                                   QuadrantSize, QuadrantSize, Depth + 1,
                                   cutoff_depth, cutoff_size);
 
     /* Step 1 of T1 = S2 x S6 + M2 */
-    #pragma omp task depend(in:cutoff_depth,cutoff_size)
+    #pragma omp task
     OptimizedStrassenMultiply_par(T1sMULT, S2, S6, QuadrantSize, QuadrantSize,
                                   QuadrantSize, QuadrantSize, Depth + 1,
                                   cutoff_depth, cutoff_size);
 
     /* Step 1 of T2 = T1 + S3 x S7 */
-    #pragma omp task depend(in:RowWidthC,cutoff_depth,cutoff_size) depend(inout:C22)
+    #pragma omp task depend(inout:C22)
     OptimizedStrassenMultiply_par(
         C22, S3, S7, QuadrantSize, RowWidthC /*FIXME*/, QuadrantSize,
         QuadrantSize, Depth + 1, cutoff_depth, cutoff_size);
 
     /* Step 1 of C = M2 + A12 * B21 */
-    #pragma omp task depend(in:RowWidthC,RowWidthA,RowWidthB,cutoff_depth,cutoff_size,A12,B21) depend(inout:C)
+    #pragma omp task depend(in:A12,B21) depend(inout:C)
     OptimizedStrassenMultiply_par(C, A12, B21, QuadrantSize, RowWidthC,
                                   RowWidthA, RowWidthB, Depth + 1, cutoff_depth,
                                   cutoff_size);
 
     /* Step 1 of C12 = S4 x B22 + T1 + M5 */
-    #pragma omp task depend(in:RowWidthC,RowWidthB,cutoff_depth,cutoff_size,B22) depend(inout:C12)
+    #pragma omp task depend(in:B22) depend(inout:C12)
     OptimizedStrassenMultiply_par(C12, S4, B22, QuadrantSize, RowWidthC,
                                   QuadrantSize, RowWidthB, Depth + 1,
                                   cutoff_depth, cutoff_size);
 
     /* Step 1 of C21 = T2 - A22 * S8 */
-    #pragma omp task depend(in:RowWidthC,RowWidthA,cutoff_depth,cutoff_size,A22) depend(inout:C21)
+    #pragma omp task depend(in:A22) depend(inout:C21)
     OptimizedStrassenMultiply_par(C21, A22, S8, QuadrantSize, RowWidthC,
                                   RowWidthA, QuadrantSize, Depth + 1,
                                   cutoff_depth, cutoff_size);
@@ -257,37 +257,37 @@ static void OptimizedStrassenMultiply_par(
             B22[Row * RowWidthB + Column] - B12[Row * RowWidthB + Column];
       }
     /* M2 = A x B */
-    #pragma omp task depend(in:A,B,RowWidthA,RowWidthB,cutoff_depth,cutoff_size)
+    #pragma omp task depend(in:A,B)
     OptimizedStrassenMultiply_par(M2, A, B, QuadrantSize, QuadrantSize,
                                   RowWidthA, RowWidthB, Depth + 1, cutoff_depth,
                                   cutoff_size);
     /* M5 = S1 * S5 */
-    #pragma omp task depend(in:cutoff_depth,cutoff_size)
+    #pragma omp task
     OptimizedStrassenMultiply_par(M5, S1, S5, QuadrantSize, QuadrantSize,
                                   QuadrantSize, QuadrantSize, Depth + 1,
                                   cutoff_depth, cutoff_size);
     /* Step 1 of T1 = S2 x S6 + M2 */
-    #pragma omp task depend(in:cutoff_depth,cutoff_size)
+    #pragma omp task
     OptimizedStrassenMultiply_par(T1sMULT, S2, S6, QuadrantSize, QuadrantSize,
                                   QuadrantSize, QuadrantSize, Depth + 1,
                                   cutoff_depth, cutoff_size);
     /* Step 1 of T2 = T1 + S3 x S7 */
-    #pragma omp task depend(in:RowWidthC,cutoff_depth,cutoff_size) depend(inout:C22)
+    #pragma omp task depend(inout:C22)
     OptimizedStrassenMultiply_par(
         C22, S3, S7, QuadrantSize, RowWidthC /*FIXME*/, QuadrantSize,
         QuadrantSize, Depth + 1, cutoff_depth, cutoff_size);
     /* Step 1 of C = M2 + A12 * B21 */
-    #pragma omp task depend(in:RowWidthC,RowWidthA,RowWidthB,cutoff_depth,cutoff_size,A12,B21) depend(inout:C)
+    #pragma omp task depend(in:A12,B21) depend(inout:C)
     OptimizedStrassenMultiply_par(C, A12, B21, QuadrantSize, RowWidthC,
                                   RowWidthA, RowWidthB, Depth + 1, cutoff_depth,
                                   cutoff_size);
     /* Step 1 of C12 = S4 x B22 + T1 + M5 */
-    #pragma omp task depend(in:RowWidthC,RowWidthB,cutoff_depth,cutoff_size,B22) depend(inout:C12)
+    #pragma omp task depend(in:B22) depend(inout:C12)
     OptimizedStrassenMultiply_par(C12, S4, B22, QuadrantSize, RowWidthC,
                                   QuadrantSize, RowWidthB, Depth + 1,
                                   cutoff_depth, cutoff_size);
     /* Step 1 of C21 = T2 - A22 * S8 */
-    #pragma omp task depend(in:RowWidthC,RowWidthA,cutoff_depth,cutoff_size,A22) depend(inout:C21)
+    #pragma omp task depend(in:A22) depend(inout:C21)
     OptimizedStrassenMultiply_par(C21, A22, S8, QuadrantSize, RowWidthC,
                                   RowWidthA, QuadrantSize, Depth + 1,
                                   cutoff_depth, cutoff_size);
