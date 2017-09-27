@@ -1,8 +1,8 @@
 src/strassen_taskdep-strassen-task-dep.o: src/strassen-task-dep.c \
-  /usr/include/stdlib.h /usr/include/Availability.h \
-  /usr/include/AvailabilityInternal.h /usr/include/_types.h \
-  /usr/include/sys/_types.h /usr/include/sys/cdefs.h \
-  /usr/include/sys/_symbol_aliasing.h \
+  /usr/local/opt/libiomp/include/libiomp/omp.h /usr/include/stdlib.h \
+  /usr/include/Availability.h /usr/include/AvailabilityInternal.h \
+  /usr/include/_types.h /usr/include/sys/_types.h \
+  /usr/include/sys/cdefs.h /usr/include/sys/_symbol_aliasing.h \
   /usr/include/sys/_posix_availability.h /usr/include/machine/_types.h \
   /usr/include/i386/_types.h /usr/include/sys/_pthread/_pthread_types.h \
   /usr/include/sys/wait.h /usr/include/sys/_types/_pid_t.h \
@@ -16,8 +16,9 @@ src/strassen_taskdep-strassen-task-dep.o: src/strassen-task-dep.c \
   /usr/include/sys/_types/_sigset_t.h /usr/include/sys/_types/_size_t.h \
   /usr/include/sys/_types/_uid_t.h /usr/include/sys/resource.h \
   /usr/include/sys/_types/_timeval.h /usr/include/sys/_types/_wchar_t.h \
-  /usr/include/sys/_types/_null.h \
-  /usr/local/opt/libiomp/include/libiomp/omp.h include/strassen.h
+  /usr/include/sys/_types/_null.h src/../include/strassen.h
+
+/usr/local/opt/libiomp/include/libiomp/omp.h:
 
 /usr/include/stdlib.h:
 
@@ -81,6 +82,4 @@ src/strassen_taskdep-strassen-task-dep.o: src/strassen-task-dep.c \
 
 /usr/include/sys/_types/_null.h:
 
-/usr/local/opt/libiomp/include/libiomp/omp.h:
-
-include/strassen.h:
+src/../include/strassen.h:
