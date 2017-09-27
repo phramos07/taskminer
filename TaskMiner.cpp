@@ -18,16 +18,16 @@ static cl::opt<bool, false> printTaskGraph("print-task-graph",
   cl::desc("Print dot file containing the TASKGRAPH"), cl::NotHidden);
 
 static cl::opt<bool, true> MINE_FCALLTASK("MINE_FCALLTASK",
-  cl::desc("Enable the mining of Function Call Tasks"), cl::NotHidden);
+  cl::desc("Enable the mining of Function Call Tasks"), cl::Hidden);
 
 static cl::opt<bool, true> MINE_RECTASKS("MINE_RECTASKS",
-  cl::desc("Enable the mining of Recursive Tasks"), cl::NotHidden);
+  cl::desc("Enable the mining of Recursive Tasks"), cl::Hidden);
 
 static cl::opt<bool, true> MINE_REGIONTASKS("MINE_REGIONTASKS",
-  cl::desc("Enable the mining of Region Tasks"), cl::NotHidden);
+  cl::desc("Enable the mining of Region Tasks"), cl::Hidden);
 
 static cl::opt<bool, true> MINE_LOOPTASKS("MINE_LOOPTASKS",
-  cl::desc("Enable the mining of Loop Tasks"), cl::NotHidden);
+  cl::desc("Enable the mining of Loop Tasks"), cl::Hidden);
 
 static cl::opt<int> NUMBER_OF_THREADS("N_THREADS",
   cl::desc("Number of threads in the runtime"), cl::NotHidden);
@@ -236,7 +236,7 @@ void	TaskMiner::mineFunctionCallTasks()
 				CI->dump();
 			}
 			if ((srcRW->F != dstRW->F)
-				&& ((srcRW->hasLoop))
+				/*&& ((srcRW->hasLoop))*/
 				&& (!indirectRecursion)
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
@@ -419,9 +419,9 @@ void TaskMiner::mineRegionTasks()
 
 void TaskMiner::mineTasks()
 {
-	if (MINE_FCALLTASK) mineFunctionCallTasks();
-	if (MINE_RECTASKS) mineRecursiveTasks();
-	if (MINE_REGIONTASKS) mineRegionTasks();
+	mineFunctionCallTasks();
+	mineRecursiveTasks();
+	// if (MINE_REGIONTASKS) mineRegionTasks();
 }
 
 
