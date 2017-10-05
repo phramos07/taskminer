@@ -15,7 +15,7 @@ namespace llvm
 	private:
 		//ModuleTaskGraph 
 		RegionTree* taskGraph;
-		DepAnalysis *DP=0;
+		// DepAnalysis *DP=0;
 		std::map<Function*, RegionTree*> RTs;	
 		std::map<Function*, RegionTree*> getAllRegionTrees(Module &M);
 
@@ -46,6 +46,7 @@ namespace llvm
 		void mineRegionTasks();
 		void mineRecursiveTasks();
 		void mineFunctionCallTasks();
+		void mineLoopTasks();
 		void mineTasks();
 		void resolveInsAndOutsSets();
 		void computeCosts();

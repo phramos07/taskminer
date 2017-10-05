@@ -55,6 +55,8 @@ public:
 		os << nInDeps << " input dependencies\n";
 		os << nOutDeps << " output dependencies\n";
 		os << getCost() << " as the computed cost (ideal_cost/runtime_cost)\n\n";
+	
+		return os;
 	}
 
 };

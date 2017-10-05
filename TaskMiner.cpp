@@ -123,7 +123,6 @@ RegionTree* TaskMiner::gettaskGraph(Module &M)
 
 	//1: Merge all the region graphs into a single one 
 	//that will be our task graph
-	auto it = RTs.begin();
 	for (auto rt = RTs.begin(); rt != RTs.end(); rt++)
 	{
 		taskGraph->mergeWith(rt->second);
@@ -417,10 +416,16 @@ void TaskMiner::mineRegionTasks()
 	}
 }
 
+void TaskMiner::mineLoopTasks()
+{
+
+}
+
+
 void TaskMiner::mineTasks()
 {
-	mineFunctionCallTasks();
 	mineRecursiveTasks();
+	// mineFunctionCallTasks();
 	// if (MINE_REGIONTASKS) mineRegionTasks();
 }
 
