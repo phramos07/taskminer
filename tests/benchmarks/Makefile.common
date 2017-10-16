@@ -1,0 +1,59 @@
+# OPENCL = opencl
+
+# VARIABLES
+ifndef OPENCL
+	CC_OMP = clang-omp
+	CLANG = /usr/local/bin/clang
+	OPT = /usr/local/bin/opt
+endif
+
+CFLAGS =  -I$(IDIR)
+LLVM_FLAGS = -c -emit-llvm $(CFLAGS)
+OMP_FLAGS = -fopenmp
+OPT_FLAGS = -mem2reg -instnamer
+IDIR = .
+SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*SER.c')
+AI_FILES = $(shell find $(SOURCEDIR) -name '*AI.c')
+MI_FILES = $(shell find $(SOURCEDIR) -name '*MI.c')
+AI_SUFFIX = -par-AI
+MI_SUFFIX = -par-MI
+SER_SUFFIX = -ser
+
+compile:
+	$(MAKE) compile-serial
+	$(MAKE) compile-parallel
+
+run: compile
+
+compile-serial:
+	for SRC in $(SERIAL_FILES); do \
+		$(CC_OMP) $(CFLAGS) $$SRC -o $$SRC$(SER_SUFFIX).out; \
+	done
+
+compile-parallel:
+	for SRC in $(AI_FILES); do \
+		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $$SRC -o $$SRC$(AI_SUFFIX).out; \
+	done
+	for SRC in $(MI_FILES); do \
+		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $$SRC -o $$SRC$(MI_SUFFIX).out; \
+	done
+
+bc:
+	$(MAKE) clean
+	for SRC in $(SERIAL_FILES); do \
+		$(CLANG) $(LLVM_FLAGS) $$SRC -o $$SRC.bc; \
+		$(OPT) $(OPT_FLAGS) $$SRC.bc -o $$SRC.mem.bc; \
+	done
+
+taskminer: bc
+	for SRC in $(ALLBCFILES); do \
+		$(OPT) $(TASKMINER) $$SRC \
+	done
+
+annotator: bc
+	for SRC in $(ALLBCFILES); do \
+		# runanalyses.sh do gleison \
+	done
+
+clean:
+	rm -f *.bc *.out *.dot
