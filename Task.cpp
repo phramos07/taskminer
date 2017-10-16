@@ -110,7 +110,10 @@ raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 	functionCall->print(os);
 	printLiveSets(os);
 	CM.print(os);
+	os << "\nHas sync barrier?\n";
+	os << this->hasSyncBarrier();
 
+	os << "\n";
 	return os;
 }
 
@@ -206,6 +209,12 @@ CostModel FunctionCallTask::computeCost()
 	CM.setData(n_insts, n_indeps, n_outdeps);
 
 	return CM;
+}
+
+
+bool FunctionCallTask::hasSyncBarrier() const
+{
+	return this->syncBarrier;
 }
 
 

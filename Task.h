@@ -58,7 +58,11 @@ namespace llvm
 		virtual CostModel computeCost() { return CM; }
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 		bool hasLoadInstructionInDependence() const;
-		virtual bool hasSyncBarrier() const {return false; };
+		virtual bool hasSyncBarrier() const {return false; }
+		Loop* getLoop() { return L; }
+		void setLoop(Loop* L) { this->L = L; }
+		Loop* getOuterMostLoop() { return outerMost; }
+		void setOuterMostLoop(Loop* L) { this->outerMost = L; }
 
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
@@ -76,6 +80,8 @@ namespace llvm
 		std::set<Value*> liveIN;
 		std::set<Value*> liveOUT;
 		std::set<Value*> liveINOUT;
+		Loop* L=0;
+		Loop* outerMost=0;
 
 		//Private methods
 		AccessType getTypeFromInst(Instruction* I);
@@ -94,9 +100,11 @@ namespace llvm
 		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
 		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; }
+		bool hasSyncBarrier() const override;
 
 	private:
 		CallInst* functionCall;
+		bool syncBarrier=true;
 	};
 
 	class RegionTask : public Task

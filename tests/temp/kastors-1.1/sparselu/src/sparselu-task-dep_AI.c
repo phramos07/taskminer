@@ -51,7 +51,7 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
               submatrix_size);
         }
       }
-      
+      #pragma omp taskwait
       for (ii = kk + 1; ii < matrix_size; ii++) {
         if (BENCH[ii * matrix_size + kk] != NULL) {
           long long int TM10[4];
@@ -64,6 +64,7 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
                submatrix_size);
         }
       }
+      #pragma omp taskwait
       for (ii = kk + 1; ii < matrix_size; ii++) {
         if (BENCH[ii * matrix_size + kk] != NULL) {
           for (jj = kk + 1; jj < matrix_size; jj++) {
@@ -83,9 +84,11 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
                    BENCH[ii * matrix_size + jj], submatrix_size);
             }
           }
+          #pragma omp taskwait
         }
       }
     }
+    #pragma omp taskwait
   }
 }
 
