@@ -28,7 +28,6 @@
 #include "../include/sparselu.h"
 
 void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
-  omp_set_nested(0);
   int ii, jj, kk;
   {
     #pragma omp parallel
@@ -39,8 +38,6 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
       TM5[1] = TM5[0] + kk;
       #pragma omp task depend(inout:BENCH[TM5[1]])
       lu0(BENCH[kk * matrix_size + kk], submatrix_size);
-      #pragma omp parallel
-      #pragma omp single
       for (jj = kk + 1; jj < matrix_size; jj++) {
         if (BENCH[kk * matrix_size + jj] != NULL) {
           long long int TM7[3];
@@ -52,8 +49,7 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
               submatrix_size);
         }
       }
-      #pragma omp parallel
-      #pragma omp single
+      #pragma omp task wait
       for (ii = kk + 1; ii < matrix_size; ii++) {
         if (BENCH[ii * matrix_size + kk] != NULL) {
           long long int TM10[4];
@@ -66,15 +62,14 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
                submatrix_size);
         }
       }
+      #pragma omp task wait
       for (ii = kk + 1; ii < matrix_size; ii++) {
         if (BENCH[ii * matrix_size + kk] != NULL) {
-          #pragma omp parallel
-          #pragma omp single
           for (jj = kk + 1; jj < matrix_size; jj++) {
             if (BENCH[kk * matrix_size + jj] != NULL) {
               if (BENCH[ii * matrix_size + jj] == NULL) {
-                BENCH[ii * matrix_size + jj] =
-                    allocate_clean_block(submatrix_size);
+                #pragma omp task
+                BENCH[ii * matrix_size + jj] = allocate_clean_block(submatrix_size);
               }
               long long int TM15[5];
               TM15[0] = ii * matrix_size;
@@ -87,9 +82,11 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
                    BENCH[ii * matrix_size + jj], submatrix_size);
             }
           }
+        #pragma omp task wait
         }
       }
     }
+  #pragma omp task wait
   }
 }
 
