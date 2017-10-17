@@ -27,8 +27,6 @@
 #include <libgen.h>
 #include "../include/sparselu.h"
 
-omp_set_nested(0)
-
 void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
   int ii, jj, kk;
   {
@@ -51,7 +49,7 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
               submatrix_size);
         }
       }
-      #pragma omp taskwait
+      #pragma omp task wait
       for (ii = kk + 1; ii < matrix_size; ii++) {
         if (BENCH[ii * matrix_size + kk] != NULL) {
           long long int TM10[4];
@@ -64,14 +62,14 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
                submatrix_size);
         }
       }
-      #pragma omp taskwait
+      #pragma omp task wait
       for (ii = kk + 1; ii < matrix_size; ii++) {
         if (BENCH[ii * matrix_size + kk] != NULL) {
           for (jj = kk + 1; jj < matrix_size; jj++) {
             if (BENCH[kk * matrix_size + jj] != NULL) {
               if (BENCH[ii * matrix_size + jj] == NULL) {
-                BENCH[ii * matrix_size + jj] =
-                    allocate_clean_block(submatrix_size);
+                #pragma omp task
+                BENCH[ii * matrix_size + jj] = allocate_clean_block(submatrix_size);
               }
               long long int TM15[5];
               TM15[0] = ii * matrix_size;
@@ -84,11 +82,11 @@ void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size) {
                    BENCH[ii * matrix_size + jj], submatrix_size);
             }
           }
-          #pragma omp taskwait
+        #pragma omp task wait
         }
       }
     }
-    #pragma omp taskwait
+  #pragma omp task wait
   }
 }
 
