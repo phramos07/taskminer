@@ -29,8 +29,6 @@
 #include "recoverExpressions.h"
 #include "recoverFunctionCall.h"
 
-#define JNON0 (j > 0) ? "," : "";
-
 using namespace llvm;
 using namespace std;
 using namespace lge;
@@ -38,8 +36,9 @@ using namespace lge;
 #define DEBUG_TYPE "recoverExpressions"
 #define ERROR_VALUE -1
 
-static cl::opt<bool> ClRegionTask("Region-Task",
-cl::Hidden, cl::desc("Annotate regions in the source file."));
+void RecoverExpressions::setTasksList(std::list<Task*> taskList) {
+  this->tasksList = taskList;
+} 
 
 int RecoverExpressions::getIndex() {
   return this->index;
@@ -97,71 +96,108 @@ bool RecoverExpressions::isUniqueinLine(Instruction *I) {
 
 std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
                                                 const DataLayout *DT,
-                                                RecoverCode *RC) {
-  RecoverFunctionCall rfc;
+                                                RecoverPointerMD *RPM) {
+  /*RecoverFunctionCall rfc;
   std::string computationName = "TM" + std::to_string(getIndex());
   rfc.setNAME(computationName);
   rfc.setRecoverNames(rn);
   rfc.initializeNewVars();
-
-  rfc.annotataFunctionCall(CI, ptrRa, rp, aa, se, li, dt);
+  
+  rfc.annotataFunctionCall(CI, ptrRa, rp, aa, se, li, dt);*/
   Value *V = CI->getCalledValue();
-  if (!isa<Function>(V))
+  
+  if (!isa<Function>(V)) {
     return std::string();
+  }
   Function *F = cast<Function>(V);
   std::string output = std::string();
-  if (!F)
+  if (!F) {
     return output;
+  }
   std::string name = F->getName();
-  if ((F->isIntrinsic() || F->isDeclaration()) ||
-      (name == "llvm.dbg.declare")) {
+  /*if (F->empty() || (name == "llvm.dbg.declare")) {
     valid = false;
     return output;
-  }  
+  } */
   // Define if this CALL INST is contained in the knowed tasks well
   // define by Task Miner
   bool isTask = false;
+  bool hasTaskWait = false;
+  bool isInsideLoop = true;
+  Loop *L1 = nullptr;
+  Loop *L2 = nullptr;
   this->liveIN.erase(this->liveIN.begin(), this->liveIN.end());
   this->liveOUT.erase(this->liveOUT.begin(), this->liveOUT.end());
   this->liveINOUT.erase(this->liveINOUT.begin(), this->liveINOUT.end());
-  for (auto &I: this->tm->getTasks()) {
-    I->print(errs());
+  for (auto &I: this->tasksList) {
+//    if (!(I->getCost().aboveThreshold()))
+//      continue;
     if (FunctionCallTask *FCT = dyn_cast<FunctionCallTask>(I)) {
-      FCT->getFunctionCall()->dump();
-      CI->dump();
       if (FCT->getFunctionCall() == CI) {
         this->liveIN = FCT->getLiveIN();
         this->liveOUT = FCT->getLiveOUT();
         this->liveINOUT = FCT->getLiveINOUT();
+        if (FCT->hasSyncBarrier()) {
+          L1 = this->li->getLoopFor(CI->getParent());
+          L2 = L1;
+          while (L2->getParentLoop()) {
+            L2 = L2->getParentLoop();
+          }
+        }
         isTask = true;
+        break;
+      }
+    }
+
+    if (RecursiveTask *RT = dyn_cast<RecursiveTask>(I)) {
+
+      if (RT->getRecursiveCall() == CI) {
+        this->liveIN = RT->getLiveIN();
+        this->liveOUT = RT->getLiveOUT();
+        this->liveINOUT = RT->getLiveINOUT();
+        isTask = true;
+        hasTaskWait = RT->hasSyncBarrier();
+        isInsideLoop = RT->insideLoop();
+        if (RT->hasSyncBarrier()) {
+          L1 = this->li->getLoopFor(CI->getParent());
+          L2 = L1;
+          if (L2)
+            while (L2->getParentLoop()) {
+              L2 = L2->getParentLoop();
+          }
+        }
         break;
       }
     }
   }
   if (isTask == false) {
-    errs() << "ERROR 6\n";
     return output;
   }
+  errs() << "Printing\n\n\n";
+  if (L1)
+    L1->dump();
+  errs() << "Parent\n\n";
+  if(L2)
+    L2->dump();
+  annotateExternalLoop(CI, L1, L2);
   if (CI->getNumArgOperands() == 0) {
-    errs() << "ERROR 5\n";
     return "\n\n[UNDEF\nVALUE]\n\n";
   }
   output = std::string();
   std::map<Value*, std::string> strVal;
   for (unsigned int i = 0; i < CI->getNumArgOperands(); i++) {
-    /*if (!isa<LoadInst>(CI->getArgOperand(i)) &&
+    if (!isa<LoadInst>(CI->getArgOperand(i)) &&
         !isa<StoreInst>(CI->getArgOperand(i)) &&
         !isa<GetElementPtrInst>(CI->getArgOperand(i)) &&
         !isa<Argument>(CI->getArgOperand(i)) &&
         !isa<GlobalValue>(CI->getArgOperand(i)) &&
-        !isa<AllocaInst>(CI->getArgOperand(i)))
+        !isa<AllocaInst>(CI->getArgOperand(i)) &&
+        !isa<BitCastInst>(CI->getArgOperand(i))) {
       continue;
-    }*/
+    }
      
-    std::string str = analyzeValue(CI->getArgOperand(i), DT, RC);
+    std::string str = analyzeValue(CI->getArgOperand(i), DT, RPM);
     if (str == std::string()) {
-      errs() << "ERROR 4:\n";
-      CI->getArgOperand(i)->dump();
       return std::string();
     }
     strVal[CI->getArgOperand(i)] = str;
@@ -200,11 +236,21 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     } 
     output += ")";
   }
+  if (hasTaskWait) {
+    std::string wait = "#pragma omp taskwait\n";
+    int line = esd.getFinish(CI);
+    line++;
+    addCommentToLine(wait, line);  
+  }
+  // HERE
+  if (output == std::string()) {
+    output = "\n\n[UNDEF\nVALUE]\n\n";
+  }
   return output;
 }
 
 std::string RecoverExpressions::analyzePointer(Value *V, const DataLayout *DT,
-                                               RecoverCode *RC) {
+                                               RecoverPointerMD *RPM) {
     Instruction *I = cast<Instruction>(V);
     Value *BasePtrV = getPointerOperand(I);
 
@@ -216,13 +262,14 @@ std::string RecoverExpressions::analyzePointer(Value *V, const DataLayout *DT,
         BasePtrV = GEP->getPointerOperand();
     }
 
-    int size = RC->getSizeToValue (BasePtrV, DT);
+    int size = RPM->getSizeToValue (BasePtrV, DT);
     int var = -1;
-    std::string result = RC->getAccessString(V, "", &var, DT);
-    if (result.find("[") == std::string::npos)
+    std::string result = RPM->getAccessStringMD(V, "", &var, DT);
+    if (result.find("[") == std::string::npos) {
       return result;
+    }
 
-    if (!RC->isValidPointer(BasePtrV, DT)) {
+    if (!RPM->isValidPointer(BasePtrV, DT)) {
       valid = false;
       return std::string();
     }
@@ -234,21 +281,25 @@ std::string RecoverExpressions::analyzePointer(Value *V, const DataLayout *DT,
         (tpy->getTypeID() == Type::X86_FP80TyID) ||
         (tpy->getTypeID() == Type::FP128TyID) ||
         (tpy->getTypeID() == Type::PPC_FP128TyID) ||
-        (tpy->getTypeID() == Type::IntegerTyID))
+        (tpy->getTypeID() == Type::IntegerTyID)) {
       return result;
+    }
 
-    if (!RC->isValid())
+    if (!RPM->isValid()) {
       return std::string();
+    }
     
-    size = RC->getSizeInBytes(size);
+    size = RPM->getSizeInBytes(size);
     std::string output = std::string();
 
     unsigned int i = 0;
-    if (result.size() < 1)
+    if (result.size() < 1) {
       return std::string();
+    }
 
-    if (result.find("[") == std::string::npos)
+    if (result.find("[") == std::string::npos) {
       return result;
+    }
     do {
       output += result[i];
       i++;
@@ -276,7 +327,7 @@ std::string RecoverExpressions::analyzePointer(Value *V, const DataLayout *DT,
 
     newInfo = "(" + newInfo + " / " + std::to_string(size) + ");\n";
     int var2 = -1;
-    RC->insertCommand(&var2, newInfo);
+    RPM->insertCommand(&var2, newInfo);
     bool needEE = (output.find("[") != std::string::npos);
     output = output + "TM" + std::to_string(getIndex());
     output += "[" + std::to_string(var2) + "]";
@@ -287,21 +338,21 @@ std::string RecoverExpressions::analyzePointer(Value *V, const DataLayout *DT,
 }
 
 std::string RecoverExpressions::analyzeValue(Value *V, const DataLayout *DT,
-RecoverCode *RC) {
+RecoverPointerMD *RPM) {
   if (valid == false) {
     return std::string();
   }
   else if (CallInst *CI = dyn_cast<CallInst>(V)) {
-    return analyzeCallInst(CI, DT, RC);
+    return analyzeCallInst(CI, DT, RPM);
   }
-  else if ((isa<StoreInst>(V) || isa<LoadInst>(V)) ||
+/*  else if ((isa<StoreInst>(V) || isa<LoadInst>(V)) ||
            isa<GetElementPtrInst>(V)) {
-    return analyzePointer(V, DT, RC);
-  }
+    return analyzePointer(V, DT, RPM);
+  }*/
   else {
     int var = -1;
-    std::string result = RC->getAccessString(V, "", &var, DT);
-    if (!RC->isValid())
+    std::string result = RPM->getAccessStringMD(V, "", &var, DT);
+    if (!RPM->isValid())
       return std::string();
     if (result == std::string())
       return ("TM" + std::to_string(getIndex()) + "["+ std::to_string(var)) + "]";
@@ -309,19 +360,49 @@ RecoverCode *RC) {
   }
 }
 
+void RecoverExpressions::annotateExternalLoop(Instruction *I, Loop *L1,
+                                              Loop *L2) {
+  if (!L1 && !L2) {
+    annotateExternalLoop(I);
+    return;
+  }
+  if (L2) {
+    Region *R = rp->getRegionInfo().getRegionFor(I->getParent());
+    if (L2->getHeader())
+      R = rp->getRegionInfo().getRegionFor(L2->getHeader()); 
+    if (!st->isSafetlyRegionLoops(R))
+      return;
+    int line = st->getStartRegionLoops(R).first;  
+    std::string output = std::string();
+    output += "#pragma omp parallel\n#pragma omp single\n";
+    addCommentToLine(output, line);
+  }  
+  if (L1) {
+    Region *R = rp->getRegionInfo().getRegionFor(I->getParent());
+    if (L1->getHeader())
+      R = rp->getRegionInfo().getRegionFor(L1->getHeader()); 
+    if (!st->isSafetlyRegionLoops(R))
+      return;
+    int line = st->getEndRegionLoops(R).first;  
+    line++;
+    std::string output = std::string();
+    output += "#pragma omp task wait\n";
+    addCommentToLine(output, line);
+  }
+}
+
 void RecoverExpressions::annotateExternalLoop(Instruction *I) {
-  Region *R = rp->getRegionInfo().getRegionFor(I->getParent());
   Loop *LL = this->li->getLoopFor(I->getParent());
+  Region *R = rp->getRegionInfo().getRegionFor(I->getParent()); 
   if (LL) {
     if (LL->getHeader())
       R = rp->getRegionInfo().getRegionFor(LL->getHeader());
   }
-  /*if (!st->isSafetlyRegionLoops(R)) {
+  if (!st->isSafetlyRegionLoops(R)) {
     return;
-  }*/
+  }
   Loop *L = this->li->getLoopFor(I->getParent());
   int line = st->getStartRegionLoops(R).first;
-  errs() << "Writing in the line = " << std::to_string(line) << "\n";
   std::string output = std::string();
   output += "#pragma omp parallel\n#pragma omp single\n";
   addCommentToLine(output, line);
@@ -329,30 +410,26 @@ void RecoverExpressions::annotateExternalLoop(Instruction *I) {
 
 void RecoverExpressions::analyzeFunction(Function *F) {
   const DataLayout DT = F->getParent()->getDataLayout();
-  RecoverCode RC;
-
-  std::string computationName = "TM" + std::to_string(getIndex());
-  RC.setNAME(computationName);
-  RC.setRecoverNames(rn);
-  RC.initializeNewVars();
 
   std::map<Loop*, bool> loops;
   for (auto BB = F->begin(), BE = F->end(); BB != BE; BB++) {
     for (auto I = BB->begin(), IE = BB->end(); I != IE; I++) {
       if (isa<CallInst>(I)) {
         valid = true;
-        computationName = "TM" + std::to_string(getNewIndex());
-        RC.setNAME(computationName);
-        std::string result = analyzeValue(I, &DT, &RC);
+        RecoverPointerMD RPM;
+        std::string computationName = "TM" + std::to_string(getNewIndex());
+        RPM.setNAME(computationName);
+        RPM.setRecoverNames(rn);
+         RPM.initializeNewVars();
+        std::string result = analyzeValue(I, &DT, &RPM);
         if (result != std::string()) {
           std::string output = std::string();
-          if (RC.getIndex() > 0) {
+          if (RPM.getIndex() > 0) {
             output += "long long int " + computationName + "[";
-            output += std::to_string(RC.getNewIndex()) + "];\n";
-            output += RC.getUniqueString();
-            RC.clearCommands();
-            if (!RC.isValid()) {
-               errs() << "ERROR 3\n";
+            output += std::to_string(RPM.getNewIndex()) + "];\n";
+            output += RPM.getUniqueString();
+            RPM.clearCommands();
+            if (!RPM.isValid()) {
                continue;
             }
           }
@@ -362,22 +439,18 @@ void RecoverExpressions::analyzeFunction(Function *F) {
             output += "#pragma omp task\n";
           Region *R = rp->getRegionInfo().getRegionFor(BB);
           int line = getLineNo(I);
-          Loop *L = this->li->getLoopFor(I->getParent());
+          /*Loop *L = this->li->getLoopFor(I->getParent());
           if (!isUniqueinLine(I)) {
-            errs() << "ERROR 1\n";
+            errs() << "Bug 1\n";
             continue;
           }
-          
-          if ((loops.count(L) == 0) && st->isSafetlyRegionLoops(R)) {
+          if ((loops.count(L) == 0)) { //&& st->isSafetlyRegionLoops(R)) {
             annotateExternalLoop(I);
             loops[L] = true;
-          }
-          if(st->isSafetlyRegionLoops(R))
+          }*/
+          //if(st->isSafetlyRegionLoops(R)) {
             addCommentToLine(output, line);
-          else {
-            errs() << "ERROR 2\n";
-            R->dump(); 
-          }
+          //}
         }
       }
     }
@@ -396,89 +469,130 @@ Value *RecoverExpressions::getPointerOperand(Instruction *Inst) {
 }
 
 std::string RecoverExpressions::extractDataPragma(Region *R) {
+  this->liveIN.erase(this->liveIN.begin(), this->liveIN.end());
+  this->liveOUT.erase(this->liveOUT.begin(), this->liveOUT.end());
+  this->liveINOUT.erase(this->liveINOUT.begin(), this->liveINOUT.end());
+
+  RegionTask *RT = bbsRegion[R];
+  this->liveIN = RT->getLiveIN();
+  this->liveOUT = RT->getLiveOUT();
+  this->liveINOUT = RT->getLiveINOUT();  
+  
+  RT->print(errs());
+
   std::string pragma = std::string();
-  bool hasLOAD = false;
-  bool hasLOADSTORE = false;
-  std::map<std::string, char> pointers;
+  std::string output = std::string();
   const DataLayout DT = R->block_begin()->getParent()->getParent()->getDataLayout();
 
-  RecoverCode RC;
+  RecoverPointerMD RPM;
   std::string computationName = "TM" + std::to_string(getNewIndex());
-  RC.setNAME(computationName);
-  RC.setRecoverNames(rn);
-  RC.initializeNewVars();
+  RPM.setNAME(computationName);
+  RPM.setRecoverNames(rn);
+  RPM.initializeNewVars();
+  valid = true;
 
-  for (BasicBlock *BB : R->blocks())
-    for (auto I = BB->begin(), E = --BB->end(); I != E; ++I) {
-      if (isa<LoadInst>(I) || isa<StoreInst>(I) || isa<GetElementPtrInst>(I)) {
-        Value *BasePtrV = getPointerOperand(I);
-        while (isa<LoadInst>(BasePtrV) || isa<GetElementPtrInst>(BasePtrV)) {
-          if (LoadInst *LD = dyn_cast<LoadInst>(BasePtrV))
-            BasePtrV = LD->getPointerOperand();
-          if (GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(BasePtrV))
-            BasePtrV = GEP->getPointerOperand();
-        }
-        int var = -1;
-        std::string name = RC.getAccessString(BasePtrV, "", &var, &DT);
-        pointers[name] = this->ptrRa->getPointerAcessType(R, BasePtrV);
-        if (pointers[name] == 1)
-          hasLOAD = true;
-        if (pointers[name] == 3)
-          hasLOADSTORE = true;
-      }
+  if (this->liveIN.size() != 0) {
+    output += " depend(in:";
+    bool isused = false;
+    for (auto J = this->liveIN.begin(), JE = this->liveIN.end(); J != JE; J++) {
+      std::string str = analyzeValue(*J, &DT, &RPM);
+      if (isused)
+        output += ",";
+      isused = true;
+      output += str;
     }
-
-  pragma += "#pragma omp parallel\n#pragma omp single\n";
-  if (hasLOAD || hasLOADSTORE)
-    pragma += "#pragma omp task depend(";
-
-  if (hasLOAD) {
-    pragma += "in:";
-    bool hasV = false;
-    for (auto I = pointers.begin(), IE = pointers.end(); I != IE; I++) {
-      if (I->second == 1) {
-        if (hasV == true)
-          pragma += ",";
-        hasV = true;
-        pragma += I->first;
-      }
-    }
+    output += ")";
   }
 
-  if (hasLOADSTORE) {
-    if (hasLOAD)
-      pragma += ",";
-    pragma += "inout:";
-    bool hasV = false;
-    for (auto I = pointers.begin(), IE = pointers.end(); I != IE; I++) {
-      if (I->second == 3) {
-        if (hasV == true)
-          pragma += ",";
-        hasV = true;
-        pragma += I->first;
-      }
+  if (this->liveOUT.size() != 0) {
+    output += " depend(out:";
+    bool isused = false;
+    for (auto J = this->liveOUT.begin(), JE = this->liveOUT.end(); J != JE; J++) {
+      std::string str = analyzeValue(*J, &DT, &RPM); 
+      if (isused)
+        output += ",";
+      isused = true;
+      output += str;
     }
+    output += ")";
   }
-
-  if(hasLOAD || hasLOADSTORE)
-    pragma += ")\n{\n";
-
+  if (this->liveINOUT.size() != 0) {
+    output += " depend(inout:";
+    bool isused = false;
+    for (auto J = this->liveINOUT.begin(), JE = this->liveINOUT.end(); J != JE;
+      J++) {
+      std::string str = analyzeValue(*J, &DT, &RPM);
+      if (isused)
+        output += ",";
+      isused = true;
+      output += str;
+    } 
+    output += ")";
+  }
+ 
+  if (RPM.getIndex() > 0) {
+    pragma += "long long int " + computationName + "[";
+    pragma += std::to_string(RPM.getNewIndex()) + "];\n";
+    pragma += RPM.getUniqueString();
+    RPM.clearCommands();
+  }
+  pragma += "#pragma omp task" + output + "\n{\n";
   return pragma; 
 }
 
 void RecoverExpressions::analyzeRegion(Region *R) {
-  int line = st->getStartRegionLoops(R).first;
-  int lineEnd = st->getEndRegionLoops(R).first + 1;
-  if (!st->isSafetlyRegionLoops(R)) {
-    for (auto SR = R->begin(), SRE = R->end(); SR != SRE; ++SR)
-      analyzeRegion(&(**SR));
+  if (!R)
+    return;
+  if (bbsRegion.count(R)) {
+    std::set<BasicBlock*> BBS = bbsRegion[R]->getbbs();
+    int line = st->getMinLine(BBS);
+    int lineEnd = st->getMaxLine(BBS) + 1;
+    if (!st->isSafetlyInstSet(BBS)) {
+//      st->getSmallestScope(BBS, &line, &lineEnd);
+//      errs() << "Start : " << line << " = " << lineEnd << "\n";
+      for (auto SR = R->begin(), SRE = R->end(); SR != SRE; ++SR)
+        analyzeRegion(&(**SR));
+        return;
+    }
+    annotateExternalLoop((*BBS.begin())->begin());
+    std::string output = std::string();
+    output += extractDataPragma(R);
+    addCommentToLine(output, line);
+    output = "}\n";
+    addCommentToLine(output, lineEnd);
+  }
+  for (auto SR = R->begin(), SRE = R->end(); SR != SRE; ++SR)
+    analyzeRegion(&(**SR));
+}
+
+void RecoverExpressions::getRegionFromRegionTask(RegionTask *RT) {
+  Region *R;
+  std::set<BasicBlock*> bbs = RT->getbbs();
+  if (!(*bbs.begin())) {
     return;
   }
-  std::string output = std::string();
-  output += extractDataPragma(R);
-  addCommentToLine(output, line);
-  output = "}\n";
-  addCommentToLine(output, lineEnd);
+  R = this->rp->getRegionInfo().getRegionFor(*(bbs.begin()));
+  if (!R) {
+    return;
+  }
+  for (auto BB : bbs) {
+    Region *RR = this->rp->getRegionInfo().getRegionFor(BB);
+    if (RR != nullptr)
+      R = this->rp->getRegionInfo().getCommonRegion(RR, R);
+  }
+  if (R)
+    bbsRegion[R] = RT;
+}
+
+void RecoverExpressions::getTaskRegions() {
+  bbsRegion.erase(bbsRegion.begin(), bbsRegion.end());
+  for (auto &I: this->tasksList) {
+//    if (!(I->getCost().aboveThreshold()))
+//      continue;
+    if (RegionTask *RT = dyn_cast<RegionTask>(I)) {
+        getRegionFromRegionTask(RT);
+    }
+  }
 }
 
 bool RecoverExpressions::runOnFunction(Function &F) {
@@ -491,13 +605,13 @@ bool RecoverExpressions::runOnFunction(Function &F) {
   this->rr = &getAnalysis<RegionReconstructor>();
   this->st = &getAnalysis<ScopeTree>();
   this->ptrRa = &getAnalysis<PtrRangeAnalysis>();
-  this->tm = &getAnalysis<TaskMiner>();
-
+  
+  std::string header = "#include <omp.h>\n";
+  addCommentToLine(header, 1);
   index = 0;
-  if (ClRegionTask == true)
-    analyzeRegion(this->rp->getRegionInfo().getTopLevelRegion());   
-  else
-    analyzeFunction(&F);
+  analyzeFunction(&F);
+  getTaskRegions();
+  analyzeRegion(this->rp->getRegionInfo().getTopLevelRegion());   
 
   return true;
 }

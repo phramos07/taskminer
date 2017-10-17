@@ -377,7 +377,7 @@ std::string RecoverCode::getNameExp (Value *V, std::string name, int *var,
 
   *var = -1;
   RecoverNames::VarNames nameF = rn->getNameofValue(V);
-
+  context[V] = nameF;
   if (!isa<GetElementPtrInst>(V)) {
     if (name == nameF.nameInFile)
       return "0";
@@ -674,19 +674,23 @@ std::string RecoverCode::getPHINode (Value *V, std::string ptrName, int *var,
   // return this name. Return a empty string in the other case.
   PHINode *PHI = cast<PHINode>(V);
   std::map<std::string, bool> names;
+  RecoverNames::VarNames nameF;
   for (int i = 0, ie = PHI->getNumIncomingValues(); i != ie; i++) {
     std::string expression = std::string();
     expression = getNameExp(PHI->getIncomingValue(i), ptrName, var, DT);
     if (expression == std::string()) {
-      RecoverNames::VarNames nameF = rn->getNameofValue(PHI->getIncomingValue(i));
+      nameF = rn->getNameofValue(PHI->getIncomingValue(i));
+      context[PHI->getIncomingValue(i)] = nameF;
       expression = nameF.nameInFile;
     }
     if (expression != std::string())
       names[expression] = true;
   }
 
-  if (names.size() == 1)
+  if (names.size() == 1) {
+    context[V] = nameF;
     return names.begin()->first;
+  }
 
   errs() << "\n" << names.size() << " names for:\n";
   for (auto I = names.begin(), IE = names.end(); I != IE; I++) {
@@ -747,6 +751,7 @@ std::string RecoverCode::getAccessString (Value *V, std::string ptrName,
       return std::string();
     }
     RecoverNames::VarNames nameF = rn->getNameofValue(V);
+    context[V] = nameF;
     if (nameF.nameInFile == std::string())
       setValidFalse();
     if (nameF.nameInFile != ptrName) {
@@ -1097,6 +1102,7 @@ std::string RecoverCode::getAccessExpression (Value* Pointer, Value* Expression,
                                              const DataLayout* DT, bool upper) {
   int var = -1, number = 0;
   RecoverNames::VarNames nameF = rn->getNameofValue(Pointer);
+  context[Pointer] = nameF;
 
   if (CallInst *CI = dyn_cast<CallInst>(Pointer))
     if (isMallocCall(CI))
@@ -1473,6 +1479,7 @@ bool RecoverCode::analyzeLoop (Loop* L, int Line, int LastLine,
        ++It) {
     
     RecoverNames::VarNames nameF = rn->getNameofValue(It->first);
+    context[It->first] = nameF;
     std::string lLimit = getAccessExpression(It->first, It->second.first,
         &DT, false);
     std::string uLimit = getAccessExpression(It->first, It->second.second,
@@ -1582,6 +1589,7 @@ bool RecoverCode::analyzeRegion (Region *r, int Line, int LastLine,
        ++It) {
      
     RecoverNames::VarNames nameF = rn->getNameofValue(It->first);
+    context[It->first] = nameF;
     std::string lLimit = getAccessExpression(It->first, It->second.first,
         &DT, false);
     std::string uLimit = getAccessExpression(It->first, It->second.second,

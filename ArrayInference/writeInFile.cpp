@@ -199,6 +199,12 @@ bool WriteInFile::runOnModule (Module &M) {
 if (!findModuleFileName(M))
   return true;
 
+std::list<Task*> tasksList;
+if (ClRun) {
+  this->tm = &getAnalysis<TaskMiner>();
+  tasksList = this->tm->getTasks();
+}
+
 std::string lInputFile = InputFile;
 for (Module::iterator F = M.begin(), FE = M.end(); F != FE; ++F) { 
   if (ClEmitGPU) {
@@ -208,9 +214,11 @@ for (Module::iterator F = M.begin(), FE = M.end(); F != FE; ++F) {
       continue;
   }
 
-  if (F->isDeclaration() || F->isIntrinsic()) {
+  /*if (F->isDeclaration() || F->isIntrinsic()) {
      continue;
-  }
+  }*/
+  if (F->empty())
+    continue;
 
   if (!findFunctionFileName(*F))
     continue;
@@ -224,6 +232,8 @@ for (Module::iterator F = M.begin(), FE = M.end(); F != FE; ++F) {
   }
 
   if (ClRun) {
+    this->re = &getAnalysis<RecoverExpressions>(*F);
+    this->re->setTasksList(tasksList);  
     this->re = &getAnalysis<RecoverExpressions>(*F);
     copyComments(this->re->Comments);
   }

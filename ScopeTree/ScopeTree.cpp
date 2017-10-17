@@ -307,7 +307,7 @@ void ScopeTree::associateLoop (Loop *L) {
 void ScopeTree::associateFunction (Function *F) {
   Module *M = F->getParent();
   if (!info.count(M) || funcNodes.count(F)) {
-    F->dump();
+    //F->dump();
     return;
   }
 
@@ -466,14 +466,14 @@ bool ScopeTree::isSafetlyRegionLoops (Region *R) {
   
   // Find the Top region node to start the search, and the respective graph.
   if (!funcNodes.count(F)) {   
-    errs() << "ERROR 1\n";
-    F->dump();
+   // F->dump();
     return false;
   }
   STnode node = funcNodes[F];
   Graph gph = findGraph(R);
-  if (gph.n_nodes == -1)
+  if (gph.n_nodes == -1) {
     return false;
+  }
   std::queue<unsigned int> toIterate;
   toIterate.push(node.id);
   errs() << "gph.n_nodes = " << gph.n_nodes << "\n";
@@ -541,7 +541,6 @@ bool ScopeTree::isSafetlyRegionLoops (Region *R) {
   }
 
 
-  errs() << "Loops safety = " << safety.size() << "\n";
   // If exists a loop that is not present in the vector "safety",
   // this information cannot be used to insert code in the original
   // source file.
@@ -550,6 +549,7 @@ bool ScopeTree::isSafetlyRegionLoops (Region *R) {
     for (unsigned int j = 0, je = safety.size(); j != je; j++) {
       if (I->first == safety[j]) {
         isSafe = true;
+        valid = true;
         break;
       }
     }
@@ -559,6 +559,119 @@ bool ScopeTree::isSafetlyRegionLoops (Region *R) {
     }
   }
   return valid;
+}
+
+int ScopeTree::getMinLine(std::set<BasicBlock*> & BBS) {
+  int minLine = 99999999;
+  int line = 99999999;
+  for (auto BB : BBS) {
+    for (auto I = BB->begin(), E = --BB->end(); I != E; ++I) {
+       line = getLineNo(I);
+       if ((line < minLine) && line != -1) {
+         errs() << "MIN = " << line << "\n";
+         I->dump();
+         minLine = line;
+       }
+    }
+  }
+  return minLine;
+}
+
+int ScopeTree::getMaxLine(std::set<BasicBlock*> & BBS) {
+  int maxLine = -1;
+  int line = -1;
+  for (auto BB : BBS) {
+    for (auto I = BB->begin(), E = --BB->end(); I != E; ++I) {
+       if (isa<BranchInst>(I))
+         continue; 
+       line = getLineNo(I);
+       if (line > maxLine) {
+         maxLine = line;
+       }
+    }
+  }
+  return maxLine;
+}
+
+void ScopeTree::getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max) {
+  int lmin = getMinLine(BBS);
+  int lmax = getMaxLine(BBS);
+  if (isSafetlyInstSet(BBS)) {
+    *min = lmin;
+    *max = lmax;
+    return;
+  }
+  Function *F = (*(BBS.begin()))->getParent();
+  Module *M = F->getParent();
+  std::string fName = getFileName(F->begin()->getTerminator());
+  if (info.count(M) < 1) 
+    return;
+
+  STnode smallest;
+  smallest.startLine = lmin;
+  smallest.endLine = lmax;
+  for (auto BB = info[M].begin(), BE = info[M].end(); BB != BE; BB++) {
+    if (BB->file != fName) {
+      for (auto I = BB->list.begin(), IE = BB->list.end(); I != IE; I++) {
+        if (!brokeScope(lmin, lmax, I->second)) {
+          if ((smallest.startLine <= lmin)
+            && (I->second.startLine > smallest.startLine)
+            && (smallest.endLine >= lmax)
+            && (I->second.endLine > smallest.endLine)) {
+              smallest = I->second;
+          }
+        }
+      }
+    }
+  }
+  *min = smallest.startLine;
+  *max = smallest.endLine + 1;
+}
+
+bool ScopeTree::brokeScope(int start, int end, STnode node) {
+  if ((node.startLine <= start) && (node.endLine >= end))
+    return false;
+  if ((node.startLine >= start) && (node.endLine <= end))
+    return false;
+  if ((node.startLine <= start) && (node.endLine <= start))
+    return false;
+  if ((node.startLine >= end) && (node.endLine >= end))
+    return false;
+  errs() << "Node = " << node.startLine << " - " << node.endLine << "\n";
+  errs() << "Set = " << start << " - " << end << "\n";
+  return true;
+}
+
+bool ScopeTree::brokeAllKnowedScopes(int start, int end, Function *F) {
+  Module *M = F->getParent();
+  std::string fName = getFileName(F->begin()->getTerminator());
+  if (info.count(M) < 1) 
+    return true;
+
+  bool validFile = false;
+  for (auto BB = info[M].begin(), BE = info[M].end(); BB != BE; BB++) {
+    if (BB->file != fName) {
+      validFile = true;
+      for (auto I = BB->list.begin(), IE = BB->list.end(); I != IE; I++) {
+        if (brokeScope(start, end, I->second)) {
+          errs() << "Scope Broken\n";
+          return true;
+          }
+      }
+    }
+  }
+  if (validFile == false)
+    return true;
+  return false;
+}
+
+bool ScopeTree::isSafetlyInstSet(std::set<BasicBlock*> BBS) {
+  int start = getMinLine(BBS);
+  int end = getMaxLine(BBS);
+  Function *F = (*(BBS.begin()))->getParent();
+  if (brokeAllKnowedScopes(start, end, F))
+    return false;
+  return true; 
 }
 
 bool ScopeTree::runOnFunction(Function &F) {

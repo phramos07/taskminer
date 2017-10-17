@@ -1,6 +1,6 @@
 #!/bin/bash
 THIS=`pwd`
-LLVM_PATH=$THIS"/../../../llvm-3.7-src/build-debug/bin"
+LLVM_PATH=$THIS"/../../llvm-3.7-src/build-debug/bin"
 
 export CLANG="$LLVM_PATH/clang"
 export CLANGFORM="$LLVM_PATH/clang-format"
@@ -8,7 +8,7 @@ export OPT="$LLVM_PATH/opt"
 export LINKER="$LLVM_PATH/llvm-link"
 export DIS="$LLVM_PATH/llvm-dis"
 
-export BUILD="$THIS/../../build-debug"
+export BUILD="$THIS/../build-debug"
 
 export PRA="$BUILD/PtrRangeAnalysis/libLLVMPtrRangeAnalysis.so"
 export AI="$BUILD/AliasInstrumentation/libLLVMAliasInstrumentation.so"
@@ -65,7 +65,3 @@ $OPT -S $FLAGSAI -load $ST -load $WAI -writeInFile -stats -Emit-GPU=false \
   -Emit-Parallel=false -Emit-OMP=0 -Restrictifier=true \
   -Memory-Coalescing=false -Ptr-licm=true -Ptr-region=true -Run-Mode=false \
   result2.bc -o result3.bc 
-
-$CLANGFORM -style="{BasedOnStyle: llvm, IndentWidth: 2}" ${THIS}/$1 &> tmp.txt
-
-mv tmp.txt ${THIS}/$1

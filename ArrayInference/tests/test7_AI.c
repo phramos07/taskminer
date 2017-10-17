@@ -12,18 +12,6 @@ void Tenta(int no_of_nodes) {
     h_cost_gpu[i] = i;
   }
   int sum1 = 0, sum2 = 0;
-  long long int AI2[6];
-  AI2[0] = no_of_nodes + -1;
-  AI2[1] = 4 * AI2[0];
-  AI2[2] = AI2[1] + 1;
-  AI2[3] = AI2[2] / 4;
-  AI2[4] = (AI2[3] > 0);
-  AI2[5] = (AI2[4] ? AI2[3] : 0);
-  char RST_AI2 = 0;
-  RST_AI2 |= !((h_cost + 0 > h_cost_gpu + AI2[5])
-  || (h_cost_gpu + 0 > h_cost + AI2[5]));
-  #pragma acc data pcopy(h_cost[0:AI2[5]],h_cost_gpu[0:AI2[5]]) if(!RST_AI2)
-  #pragma acc kernels if(!RST_AI2)
   for (int k = 0; k < no_of_nodes; k++) {
     sum1 = sum1 + h_cost[k];
     sum2 += h_cost_gpu[k];

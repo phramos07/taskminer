@@ -25,10 +25,14 @@
 #include "llvm/Analysis/LoopInfo.h"
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
 
+ #ifndef myutils3                                                          
+ #define myutils3
+
 #include "PtrRangeAnalysis.h"
 
 #include "constantsSimplify.h"
 #include "recoverNames.h"
+#endif
 
 using namespace lge;
 
@@ -71,6 +75,8 @@ class RecoverCode {
   char OMPF;
   
   Value *PointerValue;
+
+  std::map<Value*, RecoverNames::VarNames> context;  
 
   unsigned int numPHIRec;
   //===---------------------------------------------------------------------===

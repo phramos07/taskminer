@@ -121,6 +121,7 @@ class WriteInFile : public ModulePass {
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
     AU.addRequired<WriteExpressions>();
     AU.addRequired<RecoverExpressions>();
+    AU.addRequired<TaskMiner>();
     AU.setPreservesAll();
   }
   
@@ -129,6 +130,7 @@ class WriteInFile : public ModulePass {
 
   // Insert tasks into the source file.
   RecoverExpressions *re;
+  TaskMiner *tm;
   
 };
 

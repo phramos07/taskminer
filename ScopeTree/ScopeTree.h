@@ -140,6 +140,10 @@ class ScopeTree : public FunctionPass {
   // Find a graph for region R.
   Graph findGraph (Region *R);
 
+  bool brokeScope(int start, int end, STnode node);
+
+  bool brokeAllKnowedScopes(int start, int end, Function *F);
+
   public:
 
   //===---------------------------------------------------------------------===
@@ -150,6 +154,15 @@ class ScopeTree : public FunctionPass {
   static char ID;
 
   ScopeTree() : FunctionPass(ID) { };
+
+  // Return the first line of a Basic Block Set.
+  int getMinLine(std::set<BasicBlock*> & BBS);
+  
+  // Return the last line of a Basic Blocks Set.
+  int getMaxLine(std::set<BasicBlock*> & BBS);
+
+  // Return the smalles valid scope for the set
+  void getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max);
 
   // Uses loop's debug information to identify a pair <line, column> 
   // of the best place to insert computation before loops and present in this
@@ -164,6 +177,10 @@ class ScopeTree : public FunctionPass {
   // Identify for region R, if is safe to use extra debug information
   // of the loops in this region (in essence, if is a unique region or not.)
   bool isSafetlyRegionLoops (Region *R);
+
+  // Identify for a set of Basic Blocks, if it broke a scope in the
+  // original source code.
+  bool isSafetlyInstSet(std::set<BasicBlock*> BBS);
 
   virtual bool runOnFunction(Function &F) override;
 

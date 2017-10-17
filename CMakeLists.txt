@@ -46,6 +46,10 @@ add_library( LLVMTaskFinder MODULE
     ControlDependenceGraph.cpp
     ProgramDependenceGraph.cpp
     DepAnalysis.cpp
+    RegionTree.cpp
+    CostModel.cpp
+    PDG.cpp
+    Task.cpp
 )
 
 add_subdirectory(ArrayInference)

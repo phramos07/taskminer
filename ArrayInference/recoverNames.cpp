@@ -336,6 +336,7 @@ void RecoverNames::searchGlobalVariables(Module *M) {
     for (NamedMDNode::op_iterator Op = MD->op_begin(), Ope = MD->op_end();
          Op != Ope; ++Op) {
       MDNode* ND = *(Op);
+      ND->dump();
       if (DICompileUnit *CU = dyn_cast<DICompileUnit>(ND)) {
         DIGlobalVariableArray DG = CU->getGlobalVariables(); 
         for (auto I = DG.begin(), IE = DG.end(); I != IE; ++I) {
@@ -356,6 +357,7 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
   var.nameInFile = "";
   if (isa<Argument>(V) || isa<PHINode>(V)) {
     var.nameInFile = getOriginalName(V);
+    var.value = V;
     return var;
   }
 
@@ -382,15 +384,25 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
       var.nameInFile = getOriginalName(CI);
       if (PTR == NULL)
         return var;
-      if (var.nameInFile == std::string())
+      var.value = V;
+      if (var.nameInFile == std::string()) {
         var.nameInFile = getOriginalName(PTR);
+        var.value = V;
+      }
       return var;
     }
 
+    if (isa<BitCastInst>(I)) {
+      I->dump();
+      if (isa<Instruction>(I->getOperand(0)))
+        I = cast<Instruction>(I->getOperand(0));
+      I->dump();
+    }
 
     if (!isa<AllocaInst>(I) && !isa<LoadInst>(I) && !isa<StoreInst>(I) &&
         !isa<GetElementPtrInst>(I) && !isa<GlobalValue>(I)) {
       var.nameInFile = getOriginalName(V);
+      var.value = V;
       return var;
     }
 
@@ -403,6 +415,7 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
 
     if (isa<Argument>(v)) {
       var.nameInFile = getOriginalName(v);
+      var.value = v;
       return var;
     }
 
@@ -412,18 +425,21 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
     // If based pointer is a Alloca, Return for it.
     if (AllocaInst *AI = dyn_cast<AllocaInst>(v)) {
       var.nameInFile = getOriginalName(AI);
+      var.value = v;
       initializeVarNames(&var, I, r);
       return var;
     }
 
     if (isa<LoadInst>(v) || isa<StoreInst>(v)) {
       var.nameInFile = getOriginalName(v); 
+      var.value = v;
       initializeVarNames(&var, I, r);
       return var;
     }
 
     if (isa<GlobalValue>(I)) {
       var.nameInFile = getOriginalName(I);
+      var.value = I;
       return var;
     }
 
@@ -435,11 +451,15 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
           var.globalValue = listGlobalVars[i].value;
           var.isLocal = false;
           var.isGlobal = true;
+          var.value = I->getOperand(0);
           break;
         }
     }
+/*    if (isa<GetElementPtrInst>(I)) {
+      errs() << "Need a solution to: \n";
+      I->dump();
+    }*/
   }
- 
   return var;
 }
 

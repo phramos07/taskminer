@@ -18,13 +18,12 @@
 #include "llvm/Analysis/LoopInfo.h"
 
 #include "../TaskMiner.h"
+#include "extractSourceData.h" 
 
-#ifndef myutils
-#define myutils
+#ifndef myutils2
+#define myutils2
 
-#include "recoverCode.h"
-#include "../ScopeTree/ScopeTree.h"
-#include "PtrRangeAnalysis.h"
+#include "recoverPointerMD.h"
 #endif
 
 using namespace lge;
@@ -60,6 +59,11 @@ class RecoverExpressions : public FunctionPass {
   std::set<Value*> liveIN;
   std::set<Value*> liveOUT;
   std::set<Value*> liveINOUT;
+
+  ExtractSourceData esd;
+
+  std::map<Region*, RegionTask*> bbsRegion;
+
   //===---------------------------------------------------------------------===
 
   // Methods to manage the correct computation auxiliar names.
@@ -68,19 +72,21 @@ class RecoverExpressions : public FunctionPass {
 
   // Analyze a call instruction.
   std::string analyzeCallInst(CallInst *CI, const DataLayout *DT,
-                              RecoverCode *RC);
+                              RecoverPointerMD *RPM);
 
   // Analyze Instructions that use memory.
-  std::string analyzePointer(Value *V, const DataLayout *DT, RecoverCode *RC);
+  std::string analyzePointer(Value *V, const DataLayout *DT, 
+                             RecoverPointerMD *RPM);
  
   // Analyze a value present in the IR.
-  std::string analyzeValue(Value *V, const DataLayout *DT, RecoverCode *RC);
+  std::string analyzeValue(Value *V, const DataLayout *DT, RecoverPointerMD *RPM);
 
   // Find and delimitate the expressions in a function.
   void analyzeFunction(Function *F);
 
   // Annotate the pragmas before a loop, case necessary.
   void annotateExternalLoop(Instruction *I);
+  void annotateExternalLoop(Instruction *I, Loop *L1, Loop *L2);
 
   // Return the line number for Value V.
   int getLineNo (Value *V);
@@ -105,6 +111,9 @@ class RecoverExpressions : public FunctionPass {
   // Return the value with the pointer operand.
   Value *getPointerOperand(Instruction *Inst);
 
+  // Set the task regions
+  void getTaskRegions();
+
   public:
 
   //===---------------------------------------------------------------------===
@@ -116,7 +125,11 @@ class RecoverExpressions : public FunctionPass {
   static char ID;
 
   RecoverExpressions() : FunctionPass(ID) {};
-  
+ 
+  void setTasksList(std::list<Task*> taskList);
+
+  void getRegionFromRegionTask(RegionTask *RT);
+ 
   // We need to insert the Instructions for each source file.
   virtual bool runOnFunction(Function &F) override;
 
@@ -130,7 +143,6 @@ class RecoverExpressions : public FunctionPass {
       AU.addRequired<RegionReconstructor>(); 
       AU.addRequired<ScopeTree>();
       AU.addRequired<PtrRangeAnalysis>();
-      AU.addRequired<TaskMiner>();
       AU.setPreservesAll();
   }
 
@@ -143,7 +155,7 @@ class RecoverExpressions : public FunctionPass {
   RegionReconstructor *rr;
   ScopeTree *st;
   PtrRangeAnalysis *ptrRa;
-  TaskMiner *tm;
+  std::list<Task*> tasksList;
 };
 
 }

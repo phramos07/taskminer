@@ -112,6 +112,7 @@ raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 	CM.print(os);
 	os << "\nHas sync barrier?\n";
 	os << this->hasSyncBarrier();
+	// this->outerMost->print(os);
 
 	os << "\n";
 	return os;

@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -g -fno-exceptions -fno-rtti -std=c++11   -shared -Wl,-soname,libParallelLoopAnalysis.so -o libParallelLoopAnalysis.so CMakeFiles/ParallelLoopAnalysis.dir/ParallelLoopAnalysis.cpp.o 

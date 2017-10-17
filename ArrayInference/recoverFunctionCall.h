@@ -18,10 +18,16 @@
 #include "llvm/Analysis/LoopInfo.h"
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
 
+#ifndef myutils2
+#define myutil2
+#include "recoverPointerMD.h"
+
+#endif
+
 #ifndef myutils
 #define myutils
 
-#include "recoverCode.h"
+//include "recoverCode.h"
 #include "../ScopeTree/ScopeTree.h"
 #include "PtrRangeAnalysis.h"
 #endif
@@ -42,7 +48,7 @@ namespace llvm {
   class LoopInfo;
   class ArrayInference;
 
-class RecoverFunctionCall : public RecoverCode {
+class RecoverFunctionCall : public RecoverPointerMD {
 
   protected:
 

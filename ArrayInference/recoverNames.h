@@ -99,6 +99,16 @@ class RecoverNames : public FunctionPass {
   // Set with calls and your bitcast instructions.
   CallPointers callPtrList;
 
+  // Return the Function of the value v.
+  const Function* findEnclosingFunc(const Value* V);
+ 
+  // This method return a MDNode just if some instructions have a address or
+  // value is equal to the value v.
+  const DILocalVariable* findVar(const Value* V,const Function* F);
+
+  // Return the name of the variable if it is interesting to analyze.  
+  StringRef getOriginalName(const Value* V);
+
   // Return the varNames for instruction I, independent of the pass run.
   // Implemented to facilitate for programmer that use this pass, in this
   // case, if the programmer does not want to run the pass.
@@ -158,16 +168,6 @@ class RecoverNames : public FunctionPass {
   // the name of variables.
   void getPtrMetadata(RegionVars *list,Instruction *J,Instruction *I,
                       Region *r);
-
-  // Return the Function of the value v.
-  const Function* findEnclosingFunc(const Value* V);
-  
-  // This method return a MDNode just if some instructions have a address or
-  // value is equal to the value v.
-  const DILocalVariable* findVar(const Value* V,const Function* F);
-
-  // Return the name of the variable if it is interesting to analyze.  
-  StringRef getOriginalName(const Value* V);
 
   // Search in the Module the Global Variables.
   void searchGlobalVariables(Module *M);

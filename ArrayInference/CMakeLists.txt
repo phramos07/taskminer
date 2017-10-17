@@ -16,5 +16,7 @@ add_library(LLVMArrayInference MODULE
   recoverExpressions.cpp
   recoverFunctionCall.cpp
   testRFCall.cpp
+  recoverPointerMD.cpp
+  extractSourceData.cpp
 )
 
