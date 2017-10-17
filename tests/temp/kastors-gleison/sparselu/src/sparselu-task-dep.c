@@ -1,3 +1,4 @@
+#include <omp.h>
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite                                  */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de Supercomputacion  */
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
-#include "sparselu.h"
+#include "../include/sparselu.h"
 
 
 void sparselu_par_call(float **BENCH, int matrix_size, int submatrix_size)
