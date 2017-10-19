@@ -27,7 +27,7 @@
 
 #define BOTS_CUTOFF_DEF_VALUE 5
 
-void floorplan_init(char *);
+void floorplan_init(const char *);
 void floorplan_end (void);
 void compute_floorplan(void);
 int floorplan_verify(void);

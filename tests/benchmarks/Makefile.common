@@ -12,12 +12,18 @@ LLVM_FLAGS = -c -emit-llvm $(CFLAGS)
 OMP_FLAGS = -fopenmp
 OPT_FLAGS = -mem2reg -instnamer
 IDIR = .
+
 SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*SER.c')
 AI_FILES = $(shell find $(SOURCEDIR) -name '*AI.c')
 MI_FILES = $(shell find $(SOURCEDIR) -name '*MI.c')
+
 AI_SUFFIX = -par-AI
 MI_SUFFIX = -par-MI
 SER_SUFFIX = -ser
+
+SER_OUT = $(shell find $(SOURCEDIR) -name '*$(SER_SUFFIX).out')
+AI_OUT = $(shell find $(SOURCEDIR) -name '*$(AI_SUFFIX).out')
+MI_OUT = $(shell find $(SOURCEDIR) -name '*$(MI_SUFFIX).out')
 
 compile:
 	$(MAKE) -i compile-serial

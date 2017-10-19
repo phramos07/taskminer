@@ -20,6 +20,7 @@
 
 /* Original code from the Application Kernel Matrix by Cray */
 
+#include <omp.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -30,12 +31,12 @@
 #define DMAX 64
 #define max(a, b) ((a > b) ? a : b)
 #define min(a, b) ((a < b) ? a : b)
-// #define DEBUG
 
 int solution = -1;
 
 typedef int  coor[2];
 typedef char ibrd[ROWS][COLS];
+typedef char (*pibrd)[COLS];
 
 FILE * inputFile;
 
@@ -184,34 +185,42 @@ static void read_inputs() {
   }
 }
 
+
 static void write_outputs() {
   int i, j;
-	printf("Minimum area = %d\n\n", MIN_AREA);
-  for (i = 0; i < MIN_FOOTPRINT[0]; i++) {
-    for (j = 0; j < MIN_FOOTPRINT[1]; j++) {
-        if (BEST_BOARD[i][j] == 0) {printf(" ");}
-        else                       printf("%c", 'A' + BEST_BOARD[i][j] - 1);
-    } 
-    printf("\n");
-  }  
+
+    printf("Minimum area = %d\n\n", MIN_AREA);
+
+    for (i = 0; i < MIN_FOOTPRINT[0]; i++) {
+      for (j = 0; j < MIN_FOOTPRINT[1]; j++) {
+          if (BEST_BOARD[i][j] == 0) {printf(" ");}
+          else                       printf("%c", 'A' + BEST_BOARD[i][j] - 1);
+      } 
+      printf("\n");
+    }  
 }
 
-static int add_cell (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) 
-{
-  int  i, j, nn, nn2, area;
+static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
+  int  i, j, nn, area, nnc,nnl;
 
   ibrd board;
   coor footprint, NWS[DMAX];
 
-  nn2 = 0;
+  nnc = nnl = 0;
+
 /* for each possible shape */
   for (i = 0; i < CELLS[id].n; i++) {
 /* compute all possible locations for nw corner */
       nn = starts(id, i, NWS, CELLS);
-      nn2 += nn;
+      nnl += nn;
 /* for all possible locations */
       for (j = 0; j < nn; j++) {
-          struct cell *cells = CELLS;
+#pragma omp task untied private(board, footprint,area) \
+firstprivate(NWS,i,j,id,nn) \
+shared(FOOTPRINT,BOARD,CELLS,MIN_AREA,MIN_FOOTPRINT,N,BEST_BOARD,nnc) 
+{
+	  struct cell cells[N+1];
+	  memcpy(cells,CELLS,sizeof(struct cell)*(N+1));
 /* extent of shape */
           cells[id].top = NWS[j][0];
           cells[id].bot = cells[id].top + cells[id].alt[i][0] - 1;
@@ -222,7 +231,9 @@ static int add_cell (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
 
 /* if the cell cannot be layed down, prune search */
           if (! lay_down(id, board, cells)) {
+          	#ifdef DEBUG
              printf("Chip %d, shape %d does not fit\n", id, i);
+           #endif
              goto _end;
           }
 
@@ -236,49 +247,58 @@ static int add_cell (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
 
 /* if area is minimum, update global values */
 		  if (area < MIN_AREA) {
+#pragma omp critical
 			  if (area < MIN_AREA) {
 				  MIN_AREA         = area;
 				  MIN_FOOTPRINT[0] = footprint[0];
 				  MIN_FOOTPRINT[1] = footprint[1];
 				  memcpy(BEST_BOARD, board, sizeof(ibrd));
-				  printf("N  %d\n", MIN_AREA);
+        	#ifdef DEBUG
+					  printf("N  %d\n", MIN_AREA);
+				  #endif	  
 			  }
 		  }
 
 /* if area is less than best area */
           } else if (area < MIN_AREA) {
-             nn2 += add_cell(cells[id].next, footprint, board,cells);
+ 	    #pragma omp atomic
+ 	      nnc += add_cell(cells[id].next, footprint, board,cells);
 /* if area is greater than or equal to best area, prune search */
           } else {
+
+        	#ifdef DEBUG
              printf("T  %d, %d\n", area, MIN_AREA);
+           #endif
+ 
 	  }
 _end:;  
 }
+      }
 }
-  return nn2;
-  }
-
+#pragma omp taskwait
+return nnc+nnl;
+}
 
 ibrd board;
 
 void floorplan_init (const char *filename)
 {
-  int i,j;
+    int i,j;
 
-  inputFile = fopen(filename, "r");
-  
-  if(NULL == inputFile) {
-      printf("Couldn't open %s for reading\n", filename);
-      exit(1);
-  }
-  
-  /* read input file and initialize global minimum area */
-  read_inputs();
-  MIN_AREA = ROWS * COLS;
-  
-  /* initialize board is empty */
-  for (i = 0; i < ROWS; i++)
-  for (j = 0; j < COLS; j++) board[i][j] = 0;
+    inputFile = fopen(filename, "r");
+    
+    if(NULL == inputFile) {
+        printf("Couldn't open %s file for reading\n", filename);
+        exit(1);
+    }
+    
+    /* read input file and initialize global minimum area */
+    read_inputs();
+    MIN_AREA = ROWS * COLS;
+    
+    /* initialize board is empty */
+    for (i = 0; i < ROWS; i++)
+    for (j = 0; j < COLS; j++) board[i][j] = 0;
     
 }
 
@@ -289,14 +309,19 @@ void compute_floorplan (void)
     footprint[0] = 0;
     footprint[1] = 0;
     printf("Computing floorplan ");
-    add_cell(1, footprint, board, gcells);
+		#pragma omp parallel
+		{
+			#pragma omp single
+	  	add_cell(1, footprint, board, gcells);
+		}
     printf(" completed!\n");
+
 }
 
 void floorplan_end (void)
 {
-  /* write results */
-  write_outputs();
+    /* write results */
+    write_outputs();
 }
 
 int floorplan_verify (void)
@@ -306,6 +331,7 @@ int floorplan_verify (void)
     else
       return 0;
 }
+
 
 int main(int argc, char const *argv[])
 {

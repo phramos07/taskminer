@@ -222,7 +222,7 @@ static int add_cell (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
 
 /* if the cell cannot be layed down, prune search */
           if (! lay_down(id, board, cells)) {
-             printf("Chip %d, shape %d does not fit\n", id, i);
+             // printf("Chip %d, shape %d does not fit\n", id, i);
              goto _end;
           }
 
@@ -241,7 +241,7 @@ static int add_cell (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
 				  MIN_FOOTPRINT[0] = footprint[0];
 				  MIN_FOOTPRINT[1] = footprint[1];
 				  memcpy(BEST_BOARD, board, sizeof(ibrd));
-				  printf("N  %d\n", MIN_AREA);
+				  // printf("N  %d\n", MIN_AREA);
 			  }
 		  }
 
@@ -250,7 +250,7 @@ static int add_cell (int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS)
              nn2 += add_cell(cells[id].next, footprint, board,cells);
 /* if area is greater than or equal to best area, prune search */
           } else {
-             printf("T  %d, %d\n", area, MIN_AREA);
+             // printf("T  %d, %d\n", area, MIN_AREA);
 	  }
 _end:;  
 }
