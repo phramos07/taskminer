@@ -20,8 +20,8 @@ MI_SUFFIX = -par-MI
 SER_SUFFIX = -ser
 
 compile:
-	$(MAKE) compile-serial
-	$(MAKE) compile-parallel
+	$(MAKE) -i compile-serial
+	$(MAKE) -i compile-parallel
 
 run: compile
 
