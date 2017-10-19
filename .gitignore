@@ -12,7 +12,6 @@
 *.blg
 *.log
 *.gz
-Makefile
 ser
 par
 *.out
