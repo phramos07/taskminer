@@ -27,14 +27,15 @@
  * Copyright (c) 2000 Matteo Frigo
  */
 
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
 #include "app-desc.h"
+// #define CHECK_SOLUTION
 
 int best_so_far;
-int number_of_tasks;
 
 int compare(struct item *a, struct item *b) {
   double c = ((double)a->value / a->weight) - ((double)b->value / b->weight);
@@ -79,112 +80,10 @@ int read_input(const char *filename, struct item *items, int *capacity,
  * return the optimal solution for n items (first is e) and
  * capacity c. Value so far is v.
  */
-#if defined(IF_CUTOFF)
 void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
   int with, without, best;
   double ub;
 
-  number_of_tasks++;
-  /* base case: full knapsack or no items */
-  if (c < 0) {
-    *sol = INT_MIN;
-    return;
-  }
-
-  /* feasible solution, with value v */
-  if (n == 0 || c == 0) {
-    *sol = v;
-    return;
-  }
-
-  ub = (double)v + c * e->value / e->weight;
-
-  if (ub < best_so_far) {
-    /* prune ! */
-    *sol = INT_MIN;
-    return;
-  }
-  /*
-      * compute the best solution without the current item in the knapsack
-      */
-  knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
-
-  /* compute the best solution with the current item in the knapsack */
-  knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
-
-  best = with > without ? with : without;
-
-  /*
-      * notice the race condition here. The program is still
-      * correct, in the sense that the best solution so far
-      * is at least best_so_far. Moreover best_so_far gets updated
-      * when returning, so eventually it should get the right
-      * value. The program is highly non-deterministic.
-      */
-  if (best > best_so_far)
-    best_so_far = best;
-
-  *sol = best;
-}
-#elif defined(MANUAL_CUTOFF)
-void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
-  int with, without, best;
-  double ub;
-
-  number_of_tasks++;
-  /* base case: full knapsack or no items */
-  if (c < 0) {
-    *sol = INT_MIN;
-    return;
-  }
-
-  /* feasible solution, with value v */
-  if (n == 0 || c == 0) {
-    *sol = v;
-    return;
-  }
-
-  ub = (double)v + c * e->value / e->weight;
-
-  if (ub < best_so_far) {
-    /* prune ! */
-    *sol = INT_MIN;
-    return;
-  }
-  if (l < bots_cutoff_value) {
-    /* compute the best solution without the current item in the knapsack */
-    knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
-
-    /* compute the best solution with the current item in the knapsack */
-    knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
-
-  } else {
-    /* compute the best solution without the current item in the knapsack */
-    knapsack_seq(e + 1, c, n - 1, v, &without);
-    /* compute the best solution with the current item in the knapsack */
-    knapsack_seq(e + 1, c - e->weight, n - 1, v + e->value, &with);
-  }
-
-  best = with > without ? with : without;
-
-  /*
-      * notice the race condition here. The program is still
-      * correct, in the sense that the best solution so far
-      * is at least best_so_far. Moreover best_so_far gets updated
-      * when returning, so eventually it should get the right
-      * value. The program is highly non-deterministic.
-      */
-  if (best > best_so_far)
-    best_so_far = best;
-
-  *sol = best;
-}
-#else
-void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
-  int with, without, best;
-  double ub;
-
-  number_of_tasks++;
   /* base case: full knapsack or no items */
   if (c < 0) {
     *sol = INT_MIN;
@@ -229,12 +128,10 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
 
   *sol = best;
 }
-#endif
 void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
   int with, without, best;
   double ub;
 
-  number_of_tasks++;
   /* base case: full knapsack or no items */
   if (c < 0) {
     *sol = INT_MIN;
@@ -281,23 +178,17 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
 }
 void knapsack_main_par(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
-
   {
-    number_of_tasks = 0;
-    { knapsack_par(e, c, n, 0, sol, 0); }
-
-    bots_number_of_tasks += number_of_tasks;
+    { 
+    	knapsack_par(e, c, n, 0, sol, 0);
+    }
   }
-  if (bots_verbose_mode)
     printf("Best value for parallel execution is %d\n\n", *sol);
 }
 void knapsack_main_seq(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
-  number_of_tasks = 0;
-
   knapsack_seq(e, c, n, 0, sol);
 
-  if (bots_verbose_mode)
     printf("Best value for sequential execution is %d\n\n", *sol);
 }
 
@@ -308,3 +199,23 @@ int knapsack_check(int sol_seq, int sol_par) {
     return -1;
 }
 
+int main(int argc, char const *argv[])
+{
+	struct item items[MAX_ITEMS];
+	int n, capacity;
+	int sol = 0;
+	read_input(argv[1], items, &capacity, &n);
+
+	//MAIN CALL
+	knapsack_main_par(items, capacity, n, &sol);
+
+	#ifdef CHECK_SOLUTION
+		int sol2 = 0;
+		knapsack_main_seq(items, capacity, n, &sol2);
+		
+		if (knapsack_check(sol, sol2) != 1)
+			printf("ERROR! Solution not correct!\n");
+	#endif
+
+	return 0;
+}
