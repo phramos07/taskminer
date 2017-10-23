@@ -12,7 +12,5 @@
 *.blg
 *.log
 *.gz
-ser
-par
 *.out
 *.dot

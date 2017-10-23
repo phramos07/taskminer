@@ -1,4 +1,4 @@
-#include "serial-app.h"
+#include <omp.h>
 
 #define BOTS_APP_NAME "Knapsack"
 #define BOTS_APP_PARAMETERS_DESC "%s"
