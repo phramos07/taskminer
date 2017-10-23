@@ -116,7 +116,7 @@ if [ -z "$COMPILER" ]; then
 fi
 
 
-[ "$debug" = "yes" ] && DEBUG=-DBOTS_DEBUG
+[ "$debug" = "yes" ] && DEBUG=-Dprintf
 [ "$warnings" = "yes" ] && WARNINGS=
 
 if [ "$COMPILER" = "gcc" -a "$GCC" = "yes" ]; then

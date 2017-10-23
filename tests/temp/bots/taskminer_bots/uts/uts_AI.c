@@ -134,7 +134,7 @@ int uts_numChildren(Node *node) {
   // MAXNUMCHILDREN)
   if (node->height != 0) {
     if (numChildren > MAXNUMCHILDREN) {
-      bots_debug("*** Number of children truncated from %d to %d\n",
+      printf("*** Number of children truncated from %d to %d\n",
                  numChildren, MAXNUMCHILDREN);
       numChildren = MAXNUMCHILDREN;
     }
@@ -152,9 +152,9 @@ int uts_numChildren(Node *node) {
 
 unsigned long long serial_uts(Node *root) {
   unsigned long long num_nodes;
-  bots_message("Computing Unbalance Tree Search algorithm ");
+  printf("Computing Unbalance Tree Search algorithm ");
   num_nodes = serTreeSearch(0, root, uts_numChildren(root));
-  bots_message(" completed!\n");
+  printf(" completed!\n");
   return num_nodes;
 }
 
@@ -188,7 +188,7 @@ void uts_read_file(char *filename) {
   FILE *fin;
 
   if ((fin = fopen(filename, "r")) == NULL) {
-    bots_message("Could not open input file (%s)\n", filename);
+    printf("Could not open input file (%s)\n", filename);
     exit(-1);
   }
   fscanf(fin, "%lf %lf %d %d %d %llu %d %llu", &b_0, &nonLeafProb, &nonLeafBF,
@@ -199,34 +199,34 @@ void uts_read_file(char *filename) {
   computeGranularity = max(1, computeGranularity);
 
   // Printing input data
-  bots_message("\n");
-  bots_message("Root branching factor                = %f\n", b_0);
-  bots_message("Root seed (0 <= 2^31)                = %d\n", rootId);
-  bots_message("Probability of non-leaf node         = %f\n", nonLeafProb);
-  bots_message("Number of children for non-leaf node = %d\n", nonLeafBF);
-  bots_message("E(n)                                 = %f\n",
+  printf("\n");
+  printf("Root branching factor                = %f\n", b_0);
+  printf("Root seed (0 <= 2^31)                = %d\n", rootId);
+  printf("Probability of non-leaf node         = %f\n", nonLeafProb);
+  printf("Number of children for non-leaf node = %d\n", nonLeafBF);
+  printf("E(n)                                 = %f\n",
                (double)(nonLeafProb * nonLeafBF));
-  bots_message("E(s)                                 = %f\n",
+  printf("E(s)                                 = %f\n",
                (double)(1.0 / (1.0 - nonLeafProb * nonLeafBF)));
-  bots_message("Compute granularity                  = %d\n",
+  printf("Compute granularity                  = %d\n",
                computeGranularity);
-  bots_message("Random number generator              = ");
+  printf("Random number generator              = ");
   rng_showtype();
 }
 
 void uts_show_stats(void) {
   int chunkSize = 0;
 
-  bots_message("\n");
-  bots_message("Tree size                            = %llu\n",
+  printf("\n");
+  printf("Tree size                            = %llu\n",
                (unsigned long long)bots_number_of_tasks);
-  bots_message("Maximum tree depth                   = %d\n", maxTreeDepth);
-  bots_message("Chunk size                           = %d\n", chunkSize);
-  bots_message("Number of leaves                     = %llu (%.2f%%)\n",
+  printf("Maximum tree depth                   = %d\n", maxTreeDepth);
+  printf("Chunk size                           = %d\n", chunkSize);
+  printf("Number of leaves                     = %llu (%.2f%%)\n",
                nLeaves, nLeaves / (float)bots_number_of_tasks * 100.0);
-  bots_message("Wallclock time                       = %.3f sec\n",
+  printf("Wallclock time                       = %.3f sec\n",
                bots_time_program);
-  bots_message("Overall performance                  = %.0f nodes/sec\n",
+  printf("Overall performance                  = %.0f nodes/sec\n",
                (bots_number_of_tasks / bots_time_program));
 }
 
@@ -235,7 +235,7 @@ int uts_check_result(void) {
 
   if (bots_number_of_tasks != exp_tree_size) {
     answer = BOTS_RESULT_UNSUCCESSFUL;
-    bots_message("Incorrect tree size result (%llu instead of %llu).\n",
+    printf("Incorrect tree size result (%llu instead of %llu).\n",
                  bots_number_of_tasks, exp_tree_size);
   }
 

@@ -420,37 +420,37 @@ void fill_array(ELM *array) {
 void sort_init(void) {
   /* Checking arguments */
   if (bots_arg_size < 4) {
-    bots_message("%s can not be less than 4, using 4 as a parameter.\n",
+    printf("%s can not be less than 4, using 4 as a parameter.\n",
                  BOTS_APP_DESC_ARG_SIZE);
     bots_arg_size = 4;
   }
 
   if (bots_app_cutoff_value < 2) {
-    bots_message("%s can not be less than 2, using 2 as a parameter.\n",
+    printf("%s can not be less than 2, using 2 as a parameter.\n",
                  BOTS_APP_DESC_ARG_CUTOFF);
     bots_app_cutoff_value = 2;
   } else if (bots_app_cutoff_value > bots_arg_size) {
-    bots_message(
+    printf(
         "%s can not be greather than vector size, using %d as a parameter.\n",
         BOTS_APP_DESC_ARG_CUTOFF, bots_arg_size);
     bots_app_cutoff_value = bots_arg_size;
   }
 
   if (bots_app_cutoff_value_1 > bots_arg_size) {
-    bots_message(
+    printf(
         "%s can not be greather than vector size, using %d as a parameter.\n",
         BOTS_APP_DESC_ARG_CUTOFF_1, bots_arg_size);
     bots_app_cutoff_value_1 = bots_arg_size;
   }
   if (bots_app_cutoff_value_2 > bots_arg_size) {
-    bots_message(
+    printf(
         "%s can not be greather than vector size, using %d as a parameter.\n",
         BOTS_APP_DESC_ARG_CUTOFF_2, bots_arg_size);
     bots_app_cutoff_value_2 = bots_arg_size;
   }
 
   if (bots_app_cutoff_value_2 > bots_app_cutoff_value_1) {
-    bots_message("%s can not be greather than %s, using %d as a parameter.\n",
+    printf("%s can not be greather than %s, using %d as a parameter.\n",
                  BOTS_APP_DESC_ARG_CUTOFF_2, BOTS_APP_DESC_ARG_CUTOFF_1,
                  bots_app_cutoff_value_1);
     bots_app_cutoff_value_2 = bots_app_cutoff_value_1;
@@ -463,10 +463,10 @@ void sort_init(void) {
 }
 
 void sort_par(void) {
-  bots_message("Computing multisort algorithm (n=%d) ", bots_arg_size);
+  printf("Computing multisort algorithm (n=%d) ", bots_arg_size);
 
   cilksort_par(array, tmp, bots_arg_size);
-  bots_message(" completed!\n");
+  printf(" completed!\n");
 }
 
 int sort_verify(void) {

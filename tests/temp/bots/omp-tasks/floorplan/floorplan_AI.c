@@ -150,7 +150,7 @@ static int lay_down(int id, ibrd board, struct cell *cells) {
 
 #define read_integer(file, var)          \
   if (fscanf(file, "%d", &var) == EOF) { \
-    bots_message(" Bogus input file\n"); \
+    printf(" Bogus input file\n"); \
     exit(-1);                            \
   }
 
@@ -195,16 +195,16 @@ static void read_inputs() {
 static void write_outputs() {
   int i, j;
 
-  bots_message("Minimum area = %d\n\n", MIN_AREA);
+  printf("Minimum area = %d\n\n", MIN_AREA);
 
   for (i = 0; i < MIN_FOOTPRINT[0]; i++) {
     for (j = 0; j < MIN_FOOTPRINT[1]; j++) {
       if (BEST_BOARD[i][j] == 0) {
-        bots_message(" ");
+        printf(" ");
       } else
-        bots_message("%c", 'A' + BEST_BOARD[i][j] - 1);
+        printf("%c", 'A' + BEST_BOARD[i][j] - 1);
     }
-    bots_message("\n");
+    printf("\n");
   }
 }
 
@@ -236,7 +236,7 @@ static int add_cell_ser(int id, coor FOOTPRINT, ibrd BOARD,
 
       /* if the cell cannot be layed down, prune search */
       if (!lay_down(id, board, cells)) {
-        bots_debug("Chip %d, shape %d does not fit\n", id, i);
+        printf("Chip %d, shape %d does not fit\n", id, i);
         goto _end;
       }
 
@@ -255,7 +255,7 @@ static int add_cell_ser(int id, coor FOOTPRINT, ibrd BOARD,
             MIN_FOOTPRINT[0] = footprint[0];
             MIN_FOOTPRINT[1] = footprint[1];
             memcpy(BEST_BOARD, board, sizeof(ibrd));
-            bots_debug("N  %d\n", MIN_AREA);
+            printf("N  %d\n", MIN_AREA);
           }
         }
 
@@ -266,7 +266,7 @@ static int add_cell_ser(int id, coor FOOTPRINT, ibrd BOARD,
         /* if area is greater than or equal to best area, prune search */
       } else {
 
-        bots_debug("T  %d, %d\n", area, MIN_AREA);
+        printf("T  %d, %d\n", area, MIN_AREA);
       }
     _end:;
     }
@@ -306,7 +306,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
 
         /* if the cell cannot be layed down, prune search */
         if (!lay_down(id, board, cells)) {
-          bots_debug("Chip %d, shape %d does not fit\n", id, i);
+          printf("Chip %d, shape %d does not fit\n", id, i);
           goto _end;
         }
 
@@ -325,7 +325,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
               MIN_FOOTPRINT[0] = footprint[0];
               MIN_FOOTPRINT[1] = footprint[1];
               memcpy(BEST_BOARD, board, sizeof(ibrd));
-              bots_debug("N  %d\n", MIN_AREA);
+              printf("N  %d\n", MIN_AREA);
             }
           }
 
@@ -335,7 +335,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
           /* if area is greater than or equal to best area, prune search */
         } else {
 
-          bots_debug("T  %d, %d\n", area, MIN_AREA);
+          printf("T  %d, %d\n", area, MIN_AREA);
         }
       _end:;
       }
@@ -382,7 +382,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
 
         /* if the cell cannot be layed down, prune search */
         if (!lay_down(id, board, cells)) {
-          bots_debug("Chip %d, shape %d does not fit\n", id, i);
+          printf("Chip %d, shape %d does not fit\n", id, i);
           goto _end;
         }
 
@@ -401,7 +401,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
               MIN_FOOTPRINT[0] = footprint[0];
               MIN_FOOTPRINT[1] = footprint[1];
               memcpy(BEST_BOARD, board, sizeof(ibrd));
-              bots_debug("N  %d\n", MIN_AREA);
+              printf("N  %d\n", MIN_AREA);
             }
           }
 
@@ -411,7 +411,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
           /* if area is greater than or equal to best area, prune search */
         } else {
 
-          bots_debug("T  %d, %d\n", area, MIN_AREA);
+          printf("T  %d, %d\n", area, MIN_AREA);
         }
       _end:;
       }
@@ -454,7 +454,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
 
         /* if the cell cannot be layed down, prune search */
         if (!lay_down(id, board, cells)) {
-          bots_debug("Chip %d, shape %d does not fit\n", id, i);
+          printf("Chip %d, shape %d does not fit\n", id, i);
           goto _end;
         }
 
@@ -473,7 +473,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
               MIN_FOOTPRINT[0] = footprint[0];
               MIN_FOOTPRINT[1] = footprint[1];
               memcpy(BEST_BOARD, board, sizeof(ibrd));
-              bots_debug("N  %d\n", MIN_AREA);
+              printf("N  %d\n", MIN_AREA);
             }
           }
 
@@ -486,7 +486,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
           }
           /* if area is greater than or equal to best area, prune search */
         } else {
-          bots_debug("T  %d, %d\n", area, MIN_AREA);
+          printf("T  %d, %d\n", area, MIN_AREA);
         }
       _end:;
       }
@@ -531,7 +531,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
 
         /* if the cell cannot be layed down, prune search */
         if (!lay_down(id, board, cells)) {
-          bots_debug("Chip %d, shape %d does not fit\n", id, i);
+          printf("Chip %d, shape %d does not fit\n", id, i);
           goto _end;
         }
 
@@ -550,7 +550,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
               MIN_FOOTPRINT[0] = footprint[0];
               MIN_FOOTPRINT[1] = footprint[1];
               memcpy(BEST_BOARD, board, sizeof(ibrd));
-              bots_debug("N  %d\n", MIN_AREA);
+              printf("N  %d\n", MIN_AREA);
             }
           }
 
@@ -561,7 +561,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
           /* if area is greater than or equal to best area, prune search */
         } else {
 
-          bots_debug("T  %d, %d\n", area, MIN_AREA);
+          printf("T  %d, %d\n", area, MIN_AREA);
         }
       _end:;
       }
@@ -580,7 +580,7 @@ void floorplan_init(char *filename) {
   inputFile = fopen(filename, "r");
 
   if (NULL == inputFile) {
-    bots_message("Couldn't open %s file for reading\n", filename);
+    printf("Couldn't open %s file for reading\n", filename);
     exit(1);
   }
 
@@ -599,7 +599,7 @@ void compute_floorplan(void) {
   /* footprint of initial board is zero */
   footprint[0] = 0;
   footprint[1] = 0;
-  bots_message("Computing floorplan ");
+  printf("Computing floorplan ");
   {
 #if defined(MANUAL_CUTOFF) || defined(IF_CUTOFF) || defined(FINAL_CUTOFF)
     bots_number_of_tasks = add_cell(1, footprint, board, gcells, 0);
@@ -607,7 +607,7 @@ void compute_floorplan(void) {
     bots_number_of_tasks = add_cell(1, footprint, board, gcells);
 #endif
   }
-  bots_message(" completed!\n");
+  printf(" completed!\n");
 }
 
 void floorplan_end(void) {

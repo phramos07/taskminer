@@ -160,11 +160,12 @@ void allocate_village( struct Village **capital, struct Village *back,
       (*capital)->hosp.waiting = NULL;
       (*capital)->hosp.inside = NULL;
       (*capital)->hosp.realloc = NULL;
+      omp_init_lock(&(*capital)->hosp.realloc_lock);
       // Create Cities (lower level)
       inext = NULL;
       for (i = sim_cities; i>0; i--)
       {
-         allocate_village(&current, *capital, inext, level-1, (vid* (int32_t) sim_cities) + (int32_t) i);
+         allocate_village(&current, *capital, inext, level-1, (vid * (int32_t) sim_cities)+ (int32_t) i);
          inext = current;
       }
       (*capital)->forward = current;
@@ -273,7 +274,7 @@ void check_patients_inside(struct Village *village)
    }
 }
 /**********************************************************************/
-void check_patients_assess(struct Village *village) 
+void check_patients_assess_par(struct Village *village) 
 {
    struct Patient *list = village->hosp.assess;
    float rand;
@@ -304,7 +305,9 @@ void check_patients_assess(struct Village *village)
             {
                village->hosp.free_personnel++;
                removeList(&(village->hosp.assess), p);
+               omp_set_lock(&(village->hosp.realloc_lock));
                addList(&(village->back->hosp.realloc), p); 
+               omp_unset_lock(&(village->hosp.realloc_lock));
             } 
          }
          else /* move to village */
@@ -396,7 +399,7 @@ void put_in_hosp(struct Hosp *hosp, struct Patient *patient)
    }
 }
 /**********************************************************************/
-void sim_village(struct Village *village)
+void sim_village_par(struct Village *village)
 {
    struct Village *vlist;
 
@@ -409,18 +412,21 @@ void sim_village(struct Village *village)
    vlist = village->forward;
    while(vlist)
    {
-      sim_village(vlist);
+#pragma omp task untied
+      sim_village_par(vlist);
       vlist = vlist->next;
    }
 
    /* Uses lists v->hosp->inside, and v->return */
    check_patients_inside(village);
 
-   /* Uses lists v->hosp->assess, v->hosp->inside, v->population and (v->back->hosp->up) !!! */
-   check_patients_assess(village);
+   /* Uses lists v->hosp->assess, v->hosp->inside, v->population and (v->back->hosp->realloc) !!! */
+   check_patients_assess_par(village);
 
    /* Uses lists v->hosp->waiting, and v->hosp->assess */
    check_patients_waiting(village);
+
+#pragma omp taskwait
 
    /* Uses lists v->hosp->realloc, v->hosp->asses and v->hosp->waiting */
    check_patients_realloc(village);
@@ -533,11 +539,13 @@ int check_village(struct Village *top)
    return answer;
 }
 /**********************************************************************/
-/**********************************************************************/
-void sim_village_main(struct Village *top)
+void sim_village_main_par(struct Village *top)
 {
    long i;
-   for (i = 0; i < sim_time; i++) sim_village(top);   
+#pragma omp parallel
+#pragma omp single
+#pragma omp task untied
+   for (i = 0; i < sim_time; i++) sim_village_par(top);   
 }
 
 int main(int argc, char const *argv[])
@@ -548,8 +556,7 @@ int main(int argc, char const *argv[])
 	allocate_village(&top, NULL, NULL, sim_level, 0);
 
 	//KERNEL CALL
-	sim_village_main(top);
+	sim_village_main_par(top);
 
 	return 0;
 }
-

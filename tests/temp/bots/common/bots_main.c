@@ -388,7 +388,7 @@ bots_get_params_common(int argc, char **argv)
                i++;
                if (argc == i) { bots_print_usage(); exit(100); }
                bots_verbose_mode = (bots_verbose_mode_t) atoi(argv[i]);
-#ifndef BOTS_DEBUG
+#ifndef printf
                if ( bots_verbose_mode > 1 ) {
                   fprintf(stderr, "Error: Configure the suite using '--debug' option in order to use a verbose level greather than 1.\n");
                   exit(100);

@@ -354,7 +354,7 @@ void nqueens(int n, int j, char *a, int depth)
 void find_queens(int size) {
   total_count = 0;
 
-  bots_message("Computing N-Queens algorithm (n=%d) ", size);
+  printf("Computing N-Queens algorithm (n=%d) ", size);
   {
     {
       char *a;
@@ -370,7 +370,7 @@ void find_queens(int size) {
     total_count += mycount;
 #endif
   }
-  bots_message(" completed!\n");
+  printf(" completed!\n");
 }
 
 int verify_queens(int size) {

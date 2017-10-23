@@ -436,7 +436,7 @@ int pairalign()
    mat_xref = def_aa_xref;
    maxres = get_matrix(matptr, mat_xref, 10);
 
-   bots_message("Start aligning ");
+   printf("Start aligning ");
    if (maxres == 0) return(-1);
 
       for (si = 0; si < nseqs; si++) {
@@ -490,7 +490,7 @@ int pairalign()
             }
          }
       }
-   bots_message(" completed!\n");
+   printf(" completed!\n");
    return 0;
 }
 /***********************************************************************
@@ -524,11 +524,11 @@ void pairalign_init (char *filename)
 
    nseqs = readseqs(filename);
 
-        bots_message("Multiple Pairwise Alignment (%d sequences)\n",nseqs);
+        printf("Multiple Pairwise Alignment (%d sequences)\n",nseqs);
 
 
    for (i = 1; i <= nseqs; i++)
-      bots_debug("Sequence %d: %s %6.d aa\n", i, names[i], seqlen_array[i]);
+      printf("Sequence %d: %s %6.d aa\n", i, names[i], seqlen_array[i]);
 
    if ( clustalw == TRUE ) {
       gap_open_scale = 0.6667;
@@ -580,7 +580,7 @@ void align_end ()
    for(i = 0; i<nseqs; i++)
       for(j = 0; j<nseqs; j++)
          if (bench_output[i*nseqs+j] != 0)
-            bots_debug("Benchmark sequences (%d:%d) Aligned. Score: %d\n", i+1 , j+1 , (int) bench_output[i*nseqs+j]);
+            printf("Benchmark sequences (%d:%d) Aligned. Score: %d\n", i+1 , j+1 , (int) bench_output[i*nseqs+j]);
 
 }
 

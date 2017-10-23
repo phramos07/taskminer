@@ -271,14 +271,14 @@ void find_queens (int size)
 {
 	total_count=0;
 
-        bots_message("Computing N-Queens algorithm (n=%d) ", size);
+        printf("Computing N-Queens algorithm (n=%d) ", size);
 
 			char *a;
 
 			a = alloca(size * sizeof(char));
 			nqueens(size, 0, a, &total_count,0);
 
-	bots_message(" completed!\n");
+	printf(" completed!\n");
 }
 
 

@@ -21,11 +21,11 @@
 #include "fib.h"
 #include "../../include/time_common.h"
 
-unsigned long long res;
+unsigned long long int res;
 
 unsigned long long int fib (long long int n)
 {
-	long long x, y;
+	unsigned long long int x, y;
 	if (n < 2) return n;
 
 	x = fib(n - 1);
@@ -43,7 +43,7 @@ void fib0 (long long int n)
   for (i = 15; i <= n; i += 5)
   {
   	beg = clock();
-		res = fib((long long)n);
+		res = fib((long long)i);
 		end = clock();
   	printf("Fib(%d) : %lld\n", i, res);
 		addNewEntry(I, i, getTimeInSecs(end - beg));  

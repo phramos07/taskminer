@@ -548,7 +548,7 @@ int main(int argc, char const *argv[])
 	allocate_village(&top, NULL, NULL, sim_level, 0);
 
 	//KERNEL CALL
-	sim_village_main(top);
+	sim_village(top);
 
 	return 0;
 }

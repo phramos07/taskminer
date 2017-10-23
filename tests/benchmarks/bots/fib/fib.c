@@ -23,7 +23,7 @@
 
 unsigned long long res;
 
-unsigned long long int fib (long long int n)
+unsigned long long int fib(long long int n)
 {
 	long long x, y;
 	if (n < 2) return n;
@@ -34,7 +34,7 @@ unsigned long long int fib (long long int n)
 	return x + y;
 }
 
-void fib0 (int n)
+void fib0(long long int n)
 {
   Instance* I = newInstance(100);
 
@@ -43,7 +43,7 @@ void fib0 (int n)
   for (i = 15; i <= n; i += 5)
   {
   	beg = clock();
-		res = fib(n);
+		res = fib(i);
 		end = clock();
   	printf("Fib(%d) : %lld\n", i, res);
 		addNewEntry(I, i, getTimeInSecs(end - beg));  

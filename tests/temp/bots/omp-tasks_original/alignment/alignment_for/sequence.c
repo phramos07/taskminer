@@ -157,17 +157,17 @@ int readseqs(char *filename)
    char *seq1, chartab[128];
 
    if ((fin = fopen(filename, "r")) == NULL) {
-      bots_message("Could not open sequence file (%s)\n", filename);
+      printf("Could not open sequence file (%s)\n", filename);
       exit (-1);
    }
 
    if ( fscanf(fin,"Number of sequences is %d", &no_seqs) == EOF ) {
-      bots_message("Sequence file is bogus (%s)\n", filename);
+      printf("Sequence file is bogus (%s)\n", filename);
       exit(-1);
    };
    
    fill_chartab(chartab);
-   bots_message("Sequence format is Pearson\n");
+   printf("Sequence format is Pearson\n");
 
    alloc_aln(no_seqs);
 

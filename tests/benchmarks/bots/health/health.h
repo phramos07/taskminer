@@ -19,6 +19,8 @@
 /**********************************************************************************************/
 #ifndef _HEALTH_H
 #define _HEALTH_H
+#include <stdlib.h>
+#include <omp.h>
 /* random defines */
 #define IA 16807
 #define IM 2147483647
@@ -56,6 +58,7 @@ struct Hosp {
    struct Patient *assess;
    struct Patient *inside;
    struct Patient *realloc;
+   omp_lock_t  realloc_lock;
 };
 
 struct Village {
@@ -93,7 +96,7 @@ void sim_village_par(struct Village *village);
 
 extern int sim_level;
 
-void read_input_data(char *filename);
+void read_input_data(const char *filename);
 void allocate_village( struct Village **capital, struct Village *back, struct Village *next, int level, int32_t vid);
 void sim_village_main(struct Village *top);
 

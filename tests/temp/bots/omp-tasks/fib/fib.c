@@ -107,13 +107,13 @@ void fib0 (int n)
 #else
 	par_res = fib(n);
 #endif
-	bots_message("Fibonacci result for %d is %lld\n",n,par_res);
+	printf("Fibonacci result for %d is %lld\n",n,par_res);
 }
 
 void fib0_seq (int n)
 {
 	seq_res = fib_seq(n);
-	bots_message("Fibonacci result for %d is %lld\n",n,seq_res);
+	printf("Fibonacci result for %d is %lld\n",n,seq_res);
 }
 
 long long fib_verify_value(int n)

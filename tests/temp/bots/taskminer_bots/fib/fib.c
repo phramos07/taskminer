@@ -37,6 +37,6 @@ long long fib (int n)
 void fib0 (int n)
 {
 	res = fib(n);
-	bots_message("Fibonacci result for %d is %lld\n",n,res);
+	printf("Fibonacci result for %d is %lld\n",n,res);
 }
 

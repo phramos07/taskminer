@@ -1,8 +1,9 @@
 # OPENCL = opencl
 
+# CC_OMP = clang-omp
+
 # VARIABLES
 ifndef OPENCL
-	CC_OMP = clang-omp
 	CLANG = /usr/local/bin/clang
 	OPT = /usr/local/bin/opt
 endif
@@ -13,9 +14,9 @@ OMP_FLAGS = -fopenmp
 OPT_FLAGS = -mem2reg -instnamer
 IDIR = .
 
-SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*SER.c')
-AI_FILES = $(shell find $(SOURCEDIR) -name '*AI.c')
-MI_FILES = $(shell find $(SOURCEDIR) -name '*MI.c')
+SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*_SER.c')
+AI_FILES = $(shell find $(SOURCEDIR) -name '*_AI.c')
+MI_FILES = $(shell find $(SOURCEDIR) -name '*_MI.c')
 
 AI_SUFFIX = -par-AI
 MI_SUFFIX = -par-MI

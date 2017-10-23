@@ -79,29 +79,29 @@ typedef enum { BOTS_VERBOSE_NONE=0,
 
 extern bots_verbose_mode_t bots_verbose_mode;
 
-#define bots_message(msg, ...) \
+#define printf(msg, ...) \
    {\
       if ( bots_verbose_mode >= BOTS_VERBOSE_DEFAULT ) {\
         fprintf(stdout, msg , ##__VA_ARGS__);\
       }\
    }
 
-#ifdef BOTS_DEBUG
-#define bots_debug(msg, ...) \
+#ifdef printf
+#define printf(msg, ...) \
    {\
       if ( bots_verbose_mode >= BOTS_VERBOSE_DEBUG ) {\
        fprintf(stdout, msg , ##__VA_ARGS__);\
       }\
    }
-#define bots_debug_with_location_info(msg, ...) \
+#define printf_with_location_info(msg, ...) \
    {\
       if ( bots_verbose_mode >= BOTS_VERBOSE_DEBUG ) {\
        fprintf(stdout, "%s:%d:%s:" msg ,__FILE__, __LINE__,__func__,##__VA_ARGS__);\
       }\
    }
 #else
-#define bots_debug(msg, ...)
-#define bots_debug_with_location_info(msg, ...)
+#define printf(msg, ...)
+#define printf_with_location_info(msg, ...)
 #endif
 
 #define FALSE 0
