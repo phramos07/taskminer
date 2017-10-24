@@ -385,7 +385,7 @@ void cilksort(ELM *low, ELM *tmp, long size)
 
 ELM *array, *tmp;
 
-void scramble_array(int input_size)
+void scramble_array(unsigned long long int input_size)
 {
      unsigned long i;
      unsigned long j;
@@ -397,7 +397,7 @@ void scramble_array(int input_size)
      }
 }
 
-void fill_array(int input_size)
+void fill_array(unsigned long long int input_size)
 {
      unsigned long i;
 
@@ -409,7 +409,7 @@ void fill_array(int input_size)
      }
 }
 
-void sort_init (int input_size)
+void sort_init (unsigned long long int input_size)
 {
      array = (ELM *) malloc(input_size * sizeof(ELM));
      tmp = (ELM *) malloc(input_size * sizeof(ELM));
@@ -418,14 +418,14 @@ void sort_init (int input_size)
      scramble_array(input_size);
 }
 
-void sort (int input_size)
+void sort (unsigned long long int input_size)
 {
-  printf("Computing multisort algorithm (n=%d) ", input_size);
+  printf("Computing multisort algorithm (n=%lld) ", input_size);
 	cilksort(array, tmp, input_size);
 	printf(" completed!\n");
 }
 
-int sort_verify (int input_size)
+int sort_verify (unsigned long long int input_size)
 {
      int i, success = 1;
      for (i = 0; i < input_size; ++i)
@@ -436,7 +436,7 @@ int sort_verify (int input_size)
 
 int main(int argc, char const *argv[])
 {
-	int n = atoi(argv[1]);
+	unsigned long long int n = atoi(argv[1]);
 	sort_init(n);
 	sort(n);
 	#ifdef CHECK_SOLUTION

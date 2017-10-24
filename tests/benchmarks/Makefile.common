@@ -65,6 +65,15 @@ annotator: bc
 		# runanalyses.sh do gleison \
 	done
 
+test: compile
+	@echo "\TESTING:"
+	@echo "\nManually inserted:\n"
+	time ./$(MI_OUT) $(TEST_INPUT);
+	@echo "\nAutomatically inserted:\n"
+	time ./$(AI_OUT) $(TEST_INPUT);
+	@echo "\nSerial:\n"
+	time ./$(SER_OUT) $(TEST_INPUT);
+
 run-parallel:
 	@echo "\nRunning manually annotated:"
 	@echo "\nSmall input:\n"

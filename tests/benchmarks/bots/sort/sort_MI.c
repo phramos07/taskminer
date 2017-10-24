@@ -65,6 +65,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "app-desc.h"
+// #define CHECK_SOLUTION
+
+ELM *array, *tmp;
 
 static unsigned long rand_nxt = 0;
 
@@ -185,7 +188,8 @@ void seqquick(ELM *low, ELM *high)
      insertion_sort(low, high);
 }
 
-void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest)
+void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
+	      ELM *lowdest)
 {
      ELM a1, a2;
 
@@ -288,7 +292,8 @@ ELM *binsplit(ELM val, ELM *low, ELM *high)
 	  return low;
 }
 
-void cilkmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest)
+
+void cilkmerge_par(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest)
 {
      /*
       * Cilkmerge: Merges range [low1, high1] with range [low2, high2] 
@@ -340,28 +345,30 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest)
       * the appropriate location
       */
      *(lowdest + lowsize + 1) = *split1;
-     cilkmerge(low1, split1 - 1, low2, split2, lowdest);
-     cilkmerge(split1 + 1, high1, split2 + 1, high2, lowdest+lowsize+2);
-
+#pragma omp task untied
+     cilkmerge_par(low1, split1 - 1, low2, split2, lowdest);
+#pragma omp task untied
+     cilkmerge_par(split1 + 1, high1, split2 + 1, high2, &lowdest[lowsize + 2]);
+#pragma omp taskwait
      return;
 }
 
-void cilksort(ELM *low, ELM *tmp, long size)
+void cilksort_par(ELM *low, ELM *tmp, long size)
 {
      /*
       * divide the input in four parts of the same size (A, B, C, D)
       * Then:
       *   1) recursively sort A, B, C, and D (in parallel)
       *   2) merge A and B into tmp1, and C and D into tmp2 (in parallel)
-      *   3) merbe tmp1 and tmp2 into the original array
+      *   3) merge tmp1 and tmp2 into the original array
       */
      long quarter = size / 4;
      ELM *A, *B, *C, *D, *tmpA, *tmpB, *tmpC, *tmpD;
 
-     if (size < 1024) {
-		  /* quicksort when less than 1024 elements */
-		  seqquick(low, low + size - 1);
-		  return;
+     if (size < 1024 ) {
+	  /* quicksort when less than 1024 elements */
+	  seqquick(low, low + size - 1);
+	  return;
      }
      A = low;
      tmpA = tmp;
@@ -372,20 +379,26 @@ void cilksort(ELM *low, ELM *tmp, long size)
      D = C + quarter;
      tmpD = tmpC + quarter;
 
-     cilksort(A, tmpA, quarter);
-     cilksort(B, tmpB, quarter);
-     cilksort(C, tmpC, quarter);
-     cilksort(D, tmpD, size - 3 * quarter);
+#pragma omp task untied
+     cilksort_par(A, tmpA, quarter);
+#pragma omp task untied
+     cilksort_par(B, tmpB, quarter);
+#pragma omp task untied
+     cilksort_par(C, tmpC, quarter);
+#pragma omp task untied
+     cilksort_par(D, tmpD, size - 3 * quarter);
+#pragma omp taskwait
 
-     cilkmerge(A, A + quarter - 1, B, B + quarter - 1, tmpA);
-     cilkmerge(C, C + quarter - 1, D, low + size - 1, tmpC);
+#pragma omp task untied
+     cilkmerge_par(A, A + quarter - 1, B, B + quarter - 1, tmpA);
+#pragma omp task untied
+     cilkmerge_par(C, C + quarter - 1, D, low + size - 1, tmpC);
+#pragma omp taskwait
 
-     cilkmerge(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A);
+     cilkmerge_par(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A);
 }
 
-ELM *array, *tmp;
-
-void scramble_array(int input_size)
+void scramble_array(unsigned long long int input_size)
 {
      unsigned long i;
      unsigned long j;
@@ -397,51 +410,54 @@ void scramble_array(int input_size)
      }
 }
 
-void fill_array(int input_size)
+void fill_array(unsigned long long int input_size)
 {
      unsigned long i;
 
      my_srand(1);
-
      /* first, fill with integers 1..size */
      for (i = 0; i < input_size; ++i) {
 	  array[i] = i;
      }
 }
 
-void sort_init (int input_size)
+void sort_init (unsigned long long int input_size)
 {
      array = (ELM *) malloc(input_size * sizeof(ELM));
      tmp = (ELM *) malloc(input_size * sizeof(ELM));
-
      fill_array(input_size);
      scramble_array(input_size);
 }
 
-void sort (int input_size)
+void sort_par(unsigned long long int input_size)
 {
-  printf("Computing multisort algorithm (n=%d) ", input_size);
-	cilksort(array, tmp, input_size);
+	printf("Computing multisort algorithm (n=%lld) ", input_size);
+	#pragma omp parallel
+	#pragma omp single nowait
+	#pragma omp task untied
+	     cilksort_par(array, tmp, input_size);
 	printf(" completed!\n");
 }
 
-int sort_verify (int input_size)
+int sort_verify(unsigned long long int input_size)
 {
      int i, success = 1;
      for (i = 0; i < input_size; ++i)
-	  if (array[i] != i) success = 0;
+	  if (array[i] != i)
+	       success = 0;
 
      return success ? 1 : -1;
 }
 
 int main(int argc, char const *argv[])
 {
-	int n = atoi(argv[1]);
+	unsigned long long int n = atoi(argv[1]);
 	sort_init(n);
-	sort(n);
+	sort_par(n);
 	#ifdef CHECK_SOLUTION
 		if (sort_verify(n) != 1)
 			printf("ERROR! Solution not correct. \n");
 	#endif
 	return 0;
 }
+

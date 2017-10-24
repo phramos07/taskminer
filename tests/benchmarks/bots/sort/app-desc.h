@@ -18,8 +18,6 @@
 /*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA            */
 /**********************************************************************************************/
 
-#include "serial-app.h"
-
 #define BOTS_APP_NAME "Sort"
 #define BOTS_APP_PARAMETERS_DESC "N=%d:Q=%d:I=%d:M=%d"
 #define BOTS_APP_PARAMETERS_LIST ,bots_arg_size,bots_app_cutoff_value_1,bots_app_cutoff_value_2,bots_app_cutoff_value
@@ -47,12 +45,12 @@ void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest);
 ELM *binsplit(ELM val, ELM *low, ELM *high);
 void cilkmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest);
 void cilksort(ELM *low, ELM *tmp, long size);
-void scramble_array( void );
-void fill_array( void );
-void sort ( void );
-void sort_par ( void );
-void sort_init ( void );
-int  sort_verify ( void );
+void scramble_array(unsigned long long int input_size);
+void fill_array(unsigned long long int input_size);
+void sort (unsigned long long int input_size);
+void sort_par (unsigned long long int input_size);
+void sort_init (unsigned long long int input_size);
+int sort_verify (unsigned long long int input_size);
 
 #define BOTS_APP_INIT sort_init()
 
