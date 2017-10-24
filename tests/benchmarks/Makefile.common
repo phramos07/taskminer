@@ -62,5 +62,31 @@ annotator: bc
 		# runanalyses.sh do gleison \
 	done
 
+run-parallel:
+	@echo "\nRunning manually annotated:"
+	@echo "\nSmall input:\n"
+	time ./$(MI_OUT) $(SMALL_INPUT);
+	@echo "\nMedium input:\n"
+	time ./$(MI_OUT) $(MEDIUM_INPUT);
+	@echo "\nBig input:\n"
+	time ./$(MI_OUT) $(BIG_INPUT);
+
+	@echo "\nRunning automatically annotated:"
+	@echo "\nSmall input:\n"
+	time ./$(AI_OUT) $(SMALL_INPUT);
+	@echo "\nMedium input:\n"
+	time ./$(AI_OUT) $(MEDIUM_INPUT);
+	@echo "\nBig input:\n"
+	time ./$(AI_OUT) $(BIG_INPUT);
+
+run-serial:	
+	@echo "\nRunning serial:"
+	@echo "\nSmall input:\n"
+	time ./$(SER_OUT) $(SMALL_INPUT);
+	@echo "\nMedium input:\n"
+	time ./$(SER_OUT) $(MEDIUM_INPUT);
+	@echo "\nBig input:\n"
+	time ./$(SER_OUT) $(BIG_INPUT);
+
 clean:
 	rm -f *.bc *.out *.dot

@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "app-desc.h"
-#include "../../common/bots.h"
+// #define CHECK_SOLUTION
 
 #define ROWS 64
 #define COLS 64
@@ -208,296 +208,6 @@ static void write_outputs() {
   }
 }
 
-#ifdef MANUAL_CUTOFF
-static int add_cell_ser(int id, coor FOOTPRINT, ibrd BOARD,
-                        struct cell *CELLS) {
-  int i, j, nn, nn2, area;
-
-  ibrd board;
-  coor footprint, NWS[DMAX];
-
-  nn2 = 0;
-
-  /* for each possible shape */
-  for (i = 0; i < CELLS[id].n; i++) {
-    /* compute all possible locations for nw corner */
-    nn = starts(id, i, NWS, CELLS);
-    nn2 += nn;
-    /* for all possible locations */
-    for (j = 0; j < nn; j++) {
-      struct cell *cells = CELLS;
-      /* extent of shape */
-      cells[id].top = NWS[j][0];
-      cells[id].bot = cells[id].top + cells[id].alt[i][0] - 1;
-      cells[id].lhs = NWS[j][1];
-      cells[id].rhs = cells[id].lhs + cells[id].alt[i][1] - 1;
-
-      memcpy(board, BOARD, sizeof(ibrd));
-
-      /* if the cell cannot be layed down, prune search */
-      if (!lay_down(id, board, cells)) {
-        printf("Chip %d, shape %d does not fit\n", id, i);
-        goto _end;
-      }
-
-      /* calculate new footprint of board and area of footprint */
-      footprint[0] = max(FOOTPRINT[0], cells[id].bot + 1);
-      footprint[1] = max(FOOTPRINT[1], cells[id].rhs + 1);
-      area = footprint[0] * footprint[1];
-
-      /* if last cell */
-      if (cells[id].next == 0) {
-
-        /* if area is minimum, update global values */
-        if (area < MIN_AREA) {
-          if (area < MIN_AREA) {
-            MIN_AREA = area;
-            MIN_FOOTPRINT[0] = footprint[0];
-            MIN_FOOTPRINT[1] = footprint[1];
-            memcpy(BEST_BOARD, board, sizeof(ibrd));
-            printf("N  %d\n", MIN_AREA);
-          }
-        }
-
-        /* if area is less than best area */
-      } else if (area < MIN_AREA) {
-        nn2 += add_cell_ser(cells[id].next, footprint, board, cells);
-
-        /* if area is greater than or equal to best area, prune search */
-      } else {
-
-        printf("T  %d, %d\n", area, MIN_AREA);
-      }
-    _end:;
-    }
-  }
-  return nn2;
-}
-#endif
-
-#if defined(IF_CUTOFF)
-
-static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
-                    int level) {
-  int i, j, nn, area, nnc, nnl;
-
-  ibrd board;
-  coor footprint, NWS[DMAX];
-
-  nnc = nnl = 0;
-
-  /* for each possible shape */
-  for (i = 0; i < CELLS[id].n; i++) {
-    /* compute all possible locations for nw corner */
-    nn = starts(id, i, NWS, CELLS);
-    nnl += nn;
-    /* for all possible locations */
-    for (j = 0; j < nn; j++) {
-      {
-        struct cell cells[N + 1];
-        memcpy(cells, CELLS, sizeof(struct cell) * (N + 1));
-        /* extent of shape */
-        cells[id].top = NWS[j][0];
-        cells[id].bot = cells[id].top + cells[id].alt[i][0] - 1;
-        cells[id].lhs = NWS[j][1];
-        cells[id].rhs = cells[id].lhs + cells[id].alt[i][1] - 1;
-
-        memcpy(board, BOARD, sizeof(ibrd));
-
-        /* if the cell cannot be layed down, prune search */
-        if (!lay_down(id, board, cells)) {
-          printf("Chip %d, shape %d does not fit\n", id, i);
-          goto _end;
-        }
-
-        /* calculate new footprint of board and area of footprint */
-        footprint[0] = max(FOOTPRINT[0], cells[id].bot + 1);
-        footprint[1] = max(FOOTPRINT[1], cells[id].rhs + 1);
-        area = footprint[0] * footprint[1];
-
-        /* if last cell */
-        if (cells[id].next == 0) {
-
-          /* if area is minimum, update global values */
-          if (area < MIN_AREA) {
-            if (area < MIN_AREA) {
-              MIN_AREA = area;
-              MIN_FOOTPRINT[0] = footprint[0];
-              MIN_FOOTPRINT[1] = footprint[1];
-              memcpy(BEST_BOARD, board, sizeof(ibrd));
-              printf("N  %d\n", MIN_AREA);
-            }
-          }
-
-          /* if area is less than best area */
-        } else if (area < MIN_AREA) {
-          nnc += add_cell(cells[id].next, footprint, board, cells, level + 1);
-          /* if area is greater than or equal to best area, prune search */
-        } else {
-
-          printf("T  %d, %d\n", area, MIN_AREA);
-        }
-      _end:;
-      }
-    }
-  }
-  return nnc + nnl;
-}
-
-#elif defined(FINAL_CUTOFF)
-
-static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
-                    int level) {
-  int i, j, nn, area, nnc, nnl;
-
-  coor footprint, NWS[DMAX];
-
-  nnc = nnl = 0;
-
-  /* for each possible shape */
-  for (i = 0; i < CELLS[id].n; i++) {
-    /* compute all possible locations for nw corner */
-    nn = starts(id, i, NWS, CELLS);
-    nnl += nn;
-    /* for all possible locations */
-    for (j = 0; j < nn; j++) {
-      {
-        ibrd board;
-        struct cell *cells;
-
-        if (omp_in_final() && level > bots_cutoff_value) {
-          cells = CELLS;
-        } else {
-          cells = alloca(sizeof(struct cell) * (N + 1));
-          memcpy(cells, CELLS, sizeof(struct cell) * (N + 1));
-        }
-
-        /* extent of shape */
-        cells[id].top = NWS[j][0];
-        cells[id].bot = cells[id].top + cells[id].alt[i][0] - 1;
-        cells[id].lhs = NWS[j][1];
-        cells[id].rhs = cells[id].lhs + cells[id].alt[i][1] - 1;
-
-        memcpy(board, BOARD, sizeof(ibrd));
-
-        /* if the cell cannot be layed down, prune search */
-        if (!lay_down(id, board, cells)) {
-          printf("Chip %d, shape %d does not fit\n", id, i);
-          goto _end;
-        }
-
-        /* calculate new footprint of board and area of footprint */
-        footprint[0] = max(FOOTPRINT[0], cells[id].bot + 1);
-        footprint[1] = max(FOOTPRINT[1], cells[id].rhs + 1);
-        area = footprint[0] * footprint[1];
-
-        /* if last cell */
-        if (cells[id].next == 0) {
-
-          /* if area is minimum, update global values */
-          if (area < MIN_AREA) {
-            if (area < MIN_AREA) {
-              MIN_AREA = area;
-              MIN_FOOTPRINT[0] = footprint[0];
-              MIN_FOOTPRINT[1] = footprint[1];
-              memcpy(BEST_BOARD, board, sizeof(ibrd));
-              printf("N  %d\n", MIN_AREA);
-            }
-          }
-
-          /* if area is less than best area */
-        } else if (area < MIN_AREA) {
-          nnc += add_cell(cells[id].next, footprint, board, cells, level + 1);
-          /* if area is greater than or equal to best area, prune search */
-        } else {
-
-          printf("T  %d, %d\n", area, MIN_AREA);
-        }
-      _end:;
-      }
-    }
-  }
-  return nnc + nnl;
-}
-
-#elif defined(MANUAL_CUTOFF)
-
-static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS,
-                    int level) {
-  int i, j, nn, area, nnc, nnl;
-
-  ibrd board;
-  coor footprint, NWS[DMAX];
-
-  nnc = nnl = 0;
-
-  /* for each possible shape */
-  for (i = 0; i < CELLS[id].n; i++) {
-    /* compute all possible locations for nw corner */
-    nn = starts(id, i, NWS, CELLS);
-    nnl += nn;
-    /* for all possible locations */
-    for (j = 0; j < nn; j++) {
-      {
-        struct cell *cells;
-
-        cells = alloca(sizeof(struct cell) * (N + 1));
-        memcpy(cells, CELLS, sizeof(struct cell) * (N + 1));
-
-        /* extent of shape */
-        cells[id].top = NWS[j][0];
-        cells[id].bot = cells[id].top + cells[id].alt[i][0] - 1;
-        cells[id].lhs = NWS[j][1];
-        cells[id].rhs = cells[id].lhs + cells[id].alt[i][1] - 1;
-
-        memcpy(board, BOARD, sizeof(ibrd));
-
-        /* if the cell cannot be layed down, prune search */
-        if (!lay_down(id, board, cells)) {
-          printf("Chip %d, shape %d does not fit\n", id, i);
-          goto _end;
-        }
-
-        /* calculate new footprint of board and area of footprint */
-        footprint[0] = max(FOOTPRINT[0], cells[id].bot + 1);
-        footprint[1] = max(FOOTPRINT[1], cells[id].rhs + 1);
-        area = footprint[0] * footprint[1];
-
-        /* if last cell */
-        if (cells[id].next == 0) {
-
-          /* if area is minimum, update global values */
-          if (area < MIN_AREA) {
-            if (area < MIN_AREA) {
-              MIN_AREA = area;
-              MIN_FOOTPRINT[0] = footprint[0];
-              MIN_FOOTPRINT[1] = footprint[1];
-              memcpy(BEST_BOARD, board, sizeof(ibrd));
-              printf("N  %d\n", MIN_AREA);
-            }
-          }
-
-          /* if area is less than best area */
-        } else if (area < MIN_AREA) {
-          if (level + 1 < bots_cutoff_value) {
-            nnc += add_cell(cells[id].next, footprint, board, cells, level + 1);
-          } else {
-            nnc += add_cell_ser(cells[id].next, footprint, board, cells);
-          }
-          /* if area is greater than or equal to best area, prune search */
-        } else {
-          printf("T  %d, %d\n", area, MIN_AREA);
-        }
-      _end:;
-      }
-    }
-  }
-
-  return nnc + nnl;
-}
-
-#else
-
 static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
   int i, j, nn, area, nnc, nnl;
 
@@ -570,11 +280,9 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
   return nnc + nnl;
 }
 
-#endif
-
 ibrd board;
 
-void floorplan_init(char *filename) {
+void floorplan_init(const char *filename) {
   int i, j;
 
   inputFile = fopen(filename, "r");
@@ -601,11 +309,7 @@ void compute_floorplan(void) {
   footprint[1] = 0;
   printf("Computing floorplan ");
   {
-#if defined(MANUAL_CUTOFF) || defined(IF_CUTOFF) || defined(FINAL_CUTOFF)
-    bots_number_of_tasks = add_cell(1, footprint, board, gcells, 0);
-#else
-    bots_number_of_tasks = add_cell(1, footprint, board, gcells);
-#endif
+    add_cell(1, footprint, board, gcells);
   }
   printf(" completed!\n");
 }
@@ -617,9 +321,23 @@ void floorplan_end(void) {
 
 int floorplan_verify(void) {
   if (solution != -1)
-    return MIN_AREA == solution ? BOTS_RESULT_SUCCESSFUL
-                                : BOTS_RESULT_UNSUCCESSFUL;
+    return MIN_AREA == solution ? 1
+                                : -1;
   else
-    return BOTS_RESULT_NA;
+    return 0;
 }
 
+int main(int argc, char const *argv[])
+{
+	floorplan_init(argv[1]);
+	compute_floorplan();
+	#ifdef DEBUG
+		floorplan_end();
+	#endif	
+	#ifdef CHECK_SOLUTION
+		if (floorplan_verify() != 1)
+			printf("ERROR! Solution not correct. \n");
+	#endif
+	/* code */
+	return 0;
+}

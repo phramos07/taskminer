@@ -454,7 +454,7 @@ void sort_init ( void )
 
 void sort ( void )
 {
-        printf("Computing multisort algorithm (n=%d) ", bots_arg_size);
+  printf("Computing multisort algorithm (n=%d) ", bots_arg_size);
 	cilksort(array, tmp, bots_arg_size);
 	printf(" completed!\n");
 }

@@ -76,7 +76,7 @@ int ok(int n, char *a)
      return 1;
 }
 
-void nqueens (int n, int j, char *a, int *solutions)
+void nqueens (int n, int j, char *a, int *solutions, int depth)
 {
 	int i,res;
 
@@ -92,7 +92,7 @@ void nqueens (int n, int j, char *a, int *solutions)
 	for (i = 0; i < n; i++) {
 		a[j] = (char) i;
 		if (ok(j + 1, a)) {
-		       	nqueens(n, j + 1, a,&res);
+		       	nqueens(n, j + 1, a,&res, 0);
 			*solutions += res;
 		}
 	}
@@ -104,7 +104,7 @@ void find_queens (int size)
 	total_count=0;
 	a = alloca(size * sizeof(char));
 	printf("Computing N-Queens algorithm (n=%d) ", size);
-	nqueens(size, 0, a, &total_count);
+	nqueens(size, 0, a, &total_count, 0);
   printf(" completed!\n");
 }
 

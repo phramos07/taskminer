@@ -17,9 +17,6 @@
 /*  along with this program; if not, write to the Free Software                               */
 /*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA            */
 /**********************************************************************************************/
-
-#include "serial-app.h"
-
 #define BOTS_APP_NAME "N Queens"
 #define BOTS_APP_PARAMETERS_DESC "N=%d"
 #define BOTS_APP_PARAMETERS_LIST ,bots_arg_size
@@ -29,7 +26,7 @@
 #define BOTS_APP_DESC_ARG_SIZE "Board size"
 
 int ok(int n, char *a);
-void nqueens (int n, int j, char *a, int *solutions);
+void nqueens (int n, int j, char *a, int *solutions, int depth);
 int verify_queens(int);
 void find_queens (int);
 
