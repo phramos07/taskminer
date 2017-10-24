@@ -6,6 +6,8 @@
 ifndef OPENCL
 	CLANG = /usr/local/bin/clang
 	OPT = /usr/local/bin/opt
+	TASKMINER = LLVMTaskMiner.dylib
+	TASKMINER_FLAGS = -disable-output -taskminer -print-task-graph -stats -debug-only=print-tasks
 endif
 
 CFLAGS =  -I$(IDIR)
@@ -17,6 +19,7 @@ IDIR = .
 SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*_SER.c')
 AI_FILES = $(shell find $(SOURCEDIR) -name '*_AI.c')
 MI_FILES = $(shell find $(SOURCEDIR) -name '*_MI.c')
+ALLBCFILES = $(shell find $(SOURCEDIR) -name '*.mem.bc')
 
 AI_SUFFIX = -par-AI
 MI_SUFFIX = -par-MI
@@ -54,7 +57,7 @@ bc:
 
 taskminer: bc
 	for SRC in $(ALLBCFILES); do \
-		$(OPT) $(TASKMINER) $$SRC \
+		$(OPT) -load $(TASKMINER) $$SRC $(TASKMINER_FLAGS);  \
 	done
 
 annotator: bc

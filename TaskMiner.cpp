@@ -160,7 +160,11 @@ RegionTree* TaskMiner::gettaskGraph(Module &M)
 	for (Module::iterator F = M.begin(); F != M.end(); ++F)
 	{
 		if (F->empty())
+		{
+			F->dump();
+			errs() << "function with no body.\n";
 			continue;
+		}
 		RegionInfoPass* RIP = &(getAnalysis<RegionInfoPass>(*F));
 		RegionInfo* RI = &(RIP->getRegionInfo());
 		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
@@ -229,37 +233,16 @@ void	TaskMiner::mineFunctionCallTasks()
 				}
 			}
 			CallInst* CI = callInsts[e];
-			if (srcRW->hasLoop)
-			{
-				errs() << "Mining function call inside loop: ";
-				CI->dump();
-			}
+			bool hasLoop = srcRW->hasLoop;
 			if ((srcRW->F != dstRW->F)
-				/*&& ((srcRW->hasLoop))*/
+				&& (hasLoop)
 				&& (!indirectRecursion)
+				&& (!CI->getCalledFunction()->isIntrinsic())
+				&& (!CI->getCalledFunction()->isDeclaration())
+				&& (CI->getCalledFunction()->empty() != false)
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
 				Task* TASK = new FunctionCallTask(CI);
-				//NOW HERE we check if the parent loop is nested.
-				//If it's nested, then it's NOT a parallel region.
-				//If it's not nested, then it is a parallel region.
-
-				//get parent function
-				Function* parentFunc = srcRW->F;
-				LoopInfoWrapperPass *LIWP = &(getAnalysis<LoopInfoWrapperPass>(*parentFunc));
-				LoopInfo* LI = &(LIWP->getLoopInfo());
-				//Get loop for basic block where task is				
-				Loop* L = LI->getLoopFor(CI->getParent());
-				TASK->setLoop(L);
-				//Get outer most loop, which will be the parallel region.
-				while (L->getParentLoop())
-				{
-					L = L->getParentLoop();
-				}
-				errs() << "\nPARENT LOOP FOUND\n\n:";
-				L->print(errs());
-				TASK->setOuterMostLoop(L);
-
 				tasks.push_back(TASK);
 				NTASKS++;
 				NFCALLTASKS++;

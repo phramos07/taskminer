@@ -59,10 +59,6 @@ namespace llvm
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 		bool hasLoadInstructionInDependence() const;
 		virtual bool hasSyncBarrier() const {return false; }
-		Loop* getLoop() { return L; }
-		void setLoop(Loop* L) { this->L = L; }
-		Loop* getOuterMostLoop() { return outerMost; }
-		void setOuterMostLoop(Loop* L) { this->outerMost = L; }
 
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
@@ -80,7 +76,6 @@ namespace llvm
 		std::set<Value*> liveIN;
 		std::set<Value*> liveOUT;
 		std::set<Value*> liveINOUT;
-		Loop* L=0;
 		Loop* outerMost=0;
 
 		//Private methods

@@ -178,13 +178,9 @@ void DepAnalysis::createRegionTree(Function &F)
 		RW->topLevel = R->isTopLevelRegion();
 		Loop* L = LI->getLoopFor(BB);
 		RW->F = &F;
-		if (L)
+		if (L != nullptr)
 		{
-			if (R->contains(L))
-			{
-				RW->L = L;
-				RW->hasLoop = true;
-			}
+			RW->hasLoop = true;
 		}
 	}
 
