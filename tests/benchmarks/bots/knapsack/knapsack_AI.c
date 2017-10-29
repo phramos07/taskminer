@@ -1,3 +1,4 @@
+#include <omp.h>
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -27,7 +28,6 @@
  * Copyright (c) 2000 Matteo Frigo
  */
 
-#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -106,15 +106,15 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
   /*
       * compute the best solution without the current item in the knapsack
       */
-  #pragma omp task firstprivate(e,c,n,v,l) depend(out:without,v)
+  #pragma omp task depend(in:e[1]) depend(out:without)
   knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
 
   /* compute the best solution with the current item in the knapsack */
-  #pragma omp task firstprivate(e,c,n,v,l) depend(out:with)
+  #pragma omp task depend(in:e[1]) depend(out:with)
   knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
-#pragma omp taskwait
 
   best = with > without ? with : without;
+#pragma omp taskwait
 
   /*
       * notice the race condition here. The program is still
@@ -154,15 +154,15 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
   /*
       * compute the best solution without the current item in the knapsack
       */
-  #pragma omp task depend(in:c,e[1]) depend(out:v,without)
+  #pragma omp task depend(in:e[1]) depend(out:without)
   knapsack_seq(e + 1, c, n - 1, v, &without);
 
   /* compute the best solution with the current item in the knapsack */
   #pragma omp task depend(in:e[1]) depend(out:with)
   knapsack_seq(e + 1, c - e->weight, n - 1, v + e->value, &with);
-#pragma omp taskwait
 
   best = with > without ? with : without;
+#pragma omp taskwait
 
   /*
       * notice the race condition here. The program is still
@@ -178,21 +178,14 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
 }
 void knapsack_main_par(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
-  #pragma omp parallel
-  {
-  	#pragma omp single
-  	#pragma omp task untied
-    { 
-    	knapsack_par(e, c, n, 0, sol, 0);
-    }
-  }
-    printf("Best value for parallel execution is %d\n\n", *sol);
+  knapsack_par(e, c, n, 0, sol, 0);
+  printf("Best value for parallel execution is %d\n\n", *sol);
 }
 void knapsack_main_seq(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
   knapsack_seq(e, c, n, 0, sol);
 
-    printf("Best value for sequential execution is %d\n\n", *sol);
+  printf("Best value for sequential execution is %d\n\n", *sol);
 }
 
 int knapsack_check(int sol_seq, int sol_par) {
@@ -202,23 +195,23 @@ int knapsack_check(int sol_seq, int sol_par) {
     return -1;
 }
 
-int main(int argc, char const *argv[])
-{
-	struct item items[MAX_ITEMS];
-	int n, capacity;
-	int sol = 0;
-	read_input(argv[1], items, &capacity, &n);
+int main(int argc, char const *argv[]) {
+  struct item items[MAX_ITEMS];
+  int n, capacity;
+  int sol = 0;
+  read_input(argv[1], items, &capacity, &n);
 
-	//MAIN CALL
-	knapsack_main_par(items, capacity, n, &sol);
+  // MAIN CALL
+  knapsack_main_par(items, capacity, n, &sol);
 
-	#ifdef CHECK_SOLUTION
-		int sol2 = 0;
-		knapsack_main_seq(items, capacity, n, &sol2);
-		
-		if (knapsack_check(sol, sol2) != 1)
-			printf("ERROR! Solution not correct!\n");
-	#endif
+#ifdef CHECK_SOLUTION
+  int sol2 = 0;
+  knapsack_main_seq(items, capacity, n, &sol2);
 
-	return 0;
+  if (knapsack_check(sol, sol2) != 1)
+    printf("ERROR! Solution not correct!\n");
+#endif
+
+  return 0;
 }
+
