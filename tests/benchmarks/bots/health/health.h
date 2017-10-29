@@ -43,7 +43,7 @@ struct Results {
 
 struct Patient {
    int id;
-   int32_t seed;
+   __int32_t seed;
    int time;
    int time_left;
    int hosps_visited;
@@ -69,10 +69,10 @@ struct Village {
    struct Patient *population;
    struct Hosp hosp;
    int level;
-   int32_t  seed;
+   __int32_t  seed;
 };
 
-float my_rand(int32_t *seed);
+float my_rand(__int32_t *seed);
 
 struct Patient *generate_patient(struct Village *village);
 void put_in_hosp(struct Hosp *hosp, struct Patient *patient);
@@ -97,7 +97,7 @@ void sim_village_par(struct Village *village);
 extern int sim_level;
 
 void read_input_data(const char *filename);
-void allocate_village( struct Village **capital, struct Village *back, struct Village *next, int level, int32_t vid);
+void allocate_village( struct Village **capital, struct Village *back, struct Village *next, int level, __int32_t vid);
 void sim_village_main(struct Village *top);
 
 int check_village(struct Village *top);

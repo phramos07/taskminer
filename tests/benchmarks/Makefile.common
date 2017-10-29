@@ -10,7 +10,7 @@ ifndef OPENCL
 	TASKMINER_FLAGS = -disable-output -taskminer -print-task-graph -stats -debug-only=print-tasks
 endif
 
-CFLAGS =  -I$(IDIR)
+CFLAGS =  -lm -I$(IDIR)
 LLVM_FLAGS = -c -emit-llvm $(CFLAGS)
 OMP_FLAGS = -fopenmp
 OPT_FLAGS = -mem2reg -instnamer

@@ -45,7 +45,7 @@ int sim_population_ratio;
 int sim_time;
 int sim_assess_time;
 int sim_convalescence_time;
-int32_t sim_seed;
+__int32_t sim_seed;
 float sim_get_sick_p;
 float sim_convalescence_p;
 float sim_realloc_p;
@@ -64,10 +64,10 @@ float res_avg_stay;
 /**********************************************************
  * Handles math routines for health.c                     *
  **********************************************************/
-float my_rand(int32_t *seed) 
+float my_rand(__int32_t *seed) 
 {
-   int32_t k;
-   int32_t idum = *seed;
+   __int32_t k;
+   __int32_t idum = *seed;
 
    idum ^= MASK;
    k = idum / IQ;
@@ -120,7 +120,7 @@ void removeList(struct Patient **list, struct Patient *patient)
 }
 /**********************************************************************/
 void allocate_village( struct Village **capital, struct Village *back,
-   struct Village *next, int level, int32_t vid)
+   struct Village *next, int level, __int32_t vid)
 { 
    int i, population, personnel;
    struct Village *current, *inext;
@@ -165,7 +165,7 @@ void allocate_village( struct Village **capital, struct Village *back,
       inext = NULL;
       for (i = sim_cities; i>0; i--)
       {
-         allocate_village(&current, *capital, inext, level-1, (vid * (int32_t) sim_cities)+ (int32_t) i);
+         allocate_village(&current, *capital, inext, level-1, (vid * (__int32_t) sim_cities)+ (__int32_t) i);
          inext = current;
       }
       (*capital)->forward = current;
