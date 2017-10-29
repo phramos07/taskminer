@@ -20,6 +20,7 @@
 #ifndef _HEALTH_H
 #define _HEALTH_H
 #include <stdlib.h>
+#include <math.h>
 #include <omp.h>
 /* random defines */
 #define IA 16807
