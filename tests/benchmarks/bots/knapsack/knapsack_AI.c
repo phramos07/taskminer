@@ -112,9 +112,9 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
   /* compute the best solution with the current item in the knapsack */
   #pragma omp task depend(in:e[1]) depend(out:with)
   knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
+#pragma omp taskwait
 
   best = with > without ? with : without;
-#pragma omp taskwait
 
   /*
       * notice the race condition here. The program is still
@@ -160,9 +160,9 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
   /* compute the best solution with the current item in the knapsack */
   #pragma omp task depend(in:e[1]) depend(out:with)
   knapsack_seq(e + 1, c - e->weight, n - 1, v + e->value, &with);
+#pragma omp taskwait
 
   best = with > without ? with : without;
-#pragma omp taskwait
 
   /*
       * notice the race condition here. The program is still

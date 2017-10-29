@@ -203,17 +203,17 @@ bool RecoverPointerMD::hasSameTypes(Type *Ty1, Type *Ty2) {
   return true;
 }
 
-Value *RecoverPointerMD::combineGEP(GetElementPtrInst *GEP) {
-  
-}
-
 DIType *RecoverPointerMD::getDITypeElement(DIType *dity, int elem) {
   if (DIBasicType *bty = dyn_cast<DIBasicType>(dity))
     return bty;
   if (DICompositeType *bty = dyn_cast<DICompositeType>(dity))
-    if (MDNode *md = dyn_cast<MDNode>(bty->getRawElements()))
+    if (MDNode *md = dyn_cast<MDNode>(bty->getRawElements())) {
+      if (md->getNumOperands() < elem)
+      if (DICompositeType *bty2 = dyn_cast<DICompositeType>(bty->getBaseType()))
+        return getDITypeElement(bty2, elem);
       if (DIType *ditty = dyn_cast<DIType>(md->getOperand(elem)))
         return ditty;
+    }
   if (DIDerivedType *bty = dyn_cast<DIDerivedType>(dity))
     if (DIType *ditty = dyn_cast<DIType>(bty->getBaseType()))
       return ditty;
@@ -268,8 +268,8 @@ std::string RecoverPointerMD::recoverGEPMD (Value *V, std::string name, int *var
     int op = -1;
     long long int value = 0;
     bool isOfStruct = false;
-    if (ty->getTypeID() == Type::StructTyID)
-      if(isa<DICompositeType>(dity))
+    if (ty->getTypeID() == Type::StructTyID) {
+      if(isa<DICompositeType>(dity)) {
         if (Constant *C = dyn_cast<Constant>(GEP->getOperand(i))) {
           ConstantsSimplify CS;
           value = CS.getUniqueConstantInteger(C, BasePtrV, DT);
@@ -281,6 +281,8 @@ std::string RecoverPointerMD::recoverGEPMD (Value *V, std::string name, int *var
           tmpRes += dity->getName();
           result += tmpRes;
           isOfStruct = true;
+        }
+      }
     }
     if (!isOfStruct) {
       result += "[";

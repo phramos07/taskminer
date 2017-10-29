@@ -33,9 +33,9 @@ unsigned long long int fib(long long int n) {
 
   #pragma omp task
   x = fib(n - 1);
+  #pragma omp taskwait
   #pragma omp task
   y = fib(n - 2);
-#pragma omp taskwait
 
   return x + y;
 }

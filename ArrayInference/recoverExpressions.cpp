@@ -158,14 +158,14 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
         isTask = true;
         hasTaskWait = RT->hasSyncBarrier();
         isInsideLoop = RT->insideLoop();
-        if (RT->hasSyncBarrier()) {
+        /*if (RT->hasSyncBarrier()) {
           L1 = this->li->getLoopFor(CI->getParent());
           L2 = L1;
           if (L2)
             while (L2->getParentLoop()) {
               L2 = L2->getParentLoop();
           }
-        }
+        }*/
         break;
       }
     }
@@ -179,6 +179,8 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   errs() << "Parent\n\n";
   if(L2)
     L2->dump();
+  errs() << "Annotating:\n";
+  CI->dump();
   annotateExternalLoop(CI, L1, L2);
   if (CI->getNumArgOperands() == 0) {
     return "\n\n[UNDEF\nVALUE]\n\n";
@@ -238,7 +240,9 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   }
   if (hasTaskWait) {
     std::string wait = "#pragma omp taskwait\n";
-    int line = esd.getFinish(CI);
+    int line = getLineNo(CI);
+    errs() << "TASK WAIT:\n";
+    CI->dump();
     line++;
     addCommentToLine(wait, line);  
   }
@@ -362,10 +366,10 @@ RecoverPointerMD *RPM) {
 
 void RecoverExpressions::annotateExternalLoop(Instruction *I, Loop *L1,
                                               Loop *L2) {
-  if (!L1 && !L2) {
+  /*if (!L1 && !L2) {
     annotateExternalLoop(I);
     return;
-  }
+  }*/
   if (L2) {
     Region *R = rp->getRegionInfo().getRegionFor(I->getParent());
     if (L2->getHeader())
@@ -386,7 +390,7 @@ void RecoverExpressions::annotateExternalLoop(Instruction *I, Loop *L1,
     int line = st->getEndRegionLoops(R).first;  
     line++;
     std::string output = std::string();
-    output += "#pragma omp task wait\n";
+    output += "#pragma omp taskwait\n";
     addCommentToLine(output, line);
   }
 }

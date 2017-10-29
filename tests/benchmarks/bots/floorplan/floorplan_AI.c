@@ -1,3 +1,4 @@
+#include <omp.h>
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -150,7 +151,7 @@ static int lay_down(int id, ibrd board, struct cell *cells) {
 
 #define read_integer(file, var)          \
   if (fscanf(file, "%d", &var) == EOF) { \
-    printf(" Bogus input file\n"); \
+    printf(" Bogus input file\n");       \
     exit(-1);                            \
   }
 
@@ -217,16 +218,11 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
   nnc = nnl = 0;
 
   /* for each possible shape */
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < CELLS[id].n; i++) {
     /* compute all possible locations for nw corner */
-    #pragma omp task depend(in:id,CELLS) depend(out:NWS[0][0])
     nn = starts(id, i, NWS, CELLS);
     nnl += nn;
     /* for all possible locations */
-    #pragma omp parallel
-    #pragma omp single
     for (j = 0; j < nn; j++) {
       {
         struct cell cells[N + 1];
@@ -266,8 +262,9 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
 
           /* if area is less than best area */
         } else if (area < MIN_AREA) {
-          #pragma omp task depend(in:cells,cells[id][0][8],footprint[0][0],board[0][0])
+          #pragma omp task depend(in:cells,cells[id].next,footprint,board)
           nnc += add_cell(cells[id].next, footprint, board, cells);
+          #pragma omp taskwait
           /* if area is greater than or equal to best area, prune search */
         } else {
 
@@ -308,9 +305,7 @@ void compute_floorplan(void) {
   footprint[0] = 0;
   footprint[1] = 0;
   printf("Computing floorplan ");
-  {
-    add_cell(1, footprint, board, gcells);
-  }
+  { add_cell(1, footprint, board, gcells); }
   printf(" completed!\n");
 }
 
@@ -321,23 +316,22 @@ void floorplan_end(void) {
 
 int floorplan_verify(void) {
   if (solution != -1)
-    return MIN_AREA == solution ? 1
-                                : -1;
+    return MIN_AREA == solution ? 1 : -1;
   else
     return 0;
 }
 
-int main(int argc, char const *argv[])
-{
-	floorplan_init(argv[1]);
-	compute_floorplan();
-	#ifdef DEBUG
-		floorplan_end();
-	#endif	
-	#ifdef CHECK_SOLUTION
-		if (floorplan_verify() != 1)
-			printf("ERROR! Solution not correct. \n");
-	#endif
-	/* code */
-	return 0;
+int main(int argc, char const *argv[]) {
+  floorplan_init(argv[1]);
+  compute_floorplan();
+#ifdef DEBUG
+  floorplan_end();
+#endif
+#ifdef CHECK_SOLUTION
+  if (floorplan_verify() != 1)
+    printf("ERROR! Solution not correct. \n");
+#endif
+  /* code */
+  return 0;
 }
+

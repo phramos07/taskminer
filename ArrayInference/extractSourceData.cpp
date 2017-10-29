@@ -77,18 +77,19 @@ void ExtractSourceData::analyzeFunction(Function *F) {
   while (!Infile.eof()) {
     std::string Line = std::string();
     std::getline(Infile, Line);
-    for (int i = 0; Line[i] != '\n'; i++) {
+    for (int i = 0; i < Line.size(); i++) {
       if ((open == true) && (Line[i] != '*'))
         continue;
       if (Line[i] == ' ' || Line[i] == '\t')
         continue;
       if (open == true) {
-        i++;
+        if (i < Line.size())
+          i++;
         if (Line[i] == '/') {
           open = false;
           for (int j = startStm; j < cont; j++)
             info[name].sourceData[j] = cont;
-          startStm = -1;
+          startStm = cont;
         }
       }
       if (Line[i] == '#') {
@@ -106,21 +107,14 @@ void ExtractSourceData::analyzeFunction(Function *F) {
           continue;
         }
       }
-      if (startStm == -1)
-        startStm = cont;
       if (Line[i] == ';') {
         for (int j = startStm; j < cont; j++)
           info[name].sourceData[j] = cont;
-         startStm = -1;
+         startStm = cont;
       }
     }
     cont++;
   }
-  errs() << "OK!\n";
-  for (auto I = info[name].sourceData.begin(), Ie = info[name].sourceData.end();
-       I != Ie; I++)
-    errs() << "Line " << std::to_string(I->first) << " - " <<
-              std::to_string(I->second) << "\n";
 }
 
 //===------------------------ recoverExpressions.cpp ------------------------===//
