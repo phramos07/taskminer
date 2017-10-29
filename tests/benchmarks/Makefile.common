@@ -38,21 +38,21 @@ run: compile
 
 compile-serial:
 	for SRC in $(SERIAL_FILES); do \
-		$(CC_OMP) $(CFLAGS) $(LFLAGS) $$SRC -o $$SRC$(SER_SUFFIX).out; \
+		$(CC_OMP) $(CFLAGS) $$SRC $(LFLAGS) -o $$SRC$(SER_SUFFIX).out; \
 	done
 
 compile-parallel:
 	for SRC in $(AI_FILES); do \
-		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $(LFLAGS) $$SRC -o $$SRC$(AI_SUFFIX).out; \
+		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $$SRC $(LFLAGS) -o $$SRC$(AI_SUFFIX).out; \
 	done
 	for SRC in $(MI_FILES); do \
-		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $(LFLAGS) $$SRC -o $$SRC$(MI_SUFFIX).out; \
+		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $$SRC $(LFLAGS) -o $$SRC$(MI_SUFFIX).out; \
 	done
 
 bc:
 	$(MAKE) clean
 	for SRC in $(SERIAL_FILES); do \
-		$(CLANG) $(LLVM_FLAGS) $(LFLAGS) $$SRC -o $$SRC.bc; \
+		$(CLANG) $(LLVM_FLAGS) $$SRC $(LFLAGS) -o $$SRC.bc; \
 		$(OPT) $(OPT_FLAGS) $$SRC.bc -o $$SRC.mem.bc; \
 	done
 
