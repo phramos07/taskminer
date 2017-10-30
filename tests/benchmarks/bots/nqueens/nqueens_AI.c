@@ -94,6 +94,8 @@ void find_queens(int size) {
   total_count = 0;
   a = alloca(size * sizeof(char));
   printf("Computing N-Queens algorithm (n=%d) ", size);
+	#pragma omp parallel
+	#pragma omp single
   nqueens(size, 0, a, &total_count, 0);
   printf(" completed!\n");
 }
