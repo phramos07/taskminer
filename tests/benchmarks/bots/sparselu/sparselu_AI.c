@@ -248,7 +248,7 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
         fwd(BENCH[kk * matrix_size + kk], BENCH[kk * matrix_size + jj], submatrix_size);
       }
     }
-    #pragma omp task wait
+    #pragma omp taskwait
     for (ii = kk + 1; ii < matrix_size; ii++) {
       if (BENCH[ii * matrix_size + kk] != NULL) {
         long long int TM10[4];
@@ -260,7 +260,7 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
         bdiv(BENCH[kk * matrix_size + kk], BENCH[ii * matrix_size + kk], submatrix_size);
       }
     }
-    #pragma omp task wait
+    #pragma omp taskwait
     for (ii = kk + 1; ii < matrix_size; ii++) {
       if (BENCH[ii * matrix_size + kk] != NULL) {
         for (jj = kk + 1; jj < matrix_size; jj++) {
@@ -278,11 +278,11 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
             bmod(BENCH[ii * matrix_size + kk], BENCH[kk * matrix_size + jj], BENCH[ii * matrix_size + jj], submatrix_size);
           }
         }
-      #pragma omp task wait
+      #pragma omp taskwait
       }
     }
   }
-#pragma omp task wait
+#pragma omp taskwait
 }
 
 
