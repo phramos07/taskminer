@@ -3030,6 +3030,9 @@ void fft(int n, COMPLEX *in, COMPLEX *out) {
   } while (l > 1);
 
   printf("Computing FFT ");
+       #pragma omp parallel
+     #pragma omp single
+     #pragma omp task untied
   fft_aux(n, in, out, factors, W, n);
   printf(" completed!\n");
 
