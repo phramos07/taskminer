@@ -67,7 +67,7 @@ annotator: bc
 	done
 
 test: compile
-	@echo "\TESTING:"
+	@echo "\nTESTING:"
 	@echo "\nManually inserted:\n"
 	time ./$(MI_OUT) $(TEST_INPUT);
 	@echo "\nAutomatically inserted:\n"

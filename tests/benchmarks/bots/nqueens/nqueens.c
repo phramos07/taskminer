@@ -32,7 +32,6 @@
 #include "app-desc.h"
 // #define CHECK_SOLUTION
 
-
 /* Checking information */
 
 static int solutions[] = {
@@ -55,6 +54,7 @@ static int solutions[] = {
 
 int total_count;
 
+
 /*
  * <a> contains array of <n> queen positions.  Returns 1
  * if none of the queens conflict, and returns 0 otherwise.
@@ -76,9 +76,11 @@ int ok(int n, char *a)
      return 1;
 }
 
-void nqueens (int n, int j, char *a, int *solutions, int depth)
+void nqueens(int n, int j, char *a, int *solutions, int depth)
 {
-	int i,res;
+	int *csols;
+	int i;
+
 
 	if (n == j) {
 		/* good solution, count it */
@@ -87,25 +89,31 @@ void nqueens (int n, int j, char *a, int *solutions, int depth)
 	}
 
 	*solutions = 0;
+	csols = alloca(n*sizeof(int));
+	memset(csols,0,n*sizeof(int));
 
-     	/* try each possible position for queen <j> */
+ 	/* try each possible position for queen <j> */
 	for (i = 0; i < n; i++) {
-		a[j] = (char) i;
-		if (ok(j + 1, a)) {
-		       	nqueens(n, j + 1, a,&res, 0);
-			*solutions += res;
-		}
+		/* allocate a temporary array and copy <a> into it */
+		char * b = alloca(n * sizeof(char));
+		memcpy(b, a, j * sizeof(char));
+		b[j] = (char) i;
+		if (ok(j + 1, b))
+			nqueens(n, j + 1, b,&csols[i],depth);
 	}
+	for ( i = 0; i < n; i++) *solutions += csols[i];
+
 }
 
 void find_queens (int size)
 {
-	char *a;
 	total_count=0;
-	a = alloca(size * sizeof(char));
+
 	printf("Computing N-Queens algorithm (n=%d) ", size);
-	nqueens(size, 0, a, &total_count, 0);
-  printf(" completed!\n");
+	char *a;
+	a = alloca(size * sizeof(char));
+	nqueens(size, 0, a, &total_count,0);
+	printf(" completed!\n");
 }
 
 int verify_queens (int size)
@@ -126,3 +134,4 @@ int main(int argc, char const *argv[])
 	#endif
 	return 0;
 }
+

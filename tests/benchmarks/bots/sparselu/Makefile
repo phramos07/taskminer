@@ -14,7 +14,6 @@ include ../../Makefile.common
 # [large]
 # inputs=100x100
 
-
 TEST_INPUT = 25 25
 SMALL_INPUT = 25 100
 MEDIUM_INPUT = 75 100
