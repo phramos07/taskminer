@@ -230,7 +230,7 @@ static void sparselu_init(float ***pBENCH, int matrix_size,
 void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
   int ii, jj, kk;
 
-  #pragma omp parallel
+  #pragma omp parallel private(kk,ii,jj) shared(BENCH)
   #pragma omp single
   for (kk = 0; kk < matrix_size; kk++) {
     long long int TM5[2];
@@ -281,8 +281,8 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
       #pragma omp taskwait
       }
     }
+    #pragma omp taskwait
   }
-#pragma omp taskwait
 }
 
 
@@ -290,9 +290,9 @@ void sparselu_fini(float **BENCH, char *pass, int matrix_size) {
   print_structure(pass, BENCH, matrix_size);
 }
 
-#define KERNEL_INIT sparselu_init(&SEQ, "serial");
+#define KERNEL_INIT sparselu_init(&SEQ, "par");
 #define KERNEL_CALL sparselu(SEQ);
-#define KERNEL_FINI sparselu_fini(SEQ, "serial");
+#define KERNEL_FINI sparselu_fini(SEQ, "par");
 
 int main(int argc, char const *argv[]) {
   /* code */
