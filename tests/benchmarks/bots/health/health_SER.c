@@ -37,6 +37,7 @@
 #include <math.h>
 #include <assert.h>
 #include "health.h"
+#include <omp.h>
 
 /* global variables */
 int sim_level;
@@ -45,7 +46,7 @@ int sim_population_ratio;
 int sim_time;
 int sim_assess_time;
 int sim_convalescence_time;
-__int32_t sim_seed;
+long sim_seed;
 float sim_get_sick_p;
 float sim_convalescence_p;
 float sim_realloc_p;
@@ -160,11 +161,12 @@ void allocate_village( struct Village **capital, struct Village *back,
       (*capital)->hosp.waiting = NULL;
       (*capital)->hosp.inside = NULL;
       (*capital)->hosp.realloc = NULL;
+      omp_init_lock(&(*capital)->hosp.realloc_lock);
       // Create Cities (lower level)
       inext = NULL;
       for (i = sim_cities; i>0; i--)
       {
-         allocate_village(&current, *capital, inext, level-1, (vid* (__int32_t) sim_cities) + (__int32_t) i);
+         allocate_village(&current, *capital, inext, level-1, (vid * (__int32_t) sim_cities)+ (__int32_t) i);
          inext = current;
       }
       (*capital)->forward = current;
@@ -273,7 +275,7 @@ void check_patients_inside(struct Village *village)
    }
 }
 /**********************************************************************/
-void check_patients_assess(struct Village *village) 
+void check_patients_assess_par(struct Village *village) 
 {
    struct Patient *list = village->hosp.assess;
    float rand;
@@ -304,7 +306,9 @@ void check_patients_assess(struct Village *village)
             {
                village->hosp.free_personnel++;
                removeList(&(village->hosp.assess), p);
+               omp_set_lock(&(village->hosp.realloc_lock));
                addList(&(village->back->hosp.realloc), p); 
+               omp_unset_lock(&(village->hosp.realloc_lock));
             } 
          }
          else /* move to village */
@@ -416,8 +420,8 @@ void sim_village(struct Village *village)
    /* Uses lists v->hosp->inside, and v->return */
    check_patients_inside(village);
 
-   /* Uses lists v->hosp->assess, v->hosp->inside, v->population and (v->back->hosp->up) !!! */
-   check_patients_assess(village);
+   /* Uses lists v->hosp->assess, v->hosp->inside, v->population and (v->back->hosp->realloc) !!! */
+   check_patients_assess_par(village);
 
    /* Uses lists v->hosp->waiting, and v->hosp->assess */
    check_patients_waiting(village);
@@ -533,7 +537,6 @@ int check_village(struct Village *top)
    return answer;
 }
 /**********************************************************************/
-/**********************************************************************/
 void sim_village_main(struct Village *top)
 {
    long i;
@@ -548,8 +551,7 @@ int main(int argc, char const *argv[])
 	allocate_village(&top, NULL, NULL, sim_level, 0);
 
 	//KERNEL CALL
-	sim_village(top);
+	sim_village_main(top);
 
 	return 0;
 }
-

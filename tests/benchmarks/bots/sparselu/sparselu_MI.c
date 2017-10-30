@@ -25,6 +25,7 @@
 #include <math.h>
 #include <libgen.h>
 #include "sparselu.h"
+#include <omp.h>
 
 /***********************************************************************
  * genmat:
@@ -262,10 +263,6 @@ void sparselu_fini (float **BENCH, char *pass, int matrix_size)
 {
   print_structure(pass, BENCH, matrix_size);
 } 
-
-#define KERNEL_INIT sparselu_init(&SEQ,"serial");
-#define KERNEL_CALL sparselu(SEQ);
-#define KERNEL_FINI sparselu_fini(SEQ,"serial");
 
 int main(int argc, char const *argv[])
 {

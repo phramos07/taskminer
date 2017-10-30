@@ -262,7 +262,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
 
           /* if area is less than best area */
         } else if (area < MIN_AREA) {
-          #pragma omp task depend(in:cells,cells[id].next,footprint,board)
+          #pragma omp task depend(in:cells,footprint,board)
           nnc += add_cell(cells[id].next, footprint, board, cells);
           #pragma omp taskwait
           /* if area is greater than or equal to best area, prune search */
@@ -305,7 +305,9 @@ void compute_floorplan(void) {
   footprint[0] = 0;
   footprint[1] = 0;
   printf("Computing floorplan ");
-  { add_cell(1, footprint, board, gcells); }
+	#pragma omp parallel
+	#pragma omp single
+	add_cell(1, footprint, board, gcells); 
   printf(" completed!\n");
 }
 

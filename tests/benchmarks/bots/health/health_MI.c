@@ -37,6 +37,7 @@
 #include <math.h>
 #include <assert.h>
 #include "health.h"
+#include <omp.h>
 
 /* global variables */
 int sim_level;
@@ -45,7 +46,7 @@ int sim_population_ratio;
 int sim_time;
 int sim_assess_time;
 int sim_convalescence_time;
-__int32_t sim_seed;
+long sim_seed;
 float sim_get_sick_p;
 float sim_convalescence_p;
 float sim_realloc_p;

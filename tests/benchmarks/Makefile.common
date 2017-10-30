@@ -38,7 +38,7 @@ run: compile
 
 compile-serial:
 	for SRC in $(SERIAL_FILES); do \
-		$(CC_OMP) $(CFLAGS) $$SRC $(LFLAGS) -o $$SRC$(SER_SUFFIX).out; \
+		$(CC_OMP) $(OMP_FLAGS) $(CFLAGS) $$SRC $(LFLAGS) -o $$SRC$(SER_SUFFIX).out; \
 	done
 
 compile-parallel:
@@ -67,7 +67,7 @@ annotator: bc
 	done
 
 test: compile
-	@echo "\TESTING:"
+	@echo "\nTESTING:"
 	@echo "\nManually inserted:\n"
 	time ./$(MI_OUT) $(TEST_INPUT);
 	@echo "\nAutomatically inserted:\n"
