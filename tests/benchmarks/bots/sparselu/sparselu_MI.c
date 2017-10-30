@@ -264,10 +264,6 @@ void sparselu_fini (float **BENCH, char *pass, int matrix_size)
   print_structure(pass, BENCH, matrix_size);
 } 
 
-#define KERNEL_INIT sparselu_init(&SEQ,"parallel");
-#define KERNEL_CALL sparselu(SEQ);
-#define KERNEL_FINI sparselu_fini(SEQ,"parallel");
-
 int main(int argc, char const *argv[])
 {
 	/* code */
