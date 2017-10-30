@@ -46,7 +46,7 @@ int sim_population_ratio;
 int sim_time;
 int sim_assess_time;
 int sim_convalescence_time;
-__int32_t sim_seed;
+long sim_seed;
 float sim_get_sick_p;
 float sim_convalescence_p;
 float sim_realloc_p;
@@ -191,7 +191,7 @@ struct Results get_results(struct Village *village) {
   /* Traverse village hierarchy (lower level first)*/
   vlist = village->forward;
   while (vlist) {
-    #pragma omp task depend
+    #pragma omp task
     p_res = get_results(vlist);
     #pragma omp taskwait
     t_res.hosps_number += p_res.hosps_number;
@@ -511,6 +511,9 @@ int check_village(struct Village *top) {
 /**********************************************************************/
 void sim_village_main(struct Village *top) {
   long i;
+  #pragma omp parallel
+	#pragma omp single
+	#pragma omp task untied
   for (i = 0; i < sim_time; i++)
     sim_village(top);
 }
