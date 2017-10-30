@@ -172,8 +172,8 @@ unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) {
     }
     #pragma omp task depend(in:n[i])
     partialCount[i] = serTreeSearch(depth + 1, &n[i], uts_numChildren(&n[i]));
-  #pragma omp taskwait
   }
+    #pragma omp taskwait
 
   // computing total size
   for (i = 0; i < numChildren; i++)
