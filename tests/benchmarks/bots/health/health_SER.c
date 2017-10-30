@@ -37,6 +37,7 @@
 #include <math.h>
 #include <assert.h>
 #include "health.h"
+#include <omp.h>
 
 /* global variables */
 int sim_level;
@@ -160,6 +161,7 @@ void allocate_village( struct Village **capital, struct Village *back,
       (*capital)->hosp.waiting = NULL;
       (*capital)->hosp.inside = NULL;
       (*capital)->hosp.realloc = NULL;
+      omp_init_lock(&(*capital)->hosp.realloc_lock);
       // Create Cities (lower level)
       inext = NULL;
       for (i = sim_cities; i>0; i--)
@@ -304,7 +306,9 @@ void check_patients_assess_par(struct Village *village)
             {
                village->hosp.free_personnel++;
                removeList(&(village->hosp.assess), p);
+               omp_set_lock(&(village->hosp.realloc_lock));
                addList(&(village->back->hosp.realloc), p); 
+               omp_unset_lock(&(village->hosp.realloc_lock));
             } 
          }
          else /* move to village */
@@ -396,7 +400,7 @@ void put_in_hosp(struct Hosp *hosp, struct Patient *patient)
    }
 }
 /**********************************************************************/
-void sim_village_par(struct Village *village)
+void sim_village(struct Village *village)
 {
    struct Village *vlist;
 
@@ -409,7 +413,7 @@ void sim_village_par(struct Village *village)
    vlist = village->forward;
    while(vlist)
    {
-      sim_village_par(vlist);
+      sim_village(vlist);
       vlist = vlist->next;
    }
 
@@ -536,7 +540,7 @@ int check_village(struct Village *top)
 void sim_village_main(struct Village *top)
 {
    long i;
-   for (i = 0; i < sim_time; i++) sim_village_par(top);   
+   for (i = 0; i < sim_time; i++) sim_village(top);   
 }
 
 int main(int argc, char const *argv[])
