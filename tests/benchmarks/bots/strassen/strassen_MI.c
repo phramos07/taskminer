@@ -38,6 +38,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include "app-desc.h"
 
 /*FIXME: change to parameter ???*/
@@ -501,26 +502,37 @@ void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
   } /* end column loop */
 
   /* M2 = A11 x B11 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(M2, A11, B11, QuadrantSize, QuadrantSize, RowWidthA, RowWidthB, Depth+1);
 
   /* M5 = S1 * S5 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(M5, S1, S5, QuadrantSize, QuadrantSize, QuadrantSize, QuadrantSize, Depth+1);
 
   /* Step 1 of T1 = S2 x S6 + M2 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(T1sMULT, S2, S6,  QuadrantSize, QuadrantSize, QuadrantSize, QuadrantSize, Depth+1);
 
   /* Step 1 of T2 = T1 + S3 x S7 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(C22, S3, S7, QuadrantSize, RowWidthC /*FIXME*/, QuadrantSize, QuadrantSize, Depth+1);
 
   /* Step 1 of C11 = M2 + A12 * B21 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(C11, A12, B21, QuadrantSize, RowWidthC, RowWidthA, RowWidthB, Depth+1);
   
   /* Step 1 of C12 = S4 x B22 + T1 + M5 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(C12, S4, B22, QuadrantSize, RowWidthC, QuadrantSize, RowWidthB, Depth+1);
 
   /* Step 1 of C21 = T2 - A22 * S8 */
+  #pragma omp task untied
   OptimizedStrassenMultiply(C21, A22, S8, QuadrantSize, RowWidthC, RowWidthA, QuadrantSize, Depth+1);
 
+  /**********************************************
+  ** Synchronization Point
+  **********************************************/
+  #pragma omp taskwait
   /***************************************************************************
   ** Step through all columns row by row (vertically)
   ** (jumps in memory by RowWidth => bad locality)
@@ -629,6 +641,8 @@ REAL *alloc_matrix(int n)
 void strassen_main(REAL *A, REAL *B, REAL *C, int n)
 {
 	printf("Computing Strassen algorithm (n=%d) ", n);
+	#pragma omp parallel
+	#pragma omp single
 	OptimizedStrassenMultiply(C, A, B, n, n, n, n, 1);
 	printf(" completed!\n");
 }
