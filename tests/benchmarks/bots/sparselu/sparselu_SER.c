@@ -80,10 +80,9 @@ static void genmat(float *M[], int matrix_size, int submatrix_size)
 float * allocate_clean_block(int submatrix_size)
 {
     int i,j;
-    float *p, *q;
+    float *p;
 
     p = (float *) malloc(submatrix_size*submatrix_size*sizeof(float));
-    q=p;
     if (p!=NULL){
         for (i = 0; i < submatrix_size; i++)
             for (j = 0; j < submatrix_size; j++){(*p)=0.0; p++;}
@@ -91,7 +90,7 @@ float * allocate_clean_block(int submatrix_size)
     }
     else
         exit (101);
-    return (q);
+    return (p);
 }
 
 /***********************************************************************

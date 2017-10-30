@@ -191,7 +191,7 @@ struct Results get_results(struct Village *village) {
   /* Traverse village hierarchy (lower level first)*/
   vlist = village->forward;
   while (vlist) {
-    #pragma omp task depend(in:0)
+    #pragma omp task depend
     p_res = get_results(vlist);
     #pragma omp taskwait
     t_res.hosps_number += p_res.hosps_number;
