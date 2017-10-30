@@ -414,6 +414,9 @@ void sort_init(unsigned long long int input_size) {
 
 void sort(unsigned long long int input_size) {
   printf("Computing multisort algorithm (n=%lld) ", input_size);
+  	#pragma omp parallel
+	#pragma omp single
+	#pragma omp task untied
   cilksort(array, tmp, input_size);
   printf(" completed!\n");
 }
