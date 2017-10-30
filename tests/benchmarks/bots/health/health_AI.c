@@ -162,9 +162,8 @@ void allocate_village(struct Village **capital, struct Village *back,
     inext = NULL;
     for (i = sim_cities; i > 0; i--) {
       #pragma omp task depend(out:capital) depend(inout:current)
-      allocate_village(&current, *capital, inext, level - 1,
-                       #pragma omp taskwait
-                       (vid * (__int32_t)sim_cities) + (__int32_t)i);
+      allocate_village(&current, *capital, inext, level - 1, (vid * (__int32_t)sim_cities) + (__int32_t)i);
+     #pragma omp taskwait
       inext = current;
     }
     (*capital)->forward = current;

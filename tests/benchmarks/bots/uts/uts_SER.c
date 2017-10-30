@@ -65,7 +65,7 @@
 
 #include "app-desc.h"
 #include "uts.h"
-#define CHECK_SOLUTION
+// #define CHECK_SOLUTION
 
 int bots_number_of_tasks = 1;
 

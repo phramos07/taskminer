@@ -43,7 +43,6 @@
 
 #include "brg_sha1.h"
 #include "brg_endian.h"
-#include "bots.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -92,7 +91,7 @@ int rng_rand(RNG_state *mystate)
    uint32 b =  (mystate[16] << 24) | (mystate[17] << 16) | (mystate[18] << 8) | (mystate[19] << 0);
    b = b & POS_MASK;
    r = (int) b;
-   printf("b: %d\t, r: %d\n", b, r);
+   // printf("b: %d\t, r: %d\n", b, r);
    return r;
 }
 

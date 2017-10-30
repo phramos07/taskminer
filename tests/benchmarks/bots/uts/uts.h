@@ -51,9 +51,11 @@ extern int    verbose;
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
 unsigned long long serTreeSearch(int depth, Node *parent, int numChildren);
+unsigned long long parTreeSearch(int depth, Node *parent, int numChildren);
+
 
 int    uts_paramsToStr(char *strBuf, int ind);
-void   uts_read_file(char *file);
+void   uts_read_file(const char *file);
 void   uts_print_params();
 
 /* Common tree routines */

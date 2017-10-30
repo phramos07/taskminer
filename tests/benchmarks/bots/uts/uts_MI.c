@@ -62,12 +62,11 @@
 #include <string.h>
 #include <math.h>
 #include <sys/time.h>
+#include <omp.h>
 
 #include "app-desc.h"
 #include "uts.h"
 #define CHECK_SOLUTION
-
-int bots_number_of_tasks = 1;
 
 /***********************************************************
  *  Global state                                           *
@@ -151,33 +150,52 @@ int uts_numChildren(Node *node)
  * Recursive depth-first implementation                    *
  ***********************************************************/
 
-unsigned long long serial_uts ( Node *root )
+unsigned long long parallel_uts( Node *root )
 {
-   unsigned long long num_nodes;
+   unsigned long long num_nodes = 0 ;
+   root->numChildren = uts_numChildren(root);
+
    printf("Computing Unbalance Tree Search algorithm ");
-   num_nodes = serTreeSearch( 0, root, uts_numChildren(root) );
-   printf(" completed!\n");
+
+   #pragma omp parallel  
+      #pragma omp single nowait
+      #pragma omp task untied
+        num_nodes = parTreeSearch( 0, root, root->numChildren );
+
+   printf(" completed!");
+
    return num_nodes;
 }
 
-unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) 
+
+unsigned long long parTreeSearch(int depth, Node *parent, int numChildren) 
 {
-  unsigned long long subtreesize = 1, partialCount[numChildren];
-  Node n[numChildren];
+  Node n[numChildren], *nodePtr;
   int i, j;
+  unsigned long long subtreesize = 1, partialCount[numChildren];
 
   // Recurse on the children
   for (i = 0; i < numChildren; i++) {
-     n[i].height = parent->height + 1;
+     nodePtr = &n[i];
+
+     nodePtr->height = parent->height + 1;
+
      // The following line is the work (one or more SHA-1 ops)
      for (j = 0; j < computeGranularity; j++) {
-        rng_spawn(parent->state.state, n[i].state.state, i);
+        rng_spawn(parent->state.state, nodePtr->state.state, i);
      }
-     partialCount[i] = serTreeSearch(depth+1, &n[i], uts_numChildren(&n[i]));
+
+     nodePtr->numChildren = uts_numChildren(nodePtr);
+
+     #pragma omp task untied firstprivate(i, nodePtr) shared(partialCount)
+        partialCount[i] = parTreeSearch(depth+1, nodePtr, nodePtr->numChildren);
   }
- 
-  // computing total size
-  for (i = 0; i < numChildren; i++) subtreesize += partialCount[i];
+
+  #pragma omp taskwait
+
+  for (i = 0; i < numChildren; i++) {
+     subtreesize += partialCount[i];
+  }
   
   return subtreesize;
 }
@@ -221,10 +239,10 @@ void uts_show_stats( void )
    int chunkSize = 0;
 
    printf("\n");
-   printf("Tree size                            = %llu\n", (unsigned long long) bots_number_of_tasks );
+   printf("Tree size                            = %llu\n", (unsigned long long) omp_get_num_threads() );
    printf("Maximum tree depth                   = %d\n", maxTreeDepth );
    printf("Chunk size                           = %d\n", chunkSize );
-   printf("Number of leaves                     = %llu (%.2f%%)\n", nLeaves, nLeaves/(float)bots_number_of_tasks*100.0 ); 
+   printf("Number of leaves                     = %llu (%.2f%%)\n", nLeaves, nLeaves/(float)omp_get_num_threads()*100.0 ); 
    // printf("Wallclock time                       = %.3f sec\n", bots_time_program );
    // printf("Overall performance                  = %.0f nodes/sec\n", (bots_number_of_tasks / bots_time_program) );
 }
@@ -233,9 +251,9 @@ int uts_check_result ( void )
 {
    int answer = 1;
 
-   if ( bots_number_of_tasks != exp_tree_size ) {
+   if ( omp_get_num_threads() != exp_tree_size ) {
       answer = -1;
-      printf("Incorrect tree size result (%d instead of %llu).\n", bots_number_of_tasks, exp_tree_size);
+      printf("Incorrect tree size result (%d instead of %llu).\n", omp_get_num_threads(), exp_tree_size);
    }
 
    return answer;
@@ -246,7 +264,7 @@ int main(int argc, char const *argv[])
 	Node root;
   uts_read_file(argv[1]);
   uts_initRoot(&root);
-  serial_uts(&root);
+  parallel_uts(&root);
   uts_show_stats();
 
   #ifdef CHECK_SOLUTION

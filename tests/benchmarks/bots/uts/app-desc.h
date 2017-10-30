@@ -18,7 +18,6 @@
 /*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA            */
 /**********************************************************************************************/
 
-#include "serial-app.h"
 #include "uts.h"
 
 #define BOTS_APP_NAME "Unbalance Tree Search"
