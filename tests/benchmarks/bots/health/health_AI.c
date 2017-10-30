@@ -515,7 +515,9 @@ void sim_village_main(struct Village *top) {
 	#pragma omp single
 	#pragma omp task untied
   for (i = 0; i < sim_time; i++)
+  {
     sim_village(top);
+  }
 }
 
 int main(int argc, char const *argv[]) {

@@ -37,6 +37,7 @@
 #include <math.h>
 #include <assert.h>
 #include "health.h"
+#include <omp.h>
 
 /* global variables */
 int sim_level;
