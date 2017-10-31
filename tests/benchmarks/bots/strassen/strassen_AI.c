@@ -308,8 +308,10 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
 
     #pragma omp task depend(in:A11,B10,C10)
     MultiplyByDivideAndConquer(C10, A11, B10, QuadrantSize, RowWidthC,
-                               #pragma omp taskwait
                                RowWidthA, RowWidthB, 1);
+
+                                   #pragma omp taskwait
+
 
   } else {
 
@@ -539,8 +541,10 @@ void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
   /* Step 1 of C21 = T2 - A22 * S8 */
   #pragma omp task depend(in:C21,A22)
   OptimizedStrassenMultiply(C21, A22, S8, QuadrantSize, RowWidthC, RowWidthA,
-                            #pragma omp taskwait
                             QuadrantSize, Depth + 1);
+
+  #pragma omp taskwait
+
 
   /***************************************************************************
   ** Step through all columns row by row (vertically)
@@ -644,6 +648,9 @@ REAL *alloc_matrix(int n) { return malloc(n * n * sizeof(REAL)); }
 
 void strassen_main(REAL *A, REAL *B, REAL *C, int n) {
   printf("Computing Strassen algorithm (n=%d) ", n);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied
   OptimizedStrassenMultiply(C, A, B, n, n, n, n, 1);
   printf(" completed!\n");
 }
