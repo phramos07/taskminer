@@ -23,7 +23,7 @@
 
 unsigned long long int res;
 
-unsigned long long int fib (long long int n)
+unsigned long long int fib (unsigned long long int n)
 {
 	unsigned long long int x, y;
 	if (n < 2) return n;
@@ -37,18 +37,23 @@ unsigned long long int fib (long long int n)
 	return x + y;
 }
 
-void fib0 (long long int n)
+void fib0 (unsigned long long int n)
 {
   Instance* I = newInstance(100);
 
   clock_t beg, end;
-  int i;
+  unsigned long long int i;
   for (i = 15; i <= n; i += 5)
   {
   	beg = clock();
-		res = fib((long long)i);
+  	
+  	#pragma omp parallel
+  	#pragma omp single
+  	#pragma omp task untied
+		res = fib(i);
+		
 		end = clock();
-  	printf("Fib(%d) : %lld\n", i, res);
+  	printf("Fib(%lld) : %lld\n", i, res);
 		addNewEntry(I, i, getTimeInSecs(end - beg));  
   }
   printf("\n\n");
@@ -58,7 +63,7 @@ void fib0 (long long int n)
 
 int main(int argc, char const *argv[])
 {
-  long long int n = atoi(argv[1]);
+  unsigned long long int n = atoi(argv[1]);
   fib0(n);
 
 	return 0;
