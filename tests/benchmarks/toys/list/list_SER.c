@@ -23,10 +23,10 @@ void foo(LIST* n) {
 
 int main(int argc, char const *argv[])
 {
-	Instance* I = newInstance(100);
+	Instance* I = newInstance(atoi(argv[1]));
 	LIST* L = (LIST*) malloc(sizeof(LIST));
 
-	L->counter = 100;
+	L->counter = atoi(argv[1]);
 	clock_t beg, end;
 	beg = clock();
 	foo(L);

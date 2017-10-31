@@ -30,9 +30,12 @@ int main(int argc, char* argv[])
   int i;
   for (i = 15; i <= n; i += 5)
   {
+  	long long unsigned res;
   	beg = clock();
-  	long long unsigned res = fib(i);
+  	#pragma omp parallel
   	#pragma omp single
+  	#pragma omp task untied
+  	res = fib(i);
   	printf("Fib(%d) : %lld\n", i, res);
 		end = clock();
 		addNewEntry(I, i, getTimeInSecs(end-beg));  

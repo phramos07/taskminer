@@ -237,7 +237,9 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
 
         /* if the cell cannot be layed down, prune search */
         if (!lay_down(id, board, cells)) {
-          printf("Chip %d, shape %d does not fit\n", id, i);
+        	#ifdef DEBUG
+          	printf("Chip %d, shape %d does not fit\n", id, i);
+          #endif
           goto _end;
         }
 
@@ -256,19 +258,24 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
               MIN_FOOTPRINT[0] = footprint[0];
               MIN_FOOTPRINT[1] = footprint[1];
               memcpy(BEST_BOARD, board, sizeof(ibrd));
-              printf("N  %d\n", MIN_AREA);
+              #ifdef DEBUG
+              	printf("N  %d\n", MIN_AREA);
+              #endif
             }
           }
 
           /* if area is less than best area */
         } else if (area < MIN_AREA) {
-          #pragma omp task depend(in:cells,footprint,board)
-          nnc += add_cell(cells[id].next, footprint, board, cells);
-          #pragma omp taskwait
+          int tmp = cells[id].next;
+          #pragma omp task depend(in: cells,footprint,board)
+          nnc += add_cell(tmp, footprint, board, cells);
+          // #pragma omp taskwait
           /* if area is greater than or equal to best area, prune search */
         } else {
 
-          printf("T  %d, %d\n", area, MIN_AREA);
+        	#ifdef DEBUG
+          	printf("T  %d, %d\n", area, MIN_AREA);
+          #endif
         }
       _end:;
       }
