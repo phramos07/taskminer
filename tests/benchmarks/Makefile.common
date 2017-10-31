@@ -75,7 +75,18 @@ test: compile
 	@echo "\nSerial:\n"
 	time ./$(SER_OUT) $(TEST_INPUT);
 
-run-parallel:
+run-parallel: run-ai run-mi
+
+run-ai:
+	@echo "\nRunning automatically annotated:"
+	@echo "\nSmall input:\n"
+	time ./$(AI_OUT) $(SMALL_INPUT);
+	@echo "\nMedium input:\n"
+	time ./$(AI_OUT) $(MEDIUM_INPUT);
+	@echo "\nBig input:\n"
+	time ./$(AI_OUT) $(BIG_INPUT);
+
+run-mi:
 	@echo "\nRunning manually annotated:"
 	@echo "\nSmall input:\n"
 	time ./$(MI_OUT) $(SMALL_INPUT);
@@ -84,13 +95,6 @@ run-parallel:
 	@echo "\nBig input:\n"
 	time ./$(MI_OUT) $(BIG_INPUT);
 
-	@echo "\nRunning automatically annotated:"
-	@echo "\nSmall input:\n"
-	time ./$(AI_OUT) $(SMALL_INPUT);
-	@echo "\nMedium input:\n"
-	time ./$(AI_OUT) $(MEDIUM_INPUT);
-	@echo "\nBig input:\n"
-	time ./$(AI_OUT) $(BIG_INPUT);
 
 run-serial:	
 	@echo "\nRunning serial:"

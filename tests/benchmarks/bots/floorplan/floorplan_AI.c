@@ -269,7 +269,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
           int tmp = cells[id].next;
           #pragma omp task depend(in: cells,footprint,board)
           nnc += add_cell(tmp, footprint, board, cells);
-          // #pragma omp taskwait
+          #pragma omp taskwait
           /* if area is greater than or equal to best area, prune search */
         } else {
 
