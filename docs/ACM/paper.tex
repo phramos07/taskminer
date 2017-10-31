@@ -68,7 +68,7 @@
 
 \title[Automatic Identification and Annotation of Parallel Tasks in Structured
 Programs]
-{Automatic Identification and Annotation of Parallel Tasks in Programs}
+{Automatic Identification and Annotation of Parallel Tasks in Structured Programs}
 
 \author{Pedro Henrique Ramos Costa}
 \authornote{with author1 note}          %% \authornote is optional;
@@ -198,10 +198,11 @@ The compiler-related literature contains a generous load of success stories
 describing the use of annotation systems to parallelize programs.
 Combined with modern accelerators, they have led to substantial performance
 gains~\cite{Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
-Yet, even if convenient, the use of annotations is not straightforward.
+Yet, even if convenient, the use of annotations is not straightforward, and
+lacks supporting tools.
 
 Annotations such as OpenMP or OpenACC still require developers to
-worry about typical hassles of the parallel world, such as race conditions,
+worry about typical hassles of the parallel world, such as race conditions
 or deadlocks.
 Moreover, because they are used in tandem with imperative programming languages,
 such troubles are only made worse by pointer aliasing.
@@ -216,17 +217,17 @@ systems lays on their ability to create tasks \ed{We need to find references!}.
 This ability brings said systems closer to irregular programs such as those
 that implement graphs and worklist algorithms \`{a} la
 Pingali~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
-We address this omission in this work.
+The goal of this work is to address this omission.
 
 This paper describes \Taskminer, the first compiler that mines task parallelism
 from programs.
 To fulfill this goal \Taskminer{} solves three challenges.
 First, it find program regions, e.g., loops or functions, that can be
-effectively mapped onto tasks.
-Second, it determines symbolic bounds to all the memory blocks accesses within
-those regions.
+effectively mapped onto tasks (Section~\ref{sub:region}).
+Second, it determines symbolic bounds to all the memory blocks accessed within
+those regions (Section~\ref{sub:symb}).
 Third, it maps such information back into source code, producing annotations
-that programmers can read.
+that programmers can read (Section~\ref{sub:ir}).
 The goal of this paper is to describe the design and the implementation of these
 three technologies, and to demonstrate their benefit.
 
@@ -242,19 +243,22 @@ benchmark suites, are large and complex; thus, their manual annotation is a
 time consuming and error prone task.
 Yet, our automatically annotated programs not only approximate the execution
 times of the parallel versions of those benchmarks, but are much faster than
-their sequential -- unannotated -- versions.
+their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
 
 \section{Overview}
 \label{sec:ovf}
 
-
-
-%EXAMPLE - BFS
-
-
-
 \section{Solution}
 \label{sec:sol}
+
+\subsection{Mapping Program Regions to Tasks}
+\label{sub:region}
+
+\subsection{Find Symbolic Bounds of Arrays}
+\label{sub:symb}
+
+\subsection{From IR to Source Code}
+\label{sub:ir}
 
 \section{Evaluation}
 \label{sec:eval}
