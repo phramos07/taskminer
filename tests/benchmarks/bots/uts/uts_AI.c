@@ -153,6 +153,9 @@ int uts_numChildren(Node *node) {
 unsigned long long serial_uts(Node *root) {
   unsigned long long num_nodes;
   printf("Computing Unbalance Tree Search algorithm ");
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied
   num_nodes = serTreeSearch(0, root, uts_numChildren(root));
   printf(" completed!\n");
   return num_nodes;
