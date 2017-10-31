@@ -1,11 +1,13 @@
 #ifndef ANALYSIS_CONTROLDEPENDENCEGRAPH_H
 #define ANALYSIS_CONTROLDEPENDENCEGRAPH_H
 
+//LLVM IMPORTS
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/Analysis/PostDominators.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Instructions.h"
 
+//STL IMPORTS
 #include <map>
 #include <set>
 #include <iterator>

@@ -1,0 +1,81 @@
+.TH LDP 1  "July 03, 2016" "USER COMMANDS"
+
+.SH NAME
+ldp \- benchmarks for Intel's Single Program Multiple Data compiler
+with support for Lightweight Dynamic Parallelism
+
+.SH SYNOPSIS
+.B ldp
+-b bench_id [\-h] [-b bench_id] [-i infile] [\-l timestamp] -I inputdir
+\-n num_runs \-L log_folder
+
+.SH DESCRIPTION
+Lightweight Dynamic Parallelism, or LDP, is an extension to SPMD languages
+that allows for issuing kernels from within kernels. This facility is akin
+to CUDA's dynamic parallelism, except it provides the same functionality
+without the burden of reserving extra resources nor scheduling new kernels. 
+.PP
+Dynamic Parallelism is desirable in several situations, e.g., graph traversals,
+string searches and other irregular applications. Unfortunately, current
+abstractions do not support well dynamic parallelism, as they either compromise
+efficiency or programmability. In this work, we propose a new SPMD programming
+language idiom, that lets us take the best of both worlds:
+efficiency and programmability. 
+.PP
+To evaluate our approach, we have written a series of algorithms using
+our LDP construct, implemented on top of ISPC. The applications vary from
+simple graph traversals to string matching and data mining algorithms.
+The goal of these benchmarks is to show how our directive behaves in terms
+of perfomance, and how it renders simple the transition from SPMD to SIMD code.
+
+.SH OPTIONS
+.TP
+\-b bench_id
+select a benchmark to execute. To know the list of available benchmarks,
+see option.
+.B -l.
+.TP
+\-h, \-\-help num_cols=auto
+display this short help text. Inform the number of columns of output display
+if desired. Defaults to terminal display width.
+.TP
+\-i infile
+inform the input file name or glob, to be accessed as log_folder/infile.
+.TP
+\-I inputdir
+inform the input folder from which input files should be read.
+.TP
+\-\-list-bench
+list the benchmarks available.
+.TP
+\-l timestamp
+inform the timestamp retrieved after the execution of a benchmark. Useful when
+analysing results.
+.TP
+\-L logfolder
+sets the output directory for the experimental results. Default is set to
+current directory. output_dir is a string containing the path to where both
+the execution log and graphs shall be stored.
+.TP
+\-n num_runs
+number of times the selected benchmark shall be executed.
+The value num_runs must be an integer.
+
+.SH EXAMPLES
+.TP
+Run the string matching benchmark 10 times and output to /tmp/swan.
+.B ./ldp-exec.sh
+\-b 2 \-L /tmp/swan \-n 10 \-I /home/ldp/tests/string/FixedText/
+.PP
+.TP
+Analyze benchmark execution.
+.B ./ldp-eval.sh
+\-b 2 \-L /tmp/swan \-I /home/ldp/tests/string/FixedText/
+.PP
+
+.SH AUTHORS
+Rubens Emilio Alves Moreira (rubens (at) dcc.ufmg.br)
+.br
+Fernando Magno Quintao Pereira (fernando (at) dcc.ufmg.br)
+.br
+Sylvain Collange (sylvain.collange (at) inria.fr)

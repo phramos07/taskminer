@@ -1,0 +1,9 @@
+/home/gleison/lge/taskminer/build-debug/AliasInstrumentation/CMakeFiles/LLVMAliasInstrumentation.dir
+/home/gleison/lge/taskminer/build-debug/CMakeFiles/LLVMTaskFinder.dir
+/home/gleison/lge/taskminer/build-debug/ArrayInference/CMakeFiles/LLVMArrayInference.dir
+/home/gleison/lge/taskminer/build-debug/ScopeTree/CMakeFiles/LLVMScopeTree.dir
+/home/gleison/lge/taskminer/build-debug/ArrayInference/Coalescing/CMakeFiles/LLVMCoalescing.dir
+/home/gleison/lge/taskminer/build-debug/DepBasedParallelLoopAnalysis/CMakeFiles/ParallelLoopAnalysis.dir
+/home/gleison/lge/taskminer/build-debug/CostTaskModel/CMakeFiles/LLVMCostTaskModel.dir
+/home/gleison/lge/taskminer/build-debug/ParallelLoopMetadata/CMakeFiles/ParallelLoopMetadata.dir
+/home/gleison/lge/taskminer/build-debug/PtrRangeAnalysis/CMakeFiles/LLVMPtrRangeAnalysis.dir

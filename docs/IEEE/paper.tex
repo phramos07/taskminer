@@ -9,9 +9,34 @@
 
 \usepackage[normalem]{ulem}
 
+% To turn comments OFF simply comment out the \Commentstrue line
+\newif\ifComments\Commentstrue
+
+\ifComments
+\newcommand{\marcio}[1]{\noindent\textcolor{violet}{Marcio: {#1}}}
+\newcommand{\guido}[1]{\noindent\textcolor{magenta}{Guido: {#1}}}
+\newcommand{\fernando}[1]{\noindent\textcolor{brown}{Fernando: {#1}}}
+\newcommand{\cesar}[1]{\noindent\textcolor{magenta}{Cesar: {#1}}}
+\newcommand{\pedro}[1]{\noindent\textcolor{brown}{Pedro: {#1}}}
+\newcommand{\rmv}[1]{\noindent\textcolor{gray}{Removed: {#1}}}
+\newcommand{\new}[1]{\noindent\textcolor{blue}{ {#1}}}
+\newcommand{\ed}[1]{\noindent\textcolor{red}{ {#1}}}
+\else
+\newcommand{\marcio}[1]{}
+\newcommand{\guido}[1]{}
+\newcommand{\fernando}[1]{}
+\newcommand{\cesar}[1]{}
+\newcommand{\pedro}[1]{}
+\newcommand{\rmv}[1]{}
+\newcommand{\new}[1]{#1}
+\newcommand{\ed}[1]{}
+\fi
+
 \begin{document}
 
-\title{Task Mining in Irregular Programs.}
+\guido{Not sure if we should dive into a discussion of what is a regular or an irregular program; to be even more precise we are actually mining task parallelism (for this moment) only within loops; hence I propose this new title}
+\pedro{I think we should say "Automatic Mining of Task Parallelism in Programs" because we might mine task parallelism in recursive functions as well.}
+\title{\rmv{Task Mining in Irregular Programs.}\new{Automatic Mining of Task Parallelism in Programs}}
 
 \date{}
 \maketitle
@@ -25,26 +50,79 @@ We need to write our abstract here.
 \section{Introduction}
 \label{sec:intro}
 
-The key contribution of this paper is a technique to run programs in parallel.
-This technique consists of a data-flow like hardware,
-a runtime environment that detects dependences between data, plus a
-static analysis that finds potentially dependent code.
-Instructions are scheduled to run in parallel if they do not contain data
-dependences, which are detected on the fly by the runtime environment.
-However, not every pair of instructions need to be checked -- only those pairs
-that a static analysis points as potentially interdependent.
-The final product of this combination of hardware, static analysis, runtime checks
-and code generator is a high-performant framework that lets us run algorithms that
-are traditionally difficult to parallelize.
+
+% CONTEXT
+It is undeniable that parallel computing is nowadays the most pursued alternative by developers  when striving for more application performance \cite{hwu2014ahead}. Two main reasons stand behind  the actual urge for parallel programming. \ed{First, the ever  increasing industry of multi-cores and many-cores architectures propitiates the development of software  with such behaviour \cite{haugen2016performance, vandierendonck2013analysis}.} \guido{Fine, but it seems to me a very convoluted way to say that this was due to the emergence of multicore/manycore  architectures as the alternative to maintain transistor power-density under control.} \ed{Second, programmers often code in simple parallel patterns  \cite{pinto2015large}, which evidences their awareness and will for parallelism}. \guido{Not sure if programming using patterns is an evidence that supports the urge for interest in parallel programming; on the contrary, it seems to me that it is more a consequence to tackle the complexity of the problem.} 
+
+Although extensive  work has been done to scavenge parallelism in regular applications \cite{kulkarni2009much}, finding good  parallel opportunities in irregular code remains a grueling task. \guido{We need to re-phrase this if we want to use this statement to introduce the motivation to our work; a number of the examples that we are using do not have pointers, and thus could not be classified as irregular code....} 
+
+% PROBLEM
+Programming parallel applications is a hard task, as programmers ought to take care of many aspects of the job such as identifying and keeping variable dependences correct and assuring synchronization and scalability of threads/processes whilst avoiding race conditions. However, finding parallelism in programs that were not coded in a parallel paradigm \rmv{annotated sequential  code} is not a simple task, as compiler static analyses are not precise enough to identify  parallel regions \cite{kulkarni2007optimistic}. For example, due  to the conservative trait of static analyses, loops are frequently marked as iteration-dependent when, in reality, their iterations might run in parallel most of the time. As a matter of fact,  many dependences pointed by the compiler might never occur during runtime, resulting in several missing opportunities for parallelization.
+
+A way to approach this problem is to use a programming model that can capture and enforce dependences between iterations at runtime whenever they occur. In such model, those iterations that do not have {\it loop-carried} dependencies are free to run in parallel, while iterations that dynamically create loop-carried dependences are serialized and dispatched in dependence order by  a system runtime.  In recent years, task-based execution models  have proven itself to be a scalable and quite flexible approach to extract regular and irregular parallelism from sequential code ~\cite{starss,bddt,cilk,sequoia,dandelion,legion,ooojava,dague}. In this model, the programmer uses a {\it task} directive to mark  code regions in the program that are potential tasks and lists their corresponding dependences.  The OpenMP task scheduling~\cite{openmp2009}  is an example of such model. Although OpenMP task simplifies the mechanics of dispatching and running tasks, the burden of finding code regions to be annotated with task directives still lies upon the programmer.
+
+Work has been carried out to generate OpenMP annotations automatically given a set of instructions that define  a region \cite{gleison2016, pingali2011tao, wanggenerating}. \guido{Need to provide a short paragraph here to give an idea why these works do not solve the problem of automatically extracting parallelism from loops with loop carried-depedenciss}.
+
+% SOLUTION
+%Guido: This is an ambitious objective; ou work is more modest.
+%Our work focuses on finding irregular code  and automatic generating compiler directives to make the parallelism explicit.
+\ed{This paper presents an automatic technique that extracts task parallelism from loops which cannot be proved by static analysis to be loop-carried independent. } 
+
+\guido{I HAVE STOPPED HERE; WILL CONTINUE LATER}
+
+The static analysis finds irregular loops (i.e., loops with loop-carried dependences) and then speculates 
+whether these loops can be safely executed in parallel or not. These loops
+are annotated with compiler directives, to point out the possibility of task-parallelization within that sequence of code. 
+Then a runtime able to compile these directives runs the tasks for the annotated code. 
+During execution, the dependences are resolved by the runtime and the code is executed in parallel. 
+
+The key insight of the tool is that it does not rely on the programmer to find possible parallel sites. 
+It does so automatically, and the runtime is solely responsible for unraveling the dependences between tasks. 
+The final product of this combination is a high-performant framework that
+lets us run algorithms that are traditionally difficult to parallelize.
+
+% TESTS AND RESULTS
+We have implemented this technique in the LLVM compiler infrastructure. We tested our technique on three large benchmarks (CASTOR, LG Graphical Application, ???) and compared it to the manually annotated version. We show that XX\% of the manually annotated regions are found by our technique. Our technique also finds XX\% more possible task regions than what is manually annotated. Regarding performance, the automatically annotated code can be up to X times faster than the manually annotated one.
+
+
+%Fernando's first draft
+%//DRAFT
+%The key contribution of this paper is a fully automatic technique to find parallelism in programs, and to annotate them so to make this parallelism explicit.
+%This technique consists in the combination of static and a dynamic analyses that increase the volume of tasks that can run in parallel.
+%The static analysis finds independent code, which can be safely executed in parallel.
+%However, due to its conservative nature, the static analysis misses potential parallelization opportunities.
+%These tasks, which we cannot show to be independent due, for instance, to poor aliasing information, are solved at runtime by the data-flow engine.
 
 \section{Overview}
 \label{sec:ovf}
+
+
+
+%EXAMPLE - BFS
+
+
 
 \section{Solution}
 \label{sec:sol}
 
 \section{Evaluation}
 \label{sec:eval}
+
+We aimed to show that our tool exceeded in three main aspects that surround parallel programming. Thus our work evaluation stands on these 3 pillars:
+
+\begin{itemize}
+
+\item Practicality
+\item Applicability
+\item Performance
+
+\end{itemize}
+
+\textbf{\textit{Practicality}}. Programming in a parallel pattern is deemed difficult by programmers mainly because of the complexity of its data structures and algorithms. We show that our tool is simple and practical, for it does not involve changing the code and data structures in order to fit in a parallel pattern. The code is simply annotated by compiler directives.
+
+\textbf{\textit{Applicability}}. 
+
+\textbf{\textit{Performance}}. When it comes to parallel computing, it is undeniable that the main achievable goal should be performance. There's no reason why programmers would opt for parallelism other than the desire for faster programs. Therefore, we ought to show that the programs annotated with TaskMiner are faster than their serial counterparts. 
 
 \section{Related Work}
 \label{sec:rw}
@@ -57,4 +135,3 @@ are traditionally difficult to parallelize.
 \bibliography{references}
 
 \end{document}
-

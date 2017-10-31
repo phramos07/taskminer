@@ -1,0 +1,66 @@
+./sort-ldp <<< 1
+merge-ldp-__ 0.332 million cycles
+quick-ldp-__ 0.130 million cycles
+merge-ldp-bi 0.186 million cycles
+quick-ldp-bi 0.125 million cycles
+merge-lch-__ 13.032 million cycles
+quick-lch-__ 12.046 million cycles
+merge-lch-bi 1.081 million cycles
+quick-lch-bi 3.967 million cycles
+merge-seq-__ 0.270 million cycles
+quick-seq-__ 0.127 million cycles
+./sort-ldp <<< 2
+merge-ldp-__ 0.636 million cycles
+quick-ldp-__ 0.331 million cycles
+merge-ldp-bi 0.474 million cycles
+quick-ldp-bi 0.309 million cycles
+merge-lch-__ 17.899 million cycles
+quick-lch-__ 77.302 million cycles
+merge-lch-bi 2.855 million cycles
+quick-lch-bi 56.131 million cycles
+merge-seq-__ 0.528 million cycles
+quick-seq-__ 0.267 million cycles
+./sort-ldp <<< 4
+merge-ldp-__ 1.242 million cycles
+quick-ldp-__ 0.643 million cycles
+merge-ldp-bi 0.861 million cycles
+quick-ldp-bi 0.643 million cycles
+merge-lch-__ 27.086 million cycles
+quick-lch-__ 89.428 million cycles
+merge-lch-bi 5.110 million cycles
+quick-lch-bi 6.955 million cycles
+merge-seq-__ 1.253 million cycles
+quick-seq-__ 0.646 million cycles
+./sort-ldp <<< 8
+merge-ldp-__ 2.579 million cycles
+quick-ldp-__ 1.202 million cycles
+merge-ldp-bi 1.829 million cycles
+quick-ldp-bi 1.241 million cycles
+merge-lch-__ 41.806 million cycles
+quick-lch-__ 241.971 million cycles
+merge-lch-bi 50.664 million cycles
+quick-lch-bi 140.169 million cycles
+merge-seq-__ 2.635 million cycles
+quick-seq-__ 1.349 million cycles
+./sort-ldp <<< 12
+merge-ldp-__ 4.383 million cycles
+quick-ldp-__ 1.915 million cycles
+merge-ldp-bi 3.058 million cycles
+quick-ldp-bi 1.963 million cycles
+merge-lch-__ 106.098 million cycles
+quick-lch-__ 343.630 million cycles
+merge-lch-bi 64.468 million cycles
+quick-lch-bi 186.423 million cycles
+merge-seq-__ 5.201 million cycles
+quick-seq-__ 2.125 million cycles
+./sort-ldp <<< 16
+merge-ldp-__ 5.191 million cycles
+quick-ldp-__ 2.736 million cycles
+merge-ldp-bi 4.114 million cycles
+quick-ldp-bi 2.878 million cycles
+merge-lch-__ 169.924 million cycles
+quick-lch-__ 420.213 million cycles
+merge-lch-bi 104.985 million cycles
+quick-lch-bi 204.278 million cycles
+merge-seq-__ 7.302 million cycles
+quick-seq-__ 2.871 million cycles

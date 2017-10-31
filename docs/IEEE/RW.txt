@@ -33,9 +33,21 @@ applications".
 * Li12 - Automatic Extraction of Coarse-Grained Data-Flow Threads from
          Imperative Programs
 [Insights]
+- Just like hwu2014ahead (see below) says, one of the biggest challenges
+in parallelism revolves around the limited memory bandwidth off-chip compared
+to memory bandwidth on-chip, pushing for parallel schemes that favor data-locality and
+re-use.
 - Static analysis to find data-flow parallelism in imperative programs.
-- Optimizations to coarsen the grain of parallelism
+- Optimizations to coarsen the grain of parallelism using SCC coalescing in the dependence
+graph.
+- They basically coalesce SCC's and every node that share the same type. The type
+is defined as: if a node A has the same control dependences that node B, they belong
+to the same type. They don't coalesce nodes that would create new SCC's nor do they
+coalesce nodes with existing SCC's.
 [Differences]
+- Limited to SCALAR data dependences
+- Still expects the programmer to expose producer-consumer relationships and
+task dependences
 - Does not seem to have support of the runtime?
 - Does not handle pointers and aggregate types.
 
@@ -59,3 +71,100 @@ applications".
   algorithms. Our approach should be totally automatic.
 - Our approach still relies on static dependance graphs to find parallelism 
 	opportunities.
+- Our biggest difference is that Pingali11 states that static dependence graphs
+are not good to extract task parallelism, and he gives 3 reasons for that. Our tool
+will initially rely on a static dependence graph.
+
+* ke2011safe - Safe Parallel programing Using Dynamic Dependence Hints
+[Insights]
+- Speculative parallelism divides sequential program into tasks
+- A runtime environment resolve the task's dependences correctly in a way that it
+might be executed sequentially or parallel, either way the program will be correct
+- Most previous systems allow speculation to succeed only if program tasks are 
+completely independent (also called do- all parallelism or embarrassingly parallel).
+This one deals with frequent but not definite parallelism.
+- Dependence hints: an interface (directives) for a user to suggest dependence between 
+code.
+[Similarities]
+- We both deal with uncertain parallelism.
+- We both deal with annotating techniques.
+[Differences]
+- Their technique doesn't seem to analyse the program statically.
+- It is up to the PROGRAMMER to annotate the code with the speculative parallelism.
+
+[PEDRO: INSIGHT I JUST HAD]
+In the previous paper, they present a framework to annotate code that might be parallel.
+So the programmer reads their code and annotate parts which can be parallel, and their runtime will
+speculate over these annotated code. What WE'RE DOING is: we're analysing the code automatically to find
+possible parallel sites, and then we annotate them correctly and finally the runtime resolves the dependences
+and execute the tasks. The key insight in our work is to annotate code that is irregular but has
+greater probability of being parallel during execution.
+
+* wanggenerating - Generating Task Clauses for OpenMP Programs
+[Insights]
+- They generate correct open MP task annotations for a code fragment
+- They still rely on the programmer or the compiler to find this pieces of code
+[Similarities]
+- We both generate annotations for task-parallelism
+[Differences]
+- Our approach eases the burden on the programmer and finds parallel code automatically.
+
+* hwu2014ahead - What is ahead of Parallel Computing?
+[Insights]
+- Since the industry switch to multicore and manycore architectures, parallel computing has been the primary 
+option by developers when striving for more performance.
+- Vectorizing has become the main 
+- Challenges involving parallelism:
+	- The unbalanced relation between memory access and arithmetic operations:
+	on-chip resources are growing faster than off-chip resources. On-chip has been
+	following moore's law, while off-chip has relied in the evolution of the DRAM architecture.
+	The relation is 8 arithmetic insts for each memory access instruction, and this gap is expected to
+	increase. Therefore, designers have been keeping as much data possible on chip, extracting the most
+	data locality and re-use as possible.
+	- When writing parallel programs, sometimes the parallel version has higher complexity than the optimal,
+	to an extent that it may even run slower than the sequential algorithm. Usually designers have to rely 
+	heavily on large datasets to draw performance from parallel algorithms. Delaunay Triangulation is an
+	example in which the application doesn't scale up sufficiently enough for the parallel version to be
+	"worth it". 
+	- The main challenge remains being able to design a good parallel algorithm. The programmer must work out
+	several data layouts, allocate memory and temporary storage, deal with pointers arithmetics, and sort out
+	data movement in order to draw the most of cache resources to allow data re-use. The skills of the programmer
+	are still the biggest and most daunting challenge when it comes to designing parallel algorithms.
+- Why not pursue task-parallelism?
+	- Algorithms that present task parallelism opportunities often show a certain data imbalance.
+	Let us take the Depth-First Search algorithm as an example. It has high parallelism, once each
+	DFS visit call can be performed independently on each node and its children. This algorithm scales
+	up pretty well for uniformly distributed graphs, But it can also be very
+	imbalanced when the graph's node connectivity gets too skewed, in which a few number of nodes are
+	connected to a large number of neighbours.
+
+* kulkarni2009much - How much parallelism are there in irregular applications?
+[Insights]
+- For years the programming community has invested in parallel programming for regular applications, which usually involve dense matrices and vectors operations. The parallelism in these contexts is called data parallelism. In data parallelism, loop iteration independence can be determined statically. Nowadays we have many powerful tools based on integer linear programming for exploiting data parallelism in regular applications.
+- We understand little about data locality and patterns of parallelism in irregular code, which usually involve pointer-based structures such as trees and graphs.
+[Similarities]
+- They tend to answer the question of how much parallelism is there in irregular code, using a profiler that independs on the architecture the program will run. It's useful for scheduling policies and etc.
+[Differentes]
+- Many. They don't point the parallelism out in every program, they simply state how much parallelism there is. Not only we find parallelism but we also annotate it with open mp directives.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,121 +1,65 @@
-//===------------------------------- TaskMiner.h --------------------------===//
-//
-// Author: Pedro Ramos (pedroramos@dcc.ufmg.br)
-//
-//===----------------------------------------------------------------------===//
-//
-//                           The LLVM Compiler Infrastructure
-//
-//
-//===----------------------------------------------------------------------===//
-#ifndef TASKMINER_H
-#define TASKMINER_H
-
-//LLVM IMPORTS
 #include "llvm/Pass.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Instruction.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/ADT/SmallSet.h"
-#include "llvm/Support/Casting.h"
+#include "llvm/ADT/Statistic.h"
 
 //LOCAL IMPORTS
 #include "DepAnalysis.h"
-
-//STL IMPORTS
-#include <list>
-#include <set>
-#include <iostream>
-#include <string>
+#include "RegionTree.h"
+#include "Graph.hpp"
+#include "Task.h"
+#include "CostModel.h"
 
 namespace llvm
 {
-	class Task;
-	class FunctionCallTask;
-	// class NestedLoopTask;
-	// class CodeFragmentTask;
-
-	enum AccessType {UNKNOWN=0, READ=1, WRITE=2, READWRITE=3};
-
-	inline AccessType operator|(AccessType a, AccessType b)
+	class TaskMiner : public ModulePass
 	{
-		return static_cast<AccessType>(static_cast<int>(a) | static_cast<int>(b)); 
-	}
+	private:
+		//ModuleTaskGraph 
+		RegionTree* taskGraph;
+		// DepAnalysis *DP=0;
+		std::map<Function*, RegionTree*> RTs;	
+		std::map<Function*, RegionTree*> getAllRegionTrees(Module &M);
 
-	class TaskMiner : public FunctionPass
-	{
+		//tasks collected for this module
+		std::list<Task*> tasks;
+
+		//record of each instcall and their edges in the task graph
+		std::map<Edge<RegionWrapper*, EdgeDepType>*, CallInst*> callInsts;
+
+		//record of every scc in the taskgraph
+		std::set<Graph<RegionWrapper*, EdgeDepType>* > SCCs;
+
+		//keep alias sets
+		// std::map<Value*, AliasSet> aliassets;
+
+		//Keep functions that have been turned into tasks
+		std::set<Function*> function_tasks;
+
 	public:
 		static char ID;
-		TaskMiner() : FunctionPass(ID) {}
-		~TaskMiner() {};
+		TaskMiner() : ModulePass(ID) {}
+		~TaskMiner() { /*delete taskGraph;*/ }
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
-		bool runOnFunction(Function &func) override;
-		std::list<Task*>* getTasks();
-		Task* getTaskFromParentLoop(Loop* L);
-
-		struct LoopData
-		{
-			Instruction* indVar;
-			std::list<BasicBlock*> innerBBs;
-
-			//Debugginf purposes only
-			void print();
-		};
-
-	private:
-		std::list<Task*> tasks;
+		bool runOnModule(Module &M) override;
+		RegionTree* gettaskGraph(Module &M);
+		bool findRegionWrapperInSCC(RegionWrapper* RW);
+		std::list<CallInst*> getLastRecursiveCalls() const;
+		void mineRegionTasks();
+		void mineRecursiveTasks();
+		void mineFunctionCallTasks();
+		void mineLoopTasks();
+		void mineTasks();
 		void resolveInsAndOutsSets();
+		void computeCosts();
+		void computeStats(Module &M);
+		void computeTotalCost();
+		std::list<Task*> getTasks() { return tasks; }
+
+		//printing methods
+		void printTasks();
+		void printRegionInfo();
+
+
+		//method to find all alias sets
+
 	};
-
-	class Task
-	{
-	public:
-		enum TaskKind
-		{
-			FCALL_TASK,
-			CFRAGMENT_TASK,
-			NLOOP_TASK
-		};
-
-		Task(TaskKind k, Loop* p) : kind(k), parent(p) {};
-		virtual ~Task() {};
-		TaskKind getKind() const { return kind; };
-		Loop* getParent();
-		virtual bool resolveInsAndOutsSets() { return false; };
-		std::set<Value*> getLiveIN() const;
-		std::set<Value*> getLiveOUT() const;
-		std::set<Value*> getLiveINOUT() const;
-
-		//Only for debugging purposes. STDOUT/errs()
-		virtual void print();
-		void printLiveSets();
-
-	protected:
-		Loop* parent;
-		std::set<Value*> liveIN;
-		std::set<Value*> liveOUT;
-		std::set<Value*> liveINOUT;
-		AccessType getTypeFromInst(Instruction* I);
-		std::string accessTypeToStr(AccessType T);	
-
-	private:
-		const TaskKind kind;
-	};
-
-	class FunctionCallTask : public Task
-	{
-	public:
-		FunctionCallTask(Loop* parent, CallInst* CI) : Task(FCALL_TASK, parent), functionCall(CI) {};
-		~FunctionCallTask() {};
-		CallInst* getFunctionCall();
-		bool resolveInsAndOutsSets() override;
-		void print() override;
-		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; };
-	
-	private:
-		CallInst* functionCall;
-	};
-
 }
-
-#endif

@@ -11,16 +11,17 @@
 // Program Dependence Graph and Its Use in Optimization."
 //
 //===----------------------------------------------------------------------===//
-
-#include "ControlDependenceGraph.h"
-
+//LLVM IMPORTS
 #include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/CFG.h"
 
-
+//STL IMPORTS
 #include <deque>
 #include <set>
+
+//LOCAL IMPORTS
+#include "ControlDependenceGraph.h"
  
 using namespace llvm;
 
