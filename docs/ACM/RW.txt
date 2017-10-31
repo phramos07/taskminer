@@ -1,3 +1,13 @@
+* Goff91 - Practical Dependence Testing
+[Insights]
+- Typical dependence tests are more general than necessary.
+- Most array references in scientific Fortran code are simple.
+- Provides new algorithms for exact dependence tests.
+- Provide a very nice historical perspective of dependence testing.
+[Differences]
+- Deals with a different problem.
+- We can use it to increase the precision of our dependence graph.
+
 * Kreaseck00 - Limits of Task-based Parallelism in Irregular Applications
 [Insights]
 - Speculative Task Parallelism.
@@ -9,6 +19,16 @@
 - We use a concrete execution model. They use a hypothetical machine.
 - We implement actual parallelization.
 - We do not do speculation.
+
+* Kulkarni09 - How Much Parallelism is There in Irregular Applications?
+[Insights]
+- A profiler that detects parallelism in applications
+- The notion of 'how much parallelism is there' can be more useful than
+speedup information.
+[Differences]
+- This is not a work of automatic parallelization.
+- We can cite it to say that "there is a lot of parallelism in irregular
+applications".
 
 * Li12 - Automatic Extraction of Coarse-Grained Data-Flow Threads from
          Imperative Programs
