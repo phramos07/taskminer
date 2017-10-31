@@ -1,13 +1,43 @@
-\documentclass[pageno]{jpaper}
+%% For double-blind review submission
+\documentclass[sigplan,10pt,review,anonymous]{acmart}
+\settopmatter{printfolios=true}
+%% For final camera-ready submission
+%\documentclass[acmlarge]{acmart}\settopmatter{}
 
-\newcommand{\pactedition}{26th}
-\newcommand{\pactyear}{17}
-\newcommand{\pactcompyear}{20\pactyear}
+\makeatletter\if@ACM@journal\makeatother
 
-%replace XXX with the submission number you are given from the PACT submission site.
-\newcommand{\pactsubmissionnumber}{XXX}
+%% Journal information (used by PACMPL format)
+%% Supplied to authors by publisher for camera-ready submission
+\acmJournal{PACMPL}
+\acmVolume{1}
+\acmNumber{1}
+\acmArticle{1}
+\acmYear{2017}
+\acmMonth{1}
+\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+\startPage{1}
+\else\makeatother
 
-\usepackage[normalem]{ulem}
+%% Conference information (used by SIGPLAN proceedings format)
+%% Supplied to authors by publisher for camera-ready submission
+\acmConference[PL'17]{ACM SIGPLAN Conference on Programming Languages}{January 01--03, 2017}{New York, NY, USA}
+\acmYear{2017}
+\acmISBN{978-x-xxxx-xxxx-x/YY/MM}
+\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+\startPage{1}
+\fi
+
+\newcommand{\fer}[1]{\textcolor{red}{#1}}
+
+%% For review submission
+\setcopyright{none}
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+\citestyle{acmauthoryear}
+
+%% Packages that we are using in this version of the work:
+\usepackage{hyperref}
 
 % To turn comments OFF simply comment out the \Commentstrue line
 \newif\ifComments\Commentstrue
@@ -34,22 +64,126 @@
 
 \begin{document}
 
-\guido{Not sure if we should dive into a discussion of what is a regular or an irregular program; to be even more precise we are actually mining task parallelism (for this moment) only within loops; hence I propose this new title}
-\pedro{I think we should say "Automatic Mining of Task Parallelism in Programs" because we might mine task parallelism in recursive functions as well.}
-\title{\rmv{Task Mining in Irregular Programs.}\new{Automatic Mining of Task Parallelism in Programs}}
+\title[Automatic Identification and Annotation of Parallel Tasks in Programs]
+{Automatic Identification and Annotation of Parallel Tasks in Programs}
 
-\date{}
-\maketitle
+\author{Pedro Henrique Ramos Costa}
+\authornote{with author1 note}          %% \authornote is optional;
+\orcid{nnnn-nnnn-nnnn-nnnn}
+\affiliation{
+  \position{Researcher}
+  \department{DCC}
+  \institution{UFMG}
+  \streetaddress{6627 Antonio Carlos Avenue}
+  \city{Belo Horizonte}
+  \state{Minas Gerais}
+  \postcode{31.270-213}
+  \country{Brazil}
+}
+\email{pedroramos@dcc.ufmg.br}
 
-\thispagestyle{empty}
+\author{Gleison Souza Diniz Mendonc\c{c}a}
+\authornote{with author1 note}          %% \authornote is optional;
+\orcid{nnnn-nnnn-nnnn-nnnn}
+\affiliation{
+  \position{Researcher}
+  \department{DCC}
+  \institution{UFMG}
+  \streetaddress{6627 Antonio Carlos Avenue}
+  \city{Belo Horizonte}
+  \state{Minas Gerais}
+  \postcode{31.270-213}
+  \country{Brazil}
+}
+\email{gleison.mendonca@dcc.ufmg.br}
+
+\author{Divino C\'{e}sar}
+\authornote{with author1 note}
+\orcid{nnnn-nnnn-nnnn-nnnn}
+\affiliation{
+  \position{Researcher}
+  \department{IC}
+  \institution{UNICAMP}
+  \streetaddress{Cidade Universit\'{a}ria}
+  \city{Campinas}
+  \state{S\~{a}o Paulo}
+  \postcode{13083-970}
+  \country{Brazil}
+}
+\email{divcesar@gmail.com}
+
+\author{Guido Ara\'{u}jo}
+\authornote{with author1 note}
+\orcid{nnnn-nnnn-nnnn-nnnn}
+\affiliation{
+  \position{Professor}
+  \department{IC}
+  \institution{UNICAMP}
+  \streetaddress{Cidade Universit\'{a}ria}
+  \city{Campinas}
+  \state{S\~{a}o Paulo}
+  \postcode{13083-970}
+  \country{Brazil}
+}
+\email{guido@ic.unicamp.br}
+
+\author{Fernando Magno Quint\~{a}o Pereira}
+\authornote{with author1 note}
+\orcid{nnnn-nnnn-nnnn-nnnn}
+\affiliation{
+  \position{Professor}
+  \department{DCC}
+  \institution{UFMG}
+  \streetaddress{6627 Antonio Carlos Avenue}
+  \city{Belo Horizonte}
+  \state{Minas Gerais}
+  \postcode{31.270-213}
+  \country{Brazil}
+}
+\email{fernando@dcc.ufmg.br}          %% \email is recommended
 
 \begin{abstract}
 We need to write our abstract here.
 \end{abstract}
 
+%% 2012 ACM Computing Classification System (CSS) concepts
+%% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
+ \begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011041</concept_id>
+<concept_desc>Software and its engineering~Compilers</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011006.10011008.10011024.10011035</concept_id>
+<concept_desc>Software and its engineering~Procedures, functions and subroutines</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10003752.10003766.10003776</concept_id>
+<concept_desc>Theory of computation~Regular languages</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10003752.10010124.10010131.10010134</concept_id>
+<concept_desc>Theory of computation~Operational semantics</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Compilers}
+\ccsdesc[300]{Software and its engineering~Procedures, functions and subroutines}
+\ccsdesc[300]{Theory of computation~Regular languages}
+\ccsdesc[300]{Theory of computation~Operational semantics}
+
+\keywords{Parallelism, Tasks, OpenMP}
+
+\maketitle
+
 \section{Introduction}
 \label{sec:intro}
-
 
 % CONTEXT
 It is undeniable that parallel computing is nowadays the most pursued alternative by developers  when striving for more application performance \cite{hwu2014ahead}. Two main reasons stand behind  the actual urge for parallel programming. \ed{First, the ever  increasing industry of multi-cores and many-cores architectures propitiates the development of software  with such behaviour \cite{haugen2016performance, vandierendonck2013analysis}.} \guido{Fine, but it seems to me a very convoluted way to say that this was due to the emergence of multicore/manycore  architectures as the alternative to maintain transistor power-density under control.} \ed{Second, programmers often code in simple parallel patterns  \cite{pinto2015large}, which evidences their awareness and will for parallelism}. \guido{Not sure if programming using patterns is an evidence that supports the urge for interest in parallel programming; on the contrary, it seems to me that it is more a consequence to tackle the complexity of the problem.} 
@@ -130,8 +264,6 @@ We aimed to show that our tool exceeded in three main aspects that surround para
 \section{Conclusion}
 \label{sec:conc}
 
-\bstctlcite{bstctl:etal, bstctl:nodash, bstctl:simpurl}
-\bibliographystyle{IEEEtranS}
 \bibliography{references}
 
 \end{document}
