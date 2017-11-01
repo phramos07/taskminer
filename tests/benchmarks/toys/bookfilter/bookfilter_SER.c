@@ -125,8 +125,7 @@ void filterLine(char* line, int lineSize, char* word,  int wordSize, int* occurr
 			(*alphabet)++;		
 	}
 
-	// for (int i = 0 + *occurrences; i < lineSize; i++)
-	// 	for (int j = *occurrences; j < lineSize; j++);
+	for (int i = 0 + *occurrences; i < lineSize; i++);
 }
 
 
