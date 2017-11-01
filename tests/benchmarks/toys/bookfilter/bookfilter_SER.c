@@ -76,11 +76,8 @@ int main(int argc, char  *argv[])
 
 void filterLines(Book b, char* word,  int wordSize, int* occurrences, int* alphabet)
 {
-	#pragma omp parallel
-	#pragma omp single
 	for (int i = 0; i < b.numLines; i++)
 	{
-		#pragma omp task untied depend(in: b, occurrences[i], alphabet[i])
 		filterLine(b.lines[i], b.numCharsPerLine, word, wordSize, &occurrences[i], &alphabet[i]);
 	}
 }
