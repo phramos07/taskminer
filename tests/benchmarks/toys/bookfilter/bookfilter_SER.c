@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "../../include/time_common.h"
 // #define DEBUG
 #define CHECK_RESULTS
 
@@ -33,6 +34,8 @@ int main(int argc, char  *argv[])
 		return 0;
 	}
 
+	Instance* I = newInstance(100);
+  clock_t beg, end;
 	int lines = atoi(argv[1]);
 	unsigned long long chars = atoi(argv[2]);
 
@@ -55,7 +58,11 @@ int main(int argc, char  *argv[])
 		printBook(book);
 	#endif
 
+	beg = clock();
 	filterLines(*book, word, wordSize, filtered, alphabet);
+	end = clock();
+	
+	addNewEntry(I, book->numCharsPerLine, getTimeInSecs(end - beg));  
 
 
 	#ifdef CHECK_RESULTS
@@ -66,6 +73,9 @@ int main(int argc, char  *argv[])
 			printf("Found %d matches and %d alphabet sequences in line %d\n", filtered[i], alphabet[i],i);
 		}
 	#endif
+
+	writeResultsToOutput(stdout, I);
+  freeInstance(I);
 
 	freeBook(book);
 	free(filtered);
