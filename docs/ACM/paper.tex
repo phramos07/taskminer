@@ -191,7 +191,8 @@ We need to write our abstract here.
 Annotation systems have risen to a place of prominence as a simple and
 effective way to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
-OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10} and OpenSs~\cite{MeenderinckJ11}.
+OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
+OpenSs~\cite{MeenderinckJ11} and Tareador~\cite{Ayguade15}.
 Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 The compiler-related literature contains a generous load of success stories
@@ -207,7 +208,7 @@ or deadlocks.
 Moreover, because they are used in tandem with imperative programming languages,
 such troubles are only made worse by pointer aliasing.
 There exist tools that insert automatic annotations in
-programs~\cite{gleison2016,Pingali11,wanggenerating}.
+programs~\cite{Mendonca16,Pingali11,Nugteren14}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
 Task parallelism remains still uncharted land, in what concerns automatic

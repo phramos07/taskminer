@@ -1,3 +1,11 @@
+* Ayguade15 - Tareador: a tool to unveil parallelization strategies at undergraduate level
+[Insight]
+- Tool that supports students in undestanding parallel code
+[Differences]
+- It seems that the programmer must specify tasks in Tareador. In this sense,
+  it is more like an annotation based system than than a tool to perform
+  automatic parallelization based on tasks.
+
 * Goff91 - Practical Dependence Testing
 [Insights]
 - Typical dependence tests are more general than necessary.
