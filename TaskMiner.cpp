@@ -159,9 +159,9 @@ RegionTree* TaskMiner::gettaskGraph(Module &M)
 	//ALWAYS CONNECT TO THE REAL TOPLEVEL. I'll need to connect real -> toplevel and hub -> toplevel
 	for (Module::iterator F = M.begin(); F != M.end(); ++F)
 	{
+		F->dump();
 		if (F->empty())
 		{
-			F->dump();
 			errs() << "function with no body.\n";
 			continue;
 		}
@@ -239,7 +239,7 @@ void	TaskMiner::mineFunctionCallTasks()
 				&& (!indirectRecursion)
 				&& (!CI->getCalledFunction()->isIntrinsic())
 				&& (!CI->getCalledFunction()->isDeclaration())
-				&& (CI->getCalledFunction()->empty() != false)
+				&& (CI->getCalledFunction()->empty() == false)
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
 				Task* TASK = new FunctionCallTask(CI);

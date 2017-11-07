@@ -81,7 +81,7 @@ void nqueens(int n, int j, char *a, int *solutions, int depth) {
   for (i = 0; i < n; i++) {
     a[j] = (char)i;
     if (ok(j + 1, a)) {
-      #pragma omp task depend(out:a) depend(inout:res)
+      #pragma omp task depend(out:a) depend(inout:res) default(shared)
       nqueens(n, j + 1, a, &res, 0);
       #pragma omp taskwait
       *solutions += res;

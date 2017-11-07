@@ -19,10 +19,6 @@ int G[N*N];
 int neigh[N];
 int visited[N];
 
-// std::map<int, Coord> nodesCoord;
-// std::vector<double> nodesMinDist(N);
-// std::vector<int> nodesMinDistIndex(N);
-
 void dfs(int* G, int* node, int index);
 
 void fillgraph(int* G);
