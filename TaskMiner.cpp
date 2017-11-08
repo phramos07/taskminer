@@ -429,7 +429,7 @@ void TaskMiner::mineTasks()
 {
 	mineRecursiveTasks();
 	mineFunctionCallTasks();
-	// if (MINE_REGIONTASKS) mineRegionTasks();
+	mineRegionTasks();
 }
 
 
