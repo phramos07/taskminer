@@ -192,7 +192,8 @@ Annotation systems have risen to a place of prominence as a simple and
 effective way to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
-OpenSs~\cite{MeenderinckJ11} and Tareador~\cite{Ayguade15}.
+OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
+Tareador~\cite{Ayguade15}.
 Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 The compiler-related literature contains a generous load of success stories
@@ -214,23 +215,29 @@ the same computation independently on different data.
 Task parallelism remains still uncharted land, in what concerns automatic
 annotation.
 Such fact is unfortunate, because much of the power of current annotation
-systems lays on their ability to create tasks \ed{We need to find references!}.
+systems lays on their ability to create tasks~\cite{Ayguade09}.
 This ability brings said systems closer to irregular programs such as those
 that implement graphs and worklist algorithms \`{a} la
 Pingali~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
 The goal of this work is to address this omission.
 
-This paper describes \Taskminer, the first compiler that mines task parallelism
+This paper describes \Taskminer, a compiler that mines task parallelism
 from programs.
-To fulfill this goal \Taskminer{} solves three challenges.
-First, it find program regions, e.g., loops or functions, that can be
+To fulfill this goal \Taskminer{} solves many challenges.
+First, it finds program regions, e.g., loops or functions, that can be
 effectively mapped onto tasks (Section~\ref{sub:region}).
 Second, it determines symbolic bounds to all the memory blocks accessed within
 those regions (Section~\ref{sub:symb}).
 Third, it maps such information back into source code, producing annotations
 that programmers can read (Section~\ref{sub:ir}).
-The goal of this paper is to describe the design and the implementation of these
-three technologies, and to demonstrate their benefit.
+Fourth, it extracts parameters from the code to estimate the profitability of
+tasks, given the cost to create them.
+These parameters feed conditional checks, which, at runtime, enable or disable
+the creation of tasks (Section~\ref{sub:profit}).
+Finally, \Taskminer{} determines which program variables need to be replicated at
+each new task, or shared among them (Section~\ref{sub:variance}).
+This paper describes the design and the implementation of these technologies, and
+demonstrate their benefit.
 
 Such benefit is performance and readability.
 \Taskminer{} receives as input a C program, and produces, as output, a C
@@ -249,17 +256,33 @@ their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval
 \section{Overview}
 \label{sec:ovf}
 
+% The ability to handle pointers through speculative parallelization.
+
+% when applied to general-purpose integer-intensive applications that have complex control flow and excessive pointer accesses, traditional parallelization tech- niques become quite ineffective, as they need to conservatively ensure program correctness by synchronizing all potential dependences in the program
+
+% For example in 473.astar if we ignore dependences that only occur in less than 20% of all iterations, we can parallelize loops that correspond to 96% of total execution.
+
 \section{Solution}
 \label{sec:sol}
 
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:region}
 
-\subsection{Find Symbolic Bounds of Arrays}
+\subsection{Finding Symbolic Bounds of Arrays}
 \label{sub:symb}
 
-\subsection{From IR to Source Code}
+\subsection{Mapping IR onto Source Code}
 \label{sub:ir}
+
+\subsection{Estimating the Profitability of Tasks}
+\label{sub:ir}
+
+\subsection{Separating Private from Shared Variables}
+\label{sub:profit}
+
+\subsection{Mapping IR onto Source Code}
+\label{sub:variance}
+
 
 \section{Evaluation}
 \label{sec:eval}
@@ -282,6 +305,8 @@ We aimed to show that our tool exceeded in three main aspects that surround para
 
 \section{Related Work}
 \label{sec:rw}
+
+% Talk about annotations vs libraries, e.g., Wool, Intel TBB. See: "A Comparison of some recent Task-based Parallel Programming Models"
 
 \section{Conclusion}
 \label{sec:conc}
