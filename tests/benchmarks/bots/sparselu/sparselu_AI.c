@@ -228,15 +228,16 @@ static void sparselu_init(float ***pBENCH, int matrix_size,
 }
 
 void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
-  int ii, jj, kk;
+ int ii, jj, kk;
 
-  #pragma omp parallel private(kk,ii,jj) shared(BENCH)
+  #pragma omp parallel default(shared)
   #pragma omp single
+  { 	
   for (kk = 0; kk < matrix_size; kk++) {
     long long int TM5[2];
     TM5[0] = kk * matrix_size;
     TM5[1] = TM5[0] + kk;
-    #pragma omp task depend(inout:BENCH[TM5[1]])
+    #pragma omp task depend(inout:BENCH[TM5[1]]) firstprivate(kk)
     lu0(BENCH[kk * matrix_size + kk], submatrix_size);
     for (jj = kk + 1; jj < matrix_size; jj++) {
       if (BENCH[kk * matrix_size + jj] != NULL) {
@@ -244,7 +245,7 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
         TM7[0] = kk * matrix_size;
         TM7[1] = TM7[0] + kk;
         TM7[2] = TM7[0] + jj;
-        #pragma omp task depend(in:BENCH[TM7[1]]) depend(inout:BENCH[TM7[2]])
+        #pragma omp task depend(in:BENCH[TM7[1]]) depend(inout:BENCH[TM7[2]]) firstprivate(jj, kk)
         fwd(BENCH[kk * matrix_size + kk], BENCH[kk * matrix_size + jj], submatrix_size);
       }
     }
@@ -256,7 +257,7 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
         TM10[1] = TM10[0] + kk;
         TM10[2] = ii * matrix_size;
         TM10[3] = TM10[2] + kk;
-        #pragma omp task depend(in:BENCH[TM10[1]]) depend(inout:BENCH[TM10[3]])
+        #pragma omp task depend(in:BENCH[TM10[1]]) depend(inout:BENCH[TM10[3]]) firstprivate(kk, ii)// depend(in: kk)
         bdiv(BENCH[kk * matrix_size + kk], BENCH[ii * matrix_size + kk], submatrix_size);
       }
     }
@@ -274,7 +275,7 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
             TM15[2] = kk * matrix_size;
             TM15[3] = TM15[2] + jj;
             TM15[4] = TM15[0] + jj;
-            #pragma omp task depend(in:BENCH[TM15[1]],BENCH[TM15[3]]) depend(inout:BENCH[TM15[4]])
+            #pragma omp task depend(in:BENCH[TM15[1]],BENCH[TM15[3]]) depend(inout:BENCH[TM15[4]]) firstprivate(kk, jj, ii) //depend(in:kk, jj, ii)
             bmod(BENCH[ii * matrix_size + kk], BENCH[kk * matrix_size + jj], BENCH[ii * matrix_size + jj], submatrix_size);
           }
         }
@@ -283,6 +284,7 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
     }
     #pragma omp taskwait
   }
+}
 }
 
 

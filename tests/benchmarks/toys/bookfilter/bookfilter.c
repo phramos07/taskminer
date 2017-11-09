@@ -67,9 +67,28 @@ int main(int argc, char  *argv[])
 
 void filterLines(Book b, char* word,  int wordSize, int* occurrences, int* alphabet)
 {
+	int lineSize = b.numCharsPerLine;
 	for (int i = 0; i < b.numLines; i++)
 	{
-		filterLine(b.lines[i], b.numCharsPerLine, word, wordSize, &occurrences[i], &alphabet[i]);
+		char* line = b.lines[i];
+		for (int i = 0; i < lineSize; i++)
+		{
+			if(*(line + i) == word[0]) //found first letter
+			{
+				for (int k = 1; k < wordSize; k++)
+				{
+					if (i+k >= lineSize)
+						break;
+
+					if (*(line + i + k) != word[k])
+						break;
+
+					if (k == wordSize-1)
+						(*occurrences)++;
+				}
+			}
+		}
+		// filterLine(b.lines[i], b.numCharsPerLine, word, wordSize, &occurrences[i], &alphabet[i]);
 	}
 }
 
