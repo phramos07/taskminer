@@ -10,6 +10,6 @@ BIG_INPUT = 100000
 SERIAL_FILES = list.c
 
 run: compile
-	@echo "====RUNNING BOTS/LIST===="
+	@echo "====RUNNING SAMPLE/LIST===="
 	$(MAKE) -i run-parallel;
 	$(MAKE) -i run-serial;
