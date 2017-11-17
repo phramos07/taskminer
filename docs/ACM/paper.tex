@@ -20,7 +20,7 @@
 
 %% Conference information (used by SIGPLAN proceedings format)
 %% Supplied to authors by publisher for camera-ready submission
-\acmConference[PL'17]{ACM SIGPLAN Conference on Programming Languages}{January 01--03, 2017}{New York, NY, USA}
+\acmConference[PL'17]{IEEE}{2018}{Planet Earh}
 \acmYear{2017}
 \acmISBN{978-x-xxxx-xxxx-x/YY/MM}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
@@ -149,7 +149,19 @@ Programs]
 \email{fernando@dcc.ufmg.br}          %% \email is recommended
 
 \begin{abstract}
-We need to write our abstract here.
+This paper reports the design and implementation of a suit of static analysis
+and code generation techniques to annotate programs with OpenMP pragmas for
+task parallelism.
+These techniques deal with problems such as the discovery and use of program
+symbols to estimate the profit of tasks, bound their recursive depth and limit
+the memory regions onto which they operate.
+These techniques have been implemented into the first source-to-source
+compiler able to insert OpenMP pragmas into C/C++ programs without human
+intervention.
+By building onto the solid collection of static analyses available in LLVM,
+and relying on OpenMP's runtime ability to disambiguate pointers, we show that
+we can annotate large and convoluted programs, often replicating the performance
+gains of handmade annotation.
 \end{abstract}
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -199,8 +211,8 @@ OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
 Tareador~\cite{Ayguade15}.
 Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
-The compiler-related literature contains a generous load of success stories
-describing the use of annotation systems to parallelize programs.
+%The compiler-related literature contains a generous load of success stories
+%describing the use of annotation systems to parallelize programs.
 Combined with modern accelerators, they have led to substantial performance
 gains~\cite{Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
 Yet, even if convenient, the use of annotations is not straightforward, and
@@ -212,7 +224,7 @@ or deadlocks.
 Moreover, because they are used in tandem with imperative programming languages,
 such troubles are only made worse by pointer aliasing.
 There exist tools that insert automatic annotations in
-programs~\cite{Mendonca16,Pingali11,Nugteren14}.
+programs~\cite{Amini12,Guelton12,Mendonca16,Pingali11,Nugteren14}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
 Task parallelism remains still uncharted land, in what concerns automatic
@@ -231,14 +243,15 @@ First, it finds program regions, e.g., loops or functions, that can be
 effectively mapped onto tasks (Section~\ref{sub:identification}).
 Second, it determines symbolic bounds to all the memory blocks accessed within
 those regions (Section~\ref{sub:symb}).
-Third, it maps such information back into source code, producing annotations
-that programmers can read (Section~\ref{sub:ir}).
-Fourth, it extracts parameters from the code to estimate the profitability of
+Third, it extracts parameters from the code to estimate the profitability of
 tasks, given the cost to create them.
 These parameters feed conditional checks, which, at runtime, enable or disable
-the creation of tasks (Section~\ref{sub:profit}).
-Finally, \Taskminer{} determines which program variables need to be replicated at
+the creation of tasks (Section~\ref{sub:profit}) and limit their recursion
+depth (Section~\ref{sub:rec}).
+Additionally, \Taskminer{} determines which program variables need to be replicated at
 each new task, or shared among them (Section~\ref{sub:variance}).
+Finally, it maps all this information back into source code, producing annotations
+that programmers can read (Section~\ref{sub:ir}).
 This paper describes the design and the implementation of these technologies, and
 demonstrate their benefit.
 
@@ -294,7 +307,9 @@ tackle:
 \begin{figure}[t!]
 \begin{center}
 \includegraphics[width=0.95\columnwidth]{images/ex_Regions}
-\caption{Write caption here.}
+\caption{Challenges~\ref{ch:Regions} and~\ref{ch:cost}: identifying memory regions
+with symbolic limits, and using runtime information to estimate the profit of
+tasks.}
 \label{fig:ex_Regions}
 \end{center}
 \end{figure}
@@ -346,7 +361,8 @@ parameterized by constants such as \textsf{DEPTH\_CUTOFF}, or
 \begin{figure}[t!]
 \begin{center}
 \includegraphics[width=0.95\columnwidth]{images/ex_cutoff}
-\caption{Write caption here.}
+\caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks with
+counter associated with function calls.}
 \label{fig:ex_cutoff}
 \end{center}
 \end{figure}
@@ -375,7 +391,8 @@ shared variables.
 \begin{figure}[t!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/ex_privatize}
-\caption{Write caption here.}
+\caption{Challenge~\ref{ch:privatize}: variable \textsf{j} must be replicated among
+tasks, to avoid the occurrence of data races.}
 \label{fig:ex_privatize}
 \end{center}
 \end{figure}
@@ -410,7 +427,7 @@ shared variables.
 \section{Evaluation}
 \label{sec:eval}
 
-We aimed to show that our tool exceeded in three main aspects that surround parallel programming. Thus our work evaluation stands on these 3 pillars:
+%We aimed to show that our tool exceeded in three main aspects that surround parallel programming. Thus our work evaluation stands on these 3 pillars:
 
 % In section 4. “Evaluation", subsection “Performance"; you state the only reason why programmers will strive for parallelism would be to achieve higher performance (faster program execution). I do not fully agree, and I believe we discussed that point earlier. There may be cases where performance of a single big core would be good enough to meet some target schedule (either response time or frame rate, etc.) still you may want to explore parallel versions of the code running on a cluster of smaller cores or a combination of a slow CPU and GPU to achieve better power efficiency.
 
@@ -418,19 +435,19 @@ We aimed to show that our tool exceeded in three main aspects that surround para
 
 % In the past there has been not much opportunity to take advantage of parallelism on 2 core platforms (especially notebook designs used to limit the number of real cores), but with 6 or 8 core processors entering the main stream, we may take advantage of running more processors slower (lower voltage) or spreading out the workload over a larger die area. It is quite interesting to note that running one core hot will increase the leakage in that area of the die much more (exponentially with temperature), so distributing work over a larger die area results in reduced leakage - having said that, a similar effect can be achieved by migrating the workload from core to core.
 
-\begin{itemize}
+%\begin{itemize}
 
-\item Practicality
-\item Applicability
-\item Performance
+%\item Practicality
+%\item Applicability
+%\item Performance
 
-\end{itemize}
+%\end{itemize}
 
-\textbf{\textit{Practicality}}. Programming in a parallel pattern is deemed difficult by programmers mainly because of the complexity of its data structures and algorithms. We show that our tool is simple and practical, for it does not involve changing the code and data structures in order to fit in a parallel pattern. The code is simply annotated by compiler directives.
+%\textbf{\textit{Practicality}}. Programming in a parallel pattern is deemed difficult by programmers mainly because of the complexity of its data structures and algorithms. We show that our tool is simple and practical, for it does not involve changing the code and data structures in order to fit in a parallel pattern. The code is simply annotated by compiler directives.
 
-\textbf{\textit{Applicability}}. 
+%\textbf{\textit{Applicability}}. 
 
-\textbf{\textit{Performance}}. When it comes to parallel computing, it is undeniable that the main achievable goal should be performance. There's no reason why programmers would opt for parallelism other than the desire for faster programs. Therefore, we ought to show that the programs annotated with TaskMiner are faster than their serial counterparts. 
+%\textbf{\textit{Performance}}. When it comes to parallel computing, it is undeniable that the main achievable goal should be performance. There's no reason why programmers would opt for parallelism other than the desire for faster programs. Therefore, we ought to show that the programs annotated with TaskMiner are faster than their serial counterparts. 
 
 \section{Related Work}
 \label{sec:rw}
