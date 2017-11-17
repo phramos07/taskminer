@@ -262,7 +262,7 @@ their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval
 The automatic insertion of effective OpenMP annotations into C/C++ programs
 required us to deal with a number of challenges.
 If left unsolved, these challenges would restrict our interventions in programs
-to very trivial annotations, which would hardly be of any use.
+to trivial annotations, which would hardly be of any use.
 In the rest of this section, we discuss the most important challenges, using
 this discussion as a motivation to the developments that follow in
 Section~\ref{sec:sol}.
@@ -273,14 +273,14 @@ Identify the memory region covered by a task.
 \end{Challenge}
 
 Figure~\ref{fig:ex_Regions} illustrates Challenge~\ref{ch:Regions}, and shows
-how we solve it~\footnote{Figures~\ref{fig:ex_Regions}-\ref{fig:ex_cutoff} shows
+how we solve it\footnote{Figures~\ref{fig:ex_Regions}-\ref{fig:ex_cutoff} shows
 programs that we have annotated without any human intervention.
 Statements in black font are part of the original program.
 Annotations appear in grey.}.
 That program receives an $\mathsf{M}\times\mathsf{N}$ matrix \textsf{V}, in
 linearized format, and produces a vector \textsf{U}, so that \textsf{U[i]}
 contains the sum of all the elements in line \textsf{i} of matrix \textsf{V}.
-For reasons that will be made more clear in Section~\ref{sub:identification},
+For reasons to be considered in Section~\ref{sub:identification},
 our static analysis determines that each iteration of the outermost loops
 could be made into a task.
 Thus, tasks comprise the innermost loop, and traverse the memory region
@@ -288,8 +288,8 @@ between addresses $\textsf{\&V + i * N}$ and $\textsf{\&V + i * N + M}$.
 The identification of such ranges involves the use of a symbolic algebra,
 which we have borrowed from the compiler-related literature, as we
 explain in Section~\ref{sub:symb}.
-Figure~\ref{fig:ex_Regions} also lets us introduce the second challenge that we
-tackle in this paper:
+Figure~\ref{fig:ex_Regions} also introduces the second challenge that we
+tackle:
 
 \begin{figure}[t!]
 \begin{center}
@@ -304,14 +304,14 @@ tackle in this paper:
 Estimate the profitability of tasks at runtime.
 \end{Challenge}
 
-The creation of tasks involves a non-negligible runtime cost, which includes
-the allocation of resources, and the scheduling of the task proper.
-Ideally, this cost should be paid only when the task performs an amount of
-work that is sufficiently large to pay for its management cost.
+The creation of tasks involves a non-negligible runtime cost due to allocation and
+scheduling of resources.
+Ideally, this cost should be paid only for tasks that perform an amount of work
+sufficiently large to pay for their management.
 Being an interesting program property, on Rice's sense~\cite{Rice53}, the amount
 of work performed by a task cannot be discovered statically.
-However, we can try to approximate this quantity, using, to this end, program
-symbols, which are replaced with actual values at runtime.
+As we show in Section~\ref{sub:profit}, we can try to approximate this quantity, using,
+to this end, program symbols, which are replaced with actual values at runtime.
 For instance, in Figure~\ref{fig:ex_Regions}, we know that the body of the
 innermost loop is formed by five instructions.
 Thus, we approximate the amount of work performed by a task with the
@@ -326,19 +326,20 @@ OpenMP's syntax.
 Bound the creation of recursive tasks.
 \end{Challenge}
 
-To introduce Challenge~\ref{ch:cutoff}, we quote Duran {\em et al.}:
+We introduce Challenge~\ref{ch:cutoff} by quoting Duran {\em et al.}:
 ``{\em In task parallel languages, an important factor for achieving a good
 performance is the use of a cut-off technique to reduce the number of tasks
 created}"~\cite{Duran08}.
 This observation is particularly true in the context of recursive, fine-grain,
-tasks.
+tasks, as we analyze in Section~\ref{sub:rec}.
 Figure~\ref{fig:ex_cutoff} provides such an example.
 To place a limit on the number of tasks simultaneously in flight, we associate
 the invocation of recursive functions annotated with task pragmas with a
 counter -- \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
 The guard in line 7 ensures that we never exceed \textsf{DEPTH\_CUTOFF}, a
 predetermined threshold.
-The code generation algorithms that we discuss in this paper are
+This example, together with Figure~\ref{fig:ex_Regions}, lets us emphasize that
+the code generation algorithms presented in this paper are
 parameterized by constants such as \textsf{DEPTH\_CUTOFF}, or
 \textsf{WORK\_CUTOFF} in Figure~\ref{fig:ex_Regions}.
 
@@ -357,7 +358,7 @@ Identify private and shared variables.
 
 The two previous challenges are related to the performance of annotated
 programs: if left unsolved, we shall have correct, albeit inefficient programs.
-Challenges~\ref{ch:Regions}, and~\ref{ch:privatize}, on the other hand, are
+Challenges~\ref{ch:Regions}, and~\ref{ch:privatize}, in turn, are
 related to correctness.
 Challenge~\ref{ch:privatize} asks for the identification of variables that
 must be replicated among threads.
@@ -366,9 +367,9 @@ As an example, variable \textsf{j} in Figure~\ref{fig:ex_privatize} must
 be privatized.
 In the absence of such action, that variable will be shared among all the
 tasks created at line 5 of Figure~\ref{fig:ex_privatize}.
-Because \textsf{j} is writte within these tasks, race conditions would
+Because \textsf{j} is written within these tasks, race conditions would
 ensue.
-In Section~\ref{sub:variance} we explain how we separate private from
+Section~\ref{sub:variance} explains how we separate private and
 shared variables.
 
 \begin{figure}[t!]
@@ -394,20 +395,28 @@ shared variables.
 \subsection{Finding Symbolic Bounds of Arrays}
 \label{sub:symb}
 
-\subsection{Mapping IR onto Source Code}
-\label{sub:ir}
-
 \subsection{Estimating the Profitability of Tasks}
 \label{sub:profit}
+
+\subsection{Limiting the Creation of Recursive Tasks}
+\label{sub:rec}
 
 \subsection{Separating Private from Shared Variables}
 \label{sub:variance}
 
+\subsection{Mapping IR onto Source Code}
+\label{sub:ir}
 
 \section{Evaluation}
 \label{sec:eval}
 
 We aimed to show that our tool exceeded in three main aspects that surround parallel programming. Thus our work evaluation stands on these 3 pillars:
+
+% In section 4. “Evaluation", subsection “Performance"; you state the only reason why programmers will strive for parallelism would be to achieve higher performance (faster program execution). I do not fully agree, and I believe we discussed that point earlier. There may be cases where performance of a single big core would be good enough to meet some target schedule (either response time or frame rate, etc.) still you may want to explore parallel versions of the code running on a cluster of smaller cores or a combination of a slow CPU and GPU to achieve better power efficiency.
+
+% I believe this paper could be made stronger by also investigating the impact of power efficiency as a component of the cost function - if one looks at the latest processor chips from Intel and AMD, I can (finally) see there is a trend to increase the number of cores for all platforms.
+
+% In the past there has been not much opportunity to take advantage of parallelism on 2 core platforms (especially notebook designs used to limit the number of real cores), but with 6 or 8 core processors entering the main stream, we may take advantage of running more processors slower (lower voltage) or spreading out the workload over a larger die area. It is quite interesting to note that running one core hot will increase the leakage in that area of the die much more (exponentially with temperature), so distributing work over a larger die area results in reduced leakage - having said that, a similar effect can be achieved by migrating the workload from core to core.
 
 \begin{itemize}
 
