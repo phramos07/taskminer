@@ -38,6 +38,7 @@
 
 %% Packages that we are using in this version of the work:
 \usepackage{hyperref}
+\usepackage{amsmath}
 
 % To turn comments OFF simply comment out the \Commentstrue line
 \newif\ifComments\Commentstrue
@@ -63,6 +64,8 @@
 \fi
 \newcommand\dawn{\mbox{\textsf{DawnCC}}}
 \newcommand\Taskminer{\mbox{\textsf{TaskMiner}}}
+
+\newtheorem{Challenge}{Challenge}[section]
 
 \begin{document}
 
@@ -225,7 +228,7 @@ This paper describes \Taskminer, a compiler that mines task parallelism
 from programs.
 To fulfill this goal \Taskminer{} solves many challenges.
 First, it finds program regions, e.g., loops or functions, that can be
-effectively mapped onto tasks (Section~\ref{sub:region}).
+effectively mapped onto tasks (Section~\ref{sub:identification}).
 Second, it determines symbolic bounds to all the memory blocks accessed within
 those regions (Section~\ref{sub:symb}).
 Third, it maps such information back into source code, producing annotations
@@ -256,38 +259,123 @@ their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval
 \section{Overview}
 \label{sec:ovf}
 
+The automatic insertion of effective OpenMP annotations into C/C++ programs
+required us to deal with a number of challenges.
+If left unsolved, these challenges would restrict our interventions in programs
+to very trivial annotations, which would hardly be of any use.
+In the rest of this section, we discuss the most important challenges, using
+this discussion as a motivation to the developments that follow in
+Section~\ref{sec:sol}.
+
+\begin{Challenge}
+\label{ch:Regions}
+Identify the memory region covered by a task.
+\end{Challenge}
+
+Figure~\ref{fig:ex_Regions} illustrates Challenge~\ref{ch:Regions}, and shows
+how we solve it~\footnote{Figures~\ref{fig:ex_Regions}-\ref{fig:ex_cutoff} shows
+programs that we have annotated without any human intervention.
+Statements in black font are part of the original program.
+Annotations appear in grey.}.
+That program receives an $\mathsf{M}\times\mathsf{N}$ matrix \textsf{V}, in
+linearized format, and produces a vector \textsf{U}, so that \textsf{U[i]}
+contains the sum of all the elements in line \textsf{i} of matrix \textsf{V}.
+For reasons that will be made more clear in Section~\ref{sub:identification},
+our static analysis determines that each iteration of the outermost loops
+could be made into a task.
+Thus, tasks comprise the innermost loop, and traverse the memory region
+between addresses $\textsf{\&V + i * N}$ and $\textsf{\&V + i * N + M}$.
+The identification of such ranges involves the use of a symbolic algebra,
+which we have borrowed from the compiler-related literature, as we
+explain in Section~\ref{sub:symb}.
+Figure~\ref{fig:ex_Regions} also lets us introduce the second challenge that we
+tackle in this paper:
+
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[width=1\columnwidth]{images/ex_Regions}
+\includegraphics[width=0.95\columnwidth]{images/ex_Regions}
 \caption{Write caption here.}
 \label{fig:ex_Regions}
 \end{center}
 \end{figure}
 
+\begin{Challenge}
+\label{ch:cost}
+Estimate the profitability of tasks at runtime.
+\end{Challenge}
+
+The creation of tasks involves a non-negligible runtime cost, which includes
+the allocation of resources, and the scheduling of the task proper.
+Ideally, this cost should be paid only when the task performs an amount of
+work that is sufficiently large to pay for its management cost.
+Being an interesting program property, on Rice's sense~\cite{Rice53}, the amount
+of work performed by a task cannot be discovered statically.
+However, we can try to approximate this quantity, using, to this end, program
+symbols, which are replaced with actual values at runtime.
+For instance, in Figure~\ref{fig:ex_Regions}, we know that the body of the
+innermost loop is formed by five instructions.
+Thus, we approximate the amount of work performed by a task with the
+expression \textsf{5 * M}.
+We use the runtime value of \textsf{M} to determine, during the execution of the
+program, if we create a task, or not.
+Such test is carried out by the guard at line 7 of the figure, which is part of
+OpenMP's syntax.
+
+\begin{Challenge}
+\label{ch:cutoff}
+Bound the creation of recursive tasks.
+\end{Challenge}
+
+To introduce Challenge~\ref{ch:cutoff}, we quote Duran {\em et al.}:
+``{\em In task parallel languages, an important factor for achieving a good
+performance is the use of a cut-off technique to reduce the number of tasks
+created}"~\cite{Duran08}.
+This observation is particularly true in the context of recursive, fine-grain,
+tasks.
+Figure~\ref{fig:ex_cutoff} provides such an example.
+To place a limit on the number of tasks simultaneously in flight, we associate
+the invocation of recursive functions annotated with task pragmas with a
+counter -- \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:cutoff}.
+The guard in line 7 ensures that we never exceed \textsf{DEPTH\_CUTOFF}, a
+predetermined threshold.
+The code generation algorithms that we discuss in this paper are
+parameterized by constants such as \textsf{DEPTH\_CUTOFF}, or
+\textsf{WORK\_CUTOFF} in Figure~\ref{fig:ex_Regions}.
 
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[width=1\columnwidth]{images/ex_Cost}
+\includegraphics[width=0.95\columnwidth]{images/ex_cutoff}
 \caption{Write caption here.}
-\label{fig:ex_Cost}
+\label{fig:ex_cutoff}
 \end{center}
 \end{figure}
 
+\begin{Challenge}
+\label{ch:privatize}
+Identify private and shared variables.
+\end{Challenge}
+
+The two previous challenges are related to the performance of annotated
+programs: if left unsolved, we shall have correct, albeit inefficient programs.
+Challenges~\ref{ch:Regions}, and~\ref{ch:privatize}, on the other hand, are
+related to correctness.
+Challenge~\ref{ch:privatize} asks for the identification of variables that
+must be replicated among threads.
+This process of replication is called {\em privatization}.
+As an example, variable \textsf{j} in Figure~\ref{fig:ex_privatize} must
+be privatized.
+In the absence of such action, that variable will be shared among all the
+tasks created at line 5 of Figure~\ref{fig:ex_privatize}.
+Because \textsf{j} is writte within these tasks, race conditions would
+ensue.
+In Section~\ref{sub:variance} we explain how we separate private from
+shared variables.
 
 \begin{figure}[t!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/ex_privatize}
 \caption{Write caption here.}
 \label{fig:ex_privatize}
-\end{center}
-\end{figure}
-
-
-\begin{figure}[t!]
-\begin{center}
-\includegraphics[width=1\columnwidth]{images/ex_cutoff}
-\caption{Write caption here.}
-\label{fig:ex_cutoff}
 \end{center}
 \end{figure}
 
@@ -301,7 +389,7 @@ their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval
 \label{sec:sol}
 
 \subsection{Mapping Program Regions to Tasks}
-\label{sub:region}
+\label{sub:identification}
 
 \subsection{Finding Symbolic Bounds of Arrays}
 \label{sub:symb}
@@ -310,12 +398,9 @@ their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval
 \label{sub:ir}
 
 \subsection{Estimating the Profitability of Tasks}
-\label{sub:ir}
-
-\subsection{Separating Private from Shared Variables}
 \label{sub:profit}
 
-\subsection{Mapping IR onto Source Code}
+\subsection{Separating Private from Shared Variables}
 \label{sub:variance}
 
 
