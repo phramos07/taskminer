@@ -2,6 +2,7 @@
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/PostDominators.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Analysis/CallGraph.h"
 
 //local imports
 #include "TaskMiner.h"
@@ -48,6 +49,7 @@ STATISTIC(NMODULEINSTS, "Total number of module instructions");
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 {
 	AU.addRequired<DepAnalysis>();
+	AU.addRequired<CallGraphWrapperPass>();
 	AU.addRequired<RegionInfoPass>();
 	AU.addRequired<LoopInfoWrapperPass>();
 	AU.setPreservesAll();
@@ -55,29 +57,37 @@ void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 
 bool TaskMiner::runOnModule(Module &M)
 {
+	errs() << "++++++++++++++++++++++++\n";
+	errs() << "\tTASKMINER\n";
+	errs() << "++++++++++++++++++++++++\n";
+
 	//STEP 1: GET TASK GRAPH FOR THE WHOLE MODULE
+	errs() << "\nSTEP 1: Generating Task Graph\n";
 	taskGraph = gettaskGraph(M);
 
 	if (printTaskGraph)
-	{
 		taskGraph->dumpToDot(M.getName(), true);
-	}
 
 	//STEP2: FIND SCC'S IN THE TASKGRAPH.
+	errs() << "STEP 2: Finding SCC's in the Task Graph.\n";
 	SCCs = taskGraph->getStronglyConnectedSubgraphs();
 
 	//STEP3: MINE FOR TASKS
-	mineTasks();
+	errs() << "STEP 3: Mining Tasks\n";
+	mineTasks(M);
 	
 	//STEP4: FIND THE INS/OUTS OF EACH TASK. INCLUDING ALIASING.
+	errs() << "STEP 4: Determining dependences and memory regions.\n";
 	resolveInsAndOutsSets();
 
 	//STEP5: COMPUTE THE COSTS OF EACH TASK.
-	computeCosts();
+	errs() << "STEP 5: Estimating the cost for region tasks.\n";
+	// computeCosts();
 
 	//STEP6: GIVE IT OUT TO THE ANNOTATOR.
+	errs() << "STEP 6: Infering Source Code information to Annotate the Tasks.\n";
 
-	DEBUG_WITH_TYPE("print-tasks", printRegionInfo());
+	// DEBUG_WITH_TYPE("print-tasks", printRegionInfo());
 	DEBUG_WITH_TYPE("print-tasks", printTasks());
 
 	computeStats(M);
@@ -85,17 +95,72 @@ bool TaskMiner::runOnModule(Module &M)
 	return false;
 }
 
+//Determines the top level callsites for every recursive task.
+void TaskMiner::determineTopLevelRecursiveCalls(Module &M)
+{
+	errs() << "\t\t\tDetermining top level recursive calls..\n";
+	CallGraphWrapperPass* CGWP = &(getAnalysis<CallGraphWrapperPass>());
+	for (auto recFunc : function_tasks)
+	{
+		if (!isRecursive(*recFunc, CGWP->getCallGraph()))
+			continue;
+
+		CallGraphNode *CGN;
+		for (Module::iterator F = M.begin(); F != M.end(); ++F)
+		{
+			if (isRecursive(*F, CGWP->getCallGraph()) || F->empty())
+				continue;
+
+			CGN = (*CGWP)[F];
+			for (unsigned i = 0; i < CGN->size(); i++)
+			{
+				auto caller = (*CGN)[i]->getFunction();
+				if (caller == recFunc)
+				{
+					findTopLevelFunctionCall(*recFunc, *F);
+				}
+			}
+		}
+	}
+}
+
+//Traverse through all the function calls in caller until it finds callee
+//then it adds it to the list of call insts.
+void TaskMiner::findTopLevelFunctionCall(Function &callee, Function &caller)
+{
+	for (Function::iterator BB = caller.begin(); BB != caller.end(); ++BB)
+		for (BasicBlock::iterator inst = BB->begin(); inst != BB->end(); ++inst)
+		{
+			CallInst* CI = dyn_cast<CallInst>(inst);
+			if (!CI || CI->getCalledFunction() != &callee)
+				continue;
+
+			topLevelRecCalls.insert(CI);			
+		}
+}
+
+//Check if function is recursive.
+bool TaskMiner::isRecursive(Function &F, CallGraph &CG)
+{
+	auto callNode = CG[&F];
+	for (unsigned i = 0; i < callNode->size(); i++)
+	{
+		if ((*callNode)[i]->getFunction() == &F)
+			return true;
+	}
+
+	return false;
+}
+
 std::map<Function*, RegionTree*> TaskMiner::getAllRegionTrees(Module &M)
 {
 	std::map<Function*, RegionTree*> RTs;
-
 	for (Module::iterator F = M.begin(); F != M.end(); ++F)
 	{
-		if (!F->empty())
-		{	
-			DepAnalysis *DP = &(getAnalysis<DepAnalysis>(*F));
-			RTs[F] = std::move((DP->getRegionTree()));
-		}
+		if (F->empty())
+			continue;
+		DepAnalysis* DP = &(getAnalysis<DepAnalysis>(*F));
+		RTs[F] = std::move((DP->getRegionTree()));
 	}
 
 	return RTs;
@@ -159,10 +224,10 @@ RegionTree* TaskMiner::gettaskGraph(Module &M)
 	//ALWAYS CONNECT TO THE REAL TOPLEVEL. I'll need to connect real -> toplevel and hub -> toplevel
 	for (Module::iterator F = M.begin(); F != M.end(); ++F)
 	{
-		F->dump();
+		// F->dump();
 		if (F->empty())
 		{
-			errs() << "function with no body.\n";
+			// errs() << "function with no body.\n";
 			continue;
 		}
 		RegionInfoPass* RIP = &(getAnalysis<RegionInfoPass>(*F));
@@ -208,6 +273,7 @@ RegionTree* TaskMiner::gettaskGraph(Module &M)
 
 void	TaskMiner::mineFunctionCallTasks()
 {
+	errs() << "\tMining function call tasks...\n";
 	//For each FCALL edge, check if
 	// A) it comes from an SCC
 	// B) it goes to an SCC
@@ -233,6 +299,8 @@ void	TaskMiner::mineFunctionCallTasks()
 				}
 			}
 			CallInst* CI = callInsts[e];
+			if (topLevelRecCalls.find(CI) != topLevelRecCalls.end())
+				continue;
 			bool hasLoop = srcRW->hasLoop;
 			if ((srcRW->F != dstRW->F)
 				&& (hasLoop)
@@ -254,6 +322,7 @@ void	TaskMiner::mineFunctionCallTasks()
 
 void TaskMiner::mineRecursiveTasks()
 {
+	errs() << "\tMining recursive call tasks...\n";
 	//For mining recursive tasks, check
 	//A) If edgetype is FCALL and srcF == dstF
 	//B) Go through every Fcall inside F that matches F
@@ -334,11 +403,14 @@ void TaskMiner::mineRecursiveTasks()
 	//Now what do we do here? We go through every recursive task in each function.
 	//we call the region analysis. If the recursive calls are in different regions,
 	//we don't add them to the main list of tasks.
+
+		//WHY DID I WRITE THIS? I don't remember this above /
 	}
 }
 
 void TaskMiner::mineRegionTasks()
 {
+	errs() << "\tMining Region Tasks...\n";
 	//1: go through every SCC >= 2
 	//2: check the function in every SCC. only analyse those which
 	//haven't been added as a functioncall task or recursive task
@@ -348,15 +420,14 @@ void TaskMiner::mineRegionTasks()
 
 	for (auto scc : SCCs)
 	{
-		if (scc->size() > 1)
+		if (scc->size() <= 1)
+			continue;
+		for (auto n : scc->getNodes())
 		{
-			for (auto n : scc->getNodes())
+			if (std::find(function_tasks.begin(), 
+				function_tasks.end(), n->getItem()->F) == function_tasks.end())
 			{
-				if (std::find(function_tasks.begin(), 
-					function_tasks.end(), n->getItem()->F) == function_tasks.end())
-				{
-					candidate_sccs.insert(scc);
-				}
+				candidate_sccs.insert(scc);
 			}
 		}
 	}
@@ -424,10 +495,14 @@ void TaskMiner::mineLoopTasks()
 
 }
 
-
-void TaskMiner::mineTasks()
+void TaskMiner::mineTasks(Module &M)
 {
 	mineRecursiveTasks();
+	//Walk through every rec call and find the top level call.
+	//Only add it if they are NOT inside a loop.
+	determineTopLevelRecursiveCalls(M);	
+
+	//Only mine the function calls that are NOT top level rec calls.
 	mineFunctionCallTasks();
 	mineRegionTasks();
 }

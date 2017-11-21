@@ -34,6 +34,9 @@ namespace llvm
 		//Keep functions that have been turned into tasks
 		std::set<Function*> function_tasks;
 
+		//List of top level recursive function calls
+		std::set<CallInst*> topLevelRecCalls;
+
 	public:
 		static char ID;
 		TaskMiner() : ModulePass(ID) {}
@@ -47,12 +50,16 @@ namespace llvm
 		void mineRecursiveTasks();
 		void mineFunctionCallTasks();
 		void mineLoopTasks();
-		void mineTasks();
+		void mineTasks(Module &M);
 		void resolveInsAndOutsSets();
 		void computeCosts();
 		void computeStats(Module &M);
 		void computeTotalCost();
+		void determineTopLevelRecursiveCalls(Module &M);
+		bool isRecursive(Function &F, CallGraph &CG);
+		void findTopLevelFunctionCall(Function &callee, Function &caller);
 		std::list<Task*> getTasks() { return tasks; }
+		std::set<CallInst*> getTopLevelRecCalls() { return topLevelRecCalls; };
 
 		//printing methods
 		void printTasks();

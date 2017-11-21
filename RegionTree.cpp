@@ -162,7 +162,7 @@ void RegionTree::dumpToDot(std::string filename, bool dep)
 		dotStream.close();
 	}
 
-	errs() << "\n\n";
+	// errs() << "\n\n";
 }
 
 std::set<Graph<RegionWrapper*, EdgeDepType>* > 

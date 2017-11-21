@@ -52,9 +52,6 @@ namespace llvm {
 		bool runOnFunction(Function &F) override;
 		PDG* getDepGraph() { return G; }
 		RegionTree* getRegionTree() { return RT; }
-
-		//printing methods
-		raw_ostream& print(raw_ostream& os=errs()) const;
 	};
 
 }

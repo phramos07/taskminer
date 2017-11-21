@@ -80,14 +80,18 @@
   /Users/pedroramos/programs/llvm/include/llvm/Support/raw_ostream.h \
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/PostDominators.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/CommandLine.h \
+  /Users/pedroramos/programs/llvm/include/llvm/Analysis/CallGraph.h \
+  /Users/pedroramos/programs/llvm/include/llvm/IR/CallSite.h \
+  /Users/pedroramos/programs/llvm/include/llvm/IR/Instructions.h \
+  /Users/pedroramos/programs/llvm/include/llvm/IR/Intrinsics.h \
+  /Users/pedroramos/programs/llvm/include/llvm/IR/Intrinsics.gen \
+  /Users/pedroramos/programs/llvm/include/llvm/IR/ValueHandle.h \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/TaskMiner.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/DepAnalysis.h \
   /Users/pedroramos/programs/llvm/include/llvm/Support/Debug.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/InstIterator.h \
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/AliasAnalysis.h \
-  /Users/pedroramos/programs/llvm/include/llvm/IR/CallSite.h \
-  /Users/pedroramos/programs/llvm/include/llvm/IR/Instructions.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Metadata.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Metadata.def \
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/MemoryLocation.h \
@@ -99,7 +103,6 @@
   /Users/pedroramos/programs/llvm/include/llvm/IR/Operator.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/Constants.h \
   /Users/pedroramos/programs/llvm/include/llvm/IR/DataLayout.h \
-  /Users/pedroramos/programs/llvm/include/llvm/IR/ValueHandle.h \
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/ScalarEvolutionExpressions.h \
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/ValueTracking.h \
   /Users/pedroramos/programs/llvm/include/llvm/Analysis/DependenceAnalysis.h \
@@ -283,6 +286,18 @@
 
 /Users/pedroramos/programs/llvm/include/llvm/Support/CommandLine.h:
 
+/Users/pedroramos/programs/llvm/include/llvm/Analysis/CallGraph.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/IR/CallSite.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/IR/Instructions.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/IR/Intrinsics.h:
+
+/Users/pedroramos/programs/llvm/include/llvm/IR/Intrinsics.gen:
+
+/Users/pedroramos/programs/llvm/include/llvm/IR/ValueHandle.h:
+
 /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/TaskMiner.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/ADT/Statistic.h:
@@ -294,10 +309,6 @@
 /Users/pedroramos/programs/llvm/include/llvm/IR/InstIterator.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Analysis/AliasAnalysis.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/IR/CallSite.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/IR/Instructions.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/IR/Metadata.h:
 
@@ -320,8 +331,6 @@
 /Users/pedroramos/programs/llvm/include/llvm/IR/Constants.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/IR/DataLayout.h:
-
-/Users/pedroramos/programs/llvm/include/llvm/IR/ValueHandle.h:
 
 /Users/pedroramos/programs/llvm/include/llvm/Analysis/ScalarEvolutionExpressions.h:
 
