@@ -1,5 +1,6 @@
 #include "llvm/Pass.h"
 #include "llvm/ADT/Statistic.h"
+#include "llvm/Analysis/CallGraph.h"
 
 //LOCAL IMPORTS
 #include "DepAnalysis.h"

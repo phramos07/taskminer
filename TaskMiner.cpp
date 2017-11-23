@@ -82,7 +82,7 @@ bool TaskMiner::runOnModule(Module &M)
 
 	//STEP5: COMPUTE THE COSTS OF EACH TASK.
 	errs() << "STEP 5: Estimating the cost for region tasks.\n";
-	// computeCosts();
+	computeCosts();
 
 	//STEP6: GIVE IT OUT TO THE ANNOTATOR.
 	errs() << "STEP 6: Infering Source Code information to Annotate the Tasks.\n";
@@ -549,7 +549,11 @@ void TaskMiner::resolveInsAndOutsSets()
 void TaskMiner::computeCosts()
 {
 	for (auto task : tasks)
+	{
+		if (task->getKind() == Task::TaskKind::RECURSIVE_TASK)
+			continue;
 		task->computeCost();
+	}
 }
 
 void TaskMiner::computeTotalCost()
