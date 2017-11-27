@@ -345,7 +345,8 @@ void TaskMiner::mineRecursiveTasks()
 	}
 
 
-	std::map<Function*, std::set<CallInst*> > rec_calls;
+	std::map<Function*, std::list<CallInst*> > rec_calls;
+	std::set<CallInst*> rec_calls_aux;
 
 	//Go through the list of Functions
 	for (auto F : rec_funcs)
@@ -357,10 +358,14 @@ void TaskMiner::mineRecursiveTasks()
 				if (CallInst* CI = dyn_cast<CallInst>(I))
 				{
 					Function* calledF = CI->getCalledFunction();
-					if (calledF == F)
-					{
-						rec_calls[F].insert(CI);
-					}
+					if (calledF != F)
+						continue;
+
+					if (rec_calls_aux.find(CI) != rec_calls_aux.end())
+						continue;
+
+					rec_calls_aux.insert(CI);
+					rec_calls[F].push_back(CI);
 				}
 			}
 		}

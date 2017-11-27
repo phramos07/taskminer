@@ -61,6 +61,11 @@ taskminer: bc
 		$(OPT) -load $(TASKMINER) $$SRC $(TASKMINER_FLAGS);  \
 	done
 
+memory_check: bc
+	for SRC in $(ALLBCFILES); do \
+		valgrind --leak-check=full $(OPT) -load $(TASKMINER) $$SRC $(TASKMINER_FLAGS);  \
+	done
+
 annotator: bc
 	for SRC in $(ALLBCFILES); do \
 		# runanalyses.sh do gleison \
