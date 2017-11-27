@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -255,6 +261,7 @@ void FastAdditiveNaiveMatrixMultiply(REAL *C, REAL *A, REAL *B,
 **
 *****************************************************************************/
 void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
+                                taskminer_depth_cutoff++;
                                 unsigned RowWidthC, unsigned RowWidthA,
                                 unsigned RowWidthB, int AdditiveMode) {
 #define A00 A
@@ -278,40 +285,46 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
 
   if (QuadrantSize > SizeAtWhichNaiveAlgorithmIsMoreEfficient) {
 
-    #pragma omp task depend(in:C,A,B)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:C,A,B) if(cutoff_test)
     MultiplyByDivideAndConquer(C00, A00, B00, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, AdditiveMode);
 
-    #pragma omp task depend(in:A,B01,C01)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:A,B01,C01) if(cutoff_test)
     MultiplyByDivideAndConquer(C01, A00, B01, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, AdditiveMode);
 
-    #pragma omp task depend(in:A10,B01,C11)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:A10,B01,C11) if(cutoff_test)
     MultiplyByDivideAndConquer(C11, A10, B01, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, AdditiveMode);
 
-    #pragma omp task depend(in:B,A10,C10)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:B,A10,C10) if(cutoff_test)
     MultiplyByDivideAndConquer(C10, A10, B00, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, AdditiveMode);
 
-    #pragma omp task depend(in:C,A01,B10)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:C,A01,B10) if(cutoff_test)
     MultiplyByDivideAndConquer(C00, A01, B10, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, 1);
 
-    #pragma omp task depend(in:A01,B11,C01)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:A01,B11,C01) if(cutoff_test)
     MultiplyByDivideAndConquer(C01, A01, B11, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, 1);
 
-    #pragma omp task depend(in:A11,B11,C11)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:A11,B11,C11) if(cutoff_test)
     MultiplyByDivideAndConquer(C11, A11, B11, QuadrantSize, RowWidthC,
                                RowWidthA, RowWidthB, 1);
 
-    #pragma omp task depend(in:A11,B10,C10)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:A11,B10,C10) if(cutoff_test)
     MultiplyByDivideAndConquer(C10, A11, B10, QuadrantSize, RowWidthC,
+                               #pragma omp taskwait
                                RowWidthA, RowWidthB, 1);
-
-                                   #pragma omp taskwait
-
 
   } else {
 
@@ -356,6 +369,7 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
                                     RowWidthA, RowWidthB);
   }
   return;
+taskminer_depth_cutoff--;
 }
 /*****************************************************************************
 **
@@ -378,6 +392,7 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
 **
 *****************************************************************************/
 void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
+                               taskminer_depth_cutoff++;
                                unsigned RowWidthC, unsigned RowWidthA,
                                unsigned RowWidthB, int Depth) {
   unsigned QuadrantSize = MatrixSize >> 1; /* MatixSize / 2 */
@@ -509,42 +524,47 @@ void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
   } /* end column loop */
 
   /* M2 = A11 x B11 */
-  #pragma omp task depend(in:A,B)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:A,B) if(cutoff_test)
   OptimizedStrassenMultiply(M2, A11, B11, QuadrantSize, QuadrantSize, RowWidthA,
                             RowWidthB, Depth + 1);
 
   /* M5 = S1 * S5 */
-  #pragma omp task
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) if(cutoff_test)
   OptimizedStrassenMultiply(M5, S1, S5, QuadrantSize, QuadrantSize,
                             QuadrantSize, QuadrantSize, Depth + 1);
 
   /* Step 1 of T1 = S2 x S6 + M2 */
-  #pragma omp task
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) if(cutoff_test)
   OptimizedStrassenMultiply(T1sMULT, S2, S6, QuadrantSize, QuadrantSize,
                             QuadrantSize, QuadrantSize, Depth + 1);
 
   /* Step 1 of T2 = T1 + S3 x S7 */
-  #pragma omp task depend(in:C22)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:C22) if(cutoff_test)
   OptimizedStrassenMultiply(C22, S3, S7, QuadrantSize, RowWidthC /*FIXME*/,
                             QuadrantSize, QuadrantSize, Depth + 1);
 
   /* Step 1 of C11 = M2 + A12 * B21 */
-  #pragma omp task depend(in:C,A12,B21)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:C,A12,B21) if(cutoff_test)
   OptimizedStrassenMultiply(C11, A12, B21, QuadrantSize, RowWidthC, RowWidthA,
                             RowWidthB, Depth + 1);
 
   /* Step 1 of C12 = S4 x B22 + T1 + M5 */
-  #pragma omp task depend(in:C12,B22)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:C12,B22) if(cutoff_test)
   OptimizedStrassenMultiply(C12, S4, B22, QuadrantSize, RowWidthC, QuadrantSize,
                             RowWidthB, Depth + 1);
 
   /* Step 1 of C21 = T2 - A22 * S8 */
-  #pragma omp task depend(in:C21,A22)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:C21,A22) if(cutoff_test)
   OptimizedStrassenMultiply(C21, A22, S8, QuadrantSize, RowWidthC, RowWidthA,
+                            #pragma omp taskwait
                             QuadrantSize, Depth + 1);
-
-  #pragma omp taskwait
-
 
   /***************************************************************************
   ** Step through all columns row by row (vertically)
@@ -603,6 +623,7 @@ void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
     C22 = (REAL *)(((PTR)C22) + RowIncrementC);
   }
   free(StartHeap);
+taskminer_depth_cutoff--;
 }
 /*
  * Set an n by n matrix A to random values.  The distance between
@@ -648,9 +669,6 @@ REAL *alloc_matrix(int n) { return malloc(n * n * sizeof(REAL)); }
 
 void strassen_main(REAL *A, REAL *B, REAL *C, int n) {
   printf("Computing Strassen algorithm (n=%d) ", n);
-  #pragma omp parallel
-  #pragma omp single
-  #pragma omp task untied
   OptimizedStrassenMultiply(C, A, B, n, n, n, n, 1);
   printf(" completed!\n");
 }

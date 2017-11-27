@@ -171,18 +171,14 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
 }
 void knapsack_main_par(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
-  {
-    { 
-    	knapsack_par(e, c, n, 0, sol, 0);
-    }
-  }
-    printf("Best value for parallel execution is %d\n\n", *sol);
+  knapsack_par(e, c, n, 0, sol, 0);
+  printf("Best value for parallel execution is %d\n\n", *sol);
 }
 void knapsack_main_seq(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
   knapsack_seq(e, c, n, 0, sol);
 
-    printf("Best value for sequential execution is %d\n\n", *sol);
+  printf("Best value for sequential execution is %d\n\n", *sol);
 }
 
 int knapsack_check(int sol_seq, int sol_par) {
@@ -192,23 +188,22 @@ int knapsack_check(int sol_seq, int sol_par) {
     return -1;
 }
 
-int main(int argc, char const *argv[])
-{
-	struct item items[MAX_ITEMS];
-	int n, capacity;
-	int sol = 0;
-	read_input(argv[1], items, &capacity, &n);
+int main(int argc, char const *argv[]) {
+  struct item items[MAX_ITEMS];
+  int n, capacity;
+  int sol = 0;
+  read_input(argv[1], items, &capacity, &n);
 
-	//MAIN CALL
-	knapsack_main_par(items, capacity, n, &sol);
+  // MAIN CALL
+  knapsack_main_par(items, capacity, n, &sol);
 
-	#ifdef CHECK_SOLUTION
-		int sol2 = 0;
-		knapsack_main_seq(items, capacity, n, &sol2);
-		
-		if (knapsack_check(sol, sol2) != 1)
-			printf("ERROR! Solution not correct!\n");
-	#endif
+#ifdef CHECK_SOLUTION
+  int sol2 = 0;
+  knapsack_main_seq(items, capacity, n, &sol2);
 
-	return 0;
+  if (knapsack_check(sol, sol2) != 1)
+    printf("ERROR! Solution not correct!\n");
+#endif
+
+  return 0;
 }

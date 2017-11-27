@@ -46,8 +46,8 @@ mv tmp.txt ${THIS}/$1
 
 $CLANG $OMP -std=c99 -g -S -emit-llvm ${THIS}/$1 -o result.bc 
 
-#$OPT -mem2reg -instnamer result.bc -o result.mem.bc
-#$OPT -load $WTM -taskminer result.mem.bc
+$OPT -mem2reg -instnamer result.bc -o result.mem.bc
+$OPT -load $WTM -taskminer result.mem.bc
 
 $OPT -load $ST -instnamer -mem2reg -scopeTree result.bc 
 

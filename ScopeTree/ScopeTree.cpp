@@ -83,6 +83,14 @@ bool ScopeTree::isFileName (std::string str) {
   return true;
 }
 
+int ScopeTree::getMinLineFunction(Function *F) {
+  return funcNodes[F].startLine;
+}
+
+int ScopeTree::getMaxLineFunction(Function *F) {
+  return funcNodes[F].endLine;
+}
+
 ScopeTree::STnode ScopeTree::generateSTNode (std::string str) {
   STnode node = initSTnode();
   unsigned int i = 0, ie = str.size();
@@ -565,7 +573,14 @@ int ScopeTree::getMinLine(std::set<BasicBlock*> & BBS) {
   int minLine = 99999999;
   int line = 99999999;
   for (auto BB : BBS) {
+  /*  Loop *L = li->getLoopFor(BB);
+    if (L && L->getHeader() == BB)
+      continue;
+    if(L && L->getExitBlock() && L->getExitBlock() == BB)
+      continue;*/
     for (auto I = BB->begin(), E = --BB->end(); I != E; ++I) {
+       //if (isa<PHINode>(I) || isa<BranchInst>(I))
+       //  continue;
        line = getLineNo(I);
        if ((line < minLine) && line != -1) {
          errs() << "MIN = " << line << "\n";
@@ -581,9 +596,9 @@ int ScopeTree::getMaxLine(std::set<BasicBlock*> & BBS) {
   int maxLine = -1;
   int line = -1;
   for (auto BB : BBS) {
-    for (auto I = BB->begin(), E = --BB->end(); I != E; ++I) {
+    for (auto I = BB->begin(), E = --BB->end(); I != E; ++I) { 
        if (isa<BranchInst>(I))
-         continue; 
+         continue;
        line = getLineNo(I);
        if (line > maxLine) {
          maxLine = line;
@@ -593,15 +608,34 @@ int ScopeTree::getMaxLine(std::set<BasicBlock*> & BBS) {
   return maxLine;
 }
 
-void ScopeTree::getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max) {
+bool ScopeTree::getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max) {
   int lmin = getMinLine(BBS);
   int lmax = getMaxLine(BBS);
   if (isSafetlyInstSet(BBS)) {
+    errs () << "Safe : " << std::to_string(lmin) << " - " << 
+      std::to_string(lmax) << "\n";
     *min = lmin;
     *max = lmax;
-    return;
+    return true;
   }
-  Function *F = (*(BBS.begin()))->getParent();
+  Loop *L1, *L2;
+  
+  L1 = this->li->getLoopFor(*(BBS.begin()));
+  if (!L1)
+    return false;
+  L2 = L1;
+  while (L2->getParentLoop()) {
+    L2 = L2->getParentLoop();
+  } 
+  if (L1 && L2) {
+    lmin = loopNodes[L2].startLine;
+    lmax = loopNodes[L2].endLine;
+    *min = lmin + 1;
+    *max = lmax;
+    return true;
+  }
+  return false;
+/*  Function *F = (*(BBS.begin()))->getParent();
   Module *M = F->getParent();
   std::string fName = getFileName(F->begin()->getTerminator());
   if (info.count(M) < 1) 
@@ -624,18 +658,22 @@ void ScopeTree::getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max
       }
     }
   }
-  *min = smallest.startLine;
-  *max = smallest.endLine + 1;
+  *min = smallest.startLine + 1;
+  *max = smallest.endLine;
+  if ((*min <= funcNodes[F].startLine) || (*max >= funcNodes[F].endLine)) {
+    *min = funcNodes[F].startLine + 1;
+    *max = funcNodes[F].endLine - 1;
+  }*/
 }
 
 bool ScopeTree::brokeScope(int start, int end, STnode node) {
-  if ((node.startLine <= start) && (node.endLine >= end))
+  if ((node.startLine < start) && (node.endLine > end))
     return false;
-  if ((node.startLine >= start) && (node.endLine <= end))
+  if ((node.startLine > start) && (node.endLine < end))
     return false;
-  if ((node.startLine <= start) && (node.endLine <= start))
+  if ((node.startLine < start) && (node.endLine < start))
     return false;
-  if ((node.startLine >= end) && (node.endLine >= end))
+  if ((node.startLine > end) && (node.endLine > end))
     return false;
   errs() << "Node = " << node.startLine << " - " << node.endLine << "\n";
   errs() << "Set = " << start << " - " << end << "\n";

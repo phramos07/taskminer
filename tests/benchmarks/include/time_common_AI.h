@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 #ifndef TIME_COMMON_H
 #define TIME_COMMON_H
 #include <time.h>

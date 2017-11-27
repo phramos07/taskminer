@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -24,46 +30,52 @@
 #include "fib.h"
 #include "../../include/time_common.h"
 
-unsigned long long int res;
+unsigned long long res;
 
-unsigned long long int fib(unsigned long long int n) {
-  unsigned long long int x, y;
+unsigned long long int fib(long long int n) {
+  taskminer_depth_cutoff++;
+  long long x, y;
   if (n < 2)
     return n;
 
-  #pragma omp task shared(x)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) if(cutoff_test)
   x = fib(n - 1);
-  #pragma omp task shared(y)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) if(cutoff_test)
   y = fib(n - 2);
+#pragma omp taskwait
 
-	#pragma omp taskwait
   return x + y;
+taskminer_depth_cutoff--;
 }
 
-void fib0(unsigned long long int n) {
+void fib0(long long int n) {
   Instance *I = newInstance(100);
 
   clock_t beg, end;
-  unsigned long long int i;
+  int i;
+  #pragma omp parallel
+  #pragma omp single
   for (i = 15; i <= n; i += 5) {
     beg = clock();
-  	#pragma omp parallel
-  	#pragma omp single
-  	#pragma omp task untied
     res = fib(i);
-
     end = clock();
-    printf("Fib(%lld) : %lld\n", i, res);
+    printf("Fib(%d) : %lld\n", i, res);
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared)
     addNewEntry(I, i, getTimeInSecs(end - beg));
   }
+  #pragma omp taskwait
   printf("\n\n");
   writeResultsToOutput(stdout, I);
   freeInstance(I);
 }
 
 int main(int argc, char const *argv[]) {
-  unsigned long long int n = atoi(argv[1]);
+  long long int n = atoi(argv[1]);
   fib0(n);
 
   return 0;
 }
+

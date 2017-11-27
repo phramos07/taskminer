@@ -19,7 +19,7 @@
 /**********************************************************************************************/
 #ifndef FIB_H
 #define FIB_H
-unsigned long long int fib (unsigned long long int n);
-void fib0 (unsigned long long int n);
+//unsigned long long int fib (long long int n);
+//void fib0 (unsigned long long int n);
 #endif
 

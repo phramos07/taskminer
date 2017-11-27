@@ -33,13 +33,18 @@ int main(int argc, char *argv[]) {
   fscanf(in, "%d\n", &numChars);
   size = (int *)malloc((numLines) * sizeof(int));
   lines = (char *)malloc((numLines * numChars + 1) * sizeof(char *));
+  #pragma omp parallel
+  #pragma omp single
   for (int i = 0; i < (numLines); i++) {
+    #pragma omp task depend(in:numLines,numChars,alphabet[i],argv[2],filtered[i]) depend(out:size[i],filtered[i],alphabet[i])
+    {
     size[i] = numChars;
     // lines[i] = (char*)malloc((numChars+1)*sizeof(char));
     for (int j = 0; j < numChars; j++) {
       fscanf(in, "%c", &lines[i * numChars + j]);
     }
     fscanf(in, "\n", NULL);
+  }
   }
 
   int *filtered = (int *)malloc(numLines * sizeof(int));
@@ -99,9 +104,9 @@ char **getLines(char *name, int *numLines, int *size) {
   lines = (char **)malloc((*numLines) * sizeof(char *));
   #pragma omp parallel
   #pragma omp single
-  #pragma omp task depend(in:numLines,numChars,lines[i]) depend(out:size[i],lines[i])
-  {
   for (int i = 0; i < (*numLines); i++) {
+    #pragma omp task depend(in:numLines,numChars,lines[i]) depend(out:size[i],lines[i])
+    {
     fscanf(in, "%d ", &numChars);
     size[i] = numChars;
     lines[i] = (char *)malloc((numChars + 1) * sizeof(char));
@@ -133,8 +138,8 @@ void filterLines(char *lines, int *size, int numLines, int numChars, char *word,
 void filterLine(char *line, int lineSize, char *word, int wordSize,
                 int *occurrences, int *alphabet) {
   for (int i = 0; i < lineSize; i++) {
-    if (*(line + i) == word[0]) // found first letter
-    {
+    // found first letter
+    if (*(line + i) == word[0]) {
       for (int k = 1; k < wordSize; k++) {
         if (i + k >= lineSize)
           break;
@@ -142,26 +147,34 @@ void filterLine(char *line, int lineSize, char *word, int wordSize,
         if (*(line + i + k) != word[k])
           break;
 
-        if (k == wordSize - 1)
+        if (k == wordSize - 1) {
           (*occurrences)++;
+        }
       }
     }
   }
 
   int a, b;
 
+  #pragma omp parallel
+  #pragma omp single
   for (int i = 0; i < lineSize - 1; i++) {
+    #pragma omp task depend(in:line[i],word,line[i],word[k],line[i],line[i]) depend(inout:occurrences,alphabet)
+    {
     a = (int)(*(line + i));
     b = (int)(*(line + i + 1));
 
     // printf("%d %d\n", a, b);
 
-    if (a == b + 1)
+    if (a == b + 1) {
       (*alphabet)++;
+    }
+  }
   }
 
-  for (int i = 0 + *occurrences; i < lineSize; i++)
-    for (int j = *occurrences; j < lineSize; j++)
-      ;
+  for (int i = 0 + *occurrences; i < lineSize; i++) {
+    for (int j = *occurrences; j < lineSize; j++) {
+    }
+  }
 }
 

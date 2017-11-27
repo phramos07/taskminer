@@ -64,11 +64,21 @@ class RecoverExpressions : public FunctionPass {
 
   std::map<Region*, RegionTask*> bbsRegion;
 
+  std::map<Function*, bool> isRecursive;
+
+  std::map<CallInst*, bool> isFCall;
+
   //===---------------------------------------------------------------------===
 
   // Methods to manage the correct computation auxiliar names.
   int getIndex();
   int getNewIndex();
+
+  // Identify all Recursive Tasks.
+  void findRecursiveTasks();
+
+  // Insert the Cutoff in recursive functions.
+  void insertCutoff(Function *F);
 
   // Analyze a call instruction.
   std::string analyzeCallInst(CallInst *CI, const DataLayout *DT,

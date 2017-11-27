@@ -16,6 +16,8 @@
 
 /home/gleison/lge/llvm-3.7-src/build-debug/include/llvm/Config/llvm-config.h
 
+/home/gleison/lge/llvm-3.7-src/build-debug/include/llvm/IR/Intrinsics.gen
+
 /home/gleison/lge/llvm-3.7-src/build-debug/include/llvm/Support/DataTypes.h
 cmath
 -
@@ -440,6 +442,24 @@ llvm/IR/Metadata.h
 llvm/Analysis/MemoryLocation.h
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/Analysis/MemoryLocation.h
 
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/CallGraph.h
+llvm/ADT/GraphTraits.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/ADT/GraphTraits.h
+llvm/ADT/STLExtras.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/ADT/STLExtras.h
+llvm/IR/CallSite.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/CallSite.h
+llvm/IR/Function.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/Function.h
+llvm/IR/Intrinsics.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/Intrinsics.h
+llvm/IR/ValueHandle.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/ValueHandle.h
+llvm/Pass.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/Pass.h
+map
+-
+
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/DependenceAnalysis.h
 llvm/ADT/SmallBitVector.h
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/ADT/SmallBitVector.h
@@ -825,6 +845,14 @@ llvm/Support/ErrorHandling.h
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/IR/llvm/Support/ErrorHandling.h
 iterator
 -
+
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/IR/Intrinsics.h
+llvm/ADT/ArrayRef.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/IR/llvm/ADT/ArrayRef.h
+string
+-
+llvm/IR/Intrinsics.gen
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/IR/llvm/IR/Intrinsics.gen
 
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/IR/Metadata.def
 
@@ -1531,6 +1559,8 @@ llvm/Analysis/PostDominators.h
 /home/gleison/lge/taskminer/llvm/Analysis/PostDominators.h
 llvm/Support/CommandLine.h
 /home/gleison/lge/taskminer/llvm/Support/CommandLine.h
+llvm/Analysis/CallGraph.h
+/home/gleison/lge/taskminer/llvm/Analysis/CallGraph.h
 TaskMiner.h
 /home/gleison/lge/taskminer/TaskMiner.h
 Task.h
@@ -1543,6 +1573,8 @@ llvm/Pass.h
 /home/gleison/lge/taskminer/llvm/Pass.h
 llvm/ADT/Statistic.h
 /home/gleison/lge/taskminer/llvm/ADT/Statistic.h
+llvm/Analysis/CallGraph.h
+/home/gleison/lge/taskminer/llvm/Analysis/CallGraph.h
 DepAnalysis.h
 /home/gleison/lge/taskminer/DepAnalysis.h
 RegionTree.h

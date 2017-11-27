@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -81,6 +87,7 @@ int read_input(const char *filename, struct item *items, int *capacity,
  * capacity c. Value so far is v.
  */
 void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
+  taskminer_depth_cutoff++;
   int with, without, best;
   double ub;
 
@@ -106,11 +113,13 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
   /*
       * compute the best solution without the current item in the knapsack
       */
-  #pragma omp task depend(in:e[1]) depend(out:without) default(shared)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:without) if(cutoff_test)
   knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
 
   /* compute the best solution with the current item in the knapsack */
-  #pragma omp task depend(in:e[1]) depend(out:with) default(shared)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:with) if(cutoff_test)
   knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
 #pragma omp taskwait
 
@@ -127,8 +136,10 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
     best_so_far = best;
 
   *sol = best;
+taskminer_depth_cutoff--;
 }
 void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
+  taskminer_depth_cutoff++;
   int with, without, best;
   double ub;
 
@@ -154,11 +165,13 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
   /*
       * compute the best solution without the current item in the knapsack
       */
-  #pragma omp task depend(in:e[1]) depend(out:without)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:without) if(cutoff_test)
   knapsack_seq(e + 1, c, n - 1, v, &without);
 
   /* compute the best solution with the current item in the knapsack */
-  #pragma omp task depend(in:e[1]) depend(out:with)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:with) if(cutoff_test)
   knapsack_seq(e + 1, c - e->weight, n - 1, v + e->value, &with);
 #pragma omp taskwait
 
@@ -175,6 +188,7 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
     best_so_far = best;
 
   *sol = best;
+taskminer_depth_cutoff--;
 }
 void knapsack_main_par(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;

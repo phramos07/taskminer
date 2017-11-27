@@ -1,13 +1,20 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
-/*  This program is part of the Barcelona OpenMP Tasks Suite                                  */
-/*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de Supercomputacion  */
-/*  Copyright (C) 2009 Universitat Politecnica de Catalunya                                   */
+/*  This program is part of the Barcelona OpenMP Tasks Suite */
+/*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
+ * Supercomputacion  */
+/*  Copyright (C) 2009 Universitat Politecnica de Catalunya */
 /**********************************************************************************************/
 /*
  * Copyright (c) 2007 The Unbalanced Tree Search (UTS) Project Team:
  * -----------------------------------------------------------------
- *  
+ *
  *  This file is part of the unbalanced tree search benchmark.  This
  *  project is licensed under the MIT Open Source license.  See the LICENSE
  *  file for copyright and licensing information.
@@ -24,7 +31,7 @@
  *   Jinze Liu         liu,
  *   Stephen Olivier   olivier,
  *   Jan Prins*        prins at cs.umd.edu>
- * 
+ *
  * The Ohio State University:
  *   James Dinan      <dinan,
  *   Gerald Sabin      sabin,
@@ -48,7 +55,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -85,17 +92,17 @@ int maxTreeDepth = 0;
  *                                                         *
  * The random variable follow a binomial distribution.     *
  ***********************************************************/
-double b_0 = 4.0; // default branching factor at the root
-int rootId = 0;   // default seed for RNG state at root
-/***********************************************************
- *  The branching factor at the root is specified by b_0.
- *  The branching factor below the root follows an 
- *     identical binomial distribution at all nodes.
- *  A node has m children with prob q, or no children with 
- *     prob (1-q).  The expected branching factor is q * m.
- *
- *  Default parameter values 
- ***********************************************************/
+double b_0 = 4.0;                 // default branching factor at the root
+int rootId = 0;                   // default seed for RNG state at root
+                                  /***********************************************************
+                    *  The branching factor at the root is specified by b_0.
+                    *  The branching factor below the root follows an
+                    *     identical binomial distribution at all nodes.
+                    *  A node has m children with prob q, or no children with
+                    *     prob (1-q).  The expected branching factor is q * m.
+                    *
+                    *  Default parameter values
+                    ***********************************************************/
 int nonLeafBF = 4;                // m
 double nonLeafProb = 15.0 / 64.0; // q
 /***********************************************************
@@ -132,10 +139,12 @@ int uts_numChildren(Node *node) {
     numChildren = (d < nonLeafProb) ? nonLeafBF : 0;
   }
 
-  // limit number of children (only a BIN root can have more than MAXNUMCHILDREN)
+  // limit number of children (only a BIN root can have more than
+  // MAXNUMCHILDREN)
   if (node->height != 0) {
     if (numChildren > MAXNUMCHILDREN) {
-      printf("*** Number of children truncated from %d to %d\n", numChildren, MAXNUMCHILDREN);
+      printf("*** Number of children truncated from %d to %d\n", numChildren,
+             MAXNUMCHILDREN);
       numChildren = MAXNUMCHILDREN;
     }
   }
@@ -153,36 +162,41 @@ int uts_numChildren(Node *node) {
 unsigned long long serial_uts(Node *root) {
   unsigned long long num_nodes;
   printf("Computing Unbalance Tree Search algorithm ");
-  #pragma omp parallel
-  #pragma omp single
-  #pragma omp task untied
   num_nodes = serTreeSearch(0, root, uts_numChildren(root));
   printf(" completed!\n");
   return num_nodes;
 }
 
 unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) {
+  taskminer_depth_cutoff++;
   unsigned long long subtreesize = 1, partialCount[numChildren];
   Node n[numChildren];
   int i, j;
 
   // Recurse on the children
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < numChildren; i++) {
     n[i].height = parent->height + 1;
     // The following line is the work (one or more SHA-1 ops)
     for (j = 0; j < computeGranularity; j++) {
       rng_spawn(parent->state.state, n[i].state.state, i);
     }
-    #pragma omp task depend(in:n[i])
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(inout:n[i]) if(cutoof_test)
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:n[i]) if(cutoof_test)
     partialCount[i] = serTreeSearch(depth + 1, &n[i], uts_numChildren(&n[i]));
+  #pragma omp taskwait
   }
-    #pragma omp taskwait
+#pragma omp taskwait
 
   // computing total size
   for (i = 0; i < numChildren; i++)
     subtreesize += partialCount[i];
 
   return subtreesize;
+taskminer_depth_cutoff--;
 }
 
 void uts_read_file(const char *filename) {
@@ -192,14 +206,8 @@ void uts_read_file(const char *filename) {
     printf("Could not open input file (%s)\n", filename);
     exit(-1);
   }
-  fscanf(fin, "%lf %lf %d %d %d %llu %d %llu",
-         &b_0,
-         &nonLeafProb,
-         &nonLeafBF,
-         &rootId,
-         &computeGranularity,
-         &exp_tree_size,
-         &exp_tree_depth,
+  fscanf(fin, "%lf %lf %d %d %d %llu %d %llu", &b_0, &nonLeafProb, &nonLeafBF,
+         &rootId, &computeGranularity, &exp_tree_size, &exp_tree_depth,
          &exp_num_leaves);
   fclose(fin);
 
@@ -211,8 +219,10 @@ void uts_read_file(const char *filename) {
   printf("Root seed (0 <= 2^31)                = %d\n", rootId);
   printf("Probability of non-leaf node         = %f\n", nonLeafProb);
   printf("Number of children for non-leaf node = %d\n", nonLeafBF);
-  printf("E(n)                                 = %f\n", (double)(nonLeafProb * nonLeafBF));
-  printf("E(s)                                 = %f\n", (double)(1.0 / (1.0 - nonLeafProb * nonLeafBF)));
+  printf("E(n)                                 = %f\n",
+         (double)(nonLeafProb * nonLeafBF));
+  printf("E(s)                                 = %f\n",
+         (double)(1.0 / (1.0 - nonLeafProb * nonLeafBF)));
   printf("Compute granularity                  = %d\n", computeGranularity);
   printf("Random number generator              = ");
   rng_showtype();
@@ -222,12 +232,16 @@ void uts_show_stats(void) {
   int chunkSize = 0;
 
   printf("\n");
-  printf("Tree size                            = %llu\n", (unsigned long long)bots_number_of_tasks);
+  printf("Tree size                            = %llu\n",
+         (unsigned long long)bots_number_of_tasks);
   printf("Maximum tree depth                   = %d\n", maxTreeDepth);
   printf("Chunk size                           = %d\n", chunkSize);
-  printf("Number of leaves                     = %llu (%.2f%%)\n", nLeaves, nLeaves / (float)bots_number_of_tasks * 100.0);
-  // printf("Wallclock time                       = %.3f sec\n", bots_time_program );
-  // printf("Overall performance                  = %.0f nodes/sec\n", (bots_number_of_tasks / bots_time_program) );
+  printf("Number of leaves                     = %llu (%.2f%%)\n", nLeaves,
+         nLeaves / (float)bots_number_of_tasks * 100.0);
+  // printf("Wallclock time                       = %.3f sec\n",
+  // bots_time_program );
+  // printf("Overall performance                  = %.0f nodes/sec\n",
+  // (bots_number_of_tasks / bots_time_program) );
 }
 
 int uts_check_result(void) {
@@ -235,7 +249,8 @@ int uts_check_result(void) {
 
   if (bots_number_of_tasks != exp_tree_size) {
     answer = -1;
-    printf("Incorrect tree size result (%d instead of %llu).\n", bots_number_of_tasks, exp_tree_size);
+    printf("Incorrect tree size result (%d instead of %llu).\n",
+           bots_number_of_tasks, exp_tree_size);
   }
 
   return answer;

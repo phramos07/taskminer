@@ -1,1 +1,1 @@
-/usr/bin/c++  -fPIC -g -fno-exceptions -fno-rtti -std=c++11   -shared -Wl,-soname,libLLVMCostTaskModel.so -o libLLVMCostTaskModel.so CMakeFiles/LLVMCostTaskModel.dir/costTaskModel.cpp.o 
+/usr/bin/c++  -fPIC -g -fno-exceptions -fno-rtti -std=c++11   -shared  -o libLLVMCostTaskModel.so CMakeFiles/LLVMCostTaskModel.dir/costTaskModel.cpp.o 

@@ -456,6 +456,24 @@ llvm/IR/Metadata.h
 llvm/Analysis/MemoryLocation.h
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/Analysis/MemoryLocation.h
 
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/CallGraph.h
+llvm/ADT/GraphTraits.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/ADT/GraphTraits.h
+llvm/ADT/STLExtras.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/ADT/STLExtras.h
+llvm/IR/CallSite.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/CallSite.h
+llvm/IR/Function.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/Function.h
+llvm/IR/Intrinsics.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/Intrinsics.h
+llvm/IR/ValueHandle.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/IR/ValueHandle.h
+llvm/Pass.h
+/home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/llvm/Pass.h
+map
+-
+
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/ConstantFolding.h
 
 /home/gleison/lge/llvm-3.7-src/llvm-3.7.0rc3.src/include/llvm/Analysis/DependenceAnalysis.h
@@ -2339,6 +2357,8 @@ llvm/Pass.h
 /home/gleison/lge/taskminer/llvm/Pass.h
 llvm/ADT/Statistic.h
 /home/gleison/lge/taskminer/llvm/ADT/Statistic.h
+llvm/Analysis/CallGraph.h
+/home/gleison/lge/taskminer/llvm/Analysis/CallGraph.h
 DepAnalysis.h
 /home/gleison/lge/taskminer/DepAnalysis.h
 RegionTree.h

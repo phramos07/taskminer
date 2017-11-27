@@ -155,6 +155,12 @@ class ScopeTree : public FunctionPass {
 
   ScopeTree() : FunctionPass(ID) { };
 
+  // Return the first line of a Function.
+  int getMinLineFunction(Function *F);
+
+  // Return the first line of a Function.
+  int getMaxLineFunction(Function *F); 
+
   // Return the first line of a Basic Block Set.
   int getMinLine(std::set<BasicBlock*> & BBS);
   
@@ -162,7 +168,7 @@ class ScopeTree : public FunctionPass {
   int getMaxLine(std::set<BasicBlock*> & BBS);
 
   // Return the smalles valid scope for the set
-  void getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max);
+  bool getSmallestScope(std::set<BasicBlock*> & BBS, int *min, int *max);
 
   // Uses loop's debug information to identify a pair <line, column> 
   // of the best place to insert computation before loops and present in this

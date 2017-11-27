@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -67,7 +73,9 @@ int ok(int n, char *a) {
 }
 
 void nqueens(int n, int j, char *a, int *solutions, int depth) {
-  int i, res;
+  taskminer_depth_cutoff++;
+  int *csols;
+  int i;
 
   if (n == j) {
     /* good solution, count it */
@@ -76,26 +84,39 @@ void nqueens(int n, int j, char *a, int *solutions, int depth) {
   }
 
   *solutions = 0;
+  csols = alloca(n * sizeof(int));
+  memset(csols, 0, n * sizeof(int));
 
   /* try each possible position for queen <j> */
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < n; i++) {
-    a[j] = (char)i;
-    if (ok(j + 1, a)) {
-      #pragma omp task depend(out:a) depend(inout:res) default(shared)
-      nqueens(n, j + 1, a, &res, 0);
-      #pragma omp taskwait
-      *solutions += res;
+    /* allocate a temporary array and copy <a> into it */
+    char *b = alloca(n * sizeof(char));
+    memcpy(b, a, j * sizeof(char));
+    b[j] = (char)i;
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:b) if(cutoff_test)
+    if (ok(j + 1, b)) {
+      cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+      #pragma omp task untied default(shared) depend(in:b) depend(inout:csols[i]) if(cutoff_test)
+      nqueens(n, j + 1, b, &csols[i], depth);
+    #pragma omp taskwait
     }
   }
+  #pragma omp taskwait
+  for (i = 0; i < n; i++) {
+    *solutions += csols[i];
+  }
+taskminer_depth_cutoff--;
 }
 
 void find_queens(int size) {
-  char *a;
   total_count = 0;
-  a = alloca(size * sizeof(char));
+
   printf("Computing N-Queens algorithm (n=%d) ", size);
-	#pragma omp parallel
-	#pragma omp single
+  char *a;
+  a = alloca(size * sizeof(char));
   nqueens(size, 0, a, &total_count, 0);
   printf(" completed!\n");
 }

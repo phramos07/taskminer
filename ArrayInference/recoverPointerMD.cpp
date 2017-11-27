@@ -83,6 +83,8 @@ std::string RecoverPointerMD::recoverBitcastOf(Value *V, std::string name, int *
                             const DataLayout* DT) {
   if (!isa<BitCastInst>(V))
     return std::string();
+  if (rn->getOriginalName(V) != std::string())
+    return rn->getOriginalName(V); 
   BitCastInst *BIT = cast<BitCastInst>(V);
   Type *ty1 = BIT->getSrcTy();
   Type *ty2 = BIT->getDestTy();

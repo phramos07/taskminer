@@ -248,7 +248,7 @@ return false;
 }
 
 char WriteInFile::ID = 0;
-static RegisterPass<WriteInFile> Z("writeInFile",
+static RegisterPass<WriteInFile> X("writeInFile",
 "Write comments in source file.");
 
 

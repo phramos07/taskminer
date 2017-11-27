@@ -1,1 +1,1 @@
-/usr/bin/c++  -fPIC -g -fno-exceptions -fno-rtti -std=c++11   -shared -Wl,-soname,libLLVMScopeTree.so -o libLLVMScopeTree.so CMakeFiles/LLVMScopeTree.dir/ScopeTree.cpp.o 
+/usr/bin/c++  -fPIC -g -fno-exceptions -fno-rtti -std=c++11   -shared  -o libLLVMScopeTree.so CMakeFiles/LLVMScopeTree.dir/ScopeTree.cpp.o 

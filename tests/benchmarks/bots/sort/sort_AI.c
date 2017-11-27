@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -157,10 +163,13 @@ static void insertion_sort(ELM *low, ELM *high) {
   ELM a, b;
 
   for (q = low + 1; q <= high; ++q) {
+    #pragma omp task untied default(shared)  depend(in:) depend(out:,)
+    {
     a = q[0];
     for (p = q - 1; p >= low && (b = p[0]) > a; p--)
       p[1] = b;
     p[1] = a;
+  }
   }
 }
 
@@ -168,17 +177,25 @@ static void insertion_sort(ELM *low, ELM *high) {
  * tail-recursive quicksort, almost unrecognizable :-)
  */
 void seqquick(ELM *low, ELM *high) {
+  taskminer_depth_cutoff++;
   ELM *p;
 
+  #pragma omp parallel
+  #pragma omp single
   while (high - low >= 1024) {
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:high) if(cutoff_test)
     p = seqpart(low, high);
-    #pragma omp task
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) if(cutoff_test)
     seqquick(low, p);
     #pragma omp taskwait
     low = p + 1;
   }
+#pragma omp taskwait
 
   insertion_sort(low, high);
+taskminer_depth_cutoff--;
 }
 
 void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest) {
@@ -283,6 +300,7 @@ ELM *binsplit(ELM val, ELM *low, ELM *high) {
 }
 
 void cilkmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest) {
+  taskminer_depth_cutoff++;
   /*
       * Cilkmerge: Merges range [low1, high1] with range [low2, high2]
       * into the range [lowdest, ...]
@@ -333,16 +351,15 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest) {
       * the appropriate location
       */
   *(lowdest + lowsize + 1) = *split1;
-  #pragma omp task
   cilkmerge(low1, split1 - 1, low2, split2, lowdest);
-  #pragma omp task
   cilkmerge(split1 + 1, high1, split2 + 1, high2, lowdest + lowsize + 2);
-  #pragma omp taskwait
 
   return;
+taskminer_depth_cutoff--;
 }
 
 void cilksort(ELM *low, ELM *tmp, long size) {
+  taskminer_depth_cutoff++;
   /*
       * divide the input in four parts of the same size (A, B, C, D)
       * Then:
@@ -367,13 +384,17 @@ void cilksort(ELM *low, ELM *tmp, long size) {
   D = C + quarter;
   tmpD = tmpC + quarter;
 
-  #pragma omp task depend(in:low,tmp)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:low,tmp) if(cutoff_test)
   cilksort(A, tmpA, quarter);
-  #pragma omp task depend(in:B,tmpB)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:B,tmpB) if(cutoff_test)
   cilksort(B, tmpB, quarter);
-  #pragma omp task depend(in:C,tmpC)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:C,tmpC) if(cutoff_test)
   cilksort(C, tmpC, quarter);
-  #pragma omp task depend(in:D,tmpD)
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp task untied default(shared) depend(in:D,tmpD) if(cutoff_test)
   cilksort(D, tmpD, size - 3 * quarter);
 #pragma omp taskwait
 
@@ -381,6 +402,7 @@ void cilksort(ELM *low, ELM *tmp, long size) {
   cilkmerge(C, C + quarter - 1, D, low + size - 1, tmpC);
 
   cilkmerge(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A);
+taskminer_depth_cutoff--;
 }
 
 ELM *array, *tmp;
@@ -390,6 +412,8 @@ void scramble_array(unsigned long long int input_size) {
   unsigned long j;
 
   for (i = 0; i < input_size; ++i) {
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared)
     j = my_rand();
     j = j % input_size;
     swap(array[i], array[j]);
@@ -417,9 +441,6 @@ void sort_init(unsigned long long int input_size) {
 
 void sort(unsigned long long int input_size) {
   printf("Computing multisort algorithm (n=%lld) ", input_size);
-  	#pragma omp parallel
-	#pragma omp single
-	#pragma omp task untied
   cilksort(array, tmp, input_size);
   printf(" completed!\n");
 }

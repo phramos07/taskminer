@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
 /*  Copyright (C) 2009 Barcelona Supercomputing Center - Centro Nacional de
@@ -137,13 +143,18 @@ static int lay_down(int id, ibrd board, struct cell *cells) {
   lhs = cells[id].lhs;
   rhs = cells[id].rhs;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = top; i <= bot; i++) {
+    #pragma omp task untied default(shared)  depend(in:board[0][0]) depend(out:board[0][0])
+    {
     for (j = lhs; j <= rhs; j++) {
       if (board[i][j] == 0)
         board[i][j] = (char)id;
       else
         return (0);
     }
+  }
   }
 
   return (1);
@@ -210,6 +221,7 @@ static void write_outputs() {
 }
 
 static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
+  taskminer_depth_cutoff++;
   int i, j, nn, area, nnc, nnl;
 
   ibrd board;
@@ -218,8 +230,12 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
   nnc = nnl = 0;
 
   /* for each possible shape */
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < CELLS[id].n; i++) {
     /* compute all possible locations for nw corner */
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:CELLS) depend(out:NWS) if(cutoff_test)
     nn = starts(id, i, NWS, CELLS);
     nnl += nn;
     /* for all possible locations */
@@ -236,10 +252,10 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
         memcpy(board, BOARD, sizeof(ibrd));
 
         /* if the cell cannot be layed down, prune search */
+        cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+        #pragma omp task untied default(shared) depend(in:cells) depend(inout:board) if(cutoff_test)
         if (!lay_down(id, board, cells)) {
-        	#ifdef DEBUG
-          	printf("Chip %d, shape %d does not fit\n", id, i);
-          #endif
+          printf("Chip %d, shape %d does not fit\n", id, i);
           goto _end;
         }
 
@@ -258,30 +274,29 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
               MIN_FOOTPRINT[0] = footprint[0];
               MIN_FOOTPRINT[1] = footprint[1];
               memcpy(BEST_BOARD, board, sizeof(ibrd));
-              #ifdef DEBUG
-              	printf("N  %d\n", MIN_AREA);
-              #endif
+              printf("N  %d\n", MIN_AREA);
             }
           }
 
           /* if area is less than best area */
         } else if (area < MIN_AREA) {
-          int tmp = cells[id].next;
-          #pragma omp task depend(in: cells,footprint,board)
-          nnc += add_cell(tmp, footprint, board, cells);
+          cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+          #pragma omp task untied default(shared) depend(in:cells,cells[id].next,footprint,board) if(cutoff_test)
+          nnc += add_cell(cells[id].next, footprint, board, cells);
           #pragma omp taskwait
           /* if area is greater than or equal to best area, prune search */
         } else {
 
-        	#ifdef DEBUG
-          	printf("T  %d, %d\n", area, MIN_AREA);
-          #endif
+          printf("T  %d, %d\n", area, MIN_AREA);
         }
       _end:;
       }
     }
+  #pragma omp taskwait
   }
+  #pragma omp taskwait
   return nnc + nnl;
+taskminer_depth_cutoff--;
 }
 
 ibrd board;
@@ -302,7 +317,12 @@ void floorplan_init(const char *filename) {
 
   /* initialize board is empty */
   for (i = 0; i < ROWS; i++)
+    #pragma omp parallel
+    #pragma omp single
+    #pragma omp task untied default(shared)  depend(out:)
+    {
     for (j = 0; j < COLS; j++)
+      }
       board[i][j] = 0;
 }
 
@@ -312,9 +332,7 @@ void compute_floorplan(void) {
   footprint[0] = 0;
   footprint[1] = 0;
   printf("Computing floorplan ");
-	#pragma omp parallel
-	#pragma omp single
-	add_cell(1, footprint, board, gcells); 
+  { add_cell(1, footprint, board, gcells); }
   printf(" completed!\n");
 }
 
