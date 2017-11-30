@@ -88,27 +88,23 @@ void nqueens(int n, int j, char *a, int *solutions, int depth) {
   memset(csols, 0, n * sizeof(int));
 
   /* try each possible position for queen <j> */
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < n; i++) {
     /* allocate a temporary array and copy <a> into it */
     char *b = alloca(n * sizeof(char));
     memcpy(b, a, j * sizeof(char));
     b[j] = (char)i;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(in:b) if(cutoff_test)
     if (ok(j + 1, b)) {
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
       #pragma omp task untied default(shared) depend(in:b) depend(inout:csols[i]) if(cutoff_test)
       nqueens(n, j + 1, b, &csols[i], depth);
-    #pragma omp taskwait
     }
   }
   #pragma omp taskwait
   for (i = 0; i < n; i++) {
     *solutions += csols[i];
   }
-taskminer_depth_cutoff--;
+// taskminer_depth_cutoff--;
 }
 
 void find_queens(int size) {
@@ -117,6 +113,9 @@ void find_queens(int size) {
   printf("Computing N-Queens algorithm (n=%d) ", size);
   char *a;
   a = alloca(size * sizeof(char));
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied
   nqueens(size, 0, a, &total_count, 0);
   printf(" completed!\n");
 }

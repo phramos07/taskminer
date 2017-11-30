@@ -39,26 +39,10 @@ unsigned long long int fib (unsigned long long int n)
 
 void fib0 (unsigned long long int n)
 {
-  Instance* I = newInstance(100);
-
-  clock_t beg, end;
-  unsigned long long int i;
-  for (i = 15; i <= n; i += 5)
-  {
-  	beg = clock();
-  	
-  	#pragma omp parallel
-  	#pragma omp single
-  	#pragma omp task untied
-		res = fib(i);
-		
-		end = clock();
-  	printf("Fib(%lld) : %lld\n", i, res);
-		addNewEntry(I, i, getTimeInSecs(end - beg));  
-  }
-  printf("\n\n");
-	writeResultsToOutput(stdout, I);
-  freeInstance(I);
+	#pragma omp parallel
+	#pragma omp single
+	#pragma omp task untied
+	res = fib(n);
 }
 
 int main(int argc, char const *argv[])
