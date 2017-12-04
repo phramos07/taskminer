@@ -295,6 +295,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
   #pragma omp taskwait
   }
   #pragma omp taskwait
+
   return nnc + nnl;
 taskminer_depth_cutoff--;
 }

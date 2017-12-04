@@ -299,8 +299,16 @@ void	TaskMiner::mineFunctionCallTasks()
 				}
 			}
 			CallInst* CI = callInsts[e];
+
+			if (!CI)
+				continue;
+			
+			if (function_tasks.find(CI->getParent()->getParent()) != function_tasks.end())
+				continue;
+
 			if (topLevelRecCalls.find(CI) != topLevelRecCalls.end())
 				continue;
+
 			bool hasLoop = srcRW->hasLoop;
 			if ((srcRW->F != dstRW->F)
 				&& (hasLoop)
