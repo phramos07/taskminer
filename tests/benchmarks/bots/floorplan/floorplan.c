@@ -302,7 +302,7 @@ void compute_floorplan(void) {
   footprint[0] = 0;
   footprint[1] = 0;
   printf("Computing floorplan ");
-  { add_cell(1, footprint, board, gcells); }
+  add_cell(1, footprint, board, gcells);
   printf(" completed!\n");
 }
 
