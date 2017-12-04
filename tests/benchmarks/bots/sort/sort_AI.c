@@ -162,6 +162,8 @@ static void insertion_sort(ELM *low, ELM *high) {
   ELM *p, *q;
   ELM a, b;
 
+  #pragma omp parallel
+  #pragma omp single
   for (q = low + 1; q <= high; ++q) {
     #pragma omp task untied default(shared)  depend(in:) depend(out:,)
     {
@@ -180,11 +182,8 @@ void seqquick(ELM *low, ELM *high) {
   taskminer_depth_cutoff++;
   ELM *p;
 
-  #pragma omp parallel
-  #pragma omp single
+  taskminer_depth_cutoff--;
   while (high - low >= 1024) {
-    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(in:high) if(cutoff_test)
     p = seqpart(low, high);
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
     #pragma omp task untied default(shared) if(cutoff_test)
@@ -192,10 +191,8 @@ void seqquick(ELM *low, ELM *high) {
     #pragma omp taskwait
     low = p + 1;
   }
-#pragma omp taskwait
 
   insertion_sort(low, high);
-taskminer_depth_cutoff--;
 }
 
 void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest) {
@@ -354,8 +351,8 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2, ELM *lowdest) {
   cilkmerge(low1, split1 - 1, low2, split2, lowdest);
   cilkmerge(split1 + 1, high1, split2 + 1, high2, lowdest + lowsize + 2);
 
+  taskminer_depth_cutoff--;
   return;
-taskminer_depth_cutoff--;
 }
 
 void cilksort(ELM *low, ELM *tmp, long size) {
@@ -441,6 +438,10 @@ void sort_init(unsigned long long int input_size) {
 
 void sort(unsigned long long int input_size) {
   printf("Computing multisort algorithm (n=%lld) ", input_size);
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   cilksort(array, tmp, input_size);
   printf(" completed!\n");
 }

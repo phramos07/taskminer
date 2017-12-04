@@ -39,34 +39,29 @@ unsigned long long int fib(long long int n) {
     return n;
 
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  // if (cutoff_test)
-  // 	printf("Creating task.\n");
-  #pragma omp task untied shared(x) default(shared) firstprivate(n) if(cutoff_test)
+  #pragma omp task untied default(shared) if(cutoff_test)
   x = fib(n - 1);
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  // if (cutoff_test)
-  // 	printf("Creating task.\n");
-  #pragma omp task untied shared(y) default(shared) firstprivate(n) if(cutoff_test)
+  #pragma omp task untied default(shared) if(cutoff_test)
   y = fib(n - 2);
 #pragma omp taskwait
 
-taskminer_depth_cutoff--;
+  taskminer_depth_cutoff--;
   return x + y;
-
 }
 
 void fib0(long long int n) {
-  taskminer_depth_cutoff=0;
-	#pragma omp parallel
-	#pragma omp single
-	#pragma omp task untied
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   res = fib(n);
+  printf("%lld", res);
 }
 
 int main(int argc, char const *argv[]) {
   long long int n = atoi(argv[1]);
   fib0(n);
-
   return 0;
 }
 

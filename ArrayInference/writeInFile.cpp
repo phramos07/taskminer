@@ -200,9 +200,11 @@ if (!findModuleFileName(M))
   return true;
 
 std::list<Task*> tasksList;
+std::set<CallInst*> tasksCall;
 if (ClRun) {
   this->tm = &getAnalysis<TaskMiner>();
   tasksList = this->tm->getTasks();
+  tasksCall = this->tm->getTopLevelRecCalls();
 }
 
 std::string lInputFile = InputFile;
@@ -233,7 +235,8 @@ for (Module::iterator F = M.begin(), FE = M.end(); F != FE; ++F) {
 
   if (ClRun) {
     this->re = &getAnalysis<RecoverExpressions>(*F);
-    this->re->setTasksList(tasksList);  
+    this->re->setTasksList(tasksList);
+    this->re->setTasksCalls(tasksCall);
     this->re = &getAnalysis<RecoverExpressions>(*F);
     copyComments(this->re->Comments);
   }

@@ -38,11 +38,11 @@ unsigned long long int fib(long long int n) {
 
 void fib0(long long int n) {
   res = fib(n);
+  printf("%lld", res);
 }
 
 int main(int argc, char const *argv[]) {
   long long int n = atoi(argv[1]);
   fib0(n);
-
   return 0;
 }

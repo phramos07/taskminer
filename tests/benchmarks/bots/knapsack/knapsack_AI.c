@@ -192,11 +192,19 @@ taskminer_depth_cutoff--;
 }
 void knapsack_main_par(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   knapsack_par(e, c, n, 0, sol, 0);
   printf("Best value for parallel execution is %d\n\n", *sol);
 }
 void knapsack_main_seq(struct item *e, int c, int n, int *sol) {
   best_so_far = INT_MIN;
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   knapsack_seq(e, c, n, 0, sol);
 
   printf("Best value for sequential execution is %d\n\n", *sol);

@@ -40,6 +40,10 @@ void RecoverExpressions::setTasksList(std::list<Task*> taskList) {
   this->tasksList = taskList;
 } 
 
+void RecoverExpressions::setTasksCalls(std::set<CallInst*> taskCalls) {
+  this->tasksCalls = taskCalls;
+}
+
 int RecoverExpressions::getIndex() {
   return this->index;
 }
@@ -47,6 +51,14 @@ int RecoverExpressions::getIndex() {
 int RecoverExpressions::getNewIndex() {
   return (++(this->index));
 }
+
+void RecoverExpressions::addCommentToBLine (std::string Comment,
+                                         unsigned int Line) {     
+  if (Comments.count(Line) == 0)
+    Comments[Line] = Comment;
+  else if (Comments[Line].find(Comment) == std::string::npos)
+    Comments[Line] = Comment + Comments[Line];
+} 
 
 void RecoverExpressions::addCommentToLine (std::string Comment,
                                          unsigned int Line) {     
@@ -76,7 +88,8 @@ void RecoverExpressions::findRecursiveTasks() {
 
 void RecoverExpressions::insertCutoff(Function *F) {
   int start = st->getMinLineFunction(F) + 1;
-  int end = st->getMaxLineFunction(F);
+  int end = getLastBranchLine(F);
+  errs() << "END = " << std::to_string(end) << "\n";
   addCommentToLine("taskminer_depth_cutoff++;\n", start);
   addCommentToLine("taskminer_depth_cutoff--;\n", end);
 }
@@ -91,6 +104,18 @@ int RecoverExpressions::getLineNo (Value *V) {
           if (DILocation *DI = dyn_cast<DILocation>(N))
             return DI->getLine();
   return ERROR_VALUE;
+}
+
+int RecoverExpressions::getLastBranchLine(Function *F) {
+  int line = 0;
+  for (auto B = F->begin(), BE = F->end(); B != BE; B++)
+    for (auto II = B->begin(), IE = B->end(); II != IE; II++)
+      if (isa<BranchInst>(&(*II))) {
+        int l = getLineNo(II);
+        if (l > line)
+          line = l;
+      }
+  return line;
 }
 
 bool RecoverExpressions::isUniqueinLine(Instruction *I) {
@@ -148,6 +173,21 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   this->liveIN.erase(this->liveIN.begin(), this->liveIN.end());
   this->liveOUT.erase(this->liveOUT.begin(), this->liveOUT.end());
   this->liveINOUT.erase(this->liveINOUT.begin(), this->liveINOUT.end());
+  for (auto &I: this->tasksCalls) {
+    if (CallInst *CII = dyn_cast<CallInst>(I)) {
+      if (CI == CII) {
+        errs() << "Parallel at: \n";
+        CI->dump();
+        std::string prag = "#pragma omp parallel\n";
+        prag += "#pragma omp single\n";
+        int line = getLineNo(CI);
+        addCommentToBLine(prag, line);
+        isTask = true;
+        break;
+      }
+    }
+  }
+  if (isTask == false)
   for (auto &I: this->tasksList) {
 //    if (!(I->getCost().aboveThreshold()))
 //      continue;
@@ -163,6 +203,7 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
             L2 = L2->getParentLoop();
           }
         }
+        output = std::string();
         isTask = true;
         break;
       }
@@ -177,7 +218,7 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
         isTask = true;
         hasTaskWait = RT->hasSyncBarrier();
         isInsideLoop = RT->insideLoop();
-        insertCutoff(CI->getCalledFunction() );
+        insertCutoff(CI->getCalledFunction());
         /*if (RT->hasSyncBarrier()) {
           L1 = this->li->getLoopFor(CI->getParent());
           L2 = L1;
@@ -186,6 +227,7 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
               L2 = L2->getParentLoop();
           }
         }*/
+        output = std::string();
         break;
       }
     }
@@ -193,19 +235,9 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   if (isTask == false) {
     return output;
   }
-  errs() << "Printing\n\n\n";
-  CI->dump();
-  if (L1)
-    L1->dump();
-  errs() << "Parent\n\n";
-  if(L2)
-    L2->dump();
-  errs() << "Annotating:\n";
-  CI->dump();
   if (CI->getNumArgOperands() == 0) {
     return "\n\n[UNDEF\nVALUE]\n\n";
   }
-  output = std::string();
   std::map<Value*, std::string> strVal;
   for (unsigned int i = 0; i < CI->getNumArgOperands(); i++) {
     if (!isa<LoadInst>(CI->getArgOperand(i)) &&
@@ -220,13 +252,10 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
      
     std::string str = analyzeValue(CI->getArgOperand(i), DT, RPM);
     if (str == std::string() || str == "0") {
-      errs() << "Error: CANNOT READ INSTRUCTION: ";
-      CI->getArgOperand(i)->dump();
       return std::string();
     }
     strVal[CI->getArgOperand(i)] = str;
   }
-  errs() << "YEEEEESSSSSSSSSSSSSS!!!!!!!!!!\n";
   annotateExternalLoop(CI, L1, L2);
   if (this->liveIN.size() != 0) {
     output += " depend(in:";
@@ -265,8 +294,6 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   if (hasTaskWait) {
     std::string wait = "#pragma omp taskwait\n";
     int line = getLineNo(CI);
-    errs() << "TASK WAIT:\n";
-    CI->dump();
     line++;
     addCommentToLine(wait, line);  
   }
@@ -462,7 +489,9 @@ void RecoverExpressions::analyzeFunction(Function *F) {
                continue;
             }
           }
-          output += "cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);\n";
+          std::string prag = "cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);\n";
+          int line = getLineNo(I);
+          addCommentToBLine(prag, line);
           if (isRecursive.count(I->getParent()->getParent()) > 0)
             check = " if(cutoff_test)";
           if (result != "\n\n[UNDEF\nVALUE]\n\n") {
@@ -472,7 +501,6 @@ void RecoverExpressions::analyzeFunction(Function *F) {
           else
             output += "#pragma omp task untied default(shared)" + check + "\n";
           Region *R = rp->getRegionInfo().getRegionFor(BB);
-          int line = getLineNo(I);
           /*Loop *L = this->li->getLoopFor(I->getParent());
           if (!isUniqueinLine(I)) {
             errs() << "Bug 1\n";

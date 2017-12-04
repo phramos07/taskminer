@@ -230,12 +230,8 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
   nnc = nnl = 0;
 
   /* for each possible shape */
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < CELLS[id].n; i++) {
     /* compute all possible locations for nw corner */
-    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(in:CELLS) depend(out:NWS) if(cutoff_test)
     nn = starts(id, i, NWS, CELLS);
     nnl += nn;
     /* for all possible locations */
@@ -252,8 +248,6 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
         memcpy(board, BOARD, sizeof(ibrd));
 
         /* if the cell cannot be layed down, prune search */
-        cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-        #pragma omp task untied default(shared) depend(in:cells) depend(inout:board) if(cutoff_test)
         if (!lay_down(id, board, cells)) {
           printf("Chip %d, shape %d does not fit\n", id, i);
           goto _end;
@@ -292,12 +286,9 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
       _end:;
       }
     }
-  #pragma omp taskwait
+  taskminer_depth_cutoff--;
   }
-  #pragma omp taskwait
-
   return nnc + nnl;
-taskminer_depth_cutoff--;
 }
 
 ibrd board;
@@ -333,7 +324,11 @@ void compute_floorplan(void) {
   footprint[0] = 0;
   footprint[1] = 0;
   printf("Computing floorplan ");
-  { add_cell(1, footprint, board, gcells); }
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
+  add_cell(1, footprint, board, gcells);
   printf(" completed!\n");
 }
 

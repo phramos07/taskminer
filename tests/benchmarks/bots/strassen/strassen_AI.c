@@ -341,6 +341,7 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
       FastAdditiveNaiveMatrixMultiply(C10, A10, B00, QuadrantSize, RowWidthC,
                                       RowWidthA, RowWidthB);
 
+    taskminer_depth_cutoff--;
     } else {
 
       FastNaiveMatrixMultiply(C00, A00, B00, QuadrantSize, RowWidthC, RowWidthA,
@@ -369,7 +370,6 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
                                     RowWidthA, RowWidthB);
   }
   return;
-taskminer_depth_cutoff--;
 }
 /*****************************************************************************
 **
@@ -669,6 +669,10 @@ REAL *alloc_matrix(int n) { return malloc(n * n * sizeof(REAL)); }
 
 void strassen_main(REAL *A, REAL *B, REAL *C, int n) {
   printf("Computing Strassen algorithm (n=%d) ", n);
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   OptimizedStrassenMultiply(C, A, B, n, n, n, n, 1);
   printf(" completed!\n");
 }

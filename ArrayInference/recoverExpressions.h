@@ -68,6 +68,8 @@ class RecoverExpressions : public FunctionPass {
 
   std::map<CallInst*, bool> isFCall;
 
+  std::set<CallInst*> tasksCalls;
+
   //===---------------------------------------------------------------------===
 
   // Methods to manage the correct computation auxiliar names.
@@ -76,6 +78,9 @@ class RecoverExpressions : public FunctionPass {
 
   // Identify all Recursive Tasks.
   void findRecursiveTasks();
+
+  // Return the last Branch for a function F.
+  int getLastBranchLine(Function *F);
 
   // Insert the Cutoff in recursive functions.
   void insertCutoff(Function *F);
@@ -111,6 +116,7 @@ class RecoverExpressions : public FunctionPass {
 
   // Adds provided comments into line in original file.
   void addCommentToLine (std::string Comment, unsigned int Line);
+  void addCommentToBLine (std::string Comment, unsigned int Line);
 
   // Analyze and annotate regions.
   void analyzeRegion(Region *R);
@@ -137,6 +143,8 @@ class RecoverExpressions : public FunctionPass {
   RecoverExpressions() : FunctionPass(ID) {};
  
   void setTasksList(std::list<Task*> taskList);
+
+  void setTasksCalls(std::set<CallInst*> taskCalls);
 
   void getRegionFromRegionTask(RegionTask *RT);
  
