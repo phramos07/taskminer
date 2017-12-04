@@ -67,7 +67,6 @@ namespace llvm
 		void printRegionInfo();
 
 
-		//method to find all alias sets
 
 	};
 }
