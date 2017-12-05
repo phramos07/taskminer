@@ -127,8 +127,8 @@ void removeList(struct Patient **list, struct Patient *patient) {
 }
 /**********************************************************************/
 void allocate_village(struct Village **capital, struct Village *back,
-                      taskminer_depth_cutoff++;
                       struct Village *next, int level, __int32_t vid) {
+  taskminer_depth_cutoff++;
   int i, population, personnel;
   struct Village *current, *inext;
   struct Patient *patient;
@@ -173,8 +173,8 @@ void allocate_village(struct Village **capital, struct Village *back,
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
       #pragma omp task untied default(shared) depend(out:capital) depend(inout:current) if(cutoff_test)
       allocate_village(&current, *capital, inext, level - 1,
-                       #pragma omp taskwait
                        (vid * (__int32_t)sim_cities) + (__int32_t)i);
+     #pragma omp taskwait
       inext = current;
     taskminer_depth_cutoff--;
     }
@@ -275,7 +275,7 @@ void check_patients_inside(struct Village *village) {
     if (p->time_left == 0) {
       village->hosp.free_personnel++;
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(out:village[0].hosp.population)
+      #pragma omp task untied default(shared) depend(out:village[0])
       removeList(&(village->hosp.inside), p);
       addList(&(village->population), p);
     }
@@ -297,7 +297,7 @@ void check_patients_assess_par(struct Village *village) {
 
     if (p->time_left == 0) {
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(inout:p[0].seed)
+      #pragma omp task untied default(shared) depend(inout:p[0])
       rand = my_rand(&(p->seed));
       /* sim_covalescense_p % */
       if (rand < sim_convalescence_p) {
@@ -341,7 +341,7 @@ void check_patients_waiting(struct Village *village) {
       p->time_left = sim_assess_time;
       p->time += p->time_left;
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(out:village[0].hosp.next)
+      #pragma omp task untied default(shared) depend(out:village[0])
       removeList(&(village->hosp.waiting), p);
       addList(&(village->hosp.assess), p);
     } else {
@@ -364,7 +364,7 @@ void check_patients_realloc(struct Village *village) {
       p = p->forward;
     }
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(out:village[0].hosp.hosp)
+    #pragma omp task untied default(shared) depend(out:village[0])
     removeList(&(village->hosp.realloc), s);
     put_in_hosp(&(village->hosp), s);
   }
@@ -383,7 +383,7 @@ void check_patients_population(struct Village *village) {
     list = list->forward;
     /* randomize in patient */
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(inout:p[0].seed)
+    #pragma omp task untied default(shared) depend(inout:p[0])
     rand = my_rand(&(p->seed));
     if (rand < sim_get_sick_p) {
       removeList(&(village->population), p);
@@ -508,10 +508,8 @@ void read_input_data(const char *filename) {
 }
 int check_village(struct Village *top) {
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp parallel
-  #pragma omp single
-  #pragma omp task untied default(shared)
   struct Results result = get_results(top);
+  
   int answer = 1;
 
   if (res_population != result.total_patients)
@@ -553,9 +551,6 @@ int check_village(struct Village *top) {
          (float)result.total_time / result.total_patients);
 
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp parallel
-  #pragma omp single
-  #pragma omp task untied default(shared)
   my_print(top);
 
   return answer;
@@ -567,7 +562,6 @@ void sim_village_main(struct Village *top) {
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
     #pragma omp parallel
     #pragma omp single
-    #pragma omp task untied default(shared)
     sim_village(top);
 }
 
@@ -576,9 +570,6 @@ int main(int argc, char const *argv[]) {
   struct Village *top;
   read_input_data(argv[1]);
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp parallel
-  #pragma omp single
-  #pragma omp task untied default(shared)
   allocate_village(&top, NULL, NULL, sim_level, 0);
 
   // KERNEL CALL

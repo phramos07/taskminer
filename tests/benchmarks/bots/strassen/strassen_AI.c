@@ -3,7 +3,7 @@
 #define taskminerutils
 static int taskminer_depth_cutoff = 0;
 #define DEPTH_CUTOFF omp_get_num_threads()
-char cutoff_test = 0;
+int cutoff_test = 0;
 #endif
 /**********************************************************************************************/
 /*  This program is part of the Barcelona OpenMP Tasks Suite */
@@ -261,9 +261,11 @@ void FastAdditiveNaiveMatrixMultiply(REAL *C, REAL *A, REAL *B,
 **
 *****************************************************************************/
 void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
-                                taskminer_depth_cutoff++;
                                 unsigned RowWidthC, unsigned RowWidthA,
                                 unsigned RowWidthB, int AdditiveMode) {
+
+                                taskminer_depth_cutoff++;
+
 #define A00 A
 #define B00 B
 #define C00 C
@@ -323,8 +325,8 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
     #pragma omp task untied default(shared) depend(in:A11,B10,C10) if(cutoff_test)
     MultiplyByDivideAndConquer(C10, A11, B10, QuadrantSize, RowWidthC,
-                               #pragma omp taskwait
                                RowWidthA, RowWidthB, 1);
+                               #pragma omp taskwait
 
   } else {
 
@@ -392,9 +394,11 @@ void MultiplyByDivideAndConquer(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
 **
 *****************************************************************************/
 void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
-                               taskminer_depth_cutoff++;
                                unsigned RowWidthC, unsigned RowWidthA,
                                unsigned RowWidthB, int Depth) {
+
+                               taskminer_depth_cutoff++;
+
   unsigned QuadrantSize = MatrixSize >> 1; /* MatixSize / 2 */
   unsigned QuadrantSizeInBytes =
       sizeof(REAL) * QuadrantSize * QuadrantSize + 32;
@@ -563,8 +567,8 @@ void OptimizedStrassenMultiply(REAL *C, REAL *A, REAL *B, unsigned MatrixSize,
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
   #pragma omp task untied default(shared) depend(in:C21,A22) if(cutoff_test)
   OptimizedStrassenMultiply(C21, A22, S8, QuadrantSize, RowWidthC, RowWidthA,
-                            #pragma omp taskwait
                             QuadrantSize, Depth + 1);
+#pragma omp taskwait
 
   /***************************************************************************
   ** Step through all columns row by row (vertically)
