@@ -288,17 +288,15 @@ This runtime lets us circumvent the shortcomings that pointer aliasing
 impose on the automatic parallelization of code.
 Aliasing -- the possibility of two pointers dereferencing the same
 memory region -- either prevents parallelism altogether, or forces compilers to
-resort to complex runtime checks to identify it
-dynamically~\cite{Alves15,Rus02}.
-The OpenMP runtime shields us from having to implement such checks, because
+resort to complex runtime checks to ensure its correctness~\cite{Alves15,Rus02}.
+The OpenMP runtime shields us from this problem, because
 it already checks for dependencies among tasks, and dispatches them in a
 correct order~\cite{LaGrone11}.
 An OpenMP task descriptor contains the task's status (running, waiting) and a
 list of memory addresses the task registered as input arguments.
 
 The process of checking for dependencies can be as simple as checking if an
-incoming task in the system accesses a memory address already in use by a
-previous task in flight.
+incoming task accesses a memory address already in use by a task in flight.
 It can also be complex, involving checks over long ranges of addresses
 (in case the runtime system supports dependence checking for memory ranges).
 This process can also include memory labelling and renaming (in case the
@@ -311,20 +309,32 @@ dependences between them.
 Tasks are dispatched for execution according to a topological ordering of this
 graph~\cite{Planas15}.
 
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/ex_book_filter}
+\caption{The benefits of the OpenMP runtime environment.
+Neither the runtime checks of Alves~\cite{Alves15} or Rus~\cite{Rus02}, nor
+Whaley's context and flow sensitive alias analysis would be able to ensure the
+correctness of the automatic parallelization of this program.}
+\label{fig:ex_book_filter}
+\end{center}
+\end{figure}
+
 This runtime support allows the parallelization of irregular applications,
 such as programs that traverse data-structures formed by a mesh of pointers.
-As an example, Figure~\ref{fig:book_filter} shows an application that
+As an example, Figure~\ref{fig:ex_book_filter} shows an application that
 finds patterns in lines of a book.
 The book is given as an array of pointers; each pointer leads to a
 string representing a --potentially-- different line.
 The natural parallelization of this program consists in firing off a task
 to process each line.
-Figure~\ref{fig:book_filter} has been annotated automatically by the \Taskminer.
-We emphasize that neither the runtime checks of Alves
-{\em et al.}~\cite{Alves15} or Rus {\em et al.}~\cite{Rus02}, nor a
-context and flow sensitive alias analysis, \`{a} la Whaley and
-Lam~\cite{Whaley04} would be able to ensure the automatic parallelization of
-this program.
+Figure~\ref{fig:ex_book_filter} has been annotated automatically by the
+\Taskminer.
+The OpenMP execution environment ensures the correct scheduling of the tasks
+created at lines 9 and 11, through runtime checks.
+Therefore, the ability to disambiguate memory regions statically is not
+essential for correctness, although it is important for efficiency reasons,
+as we will mention in Challenge~\ref{ch:Regions}.
 
 \subsection{The Difficulties}
 \label{sub:dif}
@@ -374,8 +384,8 @@ tackle:
 Estimate the profitability of tasks at runtime.
 \end{Challenge}
 
-The creation of tasks involves a non-negligible runtime cost due to allocation,
-scheduling of resources and real-time management of the task dependence graph.
+The creation of tasks involves a heavy runtime cost due to allocation,
+scheduling and real-time management of the task dependence graph.
 Ideally, this cost should be paid only for tasks that perform an amount of work
 sufficiently large to pay for their management.
 Being an interesting program property, on Rice's sense~\cite{Rice53}, the amount
@@ -397,7 +407,7 @@ instructions. This is further explained in Section \ref{sub:profit}.
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[width=0.95\columnwidth]{images/ex_cutoff}
+\includegraphics[width=0.9\columnwidth]{images/ex_cutoff}
 \caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks with
 counter associated with function calls.}
 \label{fig:ex_cutoff}
