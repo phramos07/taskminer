@@ -178,7 +178,9 @@ unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) {
 
   // computing total size
   for (i = 0; i < numChildren; i++)
+  {
     subtreesize += partialCount[i];
+  }
 
   return subtreesize;
 }
