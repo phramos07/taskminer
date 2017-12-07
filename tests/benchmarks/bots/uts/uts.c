@@ -172,7 +172,8 @@ unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) {
     for (j = 0; j < computeGranularity; j++) {
       rng_spawn(parent->state.state, n[i].state.state, i);
     }
-    partialCount[i] = serTreeSearch(depth + 1, &n[i], uts_numChildren(&n[i]));
+    int nC = uts_numChildren(&n[i]);
+    partialCount[i] = serTreeSearch(depth + 1, &n[i], nC);
   }
 
   // computing total size
