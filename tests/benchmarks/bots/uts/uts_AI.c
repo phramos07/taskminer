@@ -95,14 +95,14 @@ int maxTreeDepth = 0;
 double b_0 = 4.0;                 // default branching factor at the root
 int rootId = 0;                   // default seed for RNG state at root
                                   /***********************************************************
-                    *  The branching factor at the root is specified by b_0.
-                    *  The branching factor below the root follows an
-                    *     identical binomial distribution at all nodes.
-                    *  A node has m children with prob q, or no children with
-                    *     prob (1-q).  The expected branching factor is q * m.
-                    *
-                    *  Default parameter values
-                    ***********************************************************/
+     *  The branching factor at the root is specified by b_0.
+     *  The branching factor below the root follows an
+     *     identical binomial distribution at all nodes.
+     *  A node has m children with prob q, or no children with
+     *     prob (1-q).  The expected branching factor is q * m.
+     *
+     *  Default parameter values
+     ***********************************************************/
 int nonLeafBF = 4;                // m
 double nonLeafProb = 15.0 / 64.0; // q
 /***********************************************************
@@ -162,6 +162,10 @@ int uts_numChildren(Node *node) {
 unsigned long long serial_uts(Node *root) {
   unsigned long long num_nodes;
   printf("Computing Unbalance Tree Search algorithm ");
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   num_nodes = serTreeSearch(0, root, uts_numChildren(root));
   printf(" completed!\n");
   return num_nodes;
@@ -174,29 +178,26 @@ unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) {
   int i, j;
 
   // Recurse on the children
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < numChildren; i++) {
     n[i].height = parent->height + 1;
     // The following line is the work (one or more SHA-1 ops)
     for (j = 0; j < computeGranularity; j++) {
       rng_spawn(parent->state.state, n[i].state.state, i);
     }
+    int nC = uts_numChildren(&n[i]);
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(inout:n[i]) if(cutoof_test)
-    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(in:n[i]) if(cutoof_test)
-    partialCount[i] = serTreeSearch(depth + 1, &n[i], uts_numChildren(&n[i]));
+    #pragma omp task untied default(shared) depend(in:n[i]) if(cutoff_test)
+    partialCount[i] = serTreeSearch(depth + 1, &n[i], nC);
   #pragma omp taskwait
   }
-#pragma omp taskwait
 
   // computing total size
-  for (i = 0; i < numChildren; i++)
+  for (i = 0; i < numChildren; i++) {
     subtreesize += partialCount[i];
+  taskminer_depth_cutoff--;
+  }
 
   return subtreesize;
-taskminer_depth_cutoff--;
 }
 
 void uts_read_file(const char *filename) {
