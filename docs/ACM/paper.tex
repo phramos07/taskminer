@@ -238,24 +238,22 @@ that implement graphs and worklist algorithms \`{a} la
 Pingali~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
 The purpose of this work is to address this omission.
 
-This paper describes \Taskminer, a compiler that mines task parallelism
-from programs.
-In order to fulfil this goal, \Taskminer{} solves many challenges.
+This paper describes \Taskminer, a source-to-source compiler that exposes task
+parallelism in C/C++ programs.
+To fulfil this goal, \Taskminer{} solves different challenges.
 First, it finds program regions, e.g., loops or functions, that can be
 effectively mapped onto tasks (Section~\ref{sub:identification}).
-Second, it determines symbolic bounds to all the memory blocks accessed within
+Second, it determines symbolic bounds to the memory blocks accessed within
 those regions (Section~\ref{sub:symb}).
-Third, it extracts parameters from the code to estimate the profitability of
-tasks, given the cost to create them.
+Third, it extracts parameters from the code to estimate when it is profitable to
+create tasks.
 These parameters feed conditional checks, which, at runtime, enable or disable
 the creation of tasks (Section~\ref{sub:profit}) and limit their recursion
 depth (Section~\ref{sub:rec}).
-Additionally, \Taskminer{} determines which program variables need to be replicated at
-each new task, or shared among them (Section~\ref{sub:variance}).
-Finally, it maps all this information back into source code, producing annotations
-that programmers can read (Section~\ref{sub:ir}).
-This work demonstrates the design and the implementation of these technologies, 
-as well as their benefit.
+Fourth, \Taskminer{} determines which program variables need to be 
+replicated in new tasks, or shared among them (Section~\ref{sub:variance}).
+Finally, it maps all this information back into source code, producing
+readable annotations (Section~\ref{sub:ir}).
 
 The major benefit provided by \Taskminer is, essentially, performance and readability.
 \Taskminer{} receives as input a C program, and produces, as output, a C
@@ -271,16 +269,81 @@ Yet, our automatically annotated programs not only approximate the execution
 times of the parallel versions of those benchmarks, but are much faster than
 their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
 
-\section{Overview}
+\section{Advantages and Difficulties}
 \label{sec:ovf}
+
+The use of OpenMP pragmas as the concrete means to explore, without human
+intervention, task parallelism in programs presents difficulties and
+advantages.
+Such challenges and benefits have guided the design and implementation of the
+techniques that we discuss in Section~\ref{sec:sol}.
+In the rest of this section, we discuss them.
+
+\subsection{The Advantages}
+\label{sub:adv}
+
+The main advantage of using OpenMP to split a program into parallel tasks is
+its runtime.
+This runtime lets us circumvent the shortcomings that pointer aliasing
+impose on the automatic parallelization of code.
+Aliasing -- the possibility of two pointers dereferencing the same
+memory region -- either prevents parallelism altogether, or forces compilers to
+resort to complex runtime checks to ensure its correctness~\cite{Alves15,Rus02}.
+The OpenMP runtime shields us from this problem, because
+it already checks for dependencies among tasks, and dispatches them in a
+correct order~\cite{LaGrone11}.
+An OpenMP task descriptor contains the task's status (running, waiting) and a
+list of memory addresses the task registered as input arguments.
+
+The process of checking for dependencies can be as simple as checking if an
+incoming task accesses a memory address already in use by a task in flight.
+It can also be complex, involving checks over long ranges of addresses
+(in case the runtime system supports dependence checking for memory ranges).
+This process can also include memory labelling and renaming (in case the
+runtime system is able to remove false dependencies).
+Regardless of its capacity -- which is not the same across every OpenMP
+implementation -- the runtime system will represent dependencies using a task
+dependence graph (TDG)~\cite{Duran08}.
+In this directed acyclic graph, nodes denote tasks and edges represent
+dependences between them.
+Tasks are dispatched for execution according to a topological ordering of this
+graph~\cite{Planas15}.
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/ex_book_filter}
+\caption{The benefits of the OpenMP runtime environment.
+Neither the runtime checks of Alves~\cite{Alves15} or Rus~\cite{Rus02}, nor
+Whaley's context and flow sensitive alias analysis would be able to ensure the
+correctness of the automatic parallelization of this program.}
+\label{fig:ex_book_filter}
+\end{center}
+\end{figure}
+
+This runtime support allows the parallelization of irregular applications,
+such as programs that traverse data-structures formed by a mesh of pointers.
+As an example, Figure~\ref{fig:ex_book_filter} shows an application that
+finds patterns in lines of a book.
+The book is given as an array of pointers; each pointer leads to a
+string representing a --potentially-- different line.
+The natural parallelization of this program consists in firing off a task
+to process each line.
+Figure~\ref{fig:ex_book_filter} has been annotated automatically by the
+\Taskminer.
+The OpenMP execution environment ensures the correct scheduling of the tasks
+created at lines 9 and 11, through runtime checks.
+Therefore, the ability to disambiguate memory regions statically is not
+essential for correctness, although it is important for efficiency reasons,
+as we will mention in Challenge~\ref{ch:Regions}.
+
+\subsection{The Difficulties}
+\label{sub:dif}
 
 The automatic insertion of effective OpenMP annotations into C/C++ programs
 required us to deal with a number of challenges.
 If left unsolved, these challenges would restrict our interventions in programs
 to trivial annotations, which would hardly be of any use.
-In the rest of this section, we discuss the most important challenges, using
-this discussion as a motivation to the developments that follow in
-Section~\ref{sec:sol}.
+Our first challenge is inherent to any automatic parallelization system.
 
 \begin{figure}[h!]
 \begin{center}
@@ -321,8 +384,8 @@ tackle:
 Estimate the profitability of tasks at runtime.
 \end{Challenge}
 
-The creation of tasks involves a non-negligible runtime cost due to allocation,
-scheduling of resources and real-time management of the task dependence graph.
+The creation of tasks involves a heavy runtime cost due to allocation,
+scheduling and real-time management of the task dependence graph.
 Ideally, this cost should be paid only for tasks that perform an amount of work
 sufficiently large to pay for their management.
 Being an interesting program property, on Rice's sense~\cite{Rice53}, the amount
@@ -344,7 +407,7 @@ instructions. This is further explained in Section \ref{sub:profit}.
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[width=0.95\columnwidth]{images/ex_cutoff}
+\includegraphics[width=0.9\columnwidth]{images/ex_cutoff}
 \caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks with
 counter associated with function calls.}
 \label{fig:ex_cutoff}
@@ -359,7 +422,7 @@ Bound the creation of recursive tasks.
 We introduce Challenge~\ref{ch:cutoff} by quoting Duran {\em et al.}:
 ``{\em In task parallel languages, an important factor for achieving a good
 performance is the use of a cut-off technique to reduce the number of tasks
-created}"~\cite{Duran08}.
+created}"~\cite{Duran08b}.
 This observation is particularly true in the context of recursive, fine-grain,
 tasks, as we analyze in Section~\ref{sub:rec}.
 Figure~\ref{fig:ex_cutoff} provides an example.

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#./runAnalyzes tests/benchmarks/bots/fft/fft.c
+./runAnalyzes tests/benchmarks/bots/fft/fft.c
 ./runAnalyzes tests/benchmarks/bots/floorplan/floorplan.c
 ./runAnalyzes tests/benchmarks/bots/knapsack/knapsack.c
 ./runAnalyzes tests/benchmarks/bots/sort/sort.c
