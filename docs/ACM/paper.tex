@@ -213,10 +213,13 @@ Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %The compiler-related literature contains a generous load of success stories
 %describing the use of annotation systems to parallelize programs.
+\guido{What do you mean by modern accelerators? Not clear.}
 Combined with modern accelerators, they have led to substantial performance
 gains~\cite{Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
+\guido{Suppport what?}
 Nevertheless, although convenient, the use of annotations is not straightforward, and
-still lacks supporting tools.
+still lacks supporting tools \new{that can help programmers check if the annotation is
+correct or effective}.
 %replaced:
 %Yet, even if convenient,
 
@@ -230,9 +233,11 @@ programs~\cite{Amini12,Guelton12,Mendonca16,Pingali11,Nugteren14}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
 Thus, task parallelism remains still uncharted land in what concerns automatic
-annotation.
-Such fact is unfortunate, since much of the power of current annotation
+annotation. Such fact is unfortunate, since much of the power of current annotation
 systems lays on their ability to create tasks~\cite{Ayguade09}.
+\guido{Why the ability to create tasks makes such programs similar to irregular code?
+Which features of irregular code are resposible for such similarities? Not clear to the 
+reader}
 This ability brings said systems closer to irregular programs such as those
 that implement graphs and worklist algorithms \`{a} la
 Pingali~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
@@ -251,11 +256,12 @@ These parameters feed conditional checks, which, at runtime, enable or disable
 the creation of tasks (Section~\ref{sub:profit}) and limit their recursion
 depth (Section~\ref{sub:rec}).
 Fourth, \Taskminer{} determines which program variables need to be 
-replicated in new tasks, or shared among them (Section~\ref{sub:variance}).
+\rmv{replicated} \new{privatized}  in new tasks, or shared among them (Section~\ref{sub:variance}).
 Finally, it maps all this information back into source code, producing
 readable annotations (Section~\ref{sub:ir}).
 
-The major benefit provided by \Taskminer is, essentially, performance and readability.
+\guido{How about saving programmer's time by doing automatic annotation?}
+The major \ed{benefits provided by \Taskminer are, essentially, performance and readability.}
 \Taskminer{} receives as input a C program, and produces, as output, a C
 program annotated with OpenMP directives that enclose potential tasks.
 We are currently able to annotate non-trivial programs, involving every
@@ -267,6 +273,7 @@ benchmark suites, are large and complex; thus, their manual annotation is a
 time consuming and error prone task.
 Yet, our automatically annotated programs not only approximate the execution
 times of the parallel versions of those benchmarks, but are much faster than
+\guido{Revisit later if necessary}
 their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
 
 \section{Advantages and Difficulties}
@@ -274,29 +281,34 @@ their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval
 
 The use of OpenMP pragmas as the concrete means to explore, without human
 intervention, task parallelism in programs presents difficulties and
-advantages.
+advantages. 
 Such challenges and benefits have guided the design and implementation of the
-techniques that we discuss in Section~\ref{sec:sol}.
-In the rest of this section, we discuss them.
+techniques \rmv{that we discuss} \new{described in} ection~\ref{sec:sol}.
+\guido{The techniques or the advantages/difficulties? Ambiguous.} 
+In the rest of this section \ed{we discuss such advantage and difficulties.}
 
 \subsection{The Advantages}
 \label{sub:adv}
 
-The main advantage of using OpenMP to split a program into parallel tasks is
-its runtime.
-This runtime lets us circumvent the shortcomings that pointer aliasing
+\guido{The runtime is a consequence; the main advantage is the possibility of leaving to a
+runtime the task of handling dependences dynamically.} 
+The main advantage of using OpenMP \new{annotations} to split a program into parallel tasks is
+\new{the ability  of leaving the job of  handling dependences to a runtime.}
+\new{The OpenMP runtime maintains a task dependence graph which dynamically exposes more parallelism 
+opportunities than those resulting from a conservative  compile-time  analysis.}
+\new{In particular, the} runtime lets us circumvent the shortcomings that pointer aliasing
 impose on the automatic parallelization of code.
 Aliasing -- the possibility of two pointers dereferencing the same
 memory region -- either prevents parallelism altogether, or forces compilers to
 resort to complex runtime checks to ensure its correctness~\cite{Alves15,Rus02}.
 The OpenMP runtime shields us from this problem, because
 it already checks for dependencies among tasks, and dispatches them in a
-correct order~\cite{LaGrone11}.
-An OpenMP task descriptor contains the task's status (running, waiting) and a
-list of memory addresses the task registered as input arguments.
+correct order~\cite{LaGrone11}. \ed{To achieve that, OpenMP runtime uses task descriptors that contain}
+\guido{The descriptor does not keep task status; this is done in the runtime.}
+\rmv{task's status (running, waiting)} \ed{a task identifier and  a list of memory addresses corresponding to the task input /output arguments.}
 
 The process of checking for dependencies can be as simple as checking if an
-incoming task accesses a memory address already in use by a task in flight.
+incoming task accesses a memory address already in use by \ed{an in-flight task}.
 It can also be complex, involving checks over long ranges of addresses
 (in case the runtime system supports dependence checking for memory ranges).
 This process can also include memory labelling and renaming (in case the
@@ -306,7 +318,7 @@ implementation -- the runtime system will represent dependencies using a task
 dependence graph (TDG)~\cite{Duran08}.
 In this directed acyclic graph, nodes denote tasks and edges represent
 dependences between them.
-Tasks are dispatched for execution according to a topological ordering of this
+Tasks are dispatched for execution according to a \new{dynamic} topological ordering of this
 graph~\cite{Planas15}.
 
 \begin{figure}[t!]
@@ -320,18 +332,33 @@ correctness of the automatic parallelization of this program.}
 \end{center}
 \end{figure}
 
-This runtime support allows the parallelization of irregular applications,
+\guido{Now it is clear the relevance for irregular programs.}
+\ed{The OpenMP runtime} support allows the parallelization of irregular applications,
 such as programs that traverse data-structures formed by a mesh of pointers.
+\guido{A litte bit more details: }
+\new{In such programs, control construcs (e.g. {\tt if} statement) make the execution 
+of certain pieces of code  dependent on the program input. When using 
+task parallelism the runtime can capture such dependences. This is not possible 
+otherwise, since compile-time dependence analyzers must be conservative and eventually
+skip some parallelization opportunity.}
+
 As an example, Figure~\ref{fig:ex_book_filter} shows an application that
 finds patterns in lines of a book.
 The book is given as an array of pointers; each pointer leads to a
 string representing a --potentially-- different line.
 The natural parallelization of this program consists in firing off a task
 to process each line.
-Figure~\ref{fig:ex_book_filter} has been annotated automatically by the
+Figure~\ref{fig:ex_book_filter} has been annotated automatically by \rmv{the}
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, through runtime checks.
+created at lines 9 and 11, \ed{by}  \guido{This is vague:} \rmv{runtime checks.} 
+\new{assuring that the annotated input dependencies {\tt line} and {\tt pattern}  are 
+respected at runtime.}
+\guido{Not clear. Need more details here. Adding:} \new{Pointer-based dependencies
+can address various memory regions. Hence, in order to enable the automatic
+synthesis of task annotations a system must be able to precisely define which 
+memory region a pointer dependency is pointing to.}
+\guido{Not clear why it is not important for correctness.}
 Therefore, the ability to disambiguate memory regions statically is not
 essential for correctness, although it is important for efficiency reasons,
 as we will mention in Challenge~\ref{ch:Regions}.
