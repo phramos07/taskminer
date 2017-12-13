@@ -58,6 +58,7 @@ namespace llvm
 		void computeTotalCost();
 		void determineTopLevelRecursiveCalls(Module &M);
 		bool isRecursive(Function &F, CallGraph &CG);
+		void updateCoveredFunctions(std::set<Function*> &set);
 		void findTopLevelFunctionCall(Function &callee, Function &caller);
 		std::list<Task*> getTasks() { return tasks; }
 		std::set<CallInst*> getTopLevelRecCalls() { return topLevelRecCalls; };

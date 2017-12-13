@@ -72,7 +72,7 @@ bool TaskMiner::runOnModule(Module &M)
 	errs() << "STEP 2: Finding SCC's in the Task Graph.\n";
 	SCCs = taskGraph->getStronglyConnectedSubgraphs();
 
-	//STEP3: MINE FOR TASKS
+	//STEP3: MINE FOR TASKS - ITERATIVE EXPANSION
 	errs() << "STEP 3: Mining Tasks\n";
 	mineTasks(M);
 	
@@ -279,6 +279,7 @@ void	TaskMiner::mineFunctionCallTasks()
 	// B) it goes to an SCC
 	// C) src and dst are different functions
 	bool indirectRecursion;
+	std::set<CallInst*> callInstTasks;
 	for (auto e : taskGraph->getEdges())
 	{
 		auto type = e->getType();
@@ -316,16 +317,30 @@ void	TaskMiner::mineFunctionCallTasks()
 				&& (!CI->getCalledFunction()->isIntrinsic())
 				&& (!CI->getCalledFunction()->isDeclaration())
 				&& (CI->getCalledFunction()->empty() == false)
+				&& (CI->getCalledFunction()->getReturnType()->isVoidTy())
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
 				Task* TASK = new FunctionCallTask(CI);
 				tasks.push_back(TASK);
 				NTASKS++;
 				NFCALLTASKS++;
-				function_tasks.insert(srcRW->F);
+				callInstTasks.insert(CI);
 			}
 		}
 	}
+
+	for (auto ci : callInstTasks)
+	{
+		function_tasks.insert(ci->getCalledFunction());
+		function_tasks.insert(ci->getParent()->getParent());
+	}
+}
+
+//Updates the set of functions that have been covered by a kind of task. Any kind.
+void TaskMiner::updateCoveredFunctions(std::set<Function*> &set)
+{
+	for (auto n : set)
+		function_tasks.insert(n);
 }
 
 void TaskMiner::mineRecursiveTasks()
@@ -517,6 +532,7 @@ void TaskMiner::mineTasks(Module &M)
 
 	//Only mine the function calls that are NOT top level rec calls.
 	mineFunctionCallTasks();
+
 	mineRegionTasks();
 }
 
