@@ -113,7 +113,11 @@ namespace llvm
 		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
 		static bool classof(const Task* T) { return T->getKind() == REGION_TASK; }
-		
+		void setHeaderBB(BasicBlock* BB) { header = BB; };
+		BasicBlock* getHeaderBB() { return header; };
+
+	private:
+		BasicBlock* header;
 	};
 
 	class RecursiveTask : public Task

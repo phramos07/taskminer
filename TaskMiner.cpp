@@ -509,6 +509,7 @@ void TaskMiner::mineRegionTasks()
 				Region *R_ = RI->getRegionFor(BB);
 				TASK->addBasicBlock(BB);
 				TASK->addBasicBlock(R_->getExit());
+				TASK->setHeaderBB(R_->getEntry());
 			}
 		}
 

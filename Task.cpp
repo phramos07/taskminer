@@ -413,6 +413,7 @@ raw_ostream& RegionTask::print(raw_ostream& os) const
 		os << " " << bb->getName();
 	printLiveSets(os);
 	CM.print(os);
+	os << "\nEntry BB:" << header->getName() << "\n";
 
 	return os;	
 }
