@@ -23,17 +23,17 @@ void foo(LIST* n) {
 
 int main(int argc, char const *argv[])
 {
-	Instance* I = newInstance(atoi(argv[1]));
+	// Instance* I = newInstance(atoi(argv[1]));
 	LIST* L = (LIST*) malloc(sizeof(LIST));
 
 	L->counter = atoi(argv[1]);
-	clock_t beg, end;
-	beg = clock();
+	// clock_t beg, end;
+	// beg = clock();
 	foo(L);
-	end = clock();
-	addNewEntry(I, 0, getTimeInSecs(end - beg));
-	writeResultsToOutput(stdout, I);
-  freeInstance(I);
+	// end = clock();
+	// addNewEntry(I, 0, getTimeInSecs(end - beg));
+	// writeResultsToOutput(stdout, I);
+  // freeInstance(I);
 
 	return 0;
 }
