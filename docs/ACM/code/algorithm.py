@@ -13,14 +13,13 @@ def minetasks(P):
 	CFG = ControlFlowGraph(P) # O(N^2)
 	PDG = ProgramDependenceGraph(P)	# O(N^2)
 	H = findHelices(PDG);	# O(N^2)
-	REGIONS = []
 	TASKREGIONS = []
 	for h in H:	# O(N^2)
 		reg = CFG.findMinimalCoveringRegion(h)
-		REGIONS.append(reg)
-	for r in REGIONS: # O(N^2)
-		while (r.expand(1)):
-			TASKREGIONS.append(r)
+		TASKREGIONS.append(reg)
+	for r in TASKREGIONS: # O(N^3)
+		r.expand();
+
 	ANN = Annotator()														
 	NEW_PROGRAM = ANN.annotate(P, TASKREGIONS) # O(N^2)
 
@@ -93,33 +92,24 @@ class Region:
 
 	# Expansion of one level is O(N)
 	def expand(self):
-		self.basicblocks.append(f()) # add new basic blocks to the list
-		self.resolveDependencies()
-
-		return self.checkExpansion()
-
-	def resolveDependencies(self):
-		return f() # resolve dependencies for a given set of basic blocks
-
-	# Expansion of N levels is O(N^2)
-	def expand(self, n_levels):
-		while (n_levels > 0):
-			if (not self.expand()):
-				break
+		canExpand = True
+		while (canExpand):
+			self.basicblocks.append(f()) # add new basic blocks to the list
+			self.resolveDependencies()
 			self.level += 1
-			n_levels -= 1
-
-		return self.checkExpansion()
+			canExpand = self.checkExpansion()
 
 	# it checks:
 		# - if two tasks have merged O(N) 
 		# - if dependencies have been conserved or reduced O(1)
 		# - if parallelism has not decreased O(1)
-
 	# it also does:
 		# - privatization analysis O(N)
 	def checkExpansion(self):
 		return f()  
+
+	def resolveDependencies(self):
+		return f() # resolve dependencies for a given set of basic blocks
 
 # I don'w know much about the annotator. 
 # I know it receives a program and generates 

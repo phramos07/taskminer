@@ -90,6 +90,11 @@ bool Task::hasLoadInstructionInDependence() const
 	return false;
 }
 
+bool Task::resolvePrivateValues()
+{
+
+}
+
 FunctionCallTask::FunctionCallTask(CallInst* CI)
 	: Task(FCALL_TASK)
 	, functionCall(CI)

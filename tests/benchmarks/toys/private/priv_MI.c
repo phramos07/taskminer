@@ -6,18 +6,21 @@ int sum_range(int* V, int N, int L, int U, int* A)
 	int i=0, sum=0;
 	#pragma omp parallel
 	#pragma omp single
-	while (i < N)
+	for (i = 0; i < N; i++)
 	{
-		int j = V[i];
-		A[i] = 0;
-		#pragma omp untied default(shared) firstprivate(i, j)
-		for (; j < L; j++)
+		#pragma omp untied default(shared) firstprivate(i)
 		{
-			A[i] += V[j];
-			j++;				
+			int j = V[i];
+			A[i] = 0;
+			for (; j < L; j++)
+			{
+				A[i] += V[j];
+				j++;				
+			}
+			sum += A[i];
 		}
-		i++;		
 	}
+
 	return sum;
 }
 

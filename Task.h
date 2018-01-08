@@ -15,6 +15,7 @@
 
 #include <set>
 #include <stack>
+#include <list>
 
 namespace llvm
 {
@@ -45,16 +46,19 @@ namespace llvm
 			{}
 		virtual ~Task() {};
 		
-		//Getters
+		//Getters & Setters
 		TaskKind getKind() const { return kind; }
 		std::set<Value*> getLiveIN() const;
 		std::set<Value*> getLiveOUT() const;
 		std::set<Value*> getLiveINOUT() const;
 		std::set<BasicBlock*> getbbs() const;
 		CostModel getCost() const { return CM; }
+		std::list<Value*> getPrivateValues() { return privateValues; };
+		void addPrivateValue(Value* V) { privateValues.push_back(V); };
 
 		//Methods
 		virtual bool resolveInsAndOutsSets() { return false; }
+		bool resolvePrivateValues();
 		virtual CostModel computeCost() { return CM; }
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 		bool hasLoadInstructionInDependence() const;
@@ -66,6 +70,7 @@ namespace llvm
 
 	private:
 		const TaskKind kind;
+		std::list<Value*> privateValues;
 
 	protected:
 		//Cost model
@@ -107,7 +112,7 @@ namespace llvm
 	public:
 		RegionTask() 
 			: Task(REGION_TASK)
-			{}
+			{ level = 0; }
 		~RegionTask() {}
 		bool resolveInsAndOutsSets() override;
 		CostModel computeCost() override;
@@ -117,6 +122,7 @@ namespace llvm
 		BasicBlock* getHeaderBB() { return header; };
 
 	private:
+		int level;
 		BasicBlock* header;
 	};
 

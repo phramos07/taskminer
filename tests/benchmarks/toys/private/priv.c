@@ -4,7 +4,7 @@
 int sum_range(int* V, int N, int L, int U, int* A)
 {
 	int i=0, sum=0;
-	while (i < N)
+	for (i = 0; i < N; i++)
 	{
 		int j = V[i];
 		A[i] = 0;
@@ -13,8 +13,9 @@ int sum_range(int* V, int N, int L, int U, int* A)
 			A[i] += V[j];
 			j++;				
 		}
-		i++;		
+		sum += A[i];
 	}
+
 	return sum;
 }
 
