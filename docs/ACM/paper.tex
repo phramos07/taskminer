@@ -285,20 +285,18 @@ The use of OpenMP pragmas as the concrete means to explore, without human
 intervention, task parallelism in programs presents difficulties and
 advantages. 
 Such challenges and benefits have guided the design and implementation of the
-techniques \rmv{that we discuss} \new{described in} ection~\ref{sec:sol}.
-\guido{The techniques or the advantages/difficulties? Ambiguous.} 
-In the rest of this section \ed{we discuss such advantage and difficulties.}
+techniques described in Section~\ref{sec:sol}.
+In the rest of this section we discuss such advantage and difficulties.
 
 \subsection{The Advantages}
 \label{sub:adv}
 
-\guido{The runtime is a consequence; the main advantage is the possibility of leaving to a
-runtime the task of handling dependences dynamically.} 
-The main advantage of using OpenMP \new{annotations} to split a program into parallel tasks is
-\new{the ability  of leaving the job of  handling dependences to a runtime.}
-\new{The OpenMP runtime maintains a task dependence graph which dynamically exposes more parallelism 
-opportunities than those resulting from a conservative  compile-time  analysis.}
-\new{In particular, the} runtime lets us circumvent the shortcomings that pointer aliasing
+The main advantage of using OpenMP annotations to split a program into parallel
+tasks is
+the ability  of leaving the job of  handling dependences to a runtime.
+The OpenMP runtime maintains a task dependence graph which dynamically exposes more parallelism 
+opportunities than those resulting from a conservative  compile-time  analysis.
+In particular, the runtime lets us circumvent the shortcomings that pointer aliasing
 impose on the automatic parallelization of code.
 Aliasing -- the possibility of two pointers dereferencing the same
 memory region -- either prevents parallelism altogether, or forces compilers to
