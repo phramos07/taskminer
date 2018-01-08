@@ -516,6 +516,30 @@ shared variables.
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:identification}
 
+The algorithm to find tasks is illustrated in Figure \ref{fig:alg_main}. It uses
+information of two abstract program structures: the \emph{Control Flow Graph (CFG)} and
+the \emph{Program Dependence Graph (PDG)}. The key intuition behind
+finding potential tasks relies on a concept that we call \emph{Helices}. A \emph{Helix}
+is a set of nodes in the PDG that depend on a Strong Connected Component (SCC) but \emph{do not
+integrate the SCC}. Strong Connected Components in the Dependence Graph represent statically
+detected iteration dependence, so it arises with loops or with recursive patterns (when the Graph is
+interprocedural).  \Figure \ref{fig:helix}  shows what represents a \emph{Helix}.
+The insight behind \emph{Helices} is that they represent instructions that are deemed
+to repeat more than once and, since they do not have a cycle, they can be executed in parallel.
+
+Therefore, the first step in the algorithm to find tasks is to map these \emph{Helices}
+into program regions. The algorithm goes through the Dependence Graph looking for \emph{Helices}
+and then finds the minimal covering region for each \emph{Helix}. These minimal regions
+are later going to be annotated as tasks in the original program, should they fit a cost model.
+
+After finding potential task regions, next is the \emph{expansion} step. We expand the region to a larger 
+one as long as two requisites are met:
+
+\begin{enumerate}  
+\item Input and output dependencies are never increased;
+\item The potential parallelism is never reduced.
+\end{enumerate}
+
 
 \begin{figure}[t!]
 \begin{center}
