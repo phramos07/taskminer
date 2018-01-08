@@ -211,36 +211,36 @@ OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
 Tareador~\cite{Ayguade15}.
 Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
-%The compiler-related literature contains a generous load of success stories
-%describing the use of annotation systems to parallelize programs.
-\guido{What do you mean by modern accelerators? Not clear.}
-Combined with modern accelerators, they have led to substantial performance
-gains~\cite{Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
-\guido{Suppport what?}
-Nevertheless, although convenient, the use of annotations is not straightforward, and
-still lacks supporting tools \new{that can help programmers check if the annotation is
-correct or effective}.
+%\guido{What do you mean by modern accelerators? Not clear.}
+Combined with modern hardware accelerators such as GPUs and FPGAs, they have led
+to substantial performance gains~\cite{Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
+%\guido{Suppport what?}
+Nevertheless, although convenient, the use of annotations is not straightforward, 
+and still lacks supporting tools that help programmers to check if annotations
+are correct and/or effective.
 %replaced:
 %Yet, even if convenient,
 
-Annotations such as OpenMP or OpenACC still require developers to
-worry about typical hassles of the parallel world, such as race conditions
-and deadlocks.
-Moreover, because they are used in tandem with imperative programming languages,
-such troubles are only made worse by pointer aliasing.
+%Annotations such as OpenMP or OpenACC still require developers to
+%worry about typical hassles of the parallel world, such as race conditions
+%and deadlocks.
+%Moreover, because they are used in tandem with imperative programming languages,
+%such troubles are only made worse by pointer aliasing.
 There exist tools that insert automatic annotations in
 programs~\cite{Amini12,Guelton12,Mendonca16,Pingali11,Nugteren14}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
-Thus, task parallelism remains still uncharted land in what concerns automatic
-annotation. Such fact is unfortunate, since much of the power of current annotation
+Another form of parallelism, based on tasks, remains still uncharted land in what
+concerns automatic annotation.
+Such fact is unfortunate, since much of the power of current annotation
 systems lays on their ability to create tasks~\cite{Ayguade09}.
-\guido{Why the ability to create tasks makes such programs similar to irregular code?
-Which features of irregular code are resposible for such similarities? Not clear to the 
-reader}
-This ability brings said systems closer to irregular programs such as those
-that implement graphs and worklist algorithms \`{a} la
-Pingali~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
+%\guido{Why the ability to create tasks makes such programs similar to irregular code?
+%Which features of irregular code are resposible for such similarities? Not clear to the 
+%reader}
+As we illustrate in Section~\ref{sub:adv}, task parallelism -- the power to run
+different routines simultaneously on independent data -- brings annotation systems
+closer to irregular programs such as those that process graphs and
+worklists~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
 The purpose of this work is to address this omission.
 
 This paper describes \Taskminer, a source-to-source compiler that exposes task
@@ -256,14 +256,16 @@ These parameters feed conditional checks, which, at runtime, enable or disable
 the creation of tasks (Section~\ref{sub:profit}) and limit their recursion
 depth (Section~\ref{sub:rec}).
 Fourth, \Taskminer{} determines which program variables need to be 
-\rmv{replicated} \new{privatized}  in new tasks, or shared among them (Section~\ref{sub:variance}).
+privatized in new tasks, or shared among them (Section~\ref{sub:variance}).
 Finally, it maps all this information back into source code, producing
 readable annotations (Section~\ref{sub:ir}).
 
-\guido{How about saving programmer's time by doing automatic annotation?}
-The major \ed{benefits provided by \Taskminer are, essentially, performance and readability.}
-\Taskminer{} receives as input a C program, and produces, as output, a C
-program annotated with OpenMP directives that enclose potential tasks.
+In this paper, we defend the thesis that automatic task annotations are
+effective and useful.
+Our techniques enhance the productivity of developers, because they save them
+the time to annotate programs.
+\Taskminer{} receives as input C code, and produces, as output, a C
+program annotated with human-readable OpenMP task directives.
 We are currently able to annotate non-trivial programs, involving every
 sort of composite type available in the C language, e.g., arrays, structs,
 unions and pointers to these aggregates.
@@ -273,7 +275,7 @@ benchmark suites, are large and complex; thus, their manual annotation is a
 time consuming and error prone task.
 Yet, our automatically annotated programs not only approximate the execution
 times of the parallel versions of those benchmarks, but are much faster than
-\guido{Revisit later if necessary}
+\guido{Numbers?}
 their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
 
 \section{Advantages and Difficulties}
@@ -503,8 +505,26 @@ shared variables.
 \section{Solution}
 \label{sec:sol}
 
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/alg_main}
+\caption{The main steps of our code generator.}
+\label{fig:alg_main}
+\end{center}
+\end{figure}
+
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:identification}
+
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/expand_alg}
+\caption{Discovery of tasks via expansion of hammock regions.}
+\label{fig:expand_alg}
+\end{center}
+\end{figure}
+
 
 \subsection{Finding Symbolic Bounds of Arrays}
 \label{sub:symb}
