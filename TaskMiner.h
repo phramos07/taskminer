@@ -57,6 +57,7 @@ namespace llvm
 		void mineLoopTasks();
 		void mineTasks(Module &M);
 		void resolveInsAndOutsSets();
+		void resolvePrivateValues();
 		void computeCosts();
 		void computeStats(Module &M);
 		void computeTotalCost();

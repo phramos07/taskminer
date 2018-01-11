@@ -100,7 +100,7 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l)
 	  /* prune ! */
           *sol = INT_MIN;
           return;
-     }
+     } 
      /* 
       * compute the best solution without the current item in the knapsack 
       */

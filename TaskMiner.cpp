@@ -80,12 +80,16 @@ bool TaskMiner::runOnModule(Module &M)
 	errs() << "STEP 4: Determining dependences and memory regions.\n";
 	resolveInsAndOutsSets();
 
-	//STEP5: COMPUTE THE COSTS OF EACH TASK.
-	errs() << "STEP 5: Estimating the cost for region tasks.\n";
+	//STEP5: PRIVATIZATION
+	errs() << "STEP 5: Privatization of variables.\n";
+	resolvePrivateValues();
+
+	//STEP6: COMPUTE THE COSTS OF EACH TASK.
+	errs() << "STEP 6: Estimating the cost for region tasks.\n";
 	computeCosts();
 
-	//STEP6: GIVE IT OUT TO THE ANNOTATOR.
-	errs() << "STEP 6: Infering Source Code information to Annotate the Tasks.\n";
+	//STEP7: GIVE IT OUT TO THE ANNOTATOR.
+	errs() << "STEP 7: Infering Source Code information to Annotate the Tasks.\n";
 
 	// DEBUG_WITH_TYPE("print-tasks", printRegionInfo());
 	DEBUG_WITH_TYPE("print-tasks", printTasks());
@@ -489,7 +493,7 @@ void TaskMiner::mineRegionTasks()
 		LoopInfoWrapperPass* LIWP = &(getAnalysis<LoopInfoWrapperPass>(*F));
 		LoopInfo* LI = &(LIWP->getLoopInfo());
 
-		errs() << "\nAnalyizing function " << F->getName() << "\n";
+		//errs() << "\nAnalyizing function " << F->getName() << "\n";
 
 		for (auto l : TMU.getLoopsInPreorder(LI))
 		{
@@ -589,6 +593,12 @@ std::list<CallInst*> TaskMiner::getLastRecursiveCalls() const
 	}
 
 	return CIs;
+}
+
+void TaskMiner::resolvePrivateValues()
+{
+	for (auto task : tasks)
+		task->resolvePrivateValues();
 }
 
 void TaskMiner::resolveInsAndOutsSets()

@@ -59,7 +59,7 @@ namespace llvm
 
 		//Methods
 		virtual bool resolveInsAndOutsSets() { return false; }
-		bool resolvePrivateValues();
+		virtual void resolvePrivateValues();
 		virtual CostModel computeCost() { return CM; }
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 		bool hasLoadInstructionInDependence() const;
@@ -72,7 +72,6 @@ namespace llvm
 
 	private:
 		const TaskKind kind;
-		std::set<Value*> privateValues;
 
 	protected:
 		//Cost model
@@ -84,6 +83,7 @@ namespace llvm
 		std::set<Value*> liveOUT;
 		std::set<Value*> liveINOUT;
 		Loop* outerMost=0;
+		std::set<Value*> privateValues;
 
 		//Private methods
 		AccessType getTypeFromInst(Instruction* I);
@@ -103,6 +103,7 @@ namespace llvm
 		raw_ostream& print(raw_ostream& os) const override;
 		static bool classof(const Task* T) { return T->getKind() == FCALL_TASK; }
 		bool hasSyncBarrier() const override;
+		void resolvePrivateValues() override;
 
 	private:
 		CallInst* functionCall;
@@ -119,6 +120,7 @@ namespace llvm
 		bool resolveInsAndOutsSets() override;
 		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
+		void resolvePrivateValues() override;
 		static bool classof(const Task* T) { return T->getKind() == REGION_TASK; }
 		void setHeaderBB(BasicBlock* BB) { header = BB; };
 		BasicBlock* getHeaderBB() { return header; };
@@ -137,6 +139,7 @@ namespace llvm
 		bool resolveInsAndOutsSets() override;
 		CostModel computeCost() override;
 		raw_ostream& print(raw_ostream& os) const override;
+		void resolvePrivateValues() override;
 		static bool classof(const Task* T) { return T->getKind() == RECURSIVE_TASK; }		
 		RecursiveTask* getPrev() const { return prev; }
 		RecursiveTask* getNext() const { return next; }

@@ -113,29 +113,31 @@ Function* Task::getParentFunction()
 	return (*(bbs.begin()))->getParent();
 }
 
-bool Task::resolvePrivateValues()
+void Task::resolvePrivateValues()
 {
 	Function* F = getParentFunction();
 	for (Function::iterator ft = F->begin(); ft != F->end(); ft++)
 	{
 		for (BasicBlock::iterator bt = ft->begin(); bt != ft->end(); bt++)
 		{
-			Instruction *i = bt;
-		  BasicBlock* p = i->getParent();
-		  if (bbs.find(p) == bbs.end())
-		  {
-		     for (auto &u : i->uses())
-		     {
-		     	 if (Instruction* inst = dyn_cast<Instruction>(u.get()))
-		     	 {
-			       BasicBlock* pu = inst->getParent();
-			       if (bbs.find(pu) != bbs.end())
-			       {
-			         privateValues.insert(i);
-			       }		     	 	
-		     	 }
-		     }
-		  }
+			Instruction* i = bt;
+		  BasicBlock* p = i->getParent();		  
+		  if (bbs.find(p) != bbs.end())
+		  	continue;
+		  
+   		for (auto u : i->users())
+  		{
+  			Instruction* inst = dyn_cast<Instruction>(u);
+   	 		if (!inst)
+   	 			continue;
+
+				BasicBlock* pu = inst->getParent();
+				bool isInsideTask = (bbs.find(pu) != bbs.end());
+      	if (!isInsideTask)
+      		continue;
+
+   			privateValues.insert(i);	
+	    }
 		}
 	}
 }
@@ -269,6 +271,16 @@ bool FunctionCallTask::hasSyncBarrier() const
 	return this->syncBarrier;
 }
 
+void FunctionCallTask::resolvePrivateValues()
+{
+	Task::resolvePrivateValues();
+	for (auto &arg : functionCall->arg_operands())
+	{
+		if (!isPointerValue(arg))
+			privateValues.insert(arg);
+	}
+}
+
 
 RecursiveTask::RecursiveTask(CallInst *CI, bool isInsideLoop)
 	: recursiveCall(CI)
@@ -386,6 +398,16 @@ bool RecursiveTask::hasSyncBarrier() const
 	return (next == nullptr) ? true : false;
 }
 
+void RecursiveTask::resolvePrivateValues()
+{
+	Task::resolvePrivateValues();
+	for (auto &arg : recursiveCall->arg_operands())
+	{
+		if (!isPointerValue(arg))
+			privateValues.insert(arg);
+	}
+}
+
 bool RegionTask::resolveInsAndOutsSets()
 {
 	//Collect values inside region
@@ -436,6 +458,27 @@ bool RegionTask::resolveInsAndOutsSets()
 	}
 
 	return true;
+}
+
+void RegionTask::resolvePrivateValues()
+{
+	Task::resolvePrivateValues();
+	for (BasicBlock::iterator i = header->begin(); i != header->end(); ++i)
+	{
+		for (auto u : i->users())
+		{
+			Instruction* user = dyn_cast<Instruction>(u);
+			if (!user)
+				continue;
+		 	
+	  	BasicBlock* pu = user->getParent();
+	  	bool isInsideTask = bbs.find(pu) != bbs.end() && pu != header;
+	  	if (!isInsideTask)
+	  		continue;
+
+     	privateValues.insert(i);
+		}
+	}
 }
 
 bool Task::isPointerValue(Value *V)
