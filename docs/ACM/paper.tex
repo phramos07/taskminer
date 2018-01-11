@@ -588,6 +588,31 @@ one as long as two requisites are met:
 
 %\textbf{\textit{Performance}}. When it comes to parallel computing, it is undeniable that the main achievable goal should be performance. There's no reason why programmers would opt for parallelism other than the desire for faster programs. Therefore, we ought to show that the programs annotated with TaskMiner are faster than their serial counterparts. 
 
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/Absolute_speedups}
+\caption{Speedup comparisons -- automatic annotations compare favourably against
+manual interventions, and lead to great performance gains.
+The Y-axis shows the speedup of either manual intervention, or automatic
+annotation (this paper) onto the original programs.}
+\label{fig:Absolute_speedups}
+\end{center}
+\end{figure}
+
+
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/Opt_Speedups}
+\caption{The benefit of our optimizations.
+Each optimization (profitability analysis and recursion bounds) lead to
+non-trivial speedups.}
+\label{fig:Opt_Speedups}
+\end{center}
+\end{figure}
+
+
 \section{Related Work}
 \label{sec:rw}
 
