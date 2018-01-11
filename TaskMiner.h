@@ -8,6 +8,7 @@
 #include "Graph.hpp"
 #include "Task.h"
 #include "CostModel.h"
+#include "TaskMinerUtils.h"
 
 namespace llvm
 {
@@ -37,6 +38,9 @@ namespace llvm
 
 		//List of top level recursive function calls
 		std::set<CallInst*> topLevelRecCalls;
+
+		//Utils module
+		TaskMinerUtils TMU;
 
 	public:
 		static char ID;

@@ -126,7 +126,8 @@
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/RegionTree.h \
   /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/Task.h \
   /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallSet.h \
-  /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/CostModel.h
+  /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/CostModel.h \
+  /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/TaskMinerUtils.h
 
 /Users/pedroramos/programs/llvm/include/llvm/Analysis/DominanceFrontier.h:
 
@@ -379,3 +380,5 @@
 /Users/pedroramos/programs/llvm/include/llvm/ADT/SmallSet.h:
 
 /Users/pedroramos/programs/llvm/lib/Transforms/taskminer/CostModel.h:
+
+/Users/pedroramos/programs/llvm/lib/Transforms/taskminer/TaskMinerUtils.h:

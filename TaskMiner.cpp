@@ -486,38 +486,63 @@ void TaskMiner::mineRegionTasks()
 	{
 		auto firstRW = (*scc->getNodes().begin())->getItem();
 		Function* F = firstRW->F;
-		RegionInfoPass *RIP = &(getAnalysis<RegionInfoPass>(*F));
-		RegionInfo* RI = &RIP->getRegionInfo();
-		Region *R = RI->getRegionFor(firstRW->entry);
-		for (auto node : scc->getNodes())
-		{
-			auto currentRW = node->getItem();
-			Region* currentRegion = RI->getRegionFor(currentRW->entry);
-			R = RI->getCommonRegion(R, currentRegion);
-		}
+		LoopInfoWrapperPass* LIWP = &(getAnalysis<LoopInfoWrapperPass>(*F));
+		LoopInfo* LI = &(LIWP->getLoopInfo());
 
-		RegionTask* TASK = new RegionTask();
+		errs() << "\nAnalyizing function " << F->getName() << "\n";
 
-		//Now with the region R in hands, let's build the regiontask!
-		//TODO: REMOVE ALL THE BASIC BLOCKS TAHT BELONG TO LOOP HEADER
-		// THAT IS, ADD ONLY BASIC BLOCKS THAT ARE PART OF THE TASK (INSIDE)
-		// THE OUTER MOST LOOP
-		for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+		for (auto l : TMU.getLoopsInPreorder(LI))
 		{
-			if (R->contains(BB) && RI->getRegionFor(BB) != R)
+			// errs() << "\n\n";
+			// l->dump();
+			if (l->getLoopDepth() == 1)
 			{
-				Region *R_ = RI->getRegionFor(BB);
-				TASK->addBasicBlock(BB);
-				TASK->addBasicBlock(R_->getExit());
-				TASK->setHeaderBB(R_->getEntry());
+				RegionTask* TASK = new RegionTask();
+				TASK->setHeaderBB(l->getHeader());
+				for (auto BB : l->getBlocks())
+				{
+					TASK->addBasicBlock(BB);
+				}
+				tasks.push_back(TASK);
+				NTASKS++;
+				NREGIONTASKS++;
 			}
 		}
 
-		tasks.push_back(TASK);
-		NTASKS++;
-		NREGIONTASKS++;
+		// errs() << "\n\n";
+
+		// RegionInfoPass* RIP = &(getAnalysis<RegionInfoPass>(*F));
+
+		// RegionInfo* RI = &RIP->getRegionInfo();
+		// Region* R = RI->getRegionFor(firstRW->entry);
+		// for (auto node : scc->getNodes())
+		// {
+		// 	auto currentRW = node->getItem();
+		// 	Region* currentRegion = RI->getRegionFor(currentRW->entry);
+		// 	R = RI->getCommonRegion(R, currentRegion);
+		// }
+
+		// RegionTask* TASK = new RegionTask();
+
+		// //Now with the region R in hands, let's build the regiontask!
+		// for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
+		// {
+		// 	if (R->contains(BB) && RI->getRegionFor(BB) != R)
+		// 	{
+		// 		Region *R_ = RI->getRegionFor(BB);
+		// 		TASK->addBasicBlock(BB);
+		// 		TASK->addBasicBlock(R_->getExit());
+		// 		TASK->setHeaderBB(R_->getEntry());
+		// 	}
+		// }
+
+		// tasks.push_back(TASK);
+		// NTASKS++;
+		// NREGIONTASKS++;
 	}
 }
+
+
 
 void TaskMiner::mineLoopTasks()
 {
