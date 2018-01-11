@@ -53,8 +53,9 @@ namespace llvm
 		std::set<Value*> getLiveINOUT() const;
 		std::set<BasicBlock*> getbbs() const;
 		CostModel getCost() const { return CM; }
-		std::list<Value*> getPrivateValues() { return privateValues; };
-		void addPrivateValue(Value* V) { privateValues.push_back(V); };
+		std::set<Value*> getPrivateValues() { return privateValues; };
+		void addPrivateValue(Value* V) { privateValues.insert(V); };
+		Function* getParentFunction();
 
 		//Methods
 		virtual bool resolveInsAndOutsSets() { return false; }
@@ -67,10 +68,11 @@ namespace llvm
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
 		raw_ostream& printLiveSets(raw_ostream& os) const;
+		raw_ostream& printPrivateValues(raw_ostream& os) const;
 
 	private:
 		const TaskKind kind;
-		std::list<Value*> privateValues;
+		std::set<Value*> privateValues;
 
 	protected:
 		//Cost model

@@ -44,23 +44,37 @@ std::string Task::accessTypeToStr(AccessType T)
 	}
 }
 
+raw_ostream& Task::printPrivateValues(raw_ostream &os) const
+{
+	os << "\nPRIVATE VALUES:\n";
+	for (auto v : privateValues)
+	{
+		os << "\t";
+		v->print(os);
+		os << "\n";
+	}
+}
+
 raw_ostream& Task::printLiveSets(raw_ostream& os) const
 {
-	os << "\nIN:\n\t";
+	os << "\nIN:\n";
 	for (auto &in : liveIN)
 	{
+		os << "\t";
 		in->print(os);
 		os << "\n";
 	}
 	os << "OUT:\n\t";
 	for (auto &out : liveOUT)
 	{
+		os << "\t";
 		out->print(os);
 		os << "\n";
 	}
 	os << "INOUT:\n\t";
 	for (auto &inout : liveINOUT)
 	{
+		os << "\t";
 		inout->print(os);
 		os << "\n";
 	}
@@ -72,6 +86,7 @@ raw_ostream& Task::print(raw_ostream& os) const
 {
 	if (hasLoadInstructionInDependence())
 		os << "\nTASK HAS LOAD INSTRUCTION IN DEPENDENCIES\n";
+	printPrivateValues(os);
 	return printLiveSets(os);
 }
 
@@ -90,9 +105,39 @@ bool Task::hasLoadInstructionInDependence() const
 	return false;
 }
 
+Function* Task::getParentFunction()
+{
+	if (bbs.empty())
+		return nullptr;
+
+	return (*(bbs.begin()))->getParent();
+}
+
 bool Task::resolvePrivateValues()
 {
-
+	Function* F = getParentFunction();
+	for (Function::iterator ft = F->begin(); ft != F->end(); ft++)
+	{
+		for (BasicBlock::iterator bt = ft->begin(); bt != ft->end(); bt++)
+		{
+			Instruction *i = bt;
+		  BasicBlock* p = i->getParent();
+		  if (bbs.find(p) == bbs.end())
+		  {
+		     for (auto &u : i->uses())
+		     {
+		     	 if (Instruction* inst = dyn_cast<Instruction>(u.get()))
+		     	 {
+			       BasicBlock* pu = inst->getParent();
+			       if (bbs.find(pu) != bbs.end())
+			       {
+			         privateValues.insert(i);
+			       }		     	 	
+		     	 }
+		     }
+		  }
+		}
+	}
 }
 
 FunctionCallTask::FunctionCallTask(CallInst* CI)
@@ -114,6 +159,7 @@ raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 					<< "Function Call: \n\t";
 	functionCall->print(os);
 	printLiveSets(os);
+	printPrivateValues(os);
 	CM.print(os);
 	os << "\nHas sync barrier?\n";
 	os << this->hasSyncBarrier();
@@ -313,6 +359,7 @@ raw_ostream& RecursiveTask::print(raw_ostream& os) const
 	os << ((hasSyncBarrier()) ? "Yes" : "No");
 	os << "\n";
 	printLiveSets(os);
+	printPrivateValues(os);
 	CM.print(os);
 
 	return os;	
@@ -417,6 +464,7 @@ raw_ostream& RegionTask::print(raw_ostream& os) const
 	for (auto bb : bbs)
 		os << " " << bb->getName();
 	printLiveSets(os);
+	printPrivateValues(os);
 	CM.print(os);
 	os << "\nEntry BB:" << header->getName() << "\n";
 
