@@ -276,7 +276,7 @@ void FunctionCallTask::resolvePrivateValues()
 	Task::resolvePrivateValues();
 	for (auto &arg : functionCall->arg_operands())
 	{
-		if (isPointerValue(arg))
+		if (isPointerValue(arg) && isa<Instruction>(arg))
 			privateValues.insert(arg);
 	}
 }
@@ -403,7 +403,7 @@ void RecursiveTask::resolvePrivateValues()
 	Task::resolvePrivateValues();
 	for (auto &arg : recursiveCall->arg_operands())
 	{
-		if (isPointerValue(arg))
+		if (isPointerValue(arg) && isa<Instruction>(arg))
 			privateValues.insert(arg);
 	}
 }

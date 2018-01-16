@@ -9,7 +9,7 @@ void fillgraph(int* G, int N)
 	{
 		for (long unsigned j = 0; j < N; j++)
 		{
-			*(G + i*N + j) = rand()%10;
+			*(G + i*N + j) = rand()%50 + rand()%50 + 3;
 		}
 	}
 }
