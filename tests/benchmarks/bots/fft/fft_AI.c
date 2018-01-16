@@ -61,6 +61,7 @@ void compute_w_coefficients(int n, int a, int b, COMPLEX *W) {
       c_im(W[k]) = -s;
       c_im(W[n - k]) = s;
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -71,7 +72,6 @@ void compute_w_coefficients(int n, int a, int b, COMPLEX *W) {
     compute_w_coefficients(n, ab + 1, b, W);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 /*
  * Determine (in a stupid way) if n is divisible by eight, then by four, else
@@ -127,6 +127,7 @@ void unshuffle(int a, int b, COMPLEX *in, COMPLEX *out, int r, int m) {
         jp += m;
       }
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -137,7 +138,6 @@ void unshuffle(int a, int b, COMPLEX *in, COMPLEX *out, int r, int m) {
     unshuffle(ab, b, in, out, r, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_twiddle_gen1(COMPLEX *in, COMPLEX *out, COMPLEX *W, int r, int m,
                       int nW, int nWdnti, int nWdntm) {
@@ -167,10 +167,11 @@ void fft_twiddle_gen1(COMPLEX *in, COMPLEX *out, COMPLEX *W, int r, int m,
 }
 
 void fft_twiddle_gen(int i, int i1, COMPLEX *in, COMPLEX *out, COMPLEX *W,
+                     taskminer_depth_cutoff++;
                      int nW, int nWdn, int r, int m) {
-	taskminer_depth_cutoff++;
   if (i == i1 - 1) {
     fft_twiddle_gen1(in + i, out + i, W, r, m, nW, nWdn * i, nWdn * m);
+  taskminer_depth_cutoff--;
   } else {
     int i2 = (i + i1) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -181,7 +182,6 @@ void fft_twiddle_gen(int i, int i1, COMPLEX *in, COMPLEX *out, COMPLEX *W,
     fft_twiddle_gen(i2, i1, in, out, W, nW, nWdn, r, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 /* machine-generated code begins here */
 void fft_base_2(COMPLEX *in, COMPLEX *out) {
@@ -197,8 +197,8 @@ void fft_base_2(COMPLEX *in, COMPLEX *out) {
   c_im(out[1]) = (i1_0 - i1_1);
 }
 void fft_twiddle_2(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
+                   taskminer_depth_cutoff++;
                    int nWdn, int m) {
-	taskminer_depth_cutoff++;
   int l1, i;
   COMPLEX *jp, *kp;
   REAL tmpr, tmpi, wr, wi;
@@ -222,6 +222,7 @@ void fft_twiddle_2(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
         c_im(kp[1 * m]) = (i1_0 - i1_1);
       }
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -232,9 +233,7 @@ void fft_twiddle_2(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
     fft_twiddle_2(ab, b, in, out, W, nW, nWdn, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
-
 void fft_unshuffle_2(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
   taskminer_depth_cutoff++;
   int i;
@@ -248,6 +247,7 @@ void fft_unshuffle_2(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
       jp[m] = ip[1];
       ip += 2;
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -258,7 +258,6 @@ void fft_unshuffle_2(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
     fft_unshuffle_2(ab, b, in, out, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_base_4(COMPLEX *in, COMPLEX *out) {
   REAL r1_0, i1_0;
@@ -299,8 +298,8 @@ void fft_base_4(COMPLEX *in, COMPLEX *out) {
   c_im(out[3]) = (i1_2 + r1_3);
 }
 void fft_twiddle_4(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
+                   taskminer_depth_cutoff++;
                    int nWdn, int m) {
-	taskminer_depth_cutoff++;
   int l1, i;
   COMPLEX *jp, *kp;
   REAL tmpr, tmpi, wr, wi;
@@ -358,6 +357,7 @@ void fft_twiddle_4(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
         c_im(kp[3 * m]) = (i1_2 + r1_3);
       }
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -368,7 +368,6 @@ void fft_twiddle_4(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
     fft_twiddle_4(ab, b, in, out, W, nW, nWdn, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_unshuffle_4(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
   taskminer_depth_cutoff++;
@@ -387,6 +386,7 @@ void fft_unshuffle_4(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
       jp[m] = ip[1];
       ip += 2;
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -397,7 +397,6 @@ void fft_unshuffle_4(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
     fft_unshuffle_4(ab, b, in, out, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_base_8(COMPLEX *in, COMPLEX *out) {
   REAL tmpr, tmpi;
@@ -509,8 +508,8 @@ void fft_base_8(COMPLEX *in, COMPLEX *out) {
   }
 }
 void fft_twiddle_8(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
+                   taskminer_depth_cutoff++;
                    int nWdn, int m) {
-	taskminer_depth_cutoff++;
   int l1, i;
   COMPLEX *jp, *kp;
   REAL tmpr, tmpi, wr, wi;
@@ -652,6 +651,7 @@ void fft_twiddle_8(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
         c_im(kp[7 * m]) = (i1_6 + tmpi);
       }
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -662,7 +662,6 @@ void fft_twiddle_8(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
     fft_twiddle_8(ab, b, in, out, W, nW, nWdn, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_unshuffle_8(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
   taskminer_depth_cutoff++;
@@ -689,6 +688,7 @@ void fft_unshuffle_8(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
       jp[m] = ip[1];
       ip += 2;
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -699,7 +699,6 @@ void fft_unshuffle_8(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
     fft_unshuffle_8(ab, b, in, out, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_base_16(COMPLEX *in, COMPLEX *out) {
   REAL tmpr, tmpi;
@@ -979,8 +978,8 @@ void fft_base_16(COMPLEX *in, COMPLEX *out) {
   }
 }
 void fft_twiddle_16(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
+                    taskminer_depth_cutoff++;
                     int nWdn, int m) {
-	taskminer_depth_cutoff++;
   int l1, i;
   COMPLEX *jp, *kp;
   REAL tmpr, tmpi, wr, wi;
@@ -1322,6 +1321,7 @@ void fft_twiddle_16(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
         c_im(kp[15 * m]) = (i1_14 + tmpi);
       }
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -1332,7 +1332,6 @@ void fft_twiddle_16(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
     fft_twiddle_16(ab, b, in, out, W, nW, nWdn, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_unshuffle_16(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
   taskminer_depth_cutoff++;
@@ -1375,6 +1374,7 @@ void fft_unshuffle_16(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
       jp[m] = ip[1];
       ip += 2;
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -1385,7 +1385,6 @@ void fft_unshuffle_16(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
     fft_unshuffle_16(ab, b, in, out, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_base_32(COMPLEX *in, COMPLEX *out) {
   REAL tmpr, tmpi;
@@ -2065,8 +2064,8 @@ void fft_base_32(COMPLEX *in, COMPLEX *out) {
   }
 }
 void fft_twiddle_32(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
+                    taskminer_depth_cutoff++;
                     int nWdn, int m) {
-	taskminer_depth_cutoff++;
   int l1, i;
   COMPLEX *jp, *kp;
   REAL tmpr, tmpi, wr, wi;
@@ -2872,6 +2871,7 @@ void fft_twiddle_32(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
         c_im(kp[31 * m]) = (i1_30 + tmpi);
       }
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -2882,7 +2882,6 @@ void fft_twiddle_32(int a, int b, COMPLEX *in, COMPLEX *out, COMPLEX *W, int nW,
     fft_twiddle_32(ab, b, in, out, W, nW, nWdn, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 void fft_unshuffle_32(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
   taskminer_depth_cutoff++;
@@ -2957,6 +2956,7 @@ void fft_unshuffle_32(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
       jp[m] = ip[1];
       ip += 2;
     }
+  taskminer_depth_cutoff--;
   } else {
     int ab = (a + b) / 2;
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
@@ -2967,7 +2967,6 @@ void fft_unshuffle_32(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
     fft_unshuffle_32(ab, b, in, out, m);
   #pragma omp taskwait
   }
-  taskminer_depth_cutoff--;
 }
 /* end of machine-generated code */
 
@@ -2988,8 +2987,8 @@ void fft_unshuffle_32(int a, int b, COMPLEX *in, COMPLEX *out, int m) {
  */
 
 void fft_aux(int n, COMPLEX *in, COMPLEX *out, int *factors, COMPLEX *W,
+             taskminer_depth_cutoff++;
              int nW) {
-	taskminer_depth_cutoff++;
   int r, m;
   int k;
 
@@ -3090,7 +3089,6 @@ void fft(int n, COMPLEX *in, COMPLEX *out) {
       * order
       */
   do {
-    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
     r = factor(l);
     *p++ = r;
     l /= r;

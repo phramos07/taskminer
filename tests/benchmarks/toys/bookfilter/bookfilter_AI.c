@@ -1,36 +1,50 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define DEBUG
+#include <math.h>
+#include <time.h>
+#include "../../include/time_common.h"
+// #define DEBUG
+#define CHECK_RESULTS
 
 typedef struct Book Book;
 
 struct Book {
   int numLines;
-  int numCharsPerLine;
+  unsigned long long int numCharsPerLine;
   char **lines;
 };
 
-Book *readBook(char *filename);
+Book *readBook(int lines, unsigned long long int chars);
 
 void printBook(Book *b);
 
 void freeBook(Book *b);
 
-void filterLines(Book b, char *word, int wordSize, int *occurrences,
-                 int *alphabet);
+void filterLines(Book b, char *word, int wordSize, int *occurrences, int *alphabet);
 
-void filterLine(char *line, int lineSize, char *word, int wordSize,
-                int *occurrences, int *alphabet);
+void filterLine(char *line, int lineSize, char *word, int wordSize, int *occurrences, int *alphabet);
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {
-    printf("Not enough arguments to main. <BOOK> <WORD> \n");
+    printf("Not enough arguments to main. <LINES> <SIZE> <WORD>  \n");
     return 0;
   }
+
+  Instance *I = newInstance(100);
+  clock_t beg, end;
+  int lines = atoi(argv[1]);
+  unsigned long long chars = atoi(argv[2]);
+
   Book *book;
-  if ((book = readBook(argv[1])) == NULL) {
+  if ((book = readBook(lines, chars)) == NULL) {
     printf("Could not open file.\n");
     return 0;
   }
@@ -40,21 +54,29 @@ int main(int argc, char *argv[]) {
   memset(filtered, 0, sizeof(int) * book->numLines);
   memset(alphabet, 0, sizeof(int) * book->numLines);
 
-  char *word = argv[2];
+  char *word = argv[3];
   int wordSize = strlen(word);
 
 #ifdef DEBUG
   printBook(book);
 #endif
 
-#ifdef DEBUG
-  // debugging
+  beg = clock();
+  filterLines(*book, word, wordSize, filtered, alphabet);
+  end = clock();
+
+  addNewEntry(I, book->numCharsPerLine, getTimeInSecs(end - beg));
+
+#ifdef CHECK_RESULTS
+  //debugging
   // printLines(lines, numLines, numChars);
   for (int i = 0; i < book->numLines; i++) {
-    printf("Found %d matches and %d alphabet sequences in line %d\n",
-           filtered[i], alphabet[i], i);
+    printf("Found %d matches and %d alphabet sequences in line %d\n", filtered[i], alphabet[i], i);
   }
 #endif
+
+  writeResultsToOutput(stdout, I);
+  freeInstance(I);
 
   freeBook(book);
   free(filtered);
@@ -63,35 +85,20 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void filterLines(Book b, char *word, int wordSize, int *occurrences,
-                 int *alphabet) {
+void filterLines(Book b, char *word, int wordSize, int *occurrences, int *alphabet) {
+  #pragma omp parallel
+  #pragma omp single
   for (int i = 0; i < b.numLines; i++) {
-    char *line = b.lines[i];
-    int lineSize = b.numCharsPerLine;
-    for (int i = 0; i < lineSize; i++) {
-      if (*(line + i) == word[0]) // found first letter
-      {
-        for (int k = 1; k < wordSize; k++) {
-          if (i + k >= lineSize)
-            break;
-
-          if (*(line + i + k) != word[k])
-            break;
-
-          if (k == wordSize - 1)
-            (*occurrences)++;
-        }
-      }
-    }
-    // filterLine(b.lines[i], b.numCharsPerLine, word, wordSize,
-    // &occurrences[i], &alphabet[i]);
+    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+    #pragma omp task untied default(shared) depend(in:word,b[0].lines[i]) depend(inout:occurrences[i],alphabet[i]) firstprivate(b[0].lines[i],occurrences[i],alphabet[i])
+    filterLine(b.lines[i], b.numCharsPerLine, word, wordSize, &occurrences[i], &alphabet[i]);
   }
+#pragma omp taskwait
 }
 
-void filterLine(char *line, int lineSize, char *word, int wordSize,
-                int *occurrences, int *alphabet) {
+void filterLine(char *line, int lineSize, char *word, int wordSize, int *occurrences, int *alphabet) {
   for (int i = 0; i < lineSize; i++) {
-    if (*(line + i) == word[0]) // found first letter
+    if (*(line + i) == word[0]) //found first letter
     {
       for (int k = 1; k < wordSize; k++) {
         if (i + k >= lineSize)
@@ -118,30 +125,24 @@ void filterLine(char *line, int lineSize, char *word, int wordSize,
       (*alphabet)++;
   }
 
-  // for (int i = 0 + *occurrences; i < lineSize; i++)
-  // 	for (int j = *occurrences; j < lineSize; j++);
+  for (int i = 0 + *occurrences; i < lineSize; i++)
+    ;
 }
 
-Book *readBook(char *filename) {
-  FILE *in = fopen(filename, "r");
-
-  if (!in)
-    return NULL;
-
+Book *readBook(int lines, unsigned long long int chars) {
   Book *book = (Book *)malloc(sizeof(Book));
-  fscanf(in, "%d\n", &book->numLines);
-  fscanf(in, "%d\n", &book->numCharsPerLine);
+  book->numLines = lines;
+  book->numCharsPerLine = chars;
   book->lines = (char **)malloc(sizeof(char *) * book->numLines);
 
+  srand(time(NULL));
   int i;
   for (i = 0; i < (book->numLines); i++) {
     book->lines[i] = (char *)malloc(sizeof(char) * book->numCharsPerLine);
     for (int j = 0; j < book->numCharsPerLine; j++) {
-      fscanf(in, "%c", &book->lines[i][j]);
+      book->lines[i][j] = 'a' + (rand() % 26);
     }
-    fscanf(in, "\n", NULL);
   }
-
   return book;
 }
 

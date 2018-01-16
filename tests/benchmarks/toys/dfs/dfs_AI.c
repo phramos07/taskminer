@@ -1,4 +1,10 @@
 #include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 #include <math.h>
 #include <stdio.h>
 #define N 5000
@@ -42,6 +48,10 @@ int main(int argc, char *argv[]) {
   }
 
   fillgraph(G);
+  cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+  #pragma omp parallel
+  #pragma omp single
+  #pragma omp task untied default(shared)
   dfs(G, &G[0], 0);
 
 #ifdef DEBUG
@@ -70,31 +80,36 @@ int main(int argc, char *argv[]) {
 }
 
 void dfs(int *G, int *node, int index) {
+  taskminer_depth_cutoff++;
   if (!visited[index]) {
     visited[index] = 1;
     for (unsigned i = 0; i < N; i++)
       if (*(node + i) != 0) {
-        //recursive call
+        // recursive call
+        cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
         long long int TM5[1];
         TM5[0] = i * 5000;
-        #pragma omp task depend(in:G,G[TM5[0]])
+        #pragma omp task untied default(shared) depend(in:G,G[TM5[0]]) if(cutoff_test)
         dfs(G, &G[i * N], i);
 #pragma omp taskwait
 
-        //eventual computations
+        // eventual computations
         neigh[i]++;
-        double dist = sqrt(pow(nodesCoordX[index] - nodesCoordX[i], 2) + pow(nodesCoordY[index] - nodesCoordY[i], 2));
+        double dist = sqrt(pow(nodesCoordX[index] - nodesCoordX[i], 2) +
+                           pow(nodesCoordY[index] - nodesCoordY[i], 2));
         if (dist < nodesMinDist[index]) {
           nodesMinDist[index] = dist;
           nodesMinDistIndex[index] = i;
         }
       }
+  taskminer_depth_cutoff--;
   }
   return;
 }
 
 void findNearestNeighbor(int src, int dst) {
-  double dist = sqrt(pow(nodesCoordX[src] - nodesCoordX[dst], 2) + pow(nodesCoordY[src] - nodesCoordY[dst], 2));
+  double dist = sqrt(pow(nodesCoordX[src] - nodesCoordX[dst], 2) +
+                     pow(nodesCoordY[src] - nodesCoordY[dst], 2));
   if (dist < nodesMinDist[src]) {
     nodesMinDist[src] = dist;
     nodesMinDistIndex[src] = dst;

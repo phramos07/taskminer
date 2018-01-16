@@ -229,27 +229,17 @@ static void sparselu_init(float ***pBENCH, int matrix_size,
 void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
   int ii, jj, kk;
   for (kk = 0; kk < matrix_size; kk++) {
-    long long int TM5[2];
-    TM5[0] = kk * matrix_size;
-    TM5[1] = TM5[0] + kk;
     lu0(BENCH[kk * matrix_size + kk], submatrix_size);
     for (jj = kk + 1; jj < matrix_size; jj++) {
       if (BENCH[kk * matrix_size + jj] != NULL) {
-        long long int TM7[3];
-        TM7[0] = kk * matrix_size;
-        TM7[1] = TM7[0] + kk;
-        TM7[2] = TM7[0] + jj;
-        fwd(BENCH[kk * matrix_size + kk], BENCH[kk * matrix_size + jj], submatrix_size);
+        fwd(BENCH[kk * matrix_size + kk], BENCH[kk * matrix_size + jj],
+            submatrix_size);
       }
     }
     for (ii = kk + 1; ii < matrix_size; ii++) {
       if (BENCH[ii * matrix_size + kk] != NULL) {
-        long long int TM10[4];
-        TM10[0] = kk * matrix_size;
-        TM10[1] = TM10[0] + kk;
-        TM10[2] = ii * matrix_size;
-        TM10[3] = TM10[2] + kk;
-        bdiv(BENCH[kk * matrix_size + kk], BENCH[ii * matrix_size + kk], submatrix_size);
+        bdiv(BENCH[kk * matrix_size + kk], BENCH[ii * matrix_size + kk],
+             submatrix_size);
       }
     }
     for (ii = kk + 1; ii < matrix_size; ii++) {
@@ -257,22 +247,17 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
         for (jj = kk + 1; jj < matrix_size; jj++) {
           if (BENCH[kk * matrix_size + jj] != NULL) {
             if (BENCH[ii * matrix_size + jj] == NULL) {
-              BENCH[ii * matrix_size + jj] = allocate_clean_block(submatrix_size);
+              BENCH[ii * matrix_size + jj] =
+                  allocate_clean_block(submatrix_size);
             }
-            long long int TM15[5];
-            TM15[0] = ii * matrix_size;
-            TM15[1] = TM15[0] + kk;
-            TM15[2] = kk * matrix_size;
-            TM15[3] = TM15[2] + jj;
-            TM15[4] = TM15[0] + jj;
-            bmod(BENCH[ii * matrix_size + kk], BENCH[kk * matrix_size + jj], BENCH[ii * matrix_size + jj], submatrix_size);
+            bmod(BENCH[ii * matrix_size + kk], BENCH[kk * matrix_size + jj],
+                 BENCH[ii * matrix_size + jj], submatrix_size);
           }
         }
       }
     }
   }
 }
-
 
 void sparselu_fini(float **BENCH, char *pass, int matrix_size) {
   print_structure(pass, BENCH, matrix_size);
@@ -293,4 +278,3 @@ int main(int argc, char const *argv[]) {
 
   return 0;
 }
-

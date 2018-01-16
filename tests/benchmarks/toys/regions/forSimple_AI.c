@@ -1,3 +1,10 @@
+#include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
@@ -35,3 +42,4 @@ int main() {
 
   return 0;
 }
+

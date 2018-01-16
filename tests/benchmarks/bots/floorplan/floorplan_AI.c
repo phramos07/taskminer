@@ -143,18 +143,13 @@ static int lay_down(int id, ibrd board, struct cell *cells) {
   lhs = cells[id].lhs;
   rhs = cells[id].rhs;
 
-  #pragma omp parallel
-  #pragma omp single
   for (i = top; i <= bot; i++) {
-    #pragma omp task untied default(shared)  depend(in:board[0][0]) depend(out:board[0][0])
-    {
     for (j = lhs; j <= rhs; j++) {
       if (board[i][j] == 0)
         board[i][j] = (char)id;
       else
         return (0);
     }
-  }
   }
 
   return (1);
@@ -309,12 +304,7 @@ void floorplan_init(const char *filename) {
 
   /* initialize board is empty */
   for (i = 0; i < ROWS; i++)
-    #pragma omp parallel
-    #pragma omp single
-    #pragma omp task untied default(shared)  depend(out:)
-    {
     for (j = 0; j < COLS; j++)
-      }
       board[i][j] = 0;
 }
 

@@ -1,3 +1,10 @@
+#include <omp.h>
+#ifndef taskminerutils
+#define taskminerutils
+static int taskminer_depth_cutoff = 0;
+#define DEPTH_CUTOFF omp_get_num_threads()
+char cutoff_test = 0;
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 // #define SIZE 10000
@@ -75,13 +82,12 @@ int main(int argc, char *argv[]) {
   if (SIZE < 20)
     printGraph(G, SIZE);
 
-  // fillEdgeInfo
+  //fillEdgeInfo
   for (i = 0; i < SIZE; i++)
     for (j = 0; j < SIZE; j++) {
       edgeTab[i * SIZE + j].src = i;
       edgeTab[i * SIZE + j].dst = j;
-      edgeTab[i * SIZE + j].weight =
-          G[i * SIZE + j] != 0 ? G[i * SIZE + j] : -1;
+      edgeTab[i * SIZE + j].weight = G[i * SIZE + j] != 0 ? G[i * SIZE + j] : -1;
     }
 
   for (i = 0; i < numVertices; i++) {
@@ -89,10 +95,11 @@ int main(int argc, char *argv[]) {
     weight[i] = 1;
   }
 
-  numTrees = numVertices; // Each vertex is initially in its own subtree
-  usefulEdges =
-      SIZE * SIZE; // An edge is useful if the two vertices are separate
+  numTrees = numVertices;    // Each vertex is initially in its own subtree
+  usefulEdges = SIZE * SIZE; // An edge is useful if the two vertices are separate
 
+  #pragma omp parallel
+  #pragma omp single
   while (numTrees > 1 && usefulEdges > 0) {
     for (i = 0; i < numVertices; i++)
       bestEdgeNum[i] = (-1);
@@ -125,10 +132,13 @@ int main(int argc, char *argv[]) {
         MSTweight += edgeTab[bestEdgeNum[i]].weight;
         // printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
         //        edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
+        cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
+        #pragma omp task untied default(shared)
         union_(root1, root2);
         numTrees--;
       }
     }
+    #pragma omp taskwait
     // printf("numTrees is %d\n", numTrees);
   }
 

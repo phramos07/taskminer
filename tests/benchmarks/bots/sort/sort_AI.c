@@ -162,16 +162,11 @@ static void insertion_sort(ELM *low, ELM *high) {
   ELM *p, *q;
   ELM a, b;
 
-  #pragma omp parallel
-  #pragma omp single
   for (q = low + 1; q <= high; ++q) {
-    #pragma omp task untied default(shared)  depend(in:) depend(out:,)
-    {
     a = q[0];
     for (p = q - 1; p >= low && (b = p[0]) > a; p--)
       p[1] = b;
     p[1] = a;
-  }
   }
 }
 
@@ -409,8 +404,6 @@ void scramble_array(unsigned long long int input_size) {
   unsigned long j;
 
   for (i = 0; i < input_size; ++i) {
-    cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared)
     j = my_rand();
     j = j % input_size;
     swap(array[i], array[j]);
