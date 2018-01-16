@@ -26,19 +26,16 @@ int main(int argc, char *argv[]) {
   // char** lines = getLines(argv[1], &numLines, &(*size));
 
   char *lines;
-  FILE *in;
-  in = fopen(argv[1], "r");
-  fscanf(in, "%d\n", &(numLines));
-  fscanf(in, "%d\n", &numChars);
+  numLines = atoi(argv[1]);
+  numChars = atoi(argv[2]);
   size = (int *)malloc((numLines) * sizeof(int));
   lines = (char *)malloc((numLines * numChars + 1) * sizeof(char *));
   for (int i = 0; i < (numLines); i++) {
     size[i] = numChars;
     // lines[i] = (char*)malloc((numChars+1)*sizeof(char));
     for (int j = 0; j < numChars; j++) {
-      fscanf(in, "%c", &lines[i * numChars + j]);
+    	lines[i * numChars + j] =  'a' + (rand() % 26);
     }
-    fscanf(in, "\n", NULL);
   }
 
   int *filtered = (int *)malloc(numLines * sizeof(int));
@@ -150,8 +147,8 @@ void filterLine(char *line, int lineSize, char *word, int wordSize,
     }
   }
 
-  for (int i = 0 + *occurrences; i < lineSize; i++) {
-    for (int j = *occurrences; j < lineSize; j++) {
-    }
-  }
+  // for (int i = 0 + *occurrences; i < lineSize; i++) {
+  //   for (int j = *occurrences; j < lineSize; j++) {
+  //   }
+  // }
 }

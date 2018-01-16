@@ -8,6 +8,6 @@ MEDIUM_INPUT = 30 30000000 pdf
 BIG_INPUT = 50 100000000 pdf
 
 run: compile
-	@echo "====RUNNING BOTS/BOOKFILTER===="
+	@echo "====RUNNING TOYS/BOOKFILTER===="
 	$(MAKE) -i run-parallel;
 	$(MAKE) -i run-serial;

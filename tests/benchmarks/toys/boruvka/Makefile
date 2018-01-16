@@ -1,9 +1,9 @@
 include ../../Makefile.common
 
-TEST_INPUT = input/graph200.txt
-SMALL_INPUT = input/graph200.txt
-MEDIUM_INPUT = 
-BIG_INPUT = 
+TEST_INPUT = 5
+SMALL_INPUT = 200
+MEDIUM_INPUT = 200
+BIG_INPUT = 200
 
 SOURCEDIR = .
 

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#define SIZE 10000
+#include <omp.h>
 
 void fillgraph(int* G, int N)
 {
@@ -8,7 +8,7 @@ void fillgraph(int* G, int N)
 	{
 		for (long unsigned j = 0; j < N; j++)
 		{
-			*(G + i*N + j) = (i == j) ? 0 : rand()%50;
+			*(G + i*N + j) = rand()%5;
 		}
 	}
 }
@@ -34,7 +34,7 @@ struct edge
 typedef struct edge edgeType;
 
 edgeType* edgeTab;
-int numVertices, numEdges, usefulEdges;
+int numVertices, numEdges;
 int *parent, *weight, numTrees;
 int* bestEdgeNum;
 int* G;
@@ -49,36 +49,15 @@ int find(int x)
   
   /* path compression */
   for (i = x; parent[i] != i; )
-  {
   	j = parent[i];
   	parent[i] = root;
-  	i = j;  	
-  }
-
+  	i = j;
+  
   return root;
-}
-
-void findRootsOfEdge(int i)
-{
-	int root1, root2;
-  root1 = find(edgeTab[i].src);
-  root2 = find(edgeTab[i].dst);
-  if (root1 != root2)
-  {
-    usefulEdges++;
-    if (bestEdgeNum[root1] == (-1) ||
-        edgeTab[bestEdgeNum[root1]].weight > edgeTab[i].weight)
-      bestEdgeNum[root1] = i;  // Have a new best edge from this component
-
-    if (bestEdgeNum[root2] == (-1) ||
-        edgeTab[bestEdgeNum[root2]].weight > edgeTab[i].weight)
-      bestEdgeNum[root2] = i;  // Have a new best edge from this component
-  }
 }
 
 void union_(int i, int j)
 {
-	// printf("Union of %d and %d\n", i, j);
   if (weight[i] > weight[j])
   {
     parent[j] = i;
@@ -92,11 +71,13 @@ void union_(int i, int j)
   numTrees--;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   int i, j, MSTweight = 0;
   int root1, root2;
+  int usefulEdges;
 
+  int SIZE = atoi(argv[1]);
   edgeTab = (edgeType*)malloc(SIZE*SIZE* sizeof(edgeType));
   parent = (int*)malloc(SIZE * sizeof(int));
   weight = (int*)malloc(SIZE * sizeof(int));
@@ -112,33 +93,29 @@ int main()
   	{
   		edgeTab[i*SIZE + j].src = i;
   		edgeTab[i*SIZE + j].dst = j;
-  		edgeTab[i*SIZE + j].weight = G[i*SIZE + j];
+  		edgeTab[i*SIZE + j].weight = G[i*SIZE + j] != 0 ? G[i*SIZE + j] : -1;
   	}
 
-  for (i = 0; i < SIZE; i++)
+  for (i = 0; i < numVertices; i++)
   {
     parent[i] = i;
     weight[i] = 1;
   }
 
-  numTrees = SIZE;  // Each vertex is initially in its own subtree
+  numTrees = numVertices;  // Each vertex is initially in its own subtree
   usefulEdges = SIZE*SIZE;  // An edge is useful if the two vertices are separate
 
   while (numTrees > 1 && usefulEdges > 0)
   {
-    for (i = 0; i < SIZE; i++)
+    for (i = 0; i < numVertices; i++)
       bestEdgeNum[i] = (-1);
 
   	usefulEdges = 0;
 
-  	#pragma omp parallel
-  	#pragma omp single
     for (i = 0; i < SIZE*SIZE; i++)
     {
-    	if (edgeTab[i].weight <= 0)
+    	if (edgeTab[i].weight == -1)
     		continue;
-    	#pragma omp task
-    	// findRootsOfEdge(i);
       root1 = find(edgeTab[i].src);
       root2 = find(edgeTab[i].dst);
       if (root1 != root2)
@@ -154,7 +131,7 @@ int main()
       }
     }
 
-    for (i = 0; i < SIZE; i++)
+    for (i = 0; i < numVertices; i++)
       if (bestEdgeNum[i] != (-1))
       {
         root1 = find(edgeTab[bestEdgeNum[i]].src);
@@ -163,7 +140,7 @@ int main()
           continue;  // This round has already connected these components.
         MSTweight += edgeTab[bestEdgeNum[i]].weight;
         // printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
-        //        edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
+               // edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
         union_(root1, root2);
       }
     // printf("numTrees is %d\n", numTrees);
@@ -172,5 +149,5 @@ int main()
   if (numTrees != 1)
     printf("MST does not exist\n");
 
-  // printf("Sum of weights of spanning edges %d\n", MSTweight);
+  printf("Sum of weights of spanning edges %d\n", MSTweight);
 }

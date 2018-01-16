@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#define SIZE 10000
+// #define SIZE 10000
 
 void fillgraph(int* G, int N)
 {
@@ -8,7 +8,7 @@ void fillgraph(int* G, int N)
 	{
 		for (long unsigned j = 0; j < N; j++)
 		{
-			*(G + i*N + j) = rand()%5;
+			*(G + i*N + j) = rand()%50 + 1;
 		}
 	}
 }
@@ -34,7 +34,7 @@ struct edge
 typedef struct edge edgeType;
 
 edgeType* edgeTab;
-int numVertices, numEdges;
+int numVertices;
 int *parent, *weight, numTrees;
 int* bestEdgeNum;
 int* G;
@@ -71,12 +71,14 @@ void union_(int i, int j)
   numTrees--;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   int i, j, MSTweight = 0;
   int root1, root2;
   int usefulEdges;
 
+  int SIZE = atoi(argv[1]);
+  numVertices = SIZE;
   edgeTab = (edgeType*)malloc(SIZE*SIZE* sizeof(edgeType));
   parent = (int*)malloc(SIZE * sizeof(int));
   weight = (int*)malloc(SIZE * sizeof(int));
@@ -84,7 +86,8 @@ int main()
   G = (int*)malloc(SIZE*SIZE*sizeof(int));
 
   fillgraph(G, SIZE);
-  // printGraph(G, SIZE);
+  if (SIZE < 20)
+	  printGraph(G, SIZE);
 
   //fillEdgeInfo
   for (i = 0; i < SIZE; i++)
@@ -138,11 +141,11 @@ int main()
         if (root1 == root2)
           continue;  // This round has already connected these components.
         MSTweight += edgeTab[bestEdgeNum[i]].weight;
-        // printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
-               // edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
+        printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
+               edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
         union_(root1, root2);
       }
-    // printf("numTrees is %d\n", numTrees);
+    printf("numTrees is %d\n", numTrees);
   }
 
   if (numTrees != 1)

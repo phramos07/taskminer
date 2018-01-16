@@ -1,8 +1,7 @@
-#include <omp.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define DEBUG
+// #define DEBUG
 
 // Line* getLines(char* name, int* numLines);
 
@@ -17,34 +16,28 @@ void filterLine(char *line, int lineSize, char *word, int wordSize,
                 int *occurrences, int *alphabet);
 
 int main(int argc, char *argv[]) {
-  if (argc < 3) {
-    printf("Not enough arguments to main. <BOOK> <WORD> \n");
-    return 0;
-  }
+	if (argc < 4)
+	{
+		printf("Not enough arguments to main. <LINES> <SIZE> <WORD>  \n");
+		return 0;
+	}
 
-  int numLines, numChars;
+  unsigned long long numLines;
+  unsigned long long numChars;
   int *size;
   // char** lines = getLines(argv[1], &numLines, &(*size));
 
   char *lines;
-  FILE *in;
-  in = fopen(argv[1], "r");
-  fscanf(in, "%d\n", &(numLines));
-  fscanf(in, "%d\n", &numChars);
+  numLines = atoi(argv[1]);
+  numChars = atoi(argv[2]);
   size = (int *)malloc((numLines) * sizeof(int));
   lines = (char *)malloc((numLines * numChars + 1) * sizeof(char *));
-  #pragma omp parallel
-  #pragma omp single
   for (int i = 0; i < (numLines); i++) {
-    #pragma omp task depend(in:numLines,numChars,alphabet[i],argv[2],filtered[i]) depend(out:size[i],filtered[i],alphabet[i])
-    {
     size[i] = numChars;
     // lines[i] = (char*)malloc((numChars+1)*sizeof(char));
     for (int j = 0; j < numChars; j++) {
-      fscanf(in, "%c", &lines[i * numChars + j]);
+    	lines[i * numChars + j] =  'a' + (rand() % 26);
     }
-    fscanf(in, "\n", NULL);
-  }
   }
 
   int *filtered = (int *)malloc(numLines * sizeof(int));
@@ -102,11 +95,7 @@ char **getLines(char *name, int *numLines, int *size) {
   fscanf(in, "%d\n", &(*numLines));
   size = (int *)malloc((*numLines) * sizeof(int));
   lines = (char **)malloc((*numLines) * sizeof(char *));
-  #pragma omp parallel
-  #pragma omp single
   for (int i = 0; i < (*numLines); i++) {
-    #pragma omp task depend(in:numLines,numChars,lines[i]) depend(out:size[i],lines[i])
-    {
     fscanf(in, "%d ", &numChars);
     size[i] = numChars;
     lines[i] = (char *)malloc((numChars + 1) * sizeof(char));
@@ -115,24 +104,16 @@ char **getLines(char *name, int *numLines, int *size) {
     }
     fscanf(in, "\n", NULL);
   }
-  }
 
   return lines;
 }
 
 void filterLines(char *lines, int *size, int numLines, int numChars, char *word,
                  int wordSize, int *occurrences, int *alphabet) {
-  #pragma omp parallel
-  #pragma omp single
   for (int i = 0; i < numLines; i++) {
-    int size_ = size[i];
-    long long int TM11[1];
-    TM11[0] = i * numChars;
-    #pragma omp task depend(in:word,lines[TM11[0]],size[i]) depend(inout:alphabet[i],occurrences[i])
     filterLine(&lines[i * numChars], size[i], word, wordSize, &occurrences[i],
                &alphabet[i]);
   }
-#pragma omp taskwait
 }
 
 void filterLine(char *line, int lineSize, char *word, int wordSize,
@@ -156,11 +137,7 @@ void filterLine(char *line, int lineSize, char *word, int wordSize,
 
   int a, b;
 
-  #pragma omp parallel
-  #pragma omp single
   for (int i = 0; i < lineSize - 1; i++) {
-    #pragma omp task depend(in:line[i],word,line[i],word[k],line[i],line[i]) depend(inout:occurrences,alphabet)
-    {
     a = (int)(*(line + i));
     b = (int)(*(line + i + 1));
 
@@ -170,11 +147,9 @@ void filterLine(char *line, int lineSize, char *word, int wordSize,
       (*alphabet)++;
     }
   }
-  }
 
-  for (int i = 0 + *occurrences; i < lineSize; i++) {
-    for (int j = *occurrences; j < lineSize; j++) {
-    }
-  }
+  // for (int i = 0 + *occurrences; i < lineSize; i++) {
+  //   for (int j = *occurrences; j < lineSize; j++) {
+  //   }
+  // }
 }
-
