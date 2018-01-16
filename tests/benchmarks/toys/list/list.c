@@ -12,9 +12,9 @@ struct TYPE_4__ {
 };
 typedef TYPE_1__ LIST;
 
-void foo(LIST *n) {
-  while (n->next) {
-    int N = n->counter;
+void foo(LIST *n, int S) {
+  while (S > 1) {
+  	int N = n->counter;
     n->ans = 0;
     // Start task here
     for (int j = 0; j < N; j++) {
@@ -22,6 +22,7 @@ void foo(LIST *n) {
     }
     // finish task here
     n = n->next;
+    S--;
   }
 }
 
@@ -32,7 +33,7 @@ int main(int argc, char const *argv[]) {
   L->counter = atoi(argv[1]);
   clock_t beg, end;
   beg = clock();
-  foo(L);
+  foo(L, L->counter);
   end = clock();
   addNewEntry(I, 0, getTimeInSecs(end - beg));
   writeResultsToOutput(stdout, I);

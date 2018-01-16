@@ -1,12 +1,6 @@
-#include <omp.h>
-#ifndef taskminerutils
-#define taskminerutils
-static int taskminer_depth_cutoff = 0;
-#define DEPTH_CUTOFF omp_get_num_threads()
-char cutoff_test = 0;
-#endif
 #include <stdlib.h>
 #include "../../include/time_common.h"
+#include <omp.h>
 
 /* Forward declarations */
 typedef struct TYPE_4__ TYPE_1__;
@@ -19,16 +13,20 @@ struct TYPE_4__ {
 };
 typedef TYPE_1__ LIST;
 
-void foo(LIST *n) {
-  while (n->next) {
-    int N = n->counter;
+void foo(LIST *n, int S) {
+	#pragma omp parallel
+	#pragma omp single
+  while (S > 1) {
+  	int N = n->counter;
     n->ans = 0;
     // Start task here
+    #pragma omp task firstprivate(n)
     for (int j = 0; j < N; j++) {
       n->ans += j;
     }
     // finish task here
     n = n->next;
+    S--;
   }
 }
 
@@ -39,7 +37,7 @@ int main(int argc, char const *argv[]) {
   L->counter = atoi(argv[1]);
   clock_t beg, end;
   beg = clock();
-  foo(L);
+  foo(L, L->counter);
   end = clock();
   addNewEntry(I, 0, getTimeInSecs(end - beg));
   writeResultsToOutput(stdout, I);
