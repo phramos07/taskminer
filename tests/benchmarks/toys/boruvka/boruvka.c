@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <omp.h>
 // #define SIZE 10000
 
 void fillgraph(int* G, int N)
@@ -116,18 +115,12 @@ int main(int argc, char* argv[])
 
   	usefulEdges = 0;
 
-    #pragma omp parallel
-    #pragma omp single
     for (i = 0; i < SIZE*SIZE; i++)
     {
     	if (edgeTab[i].weight == -1)
     		continue;
-    	#pragma omp task shared(root1)
       root1 = find(edgeTab[i].src);
-      #pragma omp task shared(root2)
       root2 = find(edgeTab[i].dst);
-
-      #pragma omp taskwait
       if (root1 != root2)
       {
         usefulEdges++;
@@ -141,18 +134,12 @@ int main(int argc, char* argv[])
       }
     }
 
-    #pragma omp parallel
-    #pragma omp single
     for (i = 0; i < numVertices; i++)
     {
       if (bestEdgeNum[i] != (-1))
       {	
-      	#pragma omp task shared(root1)
         root1 = find(edgeTab[bestEdgeNum[i]].src);
-        #pragma omp task shared(root2)
         root2 = find(edgeTab[bestEdgeNum[i]].dst);
-
-        #pragma omp taskwait
         if (root1 == root2)
           continue;  // This round has already connected these components.
         MSTweight += edgeTab[bestEdgeNum[i]].weight;

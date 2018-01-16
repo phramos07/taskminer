@@ -8,7 +8,7 @@ void fillgraph(int* G, int N)
 	{
 		for (long unsigned j = 0; j < N; j++)
 		{
-			*(G + i*N + j) = rand()%50 + 1;
+			*(G + i*N + j) = rand()%50 + rand()%50 + 3;
 		}
 	}
 }
@@ -49,9 +49,11 @@ int find(int x)
   
   /* path compression */
   for (i = x; parent[i] != i; )
+  {
   	j = parent[i];
   	parent[i] = root;
-  	i = j;
+  	i = j;  	
+  }
   
   return root;
 }
@@ -68,7 +70,6 @@ void union_(int i, int j)
     parent[i] = j;
     weight[j] += weight[i];
   }
-  numTrees--;
 }
 
 int main(int argc, char* argv[])
@@ -134,18 +135,21 @@ int main(int argc, char* argv[])
     }
 
     for (i = 0; i < numVertices; i++)
+    {
       if (bestEdgeNum[i] != (-1))
-      {
+      {	
         root1 = find(edgeTab[bestEdgeNum[i]].src);
         root2 = find(edgeTab[bestEdgeNum[i]].dst);
         if (root1 == root2)
           continue;  // This round has already connected these components.
         MSTweight += edgeTab[bestEdgeNum[i]].weight;
-        printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
-               edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
+        // printf("%d %d %d included in MST\n", edgeTab[bestEdgeNum[i]].src,
+        //        edgeTab[bestEdgeNum[i]].dst, edgeTab[bestEdgeNum[i]].weight);
         union_(root1, root2);
+        numTrees--;
       }
-    printf("numTrees is %d\n", numTrees);
+    }
+    // printf("numTrees is %d\n", numTrees);
   }
 
   if (numTrees != 1)

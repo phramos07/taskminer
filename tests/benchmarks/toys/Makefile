@@ -7,8 +7,9 @@ DFS = dfs
 FIBONACCI = fibonacci
 LIST = list
 REGIONS = regions
+QUADTREE = quadtree
 
-SUBDIRS = $(BELLMANFORD) $(BOOKFILTER) $(BORUVKA) $(DFS) $(FIBONACCI) $(LIST) $(REGIONS)
+SUBDIRS = $(BELLMANFORD) $(BOOKFILTER) $(BORUVKA) $(DFS) $(FIBONACCI) $(LIST) $(REGIONS) $(QUADTREE)
 
 compile:
 	for DIR in $(SUBDIRS); do \
