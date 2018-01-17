@@ -45,9 +45,9 @@ int main(int argc, char* argv[])
 	fillgraph(G, nodesCoordX, nodesCoordY, N);
 	dfs(G, &G[0], 0, visited, neigh, nodesCoordX, nodesCoordY, nodesMinDist, nodesMinDistIndex, N);
 
+	
+	if (N <= 10) printGraph(G, N);
 	#ifdef DEBUG
-		printGraph(G);
-
 		for (unsigned i = 0; i < N; i++)
 			printf("Node %d has %d in-edges\n", i, neigh[i]);
 
@@ -84,6 +84,7 @@ void dfs(int* G, int* node, int index, int* visited, int* neigh, int* nodesCoord
 	{
 		visited[index] = 1;
 		for (unsigned i=0; i<N; i++)
+		{
 			if (*(node + i) != 0)
 			{
 				//recursive call
@@ -98,6 +99,7 @@ void dfs(int* G, int* node, int index, int* visited, int* neigh, int* nodesCoord
 					nodesMinDistIndex[index] = i;
 				}			
 			}
+		}
 	}
 	return;
 }
