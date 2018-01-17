@@ -3040,7 +3040,7 @@ void fft_aux(int n, COMPLEX *in, COMPLEX *out, int *factors, COMPLEX *W,
 
     for (k = 0; k < n; k += m) {
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(in:W,out[k],in[k],factors[1]) if(cutoff_test)
+      #pragma omp task untied default(shared) depend(in:W,out[k],in[k],factors[1]) firstprivate(out[k],in[k],factors[1]) if(cutoff_test)
       fft_aux(m, out + k, in + k, factors + 1, W, nW);
     #pragma omp taskwait
     }
@@ -3133,9 +3133,25 @@ int main(int argc, char const *argv[]) {
   in = malloc(input_size * sizeof(COMPLEX));
   out1 = malloc(input_size * sizeof(COMPLEX));
   int i;
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < input_size; ++i) {
+    long long int TM12[10];
+    TM12[0] = input_size > 0;
+    TM12[1] = (TM12[0] ? input_size : 0);
+    TM12[2] = 16 * TM12[1];
+    TM12[3] = 8 + TM12[2];
+    TM12[4] = TM12[3] > TM12[2];
+    TM12[5] = (TM12[4] ? TM12[3] : TM12[2]);
+    TM12[6] = TM12[5] + 1;
+    TM12[7] = TM12[6] / 16;
+    TM12[8] = (TM12[7] > 0);
+    TM12[9] = (TM12[8] ? TM12[7] : 0);
+    #pragma omp task depend(inout: in[0:TM12[9]])
+    {
     c_re(in[i]) = 1.0;
     c_im(in[i]) = 1.0;
+  }
   }
   fft(input_size, in, out1);
   // test_correctness(input_size, in, out1);

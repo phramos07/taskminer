@@ -270,7 +270,7 @@ static int add_cell(int id, coor FOOTPRINT, ibrd BOARD, struct cell *CELLS) {
           /* if area is less than best area */
         } else if (area < MIN_AREA) {
           cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-          #pragma omp task untied default(shared) depend(in:cells,cells[id].next,footprint,board) if(cutoff_test)
+          #pragma omp task untied default(shared) depend(in:cells,cells[id].next,footprint,board) firstprivate(cells,cells[id].next,footprint,board) if(cutoff_test)
           nnc += add_cell(cells[id].next, footprint, board, cells);
           #pragma omp taskwait
           /* if area is greater than or equal to best area, prune search */
