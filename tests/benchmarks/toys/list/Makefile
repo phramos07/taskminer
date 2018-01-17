@@ -2,7 +2,7 @@ include ../../Makefile.common
 
 SOURCEDIR = .
 
-TEST_INPUT = 100
+TEST_INPUT = 10
 SMALL_INPUT = 1000
 MEDIUM_INPUT = 10000
 BIG_INPUT = 100000
