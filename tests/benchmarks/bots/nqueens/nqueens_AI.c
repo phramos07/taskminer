@@ -95,7 +95,7 @@ void nqueens(int n, int j, char *a, int *solutions, int depth) {
     b[j] = (char)i;
     if (ok(j + 1, b)) {
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(in:b) depend(inout:csols[i]) if(cutoff_test)
+      #pragma omp task untied default(shared) depend(in:b) depend(inout:csols[i]) firstprivate(b,csols[i]) if(cutoff_test)
       nqueens(n, j + 1, b, &csols[i], depth);
     #pragma omp taskwait
     }

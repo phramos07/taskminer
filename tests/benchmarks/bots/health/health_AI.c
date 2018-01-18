@@ -171,7 +171,7 @@ void allocate_village(struct Village **capital, struct Village *back,
     inext = NULL;
     for (i = sim_cities; i > 0; i--) {
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(out:capital) depend(inout:current) if(cutoff_test)
+      #pragma omp task untied default(shared) depend(out:capital) depend(inout:current) firstprivate(current,capital) if(cutoff_test)
       allocate_village(&current, *capital, inext, level - 1,
                        #pragma omp taskwait
                        (vid * (__int32_t)sim_cities) + (__int32_t)i);
@@ -275,10 +275,10 @@ void check_patients_inside(struct Village *village) {
     if (p->time_left == 0) {
       village->hosp.free_personnel++;
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(out:village[0].hosp.population)
+      #pragma omp task untied default(shared) depend(out:village[0].hosp.population) firstprivate(village[0].hosp.population)
       removeList(&(village->hosp.inside), p);
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(inout:village[0].population)
+      #pragma omp task untied default(shared) depend(inout:village[0].population) firstprivate(village[0].population)
       addList(&(village->population), p);
     }
   }
@@ -305,10 +305,10 @@ void check_patients_assess_par(struct Village *village) {
         /* !sim_realloc_p % or root hospital */
         if (rand > sim_realloc_p || village->level == sim_level) {
           cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-          #pragma omp task untied default(shared) depend(out:village[0].hosp.forward)
+          #pragma omp task untied default(shared) depend(out:village[0].hosp.forward) firstprivate(village[0].hosp.forward)
           removeList(&(village->hosp.assess), p);
           cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-          #pragma omp task untied default(shared) depend(inout:village[0].hosp.population)
+          #pragma omp task untied default(shared) depend(inout:village[0].hosp.population) firstprivate(village[0].hosp.population)
           addList(&(village->hosp.inside), p);
           p->time_left = sim_convalescence_time;
           p->time += p->time_left;
@@ -316,11 +316,11 @@ void check_patients_assess_par(struct Village *village) {
         {
           village->hosp.free_personnel++;
           cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-          #pragma omp task untied default(shared) depend(out:village[0].hosp.forward)
+          #pragma omp task untied default(shared) depend(out:village[0].hosp.forward) firstprivate(village[0].hosp.forward)
           removeList(&(village->hosp.assess), p);
           omp_set_lock(&(village->hosp.realloc_lock));
           cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-          #pragma omp task untied default(shared) depend(inout:village[0].back[0].hosp.hosp)
+          #pragma omp task untied default(shared) depend(inout:village[0].back[0].hosp.hosp) firstprivate(village[0].back[0].hosp.hosp)
           addList(&(village->back->hosp.realloc), p);
           omp_unset_lock(&(village->hosp.realloc_lock));
         }
@@ -328,10 +328,10 @@ void check_patients_assess_par(struct Village *village) {
       {
         village->hosp.free_personnel++;
         cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-        #pragma omp task untied default(shared) depend(out:village[0].hosp.forward)
+        #pragma omp task untied default(shared) depend(out:village[0].hosp.forward) firstprivate(village[0].hosp.forward)
         removeList(&(village->hosp.assess), p);
         cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-        #pragma omp task untied default(shared) depend(inout:village[0].population)
+        #pragma omp task untied default(shared) depend(inout:village[0].population) firstprivate(village[0].population)
         addList(&(village->population), p);
       }
     }
@@ -353,10 +353,10 @@ void check_patients_waiting(struct Village *village) {
       p->time_left = sim_assess_time;
       p->time += p->time_left;
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(out:village[0].hosp.next)
+      #pragma omp task untied default(shared) depend(out:village[0].hosp.next) firstprivate(village[0].hosp.next)
       removeList(&(village->hosp.waiting), p);
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(inout:village[0].hosp.forward)
+      #pragma omp task untied default(shared) depend(inout:village[0].hosp.forward) firstprivate(village[0].hosp.forward)
       addList(&(village->hosp.assess), p);
     } else {
       p->time++;
@@ -378,10 +378,10 @@ void check_patients_realloc(struct Village *village) {
       p = p->forward;
     }
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(out:village[0].hosp.hosp)
+    #pragma omp task untied default(shared) depend(out:village[0].hosp.hosp) firstprivate(village[0].hosp.hosp)
     removeList(&(village->hosp.realloc), s);
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(inout:village[0].hosp)
+    #pragma omp task untied default(shared) depend(inout:village[0].hosp) firstprivate(village[0].hosp)
     put_in_hosp(&(village->hosp), s);
   }
 #pragma omp taskwait
@@ -401,10 +401,10 @@ void check_patients_population(struct Village *village) {
     rand = my_rand(&(p->seed));
     if (rand < sim_get_sick_p) {
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(out:village[0].population)
+      #pragma omp task untied default(shared) depend(out:village[0].population) firstprivate(village[0].population)
       removeList(&(village->population), p);
       cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-      #pragma omp task untied default(shared) depend(inout:village[0].hosp)
+      #pragma omp task untied default(shared) depend(inout:village[0].hosp) firstprivate(village[0].hosp)
       put_in_hosp(&(village->hosp), p);
     }
   }

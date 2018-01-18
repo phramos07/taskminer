@@ -380,13 +380,13 @@ void cilksort(ELM *low, ELM *tmp, long size) {
   #pragma omp task untied default(shared) depend(in:low,tmp) if(cutoff_test)
   cilksort(A, tmpA, quarter);
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:B,tmpB) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:B,tmpB) firstprivate(B,tmpB) if(cutoff_test)
   cilksort(B, tmpB, quarter);
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:C,tmpC) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:C,tmpC) firstprivate(C,tmpC) if(cutoff_test)
   cilksort(C, tmpC, quarter);
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:D,tmpD) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:D,tmpD) firstprivate(D,tmpD) if(cutoff_test)
   cilksort(D, tmpD, size - 3 * quarter);
 #pragma omp taskwait
 

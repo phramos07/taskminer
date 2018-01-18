@@ -95,14 +95,14 @@ int maxTreeDepth = 0;
 double b_0 = 4.0;                 // default branching factor at the root
 int rootId = 0;                   // default seed for RNG state at root
                                   /***********************************************************
-     *  The branching factor at the root is specified by b_0.
-     *  The branching factor below the root follows an
-     *     identical binomial distribution at all nodes.
-     *  A node has m children with prob q, or no children with
-     *     prob (1-q).  The expected branching factor is q * m.
-     *
-     *  Default parameter values
-     ***********************************************************/
+*  The branching factor at the root is specified by b_0.
+*  The branching factor below the root follows an
+*     identical binomial distribution at all nodes.
+*  A node has m children with prob q, or no children with
+*     prob (1-q).  The expected branching factor is q * m.
+*
+*  Default parameter values
+***********************************************************/
 int nonLeafBF = 4;                // m
 double nonLeafProb = 15.0 / 64.0; // q
 /***********************************************************
@@ -186,7 +186,7 @@ unsigned long long serTreeSearch(int depth, Node *parent, int numChildren) {
     }
     int nC = uts_numChildren(&n[i]);
     cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-    #pragma omp task untied default(shared) depend(in:n[i]) if(cutoff_test)
+    #pragma omp task untied default(shared) depend(in:n[i]) firstprivate(n[i]) if(cutoff_test)
     partialCount[i] = serTreeSearch(depth + 1, &n[i], nC);
   #pragma omp taskwait
   }

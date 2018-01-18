@@ -242,16 +242,16 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
     long long int TM5[2];
     TM5[0] = kk * matrix_size;
     TM5[1] = TM5[0] + kk;
-    #pragma omp task untied default(shared) depend(inout:BENCH[TM5[1]])
+    #pragma omp task untied default(shared) depend(inout:BENCH[TM5[1]]) firstprivate(BENCH[TM8[1]])
     lu0(BENCH[kk * matrix_size + kk], submatrix_size);
     for (jj = kk + 1; jj < matrix_size; jj++) {
       if (BENCH[kk * matrix_size + jj] != NULL) {
         cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-        long long int TM7[3];
-        TM7[0] = kk * matrix_size;
-        TM7[1] = TM7[0] + kk;
-        TM7[2] = TM7[0] + jj;
-        #pragma omp task untied default(shared) depend(in:BENCH[TM7[1]]) depend(inout:BENCH[TM7[2]])
+        long long int TM10[3];
+        TM10[0] = kk * matrix_size;
+        TM10[1] = TM10[0] + kk;
+        TM10[2] = TM10[0] + jj;
+        #pragma omp task untied default(shared) depend(in:BENCH[TM10[1]]) depend(inout:BENCH[TM10[2]]) firstprivate(BENCH[TM13[1]],BENCH[TM13[2]])
         fwd(BENCH[kk * matrix_size + kk], BENCH[kk * matrix_size + jj],
             submatrix_size);
       }
@@ -260,12 +260,12 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
     for (ii = kk + 1; ii < matrix_size; ii++) {
       if (BENCH[ii * matrix_size + kk] != NULL) {
         cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-        long long int TM10[4];
-        TM10[0] = kk * matrix_size;
-        TM10[1] = TM10[0] + kk;
-        TM10[2] = ii * matrix_size;
-        TM10[3] = TM10[2] + kk;
-        #pragma omp task untied default(shared) depend(in:BENCH[TM10[1]]) depend(inout:BENCH[TM10[3]])
+        long long int TM16[4];
+        TM16[0] = kk * matrix_size;
+        TM16[1] = TM16[0] + kk;
+        TM16[2] = ii * matrix_size;
+        TM16[3] = TM16[2] + kk;
+        #pragma omp task untied default(shared) depend(in:BENCH[TM16[1]]) depend(inout:BENCH[TM16[3]]) firstprivate(BENCH[TM19[1]],BENCH[TM19[3]])
         bdiv(BENCH[kk * matrix_size + kk], BENCH[ii * matrix_size + kk],
              submatrix_size);
       }
@@ -280,13 +280,13 @@ void sparselu(float **BENCH, int matrix_size, int submatrix_size) {
                   allocate_clean_block(submatrix_size);
             }
             cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-            long long int TM15[5];
-            TM15[0] = ii * matrix_size;
-            TM15[1] = TM15[0] + kk;
-            TM15[2] = kk * matrix_size;
-            TM15[3] = TM15[2] + jj;
-            TM15[4] = TM15[0] + jj;
-            #pragma omp task untied default(shared) depend(in:BENCH[TM15[1]],BENCH[TM15[3]]) depend(inout:BENCH[TM15[4]])
+            long long int TM24[5];
+            TM24[0] = ii * matrix_size;
+            TM24[1] = TM24[0] + kk;
+            TM24[2] = kk * matrix_size;
+            TM24[3] = TM24[2] + jj;
+            TM24[4] = TM24[0] + jj;
+            #pragma omp task untied default(shared) depend(in:BENCH[TM24[1]],BENCH[TM24[3]]) depend(inout:BENCH[TM24[4]]) firstprivate(BENCH[TM27[1]],BENCH[TM27[3]],BENCH[TM27[4]])
             bmod(BENCH[ii * matrix_size + kk], BENCH[kk * matrix_size + jj],
                  BENCH[ii * matrix_size + jj], submatrix_size);
           }

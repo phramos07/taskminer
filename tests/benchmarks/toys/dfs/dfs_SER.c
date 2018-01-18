@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
-#define N 5000
+#include <stdlib.h>
+// #define N 5000
 #define MAX_COORD 100
 #define MAX_DIST 100000;
 // #define DEBUG
@@ -11,24 +12,26 @@ struct Coord
 	int y;
 };
 
-int nodesCoordX[N];
-int nodesCoordY[N];
-int nodesMinDist[N];
-int nodesMinDistIndex[N];
-int G[N*N];
-int neigh[N];
-int visited[N];
+void dfs(int* G, int* node, int index, int* visited, int* neigh, int* nodesCoordX, int* nodesCoordY, int* nodesMinDist, int* nodesMinDistIndex, int N);
 
-void dfs(int* G, int* node, int index);
+void fillgraph(int* G, int* nodesCoordX, int* nodesCoordY, int N);
 
-void fillgraph(int* G);
+void printGraph(int* G, int N);
 
-void printGraph(int* G);
-
-void findNearestNeighbor(int src, int dst);
+void findNearestNeighbor(int src, int dst, int* nodesCoordX, int* nodesCoordY, int* nodesMinDist, int* nodesMinDistIndex);
 
 int main(int argc, char* argv[])
 {
+	int N = atoi(argv[1]);
+
+	int* nodesCoordX = (int*) malloc(sizeof(int)*N);
+	int* nodesCoordY = (int*) malloc(sizeof(int)*N);
+	int* nodesMinDist = (int*) malloc(sizeof(int)*N);
+	int* nodesMinDistIndex = (int*) malloc(sizeof(int)*N);
+	int* G = (int*) malloc(sizeof(int)*N*N);
+	int* neigh = (int*) malloc(sizeof(int)*N);
+	int* visited = (int*) malloc(sizeof(int)*N);
+
 	// int* G = new int[N*N];
 	// int* neigh = new int[N];
 	// bool* visited = new bool[N];
@@ -39,12 +42,12 @@ int main(int argc, char* argv[])
 		nodesMinDist[i] = MAX_DIST;
 	}
 
-	fillgraph(G);
-	dfs(G, &G[0], 0);
+	fillgraph(G, nodesCoordX, nodesCoordY, N);
+	dfs(G, &G[0], 0, visited, neigh, nodesCoordX, nodesCoordY, nodesMinDist, nodesMinDistIndex, N);
 
+	
+	if (N <= 10) printGraph(G, N);
 	#ifdef DEBUG
-		printGraph(G);
-
 		for (unsigned i = 0; i < N; i++)
 			printf("Node %d has %d in-edges\n", i, neigh[i]);
 
@@ -64,19 +67,28 @@ int main(int argc, char* argv[])
 	// delete [] neigh;
 	// delete [] visited;
 
+	free(nodesCoordX);
+	free(nodesCoordY);
+	free(nodesMinDist);
+	free(nodesMinDistIndex);
+	free(G);
+	free(neigh);
+	free(visited);
+
 	return 0;
 }
 
-void dfs(int* G, int* node, int index)
+void dfs(int* G, int* node, int index, int* visited, int* neigh, int* nodesCoordX, int* nodesCoordY, int* nodesMinDist, int* nodesMinDistIndex, int N)
 {
 	if (!visited[index])
 	{
 		visited[index] = 1;
 		for (unsigned i=0; i<N; i++)
+		{
 			if (*(node + i) != 0)
 			{
 				//recursive call
-				dfs(G, &G[i*N], i);			
+				dfs(G, &G[i*N], i, visited, neigh, nodesCoordX, nodesCoordY, nodesMinDist, nodesMinDistIndex, N);			
 				
 				//eventual computations
 				neigh[i]++; 
@@ -87,11 +99,12 @@ void dfs(int* G, int* node, int index)
 					nodesMinDistIndex[index] = i;
 				}			
 			}
+		}
 	}
 	return;
 }
 
-void findNearestNeighbor(int src, int dst)
+void findNearestNeighbor(int src, int dst, int* nodesCoordX, int* nodesCoordY, int* nodesMinDist, int* nodesMinDistIndex)
 {
 	double dist = sqrt(pow(nodesCoordX[src] - nodesCoordX[dst], 2) + pow(nodesCoordY[src] - nodesCoordY[dst], 2));
 	if (dist < nodesMinDist[src])
@@ -101,7 +114,7 @@ void findNearestNeighbor(int src, int dst)
 	}
 }
 
-void fillgraph(int* G)
+void fillgraph(int* G, int* nodesCoordX, int* nodesCoordY, int N)
 {
 	for (long unsigned i = 0; i < N; i++)
 	{
@@ -114,7 +127,7 @@ void fillgraph(int* G)
 	}
 }
 
-void printGraph(int* G)
+void printGraph(int* G, int N)
 {
 	for (long unsigned i = 0; i < N; i++)
 	{
