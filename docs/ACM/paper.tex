@@ -278,17 +278,20 @@ times of the parallel versions of those benchmarks, but are much faster than
 \guido{Numbers?}
 their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
 
-\section{Advantages and Difficulties}
+\section{Challenges}
 \label{sec:ovf}
 
-The use of OpenMP pragmas as the concrete means to explore, without human
-intervention, task parallelism in programs presents difficulties and
-advantages. 
-Such challenges and benefits have guided the design and implementation of the
-techniques described in Section~\ref{sec:sol}.
-In the rest of this section we discuss such advantage and difficulties.
+This paper presents a tool that annotates source C code with OpenMP task
+directives.
+This tool uses novel techniques to fulfill its purpose.
+Such techniques solve four challenges, which Section~\ref{sub:dif}
+illustrates with examples.
+However, before we dive into these challenges, the reader must understand
+the main benefits of using a runtime environment such as OpenMP's, for
+such advantages have guided most of our designing decisions.
+Section~\ref{sub:adv} introduces this discussion.
 
-\subsection{The Advantages}
+\subsection{The OpenMP Runtime System}
 \label{sub:adv}
 
 The main advantage of using OpenMP annotations to split a program into parallel
@@ -303,27 +306,23 @@ memory region -- either prevents parallelism altogether, or forces compilers to
 resort to complex runtime checks to ensure its correctness~\cite{Alves15,Rus02}.
 The OpenMP runtime shields us from this problem, because
 it already checks for dependencies among tasks, and dispatches them in a
-correct order~\cite{LaGrone11}. \ed{To achieve that, OpenMP runtime uses task descriptors that contain}
-\guido{The descriptor does not keep task status; this is done in the runtime.}
-\rmv{task's status (running, waiting)} \ed{a task identifier and  a list of memory addresses corresponding to the task input /output arguments.}
+correct order~\cite{LaGrone11}.
 
-The process of checking for dependencies can be as simple as checking if an
-incoming task accesses a memory address already in use by \ed{an in-flight task}.
-It can also be complex, involving checks over long ranges of addresses
-(in case the runtime system supports dependence checking for memory ranges).
-This process can also include memory labelling and renaming (in case the
+Dependence tracking can be complex, involving checks over ranges of addresses
+(if the runtime system treats dependencies across memory ranges).
+It can also include memory labelling and renaming (if the
 runtime system is able to remove false dependencies).
 Regardless of its capacity -- which is not the same across every OpenMP
 implementation -- the runtime system will represent dependencies using a task
 dependence graph (TDG)~\cite{Duran08}.
 In this directed acyclic graph, nodes denote tasks and edges represent
 dependences between them.
-Tasks are dispatched for execution according to a \new{dynamic} topological ordering of this
-graph~\cite{Planas15}.
+Tasks are dispatched for execution according to a dynamic topological ordering of
+this graph~\cite{Planas15}.
 
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/ex_book_filter}
+\includegraphics[width=1\columnwidth]{images/ex_book_filter}
 \caption{The benefits of the OpenMP runtime environment.
 Neither the runtime checks of Alves~\cite{Alves15} or Rus~\cite{Rus02}, nor
 Whaley's context and flow sensitive alias analysis would be able to ensure the
@@ -332,49 +331,43 @@ correctness of the automatic parallelization of this program.}
 \end{center}
 \end{figure}
 
-\guido{Now it is clear the relevance for irregular programs.}
-\ed{The OpenMP runtime} support allows the parallelization of irregular applications,
+The OpenMP runtime support allows the parallelization of irregular applications,
 such as programs that traverse data-structures formed by a mesh of pointers.
-\guido{A litte bit more details: }
-\new{In such programs, control construcs (e.g. {\tt if} statement) make the execution 
-of certain pieces of code  dependent on the program input. When using 
-task parallelism the runtime can capture such dependences. This is not possible 
-otherwise, since compile-time dependence analyzers must be conservative and eventually
-skip some parallelization opportunity.}
-
+In such programs, control constructs like {\tt if} statements make the
+execution  of certain pieces of code dependent on the program's input.
+The runtime can capture such dependences, in contrast to static analysis tools.
 As an example, Figure~\ref{fig:ex_book_filter} shows an application that
 finds patterns in lines of a book.
 The book is given as an array of pointers; each pointer leads to a
 string representing a --potentially-- different line.
 The natural parallelization of this program consists in firing off a task
 to process each line.
-Figure~\ref{fig:ex_book_filter} has been annotated automatically by \rmv{the}
+Figure~\ref{fig:ex_book_filter} has been annotated automatically by
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, \ed{by}  \guido{This is vague:} \rmv{runtime checks.} 
-\new{assuring that the annotated input dependencies {\tt line} and {\tt pattern}  are 
-respected at runtime.}
-\guido{Not clear. Need more details here. Adding:} \new{Pointer-based dependencies
-can address various memory regions. Hence, in order to enable the automatic
-synthesis of task annotations a system must be able to precisely define which 
-memory region a pointer dependency is pointing to.}
-\guido{Not clear why it is not important for correctness.}
-Therefore, the ability to disambiguate memory regions statically is not
-essential for correctness, although it is important for efficiency reasons,
-as we will mention in Challenge~\ref{ch:Regions}.
+created at lines 9 and 11, by assuring that the annotated input dependencies
+{\tt line} and {\tt pattern}  are 
+respected at runtime.
 
-\subsection{The Difficulties}
+\subsection{Challenges}
 \label{sub:dif}
 
-The automatic insertion of effective OpenMP annotations into C/C++ programs
-required us to deal with a number of challenges.
-If left unsolved, these challenges would restrict our interventions in programs
-to trivial annotations, which would hardly be of any use.
+As seen in Section~\ref{sub:adv}, the OpenMP runtime liberates us
+from the burden of having to track dependences between pointers statically.
+However, the automatic insertion of effective task annotations into
+programs still required us to deal with a number of challenges.
+If left unsolved, these challenges would restrict our interventions
+to trivial annotations -- hardly be of any use.
 Our first challenge is inherent to any automatic parallelization system.
 
-\begin{figure}[h!]
+\begin{Challenge}
+\label{ch:Regions}
+Identify the memory region covered by a task.
+\end{Challenge}
+
+\begin{figure}[b!]
 \begin{center}
-\includegraphics[width=0.95\columnwidth]{images/ex_Regions}
+\includegraphics[width=1\columnwidth]{images/ex_Regions}
 \caption{Challenges~\ref{ch:Regions} and~\ref{ch:cost}: identifying memory regions
 with symbolic limits, and using runtime information to estimate the profit of
 tasks.}
@@ -382,16 +375,10 @@ tasks.}
 \end{center}
 \end{figure}
 
-\begin{Challenge}
-\label{ch:Regions}
-Identify the memory region covered by a task.
-\end{Challenge}
-
 Figure~\ref{fig:ex_Regions} illustrates Challenge~\ref{ch:Regions}, and shows
-how we solve it\footnote{Figures~\ref{fig:ex_Regions}-\ref{fig:ex_cutoff} shows
-programs that we have annotated without any human intervention.
-Statements in black font are part of the original program.
-Annotations appear in grey.}.
+how we solve it\footnote{Whenever we show code, statements in black font are part
+of the original program.
+The annotations that we create automatically appear in grey.}.
 That program receives an $\mathsf{M}\times\mathsf{N}$ matrix \textsf{V}, in
 linearized format, and produces a vector \textsf{U}, so that \textsf{U[i]}
 contains the sum of all the elements in line \textsf{i} of matrix \textsf{V}.
@@ -412,7 +399,8 @@ Estimate the profitability of tasks at runtime.
 \end{Challenge}
 
 The creation of tasks involves a heavy runtime cost due to allocation,
-scheduling and real-time management of the task dependence graph.
+scheduling and real-time management of the dependence graph
+(see Sec.~\ref{sub:adv}).
 Ideally, this cost should be paid only for tasks that perform an amount of work
 sufficiently large to pay for their management.
 Being an interesting program property, on Rice's sense~\cite{Rice53}, the amount
@@ -434,7 +422,7 @@ instructions. This is further explained in Section \ref{sub:profit}.
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/ex_cutoff}
+\includegraphics[width=1\columnwidth]{images/ex_cutoff}
 \caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks with
 counter associated with function calls.}
 \label{fig:ex_cutoff}
@@ -505,7 +493,7 @@ shared variables.
 
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/alg_main}
+\includegraphics[width=1\columnwidth]{images/alg_main}
 \caption{The main steps of our code generator.}
 \label{fig:alg_main}
 \end{center}
@@ -521,7 +509,7 @@ finding potential tasks relies on a concept that we call \emph{Helices}. A \emph
 is a set of nodes in the PDG that depend on a Strong Connected Component (SCC) but \emph{do not
 integrate the SCC}. Strong Connected Components in the Dependence Graph represent statically
 detected iteration dependence, so it arises with loops or with recursive patterns (when the Graph is
-interprocedural).  \Figure \ref{fig:helix}  shows what represents a \emph{Helix}.
+interprocedural).  Figure~\ref{fig:helix}  shows what represents a \emph{Helix}.
 The insight behind \emph{Helices} is that they represent instructions that are deemed
 to repeat more than once and, since they do not have a cycle, they can be executed in parallel.
 
@@ -541,7 +529,7 @@ one as long as two requisites are met:
 
 \begin{figure}[t!]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/expand_alg}
+\includegraphics[width=1\columnwidth]{images/expand_alg}
 \caption{Discovery of tasks via expansion of hammock regions.}
 \label{fig:expand_alg}
 \end{center}
