@@ -37,8 +37,9 @@
 \citestyle{acmauthoryear}
 
 %% Packages that we are using in this version of the work:
-\usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{paralist}
 
 % To turn comments OFF simply comment out the \Commentstrue line
 \newif\ifComments\Commentstrue
@@ -511,7 +512,7 @@ techniques, in order to adapt them to our purposes.
 \end{center}
 \end{figure}
 
-\paragraph{The syntax that we handle.}
+\paragraph{Tasks: syntax and scope:}
 Our goal is to identify {\em tasks} in {\em structured} programs.
 Definition~\ref{def:task} formalizes the notion of task.
 A structured program is a program that can be partitioned in {\em hammock
@@ -543,11 +544,50 @@ Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$
 if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
 $T_1$.
 If a program $P$ is partitioned into a set of $n$ tasks, then this partition is
-said to be {\em correct} if: (i) it does not contain cyclic dependence relations;
-and (ii) any topological ordering of the tasks, as determined by dependence
-relations, leads to the same results as the sequential execution of $P$.
+said to be {\em correct} if it abides by Definition~\ref{def:correctness}.
 
-\paragraph{The annotations that we use.}
+\begin{definition}[Correctness]
+\label{def:correctness}
+A set $T$ of $n$ tasks is a correct parallelization of a program $P$ if:
+\begin{compactitem}
+\item $T$ does not contain cyclic dependence relations;
+\item the execution of the tasks in $T$ in any ordering determined by dependence
+relations, leads to the same results as the sequential execution of $P$.
+\end{compactitem}
+\end{definition}
+
+\begin{example}[Memory Regions]
+\label{ex:regions}
+\fer{XX Add an example to describe the notions of regions and dependences.
+The best is to modify one of the programs in Section 2, so that we can refer to
+that program.
+Pedro, can you think about it and propose something?}
+\end{example}
+
+\paragraph{The annotation zoo.}
+Our equipment of choice to reveal task parallelism in programs is OpenMP 3.0.
+This annotation system provides us with a rich set of pragmas that we can use
+to indicate to compiler and runtime environment which tasks must be created.
+We describe below which annotations we are using, and explain, informally, their
+semantics.
+A full overview of the syntax and semantics of these annotations is publicly
+available\footnote{For a quick overview, we refer the reader to the leaflet
+``Summary of OpenMP 3.0 C/C++ Syntax", which is made available by the OpenMP
+group.}.
+
+\begin{compactitem}
+\item \textsf{task} {\em clauses}: creates a new task, according to the
+parameters specified in the {\em clauses} list:
+\begin{compactitem}
+\item \textsf{default([shared/private])}: indicates that variables are either
+shared or replicated among tasks.
+\item \textsf{firstprivate($v$)}: indicates that $v$ must be replicated among
+tasks, and initialized with its value at the point where the annotation is
+executed.
+\item \fer{Pedro/Gleison: can you guys continue this list?}
+\end{compactitem}
+\item \textsf{taskwait}: forces tasks to synchronize at the point of annotation.
+\end{compactitem}
 
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:identification}
