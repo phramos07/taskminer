@@ -69,9 +69,9 @@
 
 \begin{document}
 
-\title[Automatic Identification and Annotation of Parallel Tasks in Structured
+\title[Automatic Identification and Annotation of Tasks in Structured
 Programs]
-{Automatic Identification and Annotation of Parallel Tasks in Structured Programs}
+{Automatic Identification and Annotation of Tasks in Structured Programs}
 
 \author{Pedro Henrique Ramos Costa}
 \authornote{with author1 note}          %% \authornote is optional;
@@ -491,13 +491,62 @@ shared variables.
 \section{Solution}
 \label{sec:sol}
 
-\begin{figure}[t!]
+Figure~\ref{fig:alg_main} provides a high-level view of a source-to-source
+compiler that incorporates the techniques discussed in this paper.
+This pseudo-code uses several concepts well-known in the compiler's
+literature, such as control flow graphs~\cite{Kildall73} and
+dependence graphs~\cite{Ferrante87}.
+We built on top of such concepts, as well as others, like
+symbolic range analysis~\cite{Blume94}, and natural loops~\cite{Allen70}.
+In the rest of this section we explain how we have combined this previous
+knowledge in order to delimit and annotate tasks in structured programs.
+Our presentation focus on the new elements that we had to add onto known
+techniques, in order to adapt them to our purposes.
+
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/alg_main}
 \caption{The main steps of our code generator.}
 \label{fig:alg_main}
 \end{center}
 \end{figure}
+
+\paragraph{The syntax that we handle.}
+Our goal is to identify {\em tasks} in {\em structured} programs.
+Definition~\ref{def:task} formalizes the notion of task.
+A structured program is a program that can be partitioned in {\em hammock
+regions}, a concept introduced by Ferrante {\em et al.}~\cite{Ferrante87} in
+the middle 80's.
+The structure of this program is described by a a Control Flow Graph $G$ --
+a directed graph with a starting node $s$, and an exit node $x$.
+A hammock region is a subgraph $G' \subseteq G$, with a special node
+$h$, which {\em dominates}\footnote{A node $n_1 \in G$ dominates another node
+$n_2 \in G$ if every path from  $S$ to $n_2$ goes across $n_1$.
+Inversely, $n_1$ post-dominates $n_2$ if every path from $n_2$ to $x$ must
+go across $n_1$.} every other node in $G'$.
+Additionally, there exists a node $w \in G$, $w \notin G'$, such that
+$w$ {\em post-dominates} every node in $G'$.
+In this definition, $h$ is the {\em entry point}, and $w$ is the {\em exit point}
+of $G'$.
+
+\begin{definition}[Task]
+\label{def:task}
+Given a program $P$, a task $T$ is a tuple $(G', M)$ formed by a hammock region
+$G'$, plus a set $M$ of memory regions that represent the dependences of $T$.
+\end{definition}
+
+Definition~\ref{def:task} uses the concept of {\em memory region}.
+Syntactically, memory regions are described by program variables and/or pointers
+plus ranges of offsets that these pointers are allowed to dereference.
+If a task $(T_1, M_1)$ writes onto a memory region $m$, and task
+$(T_2, M_2)$ contains code that reads $m$, then $m \in M_1$, to ensure that
+dependences are respected.
+If a program $P$ is partitioned into a set of $n$ tasks $\{(T_1, M_1),
+\ldots (T_n, M_n)\}$, then this partition is said to be {\em correct} if any
+topological ordering of the tasks, as determined by dependence relations, always
+leads to the same results as the sequential execution of $P$.
+
+\paragraph{The annotations that we use.}
 
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:identification}
@@ -530,7 +579,7 @@ one as long as two requisites are met:
 \begin{figure}[t!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/expand_alg}
-\caption{Discovery of tasks via expansion of hammock regions.}
+\caption{Task discovery via expansion of hammock regions.}
 \label{fig:expand_alg}
 \end{center}
 \end{figure}
