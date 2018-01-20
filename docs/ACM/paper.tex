@@ -531,20 +531,21 @@ of $G'$.
 
 \begin{definition}[Task]
 \label{def:task}
-Given a program $P$, a task $T$ is a tuple $(G', M)$ formed by a hammock region
-$G'$, plus a set $M$ of memory regions that represent the dependences of $T$.
+Given a program $P$, a task $T$ is a tuple $(G', M_i, M_o)$ formed by a hammock
+region $G'$, plus a set $M_i$ of memory regions representing data that $T$ reads,
+and a set $M_o$ of memory regions representing data that $T$ writes.
 \end{definition}
 
 Definition~\ref{def:task} uses the concept of {\em memory region}.
 Syntactically, memory regions are described by program variables and/or pointers
 plus ranges of offsets that these pointers are allowed to dereference.
-If a task $(T_1, M_1)$ writes onto a memory region $m$, and task
-$(T_2, M_2)$ contains code that reads $m$, then $m \in M_1$, to ensure that
-dependences are respected.
-If a program $P$ is partitioned into a set of $n$ tasks $\{(T_1, M_1),
-\ldots (T_n, M_n)\}$, then this partition is said to be {\em correct} if any
-topological ordering of the tasks, as determined by dependence relations, always
-leads to the same results as the sequential execution of $P$.
+Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$,
+if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
+$T_1$.
+If a program $P$ is partitioned into a set of $n$ tasks, then this partition is
+said to be {\em correct} if: (i) it does not contain cyclic dependence relations;
+and (ii) any topological ordering of the tasks, as determined by dependence
+relations, leads to the same results as the sequential execution of $P$.
 
 \paragraph{The annotations that we use.}
 
