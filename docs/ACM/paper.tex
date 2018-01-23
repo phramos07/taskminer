@@ -566,27 +566,43 @@ Pedro, can you think about it and propose something?}
 
 \paragraph{The annotation zoo.}
 Our equipment of choice to reveal task parallelism in programs is OpenMP 3.0.
-This annotation system provides us with a rich set of pragmas that we can use
-to indicate to compiler and runtime environment which tasks must be created.
+This annotation system provides us with a set of pragmas that indicate to compiler
+and runtime environment when and how tasks must be created.
 We describe below which annotations we are using, and explain, informally, their
 semantics.
-A full overview of the syntax and semantics of these annotations is publicly
+Full overviews of the syntax and semantics of these annotations is publicly
 available\footnote{For a quick overview, we refer the reader to the leaflet
 ``Summary of OpenMP 3.0 C/C++ Syntax", which is made available by the OpenMP
-group.}.
-
+group.}; hence, we shall not dive into their details.
+%
 \begin{compactitem}
-\item \textsf{task} {\em clauses}: creates a new task, according to the
-parameters specified in the {\em clauses} list:
+\item \textsf{parallel} (\textit{clauses}): forms a team of threads
+which will execute the marked program region in parallel.
+\item \textsf{single} (\textit{clauses}): specifies that a
+program region must be executed by one thread in the team.
+\item \textsf{task} (\textit{clauses}): creates a new task.
+\item \textsf{taskwait}: defines a synchronization point where
+threads must wait for the completion of child tasks.
+\end{compactitem}
+%
+Some pragmas are associated with lists of clauses.
+There are several of these clauses available in OpenMP 3.0; however, we only use
+the following:
 \begin{compactitem}
 \item \textsf{default([shared/private])}: indicates that variables are either
 shared or replicated among tasks.
 \item \textsf{firstprivate($v$)}: indicates that $v$ must be replicated among
 tasks, and initialized with its value at the point where the annotation is
 executed.
-\item \fer{Pedro/Gleison: can you guys continue this list?}
-\end{compactitem}
-\item \textsf{taskwait}: forces tasks to synchronize at the point of annotation.
+\item \textsf{untied}: if a task has this modifier, then its associated code can
+be executed by more than one thread; e.g., threads might alternate execution due
+to preemption.
+\item \textsf{depend}($\mathit{in}/\mathit{out}/\mathit{inout}$):
+determine if data is read ($\mathit{in}$), written ($\mathit{out}$) or both
+within a task region; thus, effectively setting dependences among tasks.
+\item \textsf{depend}({\em condition}): this clause defines the conditions
+under which a task is allowed to create threads.
+We use it to enforce the cost model.
 \end{compactitem}
 
 \subsection{Mapping Program Regions to Tasks}
