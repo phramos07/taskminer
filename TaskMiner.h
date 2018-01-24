@@ -51,7 +51,7 @@ namespace llvm
 		RegionTree* gettaskGraph(Module &M);
 		bool findRegionWrapperInSCC(RegionWrapper* RW);
 		std::list<CallInst*> getLastRecursiveCalls() const;
-		void mineRegionTasks();
+		void mineRegionTasks(Module &M);
 		void mineRecursiveTasks();
 		void mineFunctionCallTasks();
 		void mineLoopTasks();

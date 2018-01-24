@@ -444,65 +444,25 @@ void TaskMiner::mineRecursiveTasks()
 	}
 }
 
-void TaskMiner::mineRegionTasks()
+void TaskMiner::mineRegionTasks(Module &M)
 {
 	errs() << "\tMining Region Tasks...\n";
-	//1: go through every SCC >= 2
-	//2: check the function in every SCC. only analyse those which
-	//haven't been added as a functioncall task or recursive task
-	//3: Find the largest region that covers that SCC
-	//4: Build RegionTask with those BB's that are within the largest region
-	std::set<Graph<RegionWrapper*, EdgeDepType>* > candidate_sccs;
 
-	for (auto scc : SCCs)
+	for (Module::iterator f = M.begin(); f != M.end(); ++f)
 	{
-		if (scc->size() <= 1)
+		if (f->empty() || (function_tasks.find(f) != function_tasks.end()))
 			continue;
-		for (auto n : scc->getNodes())
-		{
-			if (std::find(function_tasks.begin(), 
-				function_tasks.end(), n->getItem()->F) == function_tasks.end())
-			{
-				candidate_sccs.insert(scc);
-			}
-		}
-	}
 
-	//For each candidate SCC, check if they're SCC's originated
-	//from indirect recursion
-	std::list<std::set<Graph<RegionWrapper*, EdgeDepType>* >::iterator> to_be_removed;
-	for (std::set<Graph<RegionWrapper*, EdgeDepType>* >::iterator 
-		scc = candidate_sccs.begin(); scc != candidate_sccs.end(); ++scc)
-		for (auto e : (*scc)->getEdges())
-		{
-			if (e->getType() == EdgeDepType::FCALL)
-			{
-				to_be_removed.push_back(scc);
-				break;
-			}
-		}
-
-	//remove these scc's from indirect recursion
-	for (auto scc : to_be_removed)
-		candidate_sccs.erase(scc);
-
-	//Now for every candidate scc,
-	//1: find the largest region that covers all the nodes
-	//2: create regiontask
-	//3: add BB's to it
-	for (auto scc : candidate_sccs)
-	{
-		auto firstRW = (*scc->getNodes().begin())->getItem();
-		Function* F = firstRW->F;
+		Function* F = f;
 		LoopInfoWrapperPass* LIWP = &(getAnalysis<LoopInfoWrapperPass>(*F));
 		LoopInfo* LI = &(LIWP->getLoopInfo());
 
-		//errs() << "\nAnalyizing function " << F->getName() << "\n";
+		errs() << "\nAnalyizing function " << F->getName() << "\n";
 
 		for (auto l : TMU.getLoopsInPreorder(LI))
 		{
-			// errs() << "\n\n";
-			// l->dump();
+			errs() << "\n\n";
+			l->dump();
 			if (l->getLoopDepth() == 1)
 			{
 				RegionTask* TASK = new RegionTask();
@@ -516,37 +476,6 @@ void TaskMiner::mineRegionTasks()
 				NREGIONTASKS++;
 			}
 		}
-
-		// errs() << "\n\n";
-
-		// RegionInfoPass* RIP = &(getAnalysis<RegionInfoPass>(*F));
-
-		// RegionInfo* RI = &RIP->getRegionInfo();
-		// Region* R = RI->getRegionFor(firstRW->entry);
-		// for (auto node : scc->getNodes())
-		// {
-		// 	auto currentRW = node->getItem();
-		// 	Region* currentRegion = RI->getRegionFor(currentRW->entry);
-		// 	R = RI->getCommonRegion(R, currentRegion);
-		// }
-
-		// RegionTask* TASK = new RegionTask();
-
-		// //Now with the region R in hands, let's build the regiontask!
-		// for (Function::iterator BB = F->begin(); BB != F->end(); ++BB)
-		// {
-		// 	if (R->contains(BB) && RI->getRegionFor(BB) != R)
-		// 	{
-		// 		Region *R_ = RI->getRegionFor(BB);
-		// 		TASK->addBasicBlock(BB);
-		// 		TASK->addBasicBlock(R_->getExit());
-		// 		TASK->setHeaderBB(R_->getEntry());
-		// 	}
-		// }
-
-		// tasks.push_back(TASK);
-		// NTASKS++;
-		// NREGIONTASKS++;
 	}
 }
 
@@ -567,7 +496,7 @@ void TaskMiner::mineTasks(Module &M)
 	//Only mine the function calls that are NOT top level rec calls.
 	mineFunctionCallTasks();
 
-	mineRegionTasks();
+	mineRegionTasks(M);
 }
 
 
