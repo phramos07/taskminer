@@ -36,6 +36,9 @@ static cl::opt<int> NUMBER_OF_THREADS("N_THREADS",
 static cl::opt<int> RUNTIME_COST("RUNTIME_COST",
   cl::desc("Minimum cost per task (in instructions) in the runtime"), cl::NotHidden);
 
+static cl::opt<bool, false> ALLOW_NONVOID("ALLOW_NONVOID",
+  cl::desc("Allow non-void function calls to be turned into tasks."), cl::NotHidden);
+
 STATISTIC(NTASKS, "Total number of tasks");
 STATISTIC(NFCALLTASKS, "Total number of function call (non-recursive) tasks");
 STATISTIC(NRECURSIVETASKS, "Total number of recursive tasks");
@@ -44,7 +47,6 @@ STATISTIC(NINSTSTASKS, "Total number of task instruction costs");
 STATISTIC(NINDEPS, "Total number of task input dep costs");
 STATISTIC(NOUTDEPS, "Total number of task output dep costs");
 STATISTIC(NMODULEINSTS, "Total number of module instructions");
-
 
 void TaskMiner::getAnalysisUsage(AnalysisUsage &AU) const
 {
@@ -292,8 +294,8 @@ void	TaskMiner::mineFunctionCallTasks()
 			auto srcRW = e->getSrc()->getItem();
 			auto dstRW = e->getDst()->getItem();
 			indirectRecursion=false;
-			//Check if they're indirect recursion 
-			//(if both src and dst are in the same SCC)
+			// Check if they're indirect recursion 
+			// (if both src and dst are in the same SCC)
 			for (auto scc : SCCs)
 			{
 				if ((scc->getNodeIndex(srcRW) != -1)
@@ -306,22 +308,24 @@ void	TaskMiner::mineFunctionCallTasks()
 			CallInst* CI = callInsts[e];
 
 			if (!CI)
-				continue;
-			
+				continue;			
+
 			if (function_tasks.find(CI->getParent()->getParent()) != function_tasks.end())
 				continue;
 
 			if (topLevelRecCalls.find(CI) != topLevelRecCalls.end())
+				continue;
+		
+			if (!CI->getCalledFunction()->getReturnType()->isVoidTy())
 				continue;
 
 			bool hasLoop = srcRW->hasLoop;
 			if ((srcRW->F != dstRW->F)
 				&& (hasLoop)
 				&& (!indirectRecursion)
-				&& (!CI->getCalledFunction()->isIntrinsic())
-				&& (!CI->getCalledFunction()->isDeclaration())
+				&& (CI->getCalledFunction()->isIntrinsic() == false)
+				&& (CI->getCalledFunction()->isDeclaration() == false)
 				&& (CI->getCalledFunction()->empty() == false)
-				&& (CI->getCalledFunction()->getReturnType()->isVoidTy())
 				/*&& (taskGraph->nodeReachesSCC(dstRW))*/)
 			{
 				Task* TASK = new FunctionCallTask(CI);

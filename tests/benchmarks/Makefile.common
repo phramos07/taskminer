@@ -7,7 +7,7 @@ ifndef OPENCL
 	CLANG = /usr/local/bin/clang
 	OPT = /usr/local/bin/opt
 	TASKMINER = LLVMTaskMiner.dylib
-	TASKMINER_FLAGS = -disable-output -taskminer -print-task-graph -stats -debug-only=print-tasks
+	TASKMINER_FLAGS = -disable-output -taskminer -print-task-graph -stats -debug-only=print-tasks 
 endif
 
 LFLAGS = -lm 
