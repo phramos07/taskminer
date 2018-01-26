@@ -608,35 +608,64 @@ We use it to enforce the cost model.
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:identification}
 
-The algorithm to find tasks is illustrated in Figure \ref{fig:alg_main}. It uses
-information of two abstract program structures: the \emph{Control Flow Graph (CFG)} and
-the \emph{Program Dependence Graph (PDG)}. The key intuition behind
-finding potential tasks relies on a concept that we call \emph{Helices}.
+The {\Taskminer} algorithm is illustrated in FIgure \ref{fig:alg_main}. 
+It uses information from both the \emph{Control Flow Graph} and
+the \emph{Dependence Graph}. It relies on the concepts of
+\emph{windmills} and \emph{helices} (Definitions \ref{def:helix} and \ref{def:windmill}).
+
+\begin{definition}[Windmill]
+\label{def:windmill}
+Given a set $S$ of strongly connected nodes in the program \emph{Dependence Graph} $G$, 
+a windmill $W$ is defined as:
+$$W = \bigcup_i N_i[S]$$
+\end{definition}
+
+Statically, a strongly connected set $S$ in the  \emph{Dependence Graph} $G$ represents cyclic dependence between instructions in any iterative construct.
+It arises from a loop in the program or, if $G$ is interprocedural,
+from a recursive pattern.
+
+Let $L = \{S_{1}, S_{2}, ..., S_{n}\} \subset W$ be the list of $n$ strongly connected sets contained
+in a windmill $W$. We call $S_{b}$ to be a \emph{windmill base} if $\forall S_{i} \subset L$, $S_{b} \geq S_{i}$ in any topological sorting of $G$.
 
 \begin{definition}[Helix]
 \label{def:helix}
-Given a set $S$ of strongly connected nodes in the Dependence Graph $G$, a set of nodes $H$ is a Helix if, and only if:
+Given a windmill $W$  and a windmill base $S \subset W$ in the \emph{Dependence Graph} $G$, a set of nodes $H$ is a Helix if, and only if:
 \begin{itemize}
-\item $H \subset \bigcup_i N_i[S]$;
-\item $H  \cap S = \emptyset$;
+\item $H \subset W$;
+\item $H  \cap S_{b} = \emptyset$;
 \item $H$ is connected and maximal.
 \end{itemize}
 \end{definition}
 
-We can view a \emph{Helix} as a set of nodes in the PDG that depends on a Strongly Connected Component
-(SCC) but \emph{do not integrate the SCC}. That means helices are all those subgraphs that depend on
-the SCC and do not form a cyclic dependence with the SCC itself.
+We can view a \emph{Helix} as a set of nodes in the \emph{Dependence Graph}
+that depends on a strongly connected set which is a \emph{windmill base}.
+That means helices are all those subgraphs that depend on
+the \emph{windmill base} but do not form a cyclic dependence with it.
+Figure \ref{fig:helix} illustrates both concepts.
 
-Statically, a Strongly Connected Component in the PDG represents iteration dependence, so it
-arises due to loops or recursive patterns, should the PDG is interprocedural. The insight behind 
-\emph{Helices} is that they represent instructions that are deemed to be executed more than once
-for they depend on a cyclic dependence (the SCC), and, since they do not integrate the SCC, they can
-be executed in parallel. 
+The insight behind  \emph{Helices} is that they represent instructions that 
+are deemed to be executed more than once, for they depend on a cyclic
+dependence (\emph{windmill base}), and, since they do not form a strongly
+connected set itself, they can be executed in parallel.
+ 
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/helix}
+\caption{\emph{Windmills} and \emph{Helices} corresponding to the sample code above.
+We see the \emph{windmill} 
+$W = \{A, B, C, D, E, F, G, H\}$, the windmill base $S_{b} = \{A, B, C\}$ 
+and two \emph{helices} $H_{1} = \{H\}$ and $H_{2} = \{D, E, F, G\}$.  Note
+that there are more than one strongly connected, but only of them is a
+base, which is the one at the top topologically.}
+\label{fig:helix}
+\end{center}
+\end{figure}
 
 Thus, the first step in the algorithm to find tasks is to map these \emph{Helices}
-into program regions. The algorithm goes through the Dependence Graph looking for \emph{Helices}
-and then finds the minimal covering region for each \emph{Helix}. These minimal regions
-are later going to be annotated as tasks in the original program, should they fit a cost model.
+into program regions. The algorithm scans through the \emph{Dependence Graph}
+looking for \emph{Helices} and then finds the minimal covering region for each \emph{Helix}.
+These minimal regions are later going to be annotated as tasks in the original
+program, should they fit a cost model.
 
 After finding potential task regions, the next critical step is the \emph{expansion}.
 
@@ -650,7 +679,14 @@ dependences in regions $R$ and $R'$ respectively.
 \end{itemize}
 \end{definition}
 
-\begin{figure}[t!]
+Figure \ref{fig:expand_alg} illustrate the algorithm of expansion. It simply tries to expand while
+all the conditions in Definition \ref{def:expansion} are met, and then halts
+when they are not. After this process, {\Taskminer} ends up with a list
+of potential \emph{task regions}, which will then pass under
+a series of operations prior to the annotation to source code, the 
+ultimate step.
+
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/expand_alg}
 \caption{Task discovery via expansion of hammock regions.}
@@ -662,18 +698,31 @@ dependences in regions $R$ and $R'$ respectively.
 \subsection{Finding Symbolic Bounds of Arrays}
 \label{sub:symb}
 
+%I don't know much of this part. I asked gleison to write me a paragraph and
+%then I'll review it and try to write something here.
+
 \subsection{Estimating the Profitability of Tasks}
 \label{sub:profit}
+
+%We need to discuss the THRESHOLD. Are we going to use
+%César's experiments at Unicamp concerning the different runtimes? 
+%Because if yes we need to think on how to write it.
 
 \subsection{Limiting the Creation of Recursive Tasks}
 \label{sub:rec}
 
+%I can work on that on the weekend!
+
 \subsection{Separating Private from Shared Variables}
 \label{sub:variance}
+
+%I can work on that on the weekend!
 
 \subsection{Mapping IR onto Source Code}
 \label{sub:ir}
 
+%I asked gleison and he'll sit with me to explain everything ,
+%how it's done, and then I'll write it here.
 
 \section{Evaluation}
 \label{sec:eval}
