@@ -504,7 +504,7 @@ knowledge in order to delimit and annotate tasks in structured programs.
 Our presentation focus on the new elements that we had to add onto known
 techniques, in order to adapt them to our purposes.
 
-\begin{figure}[h]
+\begin{figure}[b]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/alg_main}
 \caption{The main steps of our code generator.}
@@ -539,7 +539,7 @@ and a set $M_o$ of memory regions representing data that $T$ writes.
 
 Definition~\ref{def:task} uses the concept of {\em memory region}.
 Syntactically, memory regions are described by program variables and/or pointers
-plus ranges of offsets that these pointers are allowed to dereference.
+plus ranges of dereferensable offsets.
 Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$,
 if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
 $T_1$.
@@ -549,20 +549,22 @@ said to be {\em correct} if it abides by Definition~\ref{def:correctness}.
 \begin{definition}[Correctness]
 \label{def:correctness}
 A set $T$ of $n$ tasks is a correct parallelization of a program $P$ if:
-\begin{compactitem}
+\begin{compactenum}
 \item $T$ does not contain cyclic dependence relations;
 \item the execution of the tasks in $T$ in any ordering determined by dependence
 relations, leads to the same results as the sequential execution of $P$.
-\end{compactitem}
+\end{compactenum}
 \end{definition}
 
 \begin{example}[Memory Regions]
 \label{ex:regions}
-\fer{XX Add an example to describe the notions of regions and dependences.
-The best is to modify one of the programs in Section 2, so that we can refer to
-that program.
-Pedro, can you think about it and propose something?}
+Below we have two tasks, $T_{\mathit{foo}} = (\mathsf{foo}, \{\mathsf{v[i - 1]}\},
+\{v[i]\})$ and $T_{\mathit{bar}} = (\mathsf{bar}, \{v[i]\}, \{\})$.
+Dependencies are identified via the \textsf{depend} clause.
+In this example, each SESE region is formed by one function call:
 \end{example}
+
+\includegraphics[width=1\columnwidth]{images/ex_depends}
 
 \paragraph{The annotation zoo.}
 Our equipment of choice to reveal task parallelism in programs is OpenMP 4.0.
@@ -608,16 +610,28 @@ We use it to enforce the cost model.
 \subsection{Mapping Program Regions to Tasks}
 \label{sub:identification}
 
-The {\Taskminer} algorithm is illustrated in FIgure \ref{fig:alg_main}. 
-It uses information from both the \emph{Control Flow Graph} and
-the \emph{Dependence Graph}. It relies on the concepts of
-\emph{windmills} and \emph{helices} (Definitions \ref{def:helix} and \ref{def:windmill}).
+% Windmills and vanes
+A {\em task candidate} is a program region that can run in parallel with the
+rest of the program.
+To identify task candidates, we rely on the structure of the program's
+control flow graph.
+To this end, we identify, subgraphs in the CFG called {\em windmills}, a term
+coined by Rideau {\em et al.}~\cite{Rideau08} to describe structural relations
+between register copies.
+We adopt a slightly more general definition than Rideaus'; however, the
+graphical shape of our graphs remain similar:
 
 \begin{definition}[Windmill]
 \label{def:windmill}
-Given a set $S$ of strongly connected nodes in the program \emph{Dependence Graph} $G$, 
-a windmill $W$ is defined as:
-$$W = \bigcup_i N_i[S]$$
+A windmill is a graph $G_w = G_c \cup G_{v1} \cup \ldots \cup G_{vn}$ formed by
+a strongly connected component $G_c$, its center, plus $n$ components (not
+necessarily strong) $G_{vi}$, the vanes, such that:
+\begin{compactenum}
+\item for any topological ordering of $G_w$, and nodes $n_c \in G_c$,
+$n_v \in G_{vi}$, we have $n_c$ ahead of $n_v$;
+\item for any $i$ and $j$, $1 \leq i < j \leq n$, $G_{vi}$ and $G_{vj}$ do not
+share vertices.
+\end{compactenum}
 \end{definition}
 
 Statically, a strongly connected set $S$ in the  \emph{Dependence Graph} $G$ represents cyclic dependence between instructions in any iterative construct.
