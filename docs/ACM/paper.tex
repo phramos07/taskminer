@@ -689,8 +689,79 @@ the subject of Section~\ref{sub:ir}.
 \subsection{Finding Symbolic Bounds of Arrays}
 \label{sub:symb}
 
-\pedro{I don't know much of this part. I asked gleison to write me a paragraph and
-then I'll review it and try to write something here.}
+% Why this is necessary
+To produce the annotations that will lead to the creation of a task $T = (G, M_i,
+M_o)$, we need to determine the memory regions $M_i$ that $T$ reads, and the
+memory regions $M_o$ that it writes.
+Memory regions consist of pointers, plus ranges of addresses that these pointers
+can dereference.
+Example~\ref{ex:mem_reg} illustrates this notion.
+To determine precise bounds to memory regions, we resort to an old ally of
+compiler writers: the {\em Symbolic Range Analysis}, a concept that
+Definition~\ref{def:sra} formalizes.
+
+\begin{example}[Memory Region]
+\label{ex:mem_reg}
+The statement \textsf{U[i] += V[i*N + j]}, at line 9 of
+Figure~\ref{fig:ex_Regions} contains two memory accesses: \textsf{U[i]} and
+\textsf{V[i*N + j]}.
+The first covers the memory region $[\mathtt{\&}\mathsf{U},
+\mathtt{\&}\mathsf{U} + (\mathsf{M} - 1) \times \mathsf{sizeof}(\mathtt{int})]$.
+The other covers the region
+$[\mathtt{\&}\mathsf{V} + \mathsf{N} \times \mathsf{sizeof}(\mathtt{int}), \mathtt{\&}\mathsf{V} + ((\mathsf{i} \times \mathsf{M} + j) - 1) \times \mathsf{sizeof}(\mathtt{int})]$.
+There is no code in Figure~\ref{fig:ex_Regions} that depends on the
+loop in lines 8-10.
+Thus, a task annotation must only account for the input dependence, e.g., the
+access on \textsf{V}.
+That is why the \textsf{depend} clause in line 6 contains a reference to this
+region.
+\end{example}
+
+\begin{definition}[Symbolic Range Analysis]
+\label{def:sra}
+This is a form of abstract interpretation that associates
+an integer variable $v$ with a {\em Symbolic Interval} $R(v) = [l, u]$, where
+$l$ and $u$ are {\em Symbolic Expressions}.
+A symbolic expression $E$ is defined by the grammar below, where $s$ is a
+{\em program symbol}:
+\renewcommand{\arraystretch}{0.9}
+\[
+\begin{array}{rcl}
+E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E, E) \ \ | \\
+&  & \mbox{max}(E, E) \ \ | -\infty \ \ | \ \ +\infty
+\end{array}
+\]
+\end{definition}
+
+% How we do it.
+The program symbols mentioned in Definition~\ref{def:sra} are names that cannot be
+reconstruct as functions of other names.
+Examples include global variables, function arguments, and values returned by
+external functions.
+Symbolic range analysis is not a contribution of this paper.
+There are several different implementations publicly available, and we have
+adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
+reuses work from Blume {\em et al.}~\cite{Blume94}.
+The only extensions that we have added into \dawn's implementation was
+the ability to handle \textsf{structs}.
+Therefore, we shall not provide further details about part of our work.
+To understand the rest of this paper, it suffices to know that this implementation
+is sufficiently solid to handle the entire C99 language, always terminates, and
+runs in time linear on the size of the program's dependence graph.
+Thus, in the worst case, it is quadratic on the number of program variables.
+If a program contains an array access $\textsf{V}[E]$, and we have that
+$R(E) = [l, u]$, then the memory region covered by this access is, at least,
+$[\mathtt{\&}\textsf{V} + l, \mathtt{\&}\textsf{V} + u]$.
+The example below clarifies this observation.
+
+\begin{example}
+\label{ex:sra}
+Symbolic range analysis, when applied onto Figure~\ref{fig:sra}, gives us
+$R(\mathsf{i}) = [0, \mathsf{N} - 1]$, and $R(\mathsf{j}) = [0, \mathsf{M} - 1]$.
+The memory access \textsf{V[i*N + j]} at line 9, when combined with this
+information, yields the symbolic region that appears in the task annotation at
+line 6 of Figure~\ref{fig:ex_Regions}.
+\end{example}
 
 \subsection{Estimating the Profitability of Tasks}
 \label{sub:profit}
