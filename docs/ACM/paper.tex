@@ -490,7 +490,7 @@ shared variables.
 
 % For example in 473.astar if we ignore dependences that only occur in less than 20% of all iterations, we can parallelize loops that correspond to 96% of total execution.
 
-\section{Solution}
+\section{Solutions}
 \label{sec:sol}
 
 Figure~\ref{fig:alg_main} provides a high-level view of a source-to-source
@@ -775,50 +775,74 @@ measured as the amount of code they contain.
 The smaller the tasks are, the more parallel they tend to be, as a consequence
 of less dependencies.
 However, if tasks are too small, then the performance gained by the extra
-parallelism might not be enough to pay for the cost of managing them.
+parallelism might not compensate the cost of managing them.
 On the other hand, if tasks are too big, then we might not obtain enough
 parallelism, because individual tasks still execute sequentially.
 In this paper, we extract the smallest thread above the runtime cost.
-To bestow meaning into this last statement, in what follows we define more
+To bestow meaning into this last statement, in what follows, we define more
 formally the notions of task size and runtime cost.
 
 \paragraph{Estimating the Size of Tasks.}
 The size of a task is given by its workload, i.e., the number of instructions that
 such task executes.
 The same program region might lead to the creation of tasks with different sizes.
-Therefore, the actual size of a task is only known after the threads finishes
-execution.
+Therefore, the actual size of a task is only known after it finishes execution.
 However, to judge if the creation of a task is worth its cost, we must be able to
 approximate its size statically.
-With this goal, we define the notion of static workload estimate:
+With this goal, we define the notion of {\em Static Workload Estimate}:
 
 \begin{definition}[Static Workload Estimate (SWE)]
 \label{def:swe}
 Let $G = G_1 \cup G_2 \cup \ldots \cup G_n$ be a partition of a program's control
-flow graph $G$ into $n$ {\em maximal} hammock regions.
-We define the static workload estimate ($W(G)$) as a real number, such that
-$W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
+flow graph $G$ into $n$ {\em disjoint} hammock regions.
+We define the static workload estimate ($W(G)$) as a non-negative real number,
+such that $W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
 \end{definition}
+
+Definition~\ref{def:swe} is too unconstrained: a function $W(G) = 0$ for any $G$
+satisfies it.
+Naturally, we would like to construct $W$ in such a way to approximate the 
+dynamic behavior of programs.
+The compiler-related literature contains heuristics to implement $W$.
+Perhaps, the best-known among these heuristics is the static profiler of
+Wu and Larus~\cite{Wu94}.
+In this paper, we adopted a different approach: we reuse the symbolic range
+analysis of Section~\ref{sub:sra} to augment static data with dynamic information.
+In other words, we use symbolic range analysis to construct expressions that
+represent the number of iterations of loops.
+Similar approach has already been used to decide when to migrate virtual memory
+pages in NUMA architectures~\cite{Piccoli14}.
+OpenMP 3.0 contains syntax to enable the conditional creation of tasks.
+Our symbolic analysis lets us build predicates for such conditional expressions.
+
+\begin{example}
+\label{ex:cond_task}
+The condition in line 7 of Figure~\ref{fig:ex_Regions} determines that tasks will
+only be created if the expression \textsf{5 $\times$ M $<$ WORK\_CUTOOF}
+holds.
+The expression \textsf{5 $\times$ M} is an approximation for the size of the
+task that comprises the loop at lines 8-10.
+\end{example}
 
 \begin{figure}[t!]
 \begin{small}
 \begin{eqnarray*}
 \begin{tabular}{lc}
-\mbox{(Instruction)} &
-W(\mbox{instr}) = 1
+\textsc{[Instr]} &
+W(\mbox{instr}) = \mbox{given by the spec.}
 \\\\
-\mbox{(Sequence)} &
+\textsc{[Seq]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2}{W(S_1;S_2;) = w_2}
 \\\\
-\mbox{(Branch)} &
+\textsc{[Branch]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ W(S_3) = w_3}
 {W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + w_2 + w_3}
 \\\\
-\mbox{(Unknown Lp)} &
-\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = \mbox{?}}
+\textsc{[LoopInf]} &
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = \infty}
 {W(\mbox{while} (S_1) \ S_2;) = 10 \times (w_1 + w_2)}
 \\\\
-\mbox{(Known Loop)} &
+\textsc{[LoopExp]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = E}
 {W(\mbox{while} (S_1) \ S_2;) = E \times (w_1 + w_2)}
 \end{tabular}
@@ -828,6 +852,16 @@ W(\mbox{instr}) = 1
 \end{figure}
 
 % Explain how we use symbolic information to compute costs.
+The declarative rules in Figure~\ref{fig:swe} sketches the heuristics that
+we use to compute the SWE for a given hammock region $S$.
+The only rules that deserves comments are \textsc{LoopInf} and
+\textsc{LoopExp}.
+The former applies on loops whose number of iterations we cannot bound via some
+symbolic expression computed statically.
+The latter represents loops that we can analyze using our Symbolic Range Analysis.
+The auxiliary function $X(S)$ returns a symbolic expression that represents
+the range of values covered by the code $S$ that controls the number of
+iterations of the loop.
 
 % Discuss the expansion algorithm.
 \paragraph{The Task Expansion Algorithm.}
