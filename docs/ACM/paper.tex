@@ -40,6 +40,7 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{paralist}
+\usepackage{mathpartir}
 
 % To turn comments OFF simply comment out the \Commentstrue line
 \newif\ifComments\Commentstrue
@@ -765,6 +766,71 @@ line 6 of Figure~\ref{fig:ex_Regions}.
 
 \subsection{Estimating the Profitability of Tasks}
 \label{sub:profit}
+
+% Explain the tension between large and small tasks.
+The benefit of creating tasks depend on two factors:
+runtime cost, and parallelism.
+These two factors lead to a sweet spot in the size of tasks, where size is
+measured as the amount of code they contain.
+The smaller the tasks are, the more parallel they tend to be, as a consequence
+of less dependencies.
+However, if tasks are too small, then the performance gained by the extra
+parallelism might not be enough to pay for the cost of managing them.
+On the other hand, if tasks are too big, then we might not obtain enough
+parallelism, because individual tasks still execute sequentially.
+In this paper, we extract the smallest thread above the runtime cost.
+To bestow meaning into this last statement, in what follows we define more
+formally the notions of task size and runtime cost.
+
+\paragraph{Estimating the Size of Tasks.}
+The size of a task is given by its workload, i.e., the number of instructions that
+such task executes.
+The same program region might lead to the creation of tasks with different sizes.
+Therefore, the actual size of a task is only known after the threads finishes
+execution.
+However, to judge if the creation of a task is worth its cost, we must be able to
+approximate its size statically.
+With this goal, we define the notion of static workload estimate:
+
+\begin{definition}[Static Workload Estimate (SWE)]
+\label{def:swe}
+Let $G = G_1 \cup G_2 \cup \ldots \cup G_n$ be a partition of a program's control
+flow graph $G$ into $n$ {\em maximal} hammock regions.
+We define the static workload estimate ($W(G)$) as a real number, such that
+$W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
+\end{definition}
+
+\begin{figure}[t!]
+\begin{small}
+\begin{eqnarray*}
+\begin{tabular}{lc}
+\mbox{(Instruction)} &
+W(\mbox{instr}) = 1
+\\\\
+\mbox{(Sequence)} &
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2}{W(S_1;S_2;) = w_2}
+\\\\
+\mbox{(Branch)} &
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ W(S_3) = w_3}
+{W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + w_2 + w_3}
+\\\\
+\mbox{(Unknown Lp)} &
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = \mbox{?}}
+{W(\mbox{while} (S_1) \ S_2;) = 10 \times (w_1 + w_2)}
+\\\\
+\mbox{(Known Loop)} &
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = E}
+{W(\mbox{while} (S_1) \ S_2;) = E \times (w_1 + w_2)}
+\end{tabular}
+\end{eqnarray*}
+\end{small}
+\caption{\label{fig:swe}Estimating the cost of tasks.}
+\end{figure}
+
+% Explain how we use symbolic information to compute costs.
+
+% Discuss the expansion algorithm.
+\paragraph{The Task Expansion Algorithm.}
 
 \pedro{We need to discuss the THRESHOLD. Are we going to use
 César's experiments at Unicamp concerning the different runtimes? 
