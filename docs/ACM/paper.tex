@@ -215,7 +215,7 @@ Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %\guido{What do you mean by modern accelerators? Not clear.}
 Combined with modern hardware accelerators such as GPUs and FPGAs, they have led
-to substantial performance gains~\cite{Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
+to substantial performance gains~\cite{Sura16Performance, Bertolli14,Mendonca17,Poesia17,Reyes12,Wienke12}.
 %\guido{Suppport what?}
 Nevertheless, although convenient, the use of annotations is not straightforward, 
 and still lacks supporting tools that help programmers to check if annotations
@@ -863,21 +863,12 @@ The auxiliary function $X(S)$ returns a symbolic expression that represents
 the range of values covered by the code $S$ that controls the number of
 iterations of the loop.
 
-% Discuss the expansion algorithm.
-\paragraph{The Task Expansion Algorithm.}
-
 \pedro{We need to discuss the THRESHOLD. Are we going to use
 César's experiments at Unicamp concerning the different runtimes? 
 Because if yes we need to think on how to write it.}
 
-\subsection{Limiting the Creation of Recursive Tasks}
-\label{sub:rec}
-
-\subsection{Separating Private from Shared Variables}
-\label{sub:variance}
-
-\subsection{Mapping IR onto Source Code}
-\label{sub:ir}
+% Discuss the expansion algorithm.
+\paragraph{The Task Expansion Algorithm.}
 
 \begin{definition}[Region expansion]
 \label{def:expansion}
@@ -903,6 +894,43 @@ ultimate step.
 \label{fig:expand_alg}
 \end{center}
 \end{figure}
+
+\subsection{Limiting the Creation of Recursive Tasks}
+\label{sub:rec}
+
+Although the OpenMP runtime guarantees correctness, its scheduling policy
+is heavily jeopardized by the excessive queueing up of tasks. Specifically, algorithms
+such as \emph{SparseLU} and \emph{FFT} can suffer bloat because of
+too many tasks in the Task Graph.  \cite{Kenjiro17}.
+
+\pedro{In the Kenjiro's paper: "This scheduling policy suffers in two situations: 
+(1) the parent is a long for loop creating a large number of children, 
+all these children cannot start until the parent finishes the task-generating loop (SparseLU); 
+(2) binary recursions that, rightly, spawn only the first recursive call as a task (FFT). 
+It imposes an upper bound for the ready task queue of a worker; a worker 
+is discouraged to create too many tasks ready on the queue"}.
+
+To solve this problem, we conservatively limit the number of tasks
+that can be created tied to the same Task Region. We do that by two means:
+(1) limiting the creation of recursive tasks by depth; (2) limiting the creation of 
+tasks in the whole program.
+
+Consider the FFT example, shown in Figure X.
+
+\pedro{Show FFT example}
+
+\pedro{Explain that the setting is conservative and thus the parameter of control
+(max recursion depth and total number of tasks) can be easily switched by the
+user, or even completely disabled.}
+
+
+\subsection{Separating Private from Shared Variables}
+\label{sub:variance}
+
+\subsection{Mapping IR onto Source Code}
+\label{sub:ir}
+
+
 
 
 \section{Evaluation}
@@ -977,6 +1005,9 @@ non-trivial speedups.}
 
 \section{Conclusion}
 \label{sec:conc}
+
+\pedro{As future work, we plan on performing Autotuning on {\Taskminer} to find good default parameters.
+Autotuning works for data-flow applications have been already done in \cite{Trancoso17, Emani15}}.
 
 \bibliography{references}
 
