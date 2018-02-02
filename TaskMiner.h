@@ -48,7 +48,7 @@ namespace llvm
 		static uint32_t RUNTIME_COST; //RUNTIME COST
 		static const uint32_t THRESHOLD = 1; //THRESHOLD	
 
-		TaskMiner() : ModulePass(ID) { N_WORKERS=12; RUNTIME_COST=500;}
+		TaskMiner() : ModulePass(ID) {}
 		~TaskMiner() { /*delete taskGraph;*/ }
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
 		bool runOnModule(Module &M) override;

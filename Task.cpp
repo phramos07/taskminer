@@ -53,6 +53,13 @@ raw_ostream& Task::printPrivateValues(raw_ostream &os) const
 		v->print(os);
 		os << "\n";
 	}
+	os << "\nSHARED VALUES:\n";
+	for (auto v : sharedValues)
+	{
+		os << "\t";
+		v->print(os);
+		os << "\n";
+	}
 }
 
 raw_ostream& Task::printLiveSets(raw_ostream& os) const
@@ -277,7 +284,7 @@ void FunctionCallTask::resolvePrivateValues()
 	for (auto &arg : functionCall->arg_operands())
 	{
 		if (isPointerValue(arg) && isa<AllocaInst>(arg))
-			privateValues.insert(arg);
+			sharedValues.insert(arg);
 	}
 }
 
@@ -404,7 +411,7 @@ void RecursiveTask::resolvePrivateValues()
 	for (auto &arg : recursiveCall->arg_operands())
 	{
 		if (isPointerValue(arg) && isa<AllocaInst>(arg))
-			privateValues.insert(arg);
+			sharedValues.insert(arg);
 	}
 }
 

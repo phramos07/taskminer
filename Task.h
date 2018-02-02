@@ -55,6 +55,8 @@ namespace llvm
 		CostModel getCost() const { return CM; }
 		std::set<Value*> getPrivateValues() { return privateValues; };
 		void addPrivateValue(Value* V) { privateValues.insert(V); };
+		std::set<Value*> getSharedValues() { return sharedValues; };
+		void addSharedValue(Value* V) { sharedValues.insert(V); };
 		Function* getParentFunction();
 
 		//Methods
@@ -84,6 +86,7 @@ namespace llvm
 		std::set<Value*> liveINOUT;
 		Loop* outerMost=0;
 		std::set<Value*> privateValues;
+		std::set<Value*> sharedValues;
 
 		//Private methods
 		AccessType getTypeFromInst(Instruction* I);

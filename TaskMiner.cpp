@@ -15,6 +15,9 @@ using namespace llvm;
 char TaskMiner::ID = 0;
 static RegisterPass<TaskMiner> E("taskminer", "Run the TaskMiner algorithm on a Module", false, false);
 
+uint32_t TaskMiner::N_WORKERS = 12; //NUMBER OF THREADS
+uint32_t TaskMiner::RUNTIME_COST = 500;
+
 static cl::opt<bool, false> printTaskGraph("print-task-graph",
   cl::desc("Print dot file containing the TASKGRAPH"), cl::NotHidden);
 
