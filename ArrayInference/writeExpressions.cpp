@@ -289,7 +289,6 @@ void WriteExpressions::regionIdentify (Region *R) {
   // Variable to know the if the restrict pragma exists.
   // Case exists, use to add the test on pragmas.
   std::string test;
-
   if (RC.analyzeLoop(l, line, ERROR_VALUE, ptrRA, rp, aa, se, li, dt, test)) {
    
     copyComments(RC.Comments);

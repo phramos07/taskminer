@@ -55,6 +55,7 @@ class RecoverExpressions : public FunctionPass {
   std::string NAME;
 
   int index;
+  int lid;
 
   std::set<Value*> liveIN;
   std::set<Value*> liveOUT;
@@ -62,7 +63,7 @@ class RecoverExpressions : public FunctionPass {
 
   ExtractSourceData esd;
 
-  std::map<Region*, RegionTask*> bbsRegion;
+  std::map<Loop*, RegionTask*> bbsRegion;
 
   std::map<Function*, bool> isRecursive;
 
@@ -121,21 +122,50 @@ class RecoverExpressions : public FunctionPass {
   // Analyze and annotate regions.
   void analyzeRegion(Region *R);
 
-  // Extract a pragma with ( in / out ) data transference. 
-  std::string extractDataPragma(Region *R);
-
   // Return the value with the pointer operand.
   Value *getPointerOperand(Instruction *Inst);
 
   // Set the task regions
   void getTaskRegions();
 
-  public:
+  std::string getPrivateStr (std::set<Value*> V);
+
+  std::string getDataPragmaRegion (std::map<std::string, std::string> & vctLower,
+                               std::map<std::string, std::string> & vctUpper,
+                               std::map<std::string, char> & vctPtMA);
+
+  bool isValidPrivateStr (std::set<Value*> V);
+
+  bool analyzeLoop (Loop* L, int Line, int LastLine, PtrRangeAnalysis *ptrRA,
+                    RegionInfoPass *rp, AliasAnalysis *aa, ScalarEvolution *se,
+                    LoopInfo *li, DominatorTree *dt);
+
+  std::string getUniqueString (std::map<std::string, std::string> & exp);
+
+  // Provide the cost using the phi nodes well knowed.
+  // The default cost (case cannot be represented by symbols) is ten.
+  std::string calculateLoopRangeCost(Loop *L);
+
+  // Count the instructions inside the loop.
+  int getStatitcLoopCost(Loop *L);
+
+  // Calculate the top Level loop cost.
+  std::string calculateTopLoopCost(Loop *L, std::string & comp);
+
+  // The map contains (source code symbol / provided annotator symbol).
+  std::string calculateLoopCost(Loop *L, std::map<std::string, std::string> &
+  smbexp);
+
+public:
 
   //===---------------------------------------------------------------------===
   //                              Data Structs
   //===---------------------------------------------------------------------===
    std::map<unsigned int, std::string> Comments;
+
+   uint32_t N_WORKERS; //NUMBER OF THREADS                          
+   uint32_t RUNTIME_COST; //RUNTIME COST                            
+   uint32_t THRESHOLD = 1; //THRESHOLD
   //===---------------------------------------------------------------------===
 
   static char ID;

@@ -1551,6 +1551,8 @@ set
 -
 stack
 -
+list
+-
 
 /home/gleison/lge/taskminer/TaskMiner.cpp
 llvm/Analysis/DominanceFrontier.h
@@ -1585,4 +1587,14 @@ Task.h
 /home/gleison/lge/taskminer/Task.h
 CostModel.h
 /home/gleison/lge/taskminer/CostModel.h
+TaskMinerUtils.h
+/home/gleison/lge/taskminer/TaskMinerUtils.h
+
+/home/gleison/lge/taskminer/TaskMinerUtils.h
+llvm/Analysis/LoopInfo.h
+/home/gleison/lge/taskminer/llvm/Analysis/LoopInfo.h
+vector
+-
+algorithm
+-
 

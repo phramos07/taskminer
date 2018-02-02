@@ -1435,7 +1435,6 @@ bool RecoverCode::analyzeLoop (Loop* L, int Line, int LastLine,
                                         RegionInfoPass *rp, AliasAnalysis *aa,
                                         ScalarEvolution *se, LoopInfo *li,
                                         DominatorTree *dt, std::string & test) {
-  
   // Initilize The Analisys with Default Values.
   initializeNewVars(); 
 
@@ -1534,7 +1533,6 @@ bool RecoverCode::analyzeRegion (Region *r, int Line, int LastLine,
                                         RegionInfoPass *rp, AliasAnalysis *aa,
                                         ScalarEvolution *se, LoopInfo *li,
                                         DominatorTree *dt, std::string & test) {
-
   // Initilize The Analisys with Default Values.
   initializeNewVars(); 
   Module *M = r->block_begin()->getParent()->getParent();
@@ -1568,7 +1566,7 @@ bool RecoverCode::analyzeRegion (Region *r, int Line, int LastLine,
   SCEVRangeBuilder rangeBuilder(se, DT, aa, li, dt, r, insertPt);
   // Generate and store both bounds for each base pointer in the region.
   for (auto& pair : ptrRA->RegionsRangeData[r].BasePtrsData) {
-    if (pointerDclInsideRegion(r,pair.first)) {
+    if (this->pointerDclInsideRegion(r,pair.first)) {
       continue;
     }
     // Adds "sizeof(element)" to the upper bound of a pointer, so it gives us

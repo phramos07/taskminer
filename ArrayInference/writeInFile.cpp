@@ -237,12 +237,15 @@ for (Module::iterator F = M.begin(), FE = M.end(); F != FE; ++F) {
     this->re = &getAnalysis<RecoverExpressions>(*F);
     this->re->setTasksList(tasksList);
     this->re->setTasksCalls(tasksCall);
+    this->re->N_WORKERS = this->tm->N_WORKERS;
+    this->re->RUNTIME_COST = this->tm->RUNTIME_COST;
+    this->re->THRESHOLD = this->tm->THRESHOLD;
     this->re = &getAnalysis<RecoverExpressions>(*F);
     copyComments(this->re->Comments);
   }
   else {
-    this->we = &getAnalysis<WriteExpressions>(*F);
-    copyComments(this->we->Comments);
+//    this->we = &getAnalysis<WriteExpressions>(*F);
+//    copyComments(this->we->Comments);
   }
 }   
 

@@ -1,0 +1,3450 @@
+---------- Running ./SYRK/syrk_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.005662s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 57600
+
+real	0m0.805s
+user	0m0.008s
+sys	0m0.464s
+----- RUN #2 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.005755s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 57600
+
+real	0m0.832s
+user	0m0.012s
+sys	0m0.488s
+----- RUN #3 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.005682s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 57600
+
+real	0m0.824s
+user	0m0.016s
+sys	0m0.488s
+----- RUN #4 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.005606s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 57600
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.504s
+----- RUN #5 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.005645s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 57600
+
+real	0m0.843s
+user	0m0.012s
+sys	0m0.472s
+---------- Running ./SYRK/syrk_MINI_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000214s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 900
+
+real	0m0.796s
+user	0m0.004s
+sys	0m0.500s
+----- RUN #2 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000212s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 900
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.508s
+----- RUN #3 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000216s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 900
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.464s
+----- RUN #4 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000214s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 900
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.480s
+----- RUN #5 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000215s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 900
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.484s
+---------- Running ./SYRK/syrk_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 10.370405s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m11.621s
+user	0m7.796s
+sys	0m3.460s
+----- RUN #2 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 10.385061s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m11.649s
+user	0m7.752s
+sys	0m3.484s
+----- RUN #3 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 10.392714s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m11.657s
+user	0m7.724s
+sys	0m3.540s
+----- RUN #4 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 10.384384s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m11.639s
+user	0m7.552s
+sys	0m3.684s
+----- RUN #5 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 10.381706s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m11.633s
+user	0m7.772s
+sys	0m3.484s
+---------- Running ./SYRK/syrk_LARGE_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 1.150683s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.063s
+user	0m0.788s
+sys	0m0.968s
+----- RUN #2 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 1.145216s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.069s
+user	0m0.764s
+sys	0m0.968s
+----- RUN #3 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 1.154162s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.060s
+user	0m0.844s
+sys	0m0.912s
+----- RUN #4 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 1.150383s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.068s
+user	0m0.784s
+sys	0m0.968s
+----- RUN #5 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 1.148393s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.008s
+user	0m0.780s
+sys	0m0.908s
+---------- Running ./SYRK/syrk_SMALL_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000449s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 6400
+
+real	0m0.757s
+user	0m0.008s
+sys	0m0.432s
+----- RUN #2 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000451s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 6400
+
+real	0m0.798s
+user	0m0.004s
+sys	0m0.524s
+----- RUN #3 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000450s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 6400
+
+real	0m0.803s
+user	0m0.000s
+sys	0m0.520s
+----- RUN #4 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000451s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 6400
+
+real	0m0.809s
+user	0m0.004s
+sys	0m0.472s
+----- RUN #5 -----
+<< Symmetric rank-k operations >>
+GPU Runtime: 0.000444s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 6400
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.484s
+---------- Running ./SYR2K/syr2k_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 12.518970s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m13.808s
+user	0m8.873s
+sys	0m4.544s
+----- RUN #2 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 12.509972s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m13.810s
+user	0m9.337s
+sys	0m4.088s
+----- RUN #3 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 12.555692s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m13.857s
+user	0m9.233s
+sys	0m4.228s
+----- RUN #4 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 12.469018s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m13.783s
+user	0m9.005s
+sys	0m4.348s
+----- RUN #5 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 12.509635s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5760000
+
+real	0m13.755s
+user	0m9.421s
+sys	0m3.964s
+---------- Running ./SYR2K/syr2k_LARGE_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 1.416241s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.351s
+user	0m0.980s
+sys	0m1.072s
+----- RUN #2 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 1.453242s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.384s
+user	0m1.032s
+sys	0m1.052s
+----- RUN #3 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 1.453710s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.341s
+user	0m0.996s
+sys	0m1.032s
+----- RUN #4 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 1.471505s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.346s
+user	0m0.996s
+sys	0m1.052s
+----- RUN #5 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 1.407720s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1440000
+
+real	0m2.361s
+user	0m0.980s
+sys	0m1.008s
+---------- Running ./SYR2K/syr2k_SMALL_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.001948s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16384
+
+real	0m0.804s
+user	0m0.004s
+sys	0m0.504s
+----- RUN #2 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.001948s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16384
+
+real	0m0.810s
+user	0m0.004s
+sys	0m0.508s
+----- RUN #3 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.001958s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16384
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.488s
+----- RUN #4 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.001948s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16384
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.460s
+----- RUN #5 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.001954s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16384
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.484s
+---------- Running ./SYR2K/syr2k_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.012404s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.811s
+user	0m0.012s
+sys	0m0.496s
+----- RUN #2 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.012419s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.828s
+user	0m0.012s
+sys	0m0.528s
+----- RUN #3 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.012449s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.841s
+user	0m0.004s
+sys	0m0.512s
+----- RUN #4 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.012447s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.828s
+user	0m0.016s
+sys	0m0.496s
+----- RUN #5 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.012532s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.845s
+user	0m0.016s
+sys	0m0.512s
+---------- Running ./SYR2K/syr2k_MINI_unified ----------
+----- RUN #1 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.000435s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m0.797s
+user	0m0.008s
+sys	0m0.504s
+----- RUN #2 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.000432s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m0.811s
+user	0m0.008s
+sys	0m0.480s
+----- RUN #3 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.000436s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m0.815s
+user	0m0.004s
+sys	0m0.472s
+----- RUN #4 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.000432s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m0.824s
+user	0m0.004s
+sys	0m0.484s
+----- RUN #5 -----
+<< Symmetric rank-2k operations >>
+GPU Runtime: 0.000439s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m0.799s
+user	0m0.008s
+sys	0m0.488s
+---------- Running ./GEMM/gemm_MINI_unified ----------
+----- RUN #1 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000185s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 625
+
+real	0m0.797s
+user	0m0.008s
+sys	0m0.488s
+----- RUN #2 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000184s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 625
+
+real	0m0.813s
+user	0m0.012s
+sys	0m0.468s
+----- RUN #3 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000185s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 625
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.484s
+----- RUN #4 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000185s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 625
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.492s
+----- RUN #5 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000185s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 625
+
+real	0m0.827s
+user	0m0.000s
+sys	0m0.476s
+---------- Running ./GEMM/gemm_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.001713s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.815s
+user	0m0.012s
+sys	0m0.472s
+----- RUN #2 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.001717s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.809s
+user	0m0.004s
+sys	0m0.496s
+----- RUN #3 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.001715s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.799s
+user	0m0.024s
+sys	0m0.464s
+----- RUN #4 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.001739s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.488s
+----- RUN #5 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.001706s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 65536
+
+real	0m0.813s
+user	0m0.012s
+sys	0m0.468s
+---------- Running ./GEMM/gemm_LARGE_unified ----------
+----- RUN #1 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.047690s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.953s
+user	0m0.040s
+sys	0m0.608s
+----- RUN #2 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.047656s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.941s
+user	0m0.060s
+sys	0m0.588s
+----- RUN #3 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.047692s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.957s
+user	0m0.044s
+sys	0m0.568s
+----- RUN #4 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.047644s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.941s
+user	0m0.052s
+sys	0m0.592s
+----- RUN #5 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.047699s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.942s
+user	0m0.056s
+sys	0m0.592s
+---------- Running ./GEMM/gemm_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.520555s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5290000
+
+real	0m1.799s
+user	0m0.324s
+sys	0m1.104s
+----- RUN #2 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.507257s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5290000
+
+real	0m1.727s
+user	0m0.340s
+sys	0m1.044s
+----- RUN #3 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.554215s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5290000
+
+real	0m1.819s
+user	0m0.336s
+sys	0m1.104s
+----- RUN #4 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.543880s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5290000
+
+real	0m1.803s
+user	0m0.336s
+sys	0m1.100s
+----- RUN #5 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.543410s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 5290000
+
+real	0m1.809s
+user	0m0.380s
+sys	0m1.044s
+---------- Running ./GEMM/gemm_SMALL_unified ----------
+----- RUN #1 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000272s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4900
+
+real	0m0.741s
+user	0m0.000s
+sys	0m0.452s
+----- RUN #2 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000271s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4900
+
+real	0m0.813s
+user	0m0.012s
+sys	0m0.468s
+----- RUN #3 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000273s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4900
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.520s
+----- RUN #4 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000272s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4900
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.492s
+----- RUN #5 -----
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 0.000273s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4900
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.480s
+---------- Running ./CORR/correlation_SMALL_unified ----------
+----- RUN #1 -----
+<< Correlation Computation >>
+GPU Runtime: 0.160485s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 64004
+
+real	0m0.953s
+user	0m0.108s
+sys	0m0.532s
+----- RUN #2 -----
+<< Correlation Computation >>
+GPU Runtime: 0.160827s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 64004
+
+real	0m0.942s
+user	0m0.116s
+sys	0m0.536s
+----- RUN #3 -----
+<< Correlation Computation >>
+GPU Runtime: 0.159934s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 64004
+
+real	0m0.956s
+user	0m0.096s
+sys	0m0.560s
+----- RUN #4 -----
+<< Correlation Computation >>
+GPU Runtime: 0.160820s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 64004
+
+real	0m0.942s
+user	0m0.104s
+sys	0m0.548s
+----- RUN #5 -----
+<< Correlation Computation >>
+GPU Runtime: 0.159864s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 64004
+
+real	0m0.956s
+user	0m0.080s
+sys	0m0.540s
+---------- Running ./CORR/correlation_MINI_unified ----------
+----- RUN #1 -----
+<< Correlation Computation >>
+GPU Runtime: 0.039830s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16130
+
+real	0m0.855s
+user	0m0.024s
+sys	0m0.504s
+----- RUN #2 -----
+<< Correlation Computation >>
+GPU Runtime: 0.039833s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16130
+
+real	0m0.865s
+user	0m0.032s
+sys	0m0.488s
+----- RUN #3 -----
+<< Correlation Computation >>
+GPU Runtime: 0.039832s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16130
+
+real	0m0.846s
+user	0m0.044s
+sys	0m0.492s
+----- RUN #4 -----
+<< Correlation Computation >>
+GPU Runtime: 0.039837s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16130
+
+real	0m0.861s
+user	0m0.032s
+sys	0m0.500s
+----- RUN #5 -----
+<< Correlation Computation >>
+GPU Runtime: 0.039832s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16130
+
+real	0m0.862s
+user	0m0.024s
+sys	0m0.500s
+---------- Running ./CORR/correlation_LARGE_unified ----------
+----- RUN #1 -----
+<< Correlation Computation >>
+GPU Runtime: 2.412968s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1047281
+
+real	0m3.269s
+user	0m1.764s
+sys	0m1.208s
+----- RUN #2 -----
+<< Correlation Computation >>
+GPU Runtime: 2.414135s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1047281
+
+real	0m3.265s
+user	0m1.660s
+sys	0m1.296s
+----- RUN #3 -----
+<< Correlation Computation >>
+GPU Runtime: 2.413792s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1047281
+
+real	0m3.230s
+user	0m1.716s
+sys	0m1.196s
+----- RUN #4 -----
+<< Correlation Computation >>
+GPU Runtime: 2.408026s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1047281
+
+real	0m3.262s
+user	0m1.776s
+sys	0m1.200s
+----- RUN #5 -----
+<< Correlation Computation >>
+GPU Runtime: 2.413263s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1047281
+
+real	0m3.266s
+user	0m1.672s
+sys	0m1.300s
+---------- Running ./CORR/correlation_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Correlation Computation >>
+GPU Runtime: 10.015723s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4177001
+
+real	0m11.098s
+user	0m7.396s
+sys	0m3.352s
+----- RUN #2 -----
+<< Correlation Computation >>
+GPU Runtime: 10.024171s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4177001
+
+real	0m11.030s
+user	0m7.448s
+sys	0m3.292s
+----- RUN #3 -----
+<< Correlation Computation >>
+GPU Runtime: 10.023339s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4177001
+
+real	0m11.108s
+user	0m7.372s
+sys	0m3.400s
+----- RUN #4 -----
+<< Correlation Computation >>
+GPU Runtime: 10.055664s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4177001
+
+real	0m11.129s
+user	0m7.460s
+sys	0m3.352s
+----- RUN #5 -----
+<< Correlation Computation >>
+GPU Runtime: 10.066770s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4177001
+
+real	0m11.054s
+user	0m7.492s
+sys	0m3.256s
+---------- Running ./CORR/correlation_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Correlation Computation >>
+GPU Runtime: 0.615923s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m1.454s
+user	0m0.408s
+sys	0m0.712s
+----- RUN #2 -----
+<< Correlation Computation >>
+GPU Runtime: 0.615170s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m1.429s
+user	0m0.428s
+sys	0m0.696s
+----- RUN #3 -----
+<< Correlation Computation >>
+GPU Runtime: 0.614870s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m1.426s
+user	0m0.408s
+sys	0m0.720s
+----- RUN #4 -----
+<< Correlation Computation >>
+GPU Runtime: 0.616525s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m1.436s
+user	0m0.384s
+sys	0m0.748s
+----- RUN #5 -----
+<< Correlation Computation >>
+GPU Runtime: 0.614649s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m1.432s
+user	0m0.432s
+sys	0m0.708s
+---------- Running ./COVAR/covariance_SMALL_unified ----------
+----- RUN #1 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000832s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 65536
+
+real	0m0.798s
+user	0m0.008s
+sys	0m0.528s
+----- RUN #2 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000847s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 65536
+
+real	0m0.828s
+user	0m0.012s
+sys	0m0.496s
+----- RUN #3 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000821s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 65536
+
+real	0m0.798s
+user	0m0.004s
+sys	0m0.496s
+----- RUN #4 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000822s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 65536
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.480s
+----- RUN #5 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000818s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 65536
+
+real	0m0.799s
+user	0m0.012s
+sys	0m0.484s
+---------- Running ./COVAR/covariance_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Covariance Computation >>
+GPU Runtime: 0.003873s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m0.830s
+user	0m0.012s
+sys	0m0.496s
+----- RUN #2 -----
+<< Covariance Computation >>
+GPU Runtime: 0.003884s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m0.824s
+user	0m0.020s
+sys	0m0.488s
+----- RUN #3 -----
+<< Covariance Computation >>
+GPU Runtime: 0.003889s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m0.828s
+user	0m0.016s
+sys	0m0.512s
+----- RUN #4 -----
+<< Covariance Computation >>
+GPU Runtime: 0.003881s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m0.855s
+user	0m0.004s
+sys	0m0.524s
+----- RUN #5 -----
+<< Covariance Computation >>
+GPU Runtime: 0.003871s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 262144
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.516s
+---------- Running ./COVAR/covariance_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Covariance Computation >>
+GPU Runtime: 0.302000s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4194303
+
+real	0m1.405s
+user	0m0.236s
+sys	0m0.816s
+----- RUN #2 -----
+<< Covariance Computation >>
+GPU Runtime: 0.301743s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4194303
+
+real	0m1.388s
+user	0m0.284s
+sys	0m0.784s
+----- RUN #3 -----
+<< Covariance Computation >>
+GPU Runtime: 0.301552s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4194303
+
+real	0m1.317s
+user	0m0.232s
+sys	0m0.784s
+----- RUN #4 -----
+<< Covariance Computation >>
+GPU Runtime: 0.302407s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4194303
+
+real	0m1.369s
+user	0m0.264s
+sys	0m0.788s
+----- RUN #5 -----
+<< Covariance Computation >>
+GPU Runtime: 0.302918s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 4194303
+
+real	0m1.384s
+user	0m0.264s
+sys	0m0.824s
+---------- Running ./COVAR/covariance_MINI_unified ----------
+----- RUN #1 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000321s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16384
+
+real	0m0.822s
+user	0m0.004s
+sys	0m0.468s
+----- RUN #2 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000320s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16384
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.472s
+----- RUN #3 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000322s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16384
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.480s
+----- RUN #4 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000322s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16384
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.480s
+----- RUN #5 -----
+<< Covariance Computation >>
+GPU Runtime: 0.000362s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 16384
+
+real	0m0.833s
+user	0m0.008s
+sys	0m0.508s
+---------- Running ./COVAR/covariance_LARGE_unified ----------
+----- RUN #1 -----
+<< Covariance Computation >>
+GPU Runtime: 0.031637s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1048576
+
+real	0m0.918s
+user	0m0.032s
+sys	0m0.528s
+----- RUN #2 -----
+<< Covariance Computation >>
+GPU Runtime: 0.031791s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1048576
+
+real	0m0.913s
+user	0m0.048s
+sys	0m0.532s
+----- RUN #3 -----
+<< Covariance Computation >>
+GPU Runtime: 0.031952s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1048576
+
+real	0m0.914s
+user	0m0.040s
+sys	0m0.548s
+----- RUN #4 -----
+<< Covariance Computation >>
+GPU Runtime: 0.031929s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1048576
+
+real	0m0.927s
+user	0m0.024s
+sys	0m0.584s
+----- RUN #5 -----
+<< Covariance Computation >>
+GPU Runtime: 0.032006s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 1048576
+
+real	0m0.913s
+user	0m0.036s
+sys	0m0.552s
+---------- Running ./3MM/3mm_LARGE_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.109501s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.997s
+user	0m0.092s
+sys	0m0.624s
+----- RUN #2 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.109617s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.999s
+user	0m0.072s
+sys	0m0.620s
+----- RUN #3 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.109586s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m1.017s
+user	0m0.072s
+sys	0m0.636s
+----- RUN #4 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.109524s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m1.011s
+user	0m0.068s
+sys	0m0.628s
+----- RUN #5 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.109553s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1048576
+
+real	0m0.997s
+user	0m0.080s
+sys	0m0.632s
+---------- Running ./3MM/3mm_MINI_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000259s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 992
+
+real	0m0.798s
+user	0m0.000s
+sys	0m0.476s
+----- RUN #2 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000237s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 992
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.452s
+----- RUN #3 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000236s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 992
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.452s
+----- RUN #4 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000236s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 992
+
+real	0m0.799s
+user	0m0.016s
+sys	0m0.500s
+----- RUN #5 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000239s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 992
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.484s
+---------- Running ./3MM/3mm_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.728660s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4194264
+
+real	0m1.907s
+user	0m0.476s
+sys	0m1.064s
+----- RUN #2 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.731266s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4194264
+
+real	0m1.848s
+user	0m0.548s
+sys	0m0.968s
+----- RUN #3 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.735606s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4194264
+
+real	0m1.923s
+user	0m0.480s
+sys	0m1.056s
+----- RUN #4 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.735155s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4194264
+
+real	0m1.908s
+user	0m0.516s
+sys	0m1.044s
+----- RUN #5 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.734872s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4194264
+
+real	0m1.931s
+user	0m0.472s
+sys	0m1.064s
+---------- Running ./3MM/3mm_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.015830s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 262142
+
+real	0m0.870s
+user	0m0.012s
+sys	0m0.508s
+----- RUN #2 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.015825s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 262142
+
+real	0m0.847s
+user	0m0.012s
+sys	0m0.508s
+----- RUN #3 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.015840s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 262142
+
+real	0m0.861s
+user	0m0.012s
+sys	0m0.528s
+----- RUN #4 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.015832s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 262142
+
+real	0m0.871s
+user	0m0.024s
+sys	0m0.512s
+----- RUN #5 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.015844s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 262142
+
+real	0m0.856s
+user	0m0.016s
+sys	0m0.520s
+---------- Running ./3MM/3mm_SMALL_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000685s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16382
+
+real	0m0.814s
+user	0m0.000s
+sys	0m0.492s
+----- RUN #2 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000697s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16382
+
+real	0m0.810s
+user	0m0.008s
+sys	0m0.468s
+----- RUN #3 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000677s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16382
+
+real	0m0.802s
+user	0m0.000s
+sys	0m0.492s
+----- RUN #4 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000678s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16382
+
+real	0m0.809s
+user	0m0.000s
+sys	0m0.492s
+----- RUN #5 -----
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 0.000676s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16382
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.484s
+---------- Running ./2MM/2mm_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.012080s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 261632
+
+real	0m0.850s
+user	0m0.012s
+sys	0m0.536s
+----- RUN #2 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.012062s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 261632
+
+real	0m0.861s
+user	0m0.012s
+sys	0m0.488s
+----- RUN #3 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.012071s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 261632
+
+real	0m0.836s
+user	0m0.012s
+sys	0m0.492s
+----- RUN #4 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.012092s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 261632
+
+real	0m0.832s
+user	0m0.024s
+sys	0m0.528s
+----- RUN #5 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.012083s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 261632
+
+real	0m0.828s
+user	0m0.016s
+sys	0m0.492s
+---------- Running ./2MM/2mm_MINI_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000213s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.796s
+user	0m0.004s
+sys	0m0.484s
+----- RUN #2 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000217s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.488s
+----- RUN #3 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000213s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.813s
+user	0m0.000s
+sys	0m0.500s
+----- RUN #4 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000212s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.472s
+----- RUN #5 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000214s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.827s
+user	0m0.008s
+sys	0m0.456s
+---------- Running ./2MM/2mm_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.531003s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4192256
+
+real	0m1.729s
+user	0m0.392s
+sys	0m0.948s
+----- RUN #2 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.531672s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4192256
+
+real	0m1.728s
+user	0m0.348s
+sys	0m0.980s
+----- RUN #3 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.529265s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4192256
+
+real	0m1.744s
+user	0m0.348s
+sys	0m1.012s
+----- RUN #4 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.525914s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4192256
+
+real	0m1.658s
+user	0m0.360s
+sys	0m0.968s
+----- RUN #5 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.525761s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4192256
+
+real	0m1.659s
+user	0m0.364s
+sys	0m0.968s
+---------- Running ./2MM/2mm_SMALL_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000586s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16383
+
+real	0m0.808s
+user	0m0.004s
+sys	0m0.512s
+----- RUN #2 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000590s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16383
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.496s
+----- RUN #3 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000617s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16383
+
+real	0m0.828s
+user	0m0.004s
+sys	0m0.480s
+----- RUN #4 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000590s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16383
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.468s
+----- RUN #5 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.000596s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 16383
+
+real	0m0.799s
+user	0m0.008s
+sys	0m0.488s
+---------- Running ./2MM/2mm_LARGE_unified ----------
+----- RUN #1 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.078984s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1047552
+
+real	0m0.972s
+user	0m0.056s
+sys	0m0.612s
+----- RUN #2 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.079068s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1047552
+
+real	0m0.981s
+user	0m0.052s
+sys	0m0.632s
+----- RUN #3 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.079031s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1047552
+
+real	0m0.987s
+user	0m0.064s
+sys	0m0.616s
+----- RUN #4 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.079005s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1047552
+
+real	0m0.988s
+user	0m0.064s
+sys	0m0.644s
+----- RUN #5 -----
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 0.079083s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1047552
+
+real	0m0.984s
+user	0m0.060s
+sys	0m0.632s
+---------- Running ./ATAX/atax_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.005556s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 1023
+
+real	0m0.819s
+user	0m0.008s
+sys	0m0.496s
+----- RUN #2 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.005547s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 1023
+
+real	0m0.842s
+user	0m0.004s
+sys	0m0.512s
+----- RUN #3 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.005551s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 1023
+
+real	0m0.843s
+user	0m0.004s
+sys	0m0.508s
+----- RUN #4 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.005558s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 1023
+
+real	0m0.840s
+user	0m0.000s
+sys	0m0.512s
+----- RUN #5 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.005576s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 1023
+
+real	0m0.835s
+user	0m0.008s
+sys	0m0.500s
+---------- Running ./ATAX/atax_LARGE_unified ----------
+----- RUN #1 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.083897s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 4096
+
+real	0m1.133s
+user	0m0.036s
+sys	0m0.708s
+----- RUN #2 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.083256s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 4096
+
+real	0m1.140s
+user	0m0.036s
+sys	0m0.704s
+----- RUN #3 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.083873s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 4096
+
+real	0m1.137s
+user	0m0.028s
+sys	0m0.720s
+----- RUN #4 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.083830s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 4096
+
+real	0m1.133s
+user	0m0.028s
+sys	0m0.720s
+----- RUN #5 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.084721s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 4096
+
+real	0m1.142s
+user	0m0.040s
+sys	0m0.716s
+---------- Running ./ATAX/atax_SMALL_unified ----------
+----- RUN #1 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.001768s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 512
+
+real	0m0.810s
+user	0m0.000s
+sys	0m0.516s
+----- RUN #2 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.001749s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 512
+
+real	0m0.806s
+user	0m0.008s
+sys	0m0.512s
+----- RUN #3 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.001747s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 512
+
+real	0m0.820s
+user	0m0.004s
+sys	0m0.520s
+----- RUN #4 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.001744s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 512
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.512s
+----- RUN #5 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.001799s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 512
+
+real	0m0.813s
+user	0m0.000s
+sys	0m0.500s
+---------- Running ./ATAX/atax_MINI_unified ----------
+----- RUN #1 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.000723s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 256
+
+real	0m0.811s
+user	0m0.004s
+sys	0m0.488s
+----- RUN #2 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.000718s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 256
+
+real	0m0.813s
+user	0m0.000s
+sys	0m0.512s
+----- RUN #3 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.000681s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 256
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.512s
+----- RUN #4 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.000681s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 256
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.464s
+----- RUN #5 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.000683s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 256
+
+real	0m0.802s
+user	0m0.000s
+sys	0m0.484s
+---------- Running ./ATAX/atax_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.315428s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 8192
+
+real	0m2.019s
+user	0m0.132s
+sys	0m1.328s
+----- RUN #2 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.316530s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 8192
+
+real	0m1.986s
+user	0m0.132s
+sys	0m1.292s
+----- RUN #3 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.315756s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 8192
+
+real	0m2.009s
+user	0m0.112s
+sys	0m1.320s
+----- RUN #4 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.314668s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 8192
+
+real	0m2.023s
+user	0m0.112s
+sys	0m1.340s
+----- RUN #5 -----
+<< Matrix Transpose and Vector Multiplication >>
+GPU Runtime: 0.314992s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 8192
+
+real	0m2.030s
+user	0m0.160s
+sys	0m1.300s
+---------- Running ./GRAMSCHM/gramschmidt_MINI_unified ----------
+----- RUN #1 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.002683s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 889
+
+real	0m0.798s
+user	0m0.004s
+sys	0m0.504s
+----- RUN #2 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.002686s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 889
+
+real	0m0.827s
+user	0m0.004s
+sys	0m0.492s
+----- RUN #3 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.002759s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 889
+
+real	0m0.817s
+user	0m0.004s
+sys	0m0.516s
+----- RUN #4 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.002685s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 889
+
+real	0m0.810s
+user	0m0.012s
+sys	0m0.504s
+----- RUN #5 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.002685s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 889
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.476s
+---------- Running ./GRAMSCHM/gramschmidt_SMALL_unified ----------
+----- RUN #1 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.010179s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1773
+
+real	0m0.827s
+user	0m0.012s
+sys	0m0.488s
+----- RUN #2 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.010180s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1773
+
+real	0m0.811s
+user	0m0.008s
+sys	0m0.528s
+----- RUN #3 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.010185s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1773
+
+real	0m0.842s
+user	0m0.012s
+sys	0m0.512s
+----- RUN #4 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.010185s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1773
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.500s
+----- RUN #5 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.010179s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1773
+
+real	0m0.813s
+user	0m0.000s
+sys	0m0.508s
+---------- Running ./GRAMSCHM/gramschmidt_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.058840s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 3541
+
+real	0m0.864s
+user	0m0.028s
+sys	0m0.524s
+----- RUN #2 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.058814s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 3541
+
+real	0m0.874s
+user	0m0.040s
+sys	0m0.552s
+----- RUN #3 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.058816s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 3541
+
+real	0m0.872s
+user	0m0.044s
+sys	0m0.528s
+----- RUN #4 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.058821s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 3541
+
+real	0m0.883s
+user	0m0.040s
+sys	0m0.524s
+----- RUN #5 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.058885s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 3541
+
+real	0m0.884s
+user	0m0.032s
+sys	0m0.520s
+---------- Running ./GRAMSCHM/gramschmidt_LARGE_unified ----------
+----- RUN #1 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.442760s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7075
+
+real	0m1.253s
+user	0m0.284s
+sys	0m0.680s
+----- RUN #2 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.444051s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7075
+
+real	0m1.255s
+user	0m0.284s
+sys	0m0.656s
+----- RUN #3 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.444615s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7075
+
+real	0m1.242s
+user	0m0.296s
+sys	0m0.652s
+----- RUN #4 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.444293s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7075
+
+real	0m1.241s
+user	0m0.296s
+sys	0m0.632s
+----- RUN #5 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 0.444605s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7075
+
+real	0m1.245s
+user	0m0.316s
+sys	0m0.644s
+---------- Running ./GRAMSCHM/gramschmidt_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 3.415374s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 14146
+
+real	0m4.272s
+user	0m2.460s
+sys	0m1.492s
+----- RUN #2 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 3.416663s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 14146
+
+real	0m4.214s
+user	0m2.464s
+sys	0m1.488s
+----- RUN #3 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 3.429030s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 14146
+
+real	0m4.291s
+user	0m2.428s
+sys	0m1.592s
+----- RUN #4 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 3.423115s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 14146
+
+real	0m4.281s
+user	0m2.448s
+sys	0m1.536s
+----- RUN #5 -----
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 3.415573s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 14146
+
+real	0m4.280s
+user	0m2.472s
+sys	0m1.460s
+---------- Running ./MVT/mvt_LARGE_unified ----------
+----- RUN #1 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.020862s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4094
+
+real	0m0.841s
+user	0m0.020s
+sys	0m0.512s
+----- RUN #2 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.020865s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4094
+
+real	0m0.915s
+user	0m0.016s
+sys	0m0.580s
+----- RUN #3 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.021018s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4094
+
+real	0m0.915s
+user	0m0.004s
+sys	0m0.576s
+----- RUN #4 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.020868s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4094
+
+real	0m0.903s
+user	0m0.012s
+sys	0m0.556s
+----- RUN #5 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.021037s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4094
+
+real	0m0.904s
+user	0m0.016s
+sys	0m0.556s
+---------- Running ./MVT/mvt_MINI_unified ----------
+----- RUN #1 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000414s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 254
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.488s
+----- RUN #2 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000418s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 254
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.496s
+----- RUN #3 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000415s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 254
+
+real	0m0.814s
+user	0m0.008s
+sys	0m0.484s
+----- RUN #4 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000414s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 254
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.476s
+----- RUN #5 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000416s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 254
+
+real	0m0.799s
+user	0m0.000s
+sys	0m0.512s
+---------- Running ./MVT/mvt_SMALL_unified ----------
+----- RUN #1 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000727s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 510
+
+real	0m0.801s
+user	0m0.008s
+sys	0m0.468s
+----- RUN #2 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000725s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 510
+
+real	0m0.824s
+user	0m0.004s
+sys	0m0.484s
+----- RUN #3 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000727s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 510
+
+real	0m0.799s
+user	0m0.012s
+sys	0m0.472s
+----- RUN #4 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000725s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 510
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.496s
+----- RUN #5 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.000729s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 510
+
+real	0m0.799s
+user	0m0.012s
+sys	0m0.464s
+---------- Running ./MVT/mvt_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.084170s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 8190
+
+real	0m1.120s
+user	0m0.036s
+sys	0m0.720s
+----- RUN #2 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.084809s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 8190
+
+real	0m1.142s
+user	0m0.036s
+sys	0m0.716s
+----- RUN #3 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.084099s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 8190
+
+real	0m1.131s
+user	0m0.020s
+sys	0m0.752s
+----- RUN #4 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.084373s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 8190
+
+real	0m1.128s
+user	0m0.044s
+sys	0m0.692s
+----- RUN #5 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.083689s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 8190
+
+real	0m1.121s
+user	0m0.028s
+sys	0m0.700s
+---------- Running ./MVT/mvt_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.001766s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1022
+
+real	0m0.815s
+user	0m0.000s
+sys	0m0.512s
+----- RUN #2 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.001766s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1022
+
+real	0m0.831s
+user	0m0.008s
+sys	0m0.500s
+----- RUN #3 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.001762s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1022
+
+real	0m0.824s
+user	0m0.008s
+sys	0m0.492s
+----- RUN #4 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.001786s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1022
+
+real	0m0.799s
+user	0m0.008s
+sys	0m0.484s
+----- RUN #5 -----
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.001769s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1022
+
+real	0m0.828s
+user	0m0.012s
+sys	0m0.516s
+---------- Running ./BICG/bicg_SMALL_unified ----------
+----- RUN #1 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.001754s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 1022
+
+real	0m0.810s
+user	0m0.000s
+sys	0m0.476s
+----- RUN #2 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.001764s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 1022
+
+real	0m0.813s
+user	0m0.000s
+sys	0m0.520s
+----- RUN #3 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.001759s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 1022
+
+real	0m0.827s
+user	0m0.000s
+sys	0m0.512s
+----- RUN #4 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.001754s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 1022
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.512s
+----- RUN #5 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.001778s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 1022
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.488s
+---------- Running ./BICG/bicg_LARGE_unified ----------
+----- RUN #1 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.084652s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8190
+
+real	0m1.111s
+user	0m0.028s
+sys	0m0.728s
+----- RUN #2 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.083496s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8190
+
+real	0m1.145s
+user	0m0.028s
+sys	0m0.712s
+----- RUN #3 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.084050s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8190
+
+real	0m1.119s
+user	0m0.028s
+sys	0m0.712s
+----- RUN #4 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.084221s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8190
+
+real	0m1.133s
+user	0m0.032s
+sys	0m0.716s
+----- RUN #5 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.083875s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8190
+
+real	0m1.121s
+user	0m0.040s
+sys	0m0.736s
+---------- Running ./BICG/bicg_MINI_unified ----------
+----- RUN #1 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.000693s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 512
+
+real	0m0.802s
+user	0m0.008s
+sys	0m0.492s
+----- RUN #2 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.000716s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 512
+
+real	0m0.817s
+user	0m0.012s
+sys	0m0.488s
+----- RUN #3 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.000692s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 512
+
+real	0m0.810s
+user	0m0.008s
+sys	0m0.500s
+----- RUN #4 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.000693s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 512
+
+real	0m0.813s
+user	0m0.000s
+sys	0m0.492s
+----- RUN #5 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.000725s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 512
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.504s
+---------- Running ./BICG/bicg_MEDIUM_unified ----------
+----- RUN #1 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.005670s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 2048
+
+real	0m0.840s
+user	0m0.008s
+sys	0m0.496s
+----- RUN #2 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.005564s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 2048
+
+real	0m0.828s
+user	0m0.000s
+sys	0m0.512s
+----- RUN #3 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.005578s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 2048
+
+real	0m0.827s
+user	0m0.008s
+sys	0m0.536s
+----- RUN #4 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.005555s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 2048
+
+real	0m0.832s
+user	0m0.032s
+sys	0m0.504s
+----- RUN #5 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.005564s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 2048
+
+real	0m0.827s
+user	0m0.004s
+sys	0m0.524s
+---------- Running ./BICG/bicg_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.317491s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8192
+
+real	0m2.014s
+user	0m0.144s
+sys	0m1.328s
+----- RUN #2 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.318180s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8192
+
+real	0m2.042s
+user	0m0.120s
+sys	0m1.360s
+----- RUN #3 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.316777s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8192
+
+real	0m2.043s
+user	0m0.116s
+sys	0m1.316s
+----- RUN #4 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.316356s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8192
+
+real	0m2.022s
+user	0m0.120s
+sys	0m1.336s
+----- RUN #5 -----
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 0.318413s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 8192
+
+real	0m1.956s
+user	0m0.128s
+sys	0m1.276s
+---------- Running ./FDTD-2D/fdtd2d_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 2.372660s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5186887
+
+real	0m3.685s
+user	0m1.564s
+sys	0m1.692s
+----- RUN #2 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 2.375307s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5185964
+
+real	0m3.694s
+user	0m1.708s
+sys	0m1.588s
+----- RUN #3 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 2.385468s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5185105
+
+real	0m3.713s
+user	0m1.608s
+sys	0m1.716s
+----- RUN #4 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 2.387610s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5184196
+
+real	0m3.719s
+user	0m1.608s
+sys	0m1.696s
+----- RUN #5 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 2.382041s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5183320
+
+real	0m3.695s
+user	0m1.684s
+sys	0m1.620s
+---------- Running ./FDTD-2D/fdtd2d_LARGE_unified ----------
+----- RUN #1 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.367681s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 1326121
+
+real	0m1.243s
+user	0m0.268s
+sys	0m0.664s
+----- RUN #2 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.368995s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 1325974
+
+real	0m1.309s
+user	0m0.272s
+sys	0m0.720s
+----- RUN #3 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.368057s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 1325885
+
+real	0m1.313s
+user	0m0.240s
+sys	0m0.728s
+----- RUN #4 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.369928s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 1325780
+
+real	0m1.303s
+user	0m0.256s
+sys	0m0.716s
+----- RUN #5 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.368934s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 1325702
+
+real	0m1.308s
+user	0m0.244s
+sys	0m0.776s
+---------- Running ./FDTD-2D/fdtd2d_MINI_unified ----------
+----- RUN #1 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.001287s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 390
+
+real	0m0.797s
+user	0m0.000s
+sys	0m0.492s
+----- RUN #2 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.001348s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 390
+
+real	0m0.813s
+user	0m0.012s
+sys	0m0.488s
+----- RUN #3 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.001384s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 391
+
+real	0m0.816s
+user	0m0.004s
+sys	0m0.520s
+----- RUN #4 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.001270s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 389
+
+real	0m0.824s
+user	0m0.004s
+sys	0m0.512s
+----- RUN #5 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.001273s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 389
+
+real	0m0.803s
+user	0m0.008s
+sys	0m0.504s
+---------- Running ./FDTD-2D/fdtd2d_SMALL_unified ----------
+----- RUN #1 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.002598s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5982
+
+real	0m0.797s
+user	0m0.020s
+sys	0m0.500s
+----- RUN #2 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.002565s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 5991
+
+real	0m0.810s
+user	0m0.008s
+sys	0m0.484s
+----- RUN #3 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.002547s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 6011
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.504s
+----- RUN #4 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.002566s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 6020
+
+real	0m0.799s
+user	0m0.004s
+sys	0m0.492s
+----- RUN #5 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.002600s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 6030
+
+real	0m0.814s
+user	0m0.008s
+sys	0m0.504s
+---------- Running ./FDTD-2D/fdtd2d_MEDIUM_unified ----------
+----- RUN #1 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.009643s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 58812
+
+real	0m0.811s
+user	0m0.016s
+sys	0m0.504s
+----- RUN #2 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.009724s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 58808
+
+real	0m0.813s
+user	0m0.008s
+sys	0m0.504s
+----- RUN #3 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.009699s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 58804
+
+real	0m0.842s
+user	0m0.016s
+sys	0m0.492s
+----- RUN #4 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.009670s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 58783
+
+real	0m0.828s
+user	0m0.004s
+sys	0m0.500s
+----- RUN #5 -----
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 0.009819s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 58758
+
+real	0m0.828s
+user	0m0.016s
+sys	0m0.480s
+---------- Running ./2DCONV/2DConvolution_EXTRALARGE_unified ----------
+----- RUN #1 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.402902s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 99608715
+
+real	0m8.573s
+user	0m3.776s
+sys	0m4.080s
+----- RUN #2 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.403028s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 99608715
+
+real	0m8.544s
+user	0m3.716s
+sys	0m4.152s
+----- RUN #3 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.403390s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 99608715
+
+real	0m8.534s
+user	0m3.784s
+sys	0m4.068s
+----- RUN #4 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.403740s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 99608715
+
+real	0m8.589s
+user	0m3.792s
+sys	0m4.080s
+----- RUN #5 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.404203s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 99608715
+
+real	0m8.582s
+user	0m3.840s
+sys	0m4.060s
+---------- Running ./2DCONV/2DConvolution_LARGE_unified ----------
+----- RUN #1 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.068352s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7186029
+
+real	0m2.220s
+user	0m0.732s
+sys	0m1.124s
+----- RUN #2 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.068213s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7186029
+
+real	0m2.198s
+user	0m0.760s
+sys	0m1.088s
+----- RUN #3 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.068559s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7186029
+
+real	0m2.222s
+user	0m0.676s
+sys	0m1.156s
+----- RUN #4 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.068087s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7186029
+
+real	0m2.227s
+user	0m0.684s
+sys	0m1.180s
+----- RUN #5 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.068458s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 7186029
+
+real	0m2.227s
+user	0m0.732s
+sys	0m1.124s
+---------- Running ./2DCONV/2DConvolution_MINI_unified ----------
+----- RUN #1 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.000843s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 67655
+
+real	0m0.827s
+user	0m0.004s
+sys	0m0.496s
+----- RUN #2 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.000837s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 67655
+
+real	0m0.826s
+user	0m0.012s
+sys	0m0.516s
+----- RUN #3 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.000853s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 67655
+
+real	0m0.838s
+user	0m0.012s
+sys	0m0.528s
+----- RUN #4 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.000836s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 67655
+
+real	0m0.817s
+user	0m0.008s
+sys	0m0.504s
+----- RUN #5 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.000837s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 67655
+
+real	0m0.843s
+user	0m0.012s
+sys	0m0.508s
+---------- Running ./2DCONV/2DConvolution_SMALL_unified ----------
+----- RUN #1 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.002959s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 273910
+
+real	0m0.877s
+user	0m0.024s
+sys	0m0.516s
+----- RUN #2 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.002939s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 273910
+
+real	0m0.871s
+user	0m0.016s
+sys	0m0.520s
+----- RUN #3 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.002943s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 273910
+
+real	0m0.872s
+user	0m0.028s
+sys	0m0.524s
+----- RUN #4 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.002961s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 273910
+
+real	0m0.884s
+user	0m0.040s
+sys	0m0.528s
+----- RUN #5 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.002950s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 273910
+
+real	0m0.886s
+user	0m0.028s
+sys	0m0.504s
+---------- Running ./2DCONV/2DConvolution_MEDIUM_unified ----------
+----- RUN #1 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.026116s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2465651
+
+real	0m1.326s
+user	0m0.252s
+sys	0m0.748s
+----- RUN #2 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.026057s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2465651
+
+real	0m1.342s
+user	0m0.256s
+sys	0m0.748s
+----- RUN #3 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.026131s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2465651
+
+real	0m1.340s
+user	0m0.264s
+sys	0m0.780s
+----- RUN #4 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.026079s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2465651
+
+real	0m1.338s
+user	0m0.272s
+sys	0m0.756s
+----- RUN #5 -----
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 0.026149s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2465651
+
+real	0m1.331s
+user	0m0.312s
+sys	0m0.716s
+---------- Running ./GESUMMV/gesummv_SMALL_unified ----------
+----- RUN #1 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000850s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 256
+
+real	0m0.808s
+user	0m0.012s
+sys	0m0.456s
+----- RUN #2 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000848s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 256
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.476s
+----- RUN #3 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000852s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 256
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.500s
+----- RUN #4 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000926s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 256
+
+real	0m0.803s
+user	0m0.000s
+sys	0m0.508s
+----- RUN #5 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000849s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 256
+
+real	0m0.811s
+user	0m0.000s
+sys	0m0.476s
+---------- Running ./GESUMMV/gesummv_LARGE_unified ----------
+----- RUN #1 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.023357s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2048
+
+real	0m0.892s
+user	0m0.008s
+sys	0m0.572s
+----- RUN #2 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.023229s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2048
+
+real	0m0.899s
+user	0m0.016s
+sys	0m0.560s
+----- RUN #3 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.023491s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2048
+
+real	0m0.899s
+user	0m0.008s
+sys	0m0.604s
+----- RUN #4 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.023326s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2048
+
+real	0m0.904s
+user	0m0.020s
+sys	0m0.552s
+----- RUN #5 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.023580s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 2048
+
+real	0m0.908s
+user	0m0.020s
+sys	0m0.588s
+---------- Running ./GESUMMV/gesummv_MINI_unified ----------
+----- RUN #1 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000436s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 128
+
+real	0m0.785s
+user	0m0.000s
+sys	0m0.484s
+----- RUN #2 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000521s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 128
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.508s
+----- RUN #3 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000435s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 128
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.488s
+----- RUN #4 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000440s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 128
+
+real	0m0.799s
+user	0m0.012s
+sys	0m0.472s
+----- RUN #5 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.000441s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 128
+
+real	0m0.801s
+user	0m0.004s
+sys	0m0.480s
+---------- Running ./GESUMMV/gesummv_EXTRALARGE_unified ----------
+----- RUN #1 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.094762s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m1.133s
+user	0m0.044s
+sys	0m0.724s
+----- RUN #2 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.094514s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m1.156s
+user	0m0.032s
+sys	0m0.728s
+----- RUN #3 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.096189s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m1.155s
+user	0m0.032s
+sys	0m0.708s
+----- RUN #4 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.095597s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m1.161s
+user	0m0.036s
+sys	0m0.728s
+----- RUN #5 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.095235s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 4096
+
+real	0m1.145s
+user	0m0.044s
+sys	0m0.720s
+---------- Running ./GESUMMV/gesummv_MEDIUM_unified ----------
+----- RUN #1 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.006435s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.859s
+user	0m0.016s
+sys	0m0.492s
+----- RUN #2 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.006439s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.817s
+user	0m0.000s
+sys	0m0.508s
+----- RUN #3 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.006460s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.828s
+user	0m0.008s
+sys	0m0.500s
+----- RUN #4 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.006439s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.831s
+user	0m0.008s
+sys	0m0.512s
+----- RUN #5 -----
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.006424s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1024
+
+real	0m0.823s
+user	0m0.008s
+sys	0m0.516s
+---------- Running ./3DCONV/3DConvolution_EXTRALARGE_unified ----------
+----- RUN #1 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.546990s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 132651000
+
+real	0m8.300s
+user	0m2.176s
+sys	0m5.308s
+----- RUN #2 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.549524s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 132651000
+
+real	0m8.262s
+user	0m2.284s
+sys	0m5.144s
+----- RUN #3 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.547220s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 132651000
+
+real	0m8.302s
+user	0m2.284s
+sys	0m5.220s
+----- RUN #4 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.549081s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 132651000
+
+real	0m8.276s
+user	0m2.276s
+sys	0m5.200s
+----- RUN #5 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.545902s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 132651000
+
+real	0m8.262s
+user	0m2.232s
+sys	0m5.212s
+---------- Running ./3DCONV/3DConvolution_SMALL_unified ----------
+----- RUN #1 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.001294s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 238323
+
+real	0m0.814s
+user	0m0.004s
+sys	0m0.484s
+----- RUN #2 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.001296s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 238323
+
+real	0m0.827s
+user	0m0.020s
+sys	0m0.488s
+----- RUN #3 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.001298s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 238323
+
+real	0m0.827s
+user	0m0.012s
+sys	0m0.516s
+----- RUN #4 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.001299s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 238323
+
+real	0m0.837s
+user	0m0.004s
+sys	0m0.488s
+----- RUN #5 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.001293s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 238323
+
+real	0m0.835s
+user	0m0.020s
+sys	0m0.508s
+---------- Running ./3DCONV/3DConvolution_LARGE_unified ----------
+----- RUN #1 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.075990s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 16387064
+
+real	0m1.780s
+user	0m0.276s
+sys	0m1.112s
+----- RUN #2 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.076035s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 16387064
+
+real	0m1.707s
+user	0m0.244s
+sys	0m1.088s
+----- RUN #3 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.075825s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 16387064
+
+real	0m1.697s
+user	0m0.272s
+sys	0m1.028s
+----- RUN #4 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.076086s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 16387064
+
+real	0m1.761s
+user	0m0.260s
+sys	0m1.120s
+----- RUN #5 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.075932s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 16387064
+
+real	0m1.721s
+user	0m0.220s
+sys	0m1.088s
+---------- Running ./3DCONV/3DConvolution_MEDIUM_unified ----------
+----- RUN #1 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.009461s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 2000376
+
+real	0m0.856s
+user	0m0.024s
+sys	0m0.540s
+----- RUN #2 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.009461s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 2000376
+
+real	0m0.942s
+user	0m0.028s
+sys	0m0.584s
+----- RUN #3 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.009476s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 2000376
+
+real	0m0.942s
+user	0m0.044s
+sys	0m0.588s
+----- RUN #4 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.009483s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 2000376
+
+real	0m0.927s
+user	0m0.040s
+sys	0m0.564s
+----- RUN #5 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.009492s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 2000376
+
+real	0m0.942s
+user	0m0.036s
+sys	0m0.588s
+---------- Running ./3DCONV/3DConvolution_MINI_unified ----------
+----- RUN #1 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.000284s
+CPU Runtime: 0.000001s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 26994
+
+real	0m0.798s
+user	0m0.004s
+sys	0m0.516s
+----- RUN #2 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.000284s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 26994
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.508s
+----- RUN #3 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.000283s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 26994
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.496s
+----- RUN #4 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.000283s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 26994
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.472s
+----- RUN #5 -----
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 0.000282s
+CPU Runtime: 0.000000s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 26994
+
+real	0m0.813s
+user	0m0.004s
+sys	0m0.500s

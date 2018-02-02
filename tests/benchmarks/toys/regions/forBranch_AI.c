@@ -19,7 +19,10 @@ int main() {
   #pragma omp parallel
   #pragma omp single
   for (int j = HOP; j < SIZE; j += HOP) {
-    #pragma omp task depend(inout: results[100:999900],results_2[100:999900])
+    int tmc2 = 1000000 * (15);
+    int tmc3 = 1000000 * (15);
+    int tm_cost1 = (34 + tmc2 + tmc3);
+    #pragma omp task depend(inout: results[100:999900],results_2[100:999900]) if(tm_cost1 > 1000)
     {
     if (j % 2) {
       for (int a = 0; a < SIZE; a++) {

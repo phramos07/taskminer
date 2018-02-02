@@ -142,9 +142,6 @@ class RecoverCode {
   // Return true if called function is a Malloc
   bool isMallocCall (const CallInst *CI);
 
-  // Return the Region for Basic Block bb.
-  Region* regionofBasicBlock (BasicBlock *bb, RegionInfoPass*rp);
-
   // Set the result of pass as Invalid.
   void setValidTrue();
   void setValidFalse();
@@ -172,11 +169,6 @@ class RecoverCode {
   // Return a valid bounds to validate the tool's result.
   std::string getValidBounds (std::string Expression, int *Index);
 
-  // Return the Expression value converted to the position of the array of
-  // "Pointer"
-  std::string getAccessExpression (Value* Pointer, Value* Expression,
-                                  const DataLayout* DT, bool upper);
-
   // Generate pragmas to data transference between devices, using loop context.
   std::string getDataPragma (std::map<std::string, std::string> & vctLower,
                              std::map<std::string, std::string> & vctUpper,
@@ -188,18 +180,9 @@ class RecoverCode {
                              std::map<std::string, std::string> & vctUpper,
                              std::map<std::string, char> & vctPtMA);
 
-  // Generate the correct upper bound to each pointer analyzed.
-  void generateCorrectUB (std::string lLimit, std::string uLimit,
-                          std::string & olLimit, std::string & oSize);
-
   // Return case the pointer is defined inside a region (in this case,
   // we cannot annotate it).
   bool pointerDclInsideRegion(Region *R, Value *V);
-  
-  // Return case the pointer is defined inside a loop (in this case,
-  // we cannot annotate it).
-  bool pointerDclInsideLoop(Loop *L, Value *V); 
-
   public:
 
   RecoverCode () {
@@ -216,6 +199,17 @@ class RecoverCode {
 
   bool restric;  
   //===---------------------------------------------------------------------===
+
+  // Return the Region for Basic Block bb.
+  Region* regionofBasicBlock (BasicBlock *bb, RegionInfoPass*rp);
+
+  // Return case the pointer is defined inside a loop (in this case,
+  // we cannot annotate it).
+  bool pointerDclInsideLoop(Loop *L, Value *V); 
+
+  // Generate the correct upper bound to each pointer analyzed.
+  void generateCorrectUB (std::string lLimit, std::string uLimit,
+                          std::string & olLimit, std::string & oSize);
 
   // Set true to emit omp pragmas
   void setOMP(char omp);
@@ -275,6 +269,11 @@ class RecoverCode {
   // Return the access expression in a string form, to write in source file.
   std::string getAccessString (Value *V, std::string ptrName, int *var,
                               const DataLayout *DT);
+
+  // Return the Expression value converted to the position of the array of
+  // "Pointer"
+  std::string getAccessExpression (Value* Pointer, Value* Expression,
+                                  const DataLayout* DT, bool upper);
 
   // Define if we need to dereference the pointer.
   bool needPointerAddrToRestrict(Value *V);

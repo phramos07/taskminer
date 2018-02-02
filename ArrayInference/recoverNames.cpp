@@ -114,13 +114,14 @@ const DILocalVariable *RecoverNames::findVar(const Value *V, const Function *F) 
 
 StringRef RecoverNames::getOriginalName(const Value *V) {
   const llvm::Function *F = findEnclosingFunc(V);
-  if (!F)
+  if (!F) { 
     return "";
+  }
 
   const llvm::DILocalVariable *Var = findVar(V, F);
-  if (!Var)
+  if (!Var) {
     return "";
-
+  }
   return Var->getName();
 }
 
@@ -336,7 +337,6 @@ void RecoverNames::searchGlobalVariables(Module *M) {
     for (NamedMDNode::op_iterator Op = MD->op_begin(), Ope = MD->op_end();
          Op != Ope; ++Op) {
       MDNode* ND = *(Op);
-      ND->dump();
       if (DICompileUnit *CU = dyn_cast<DICompileUnit>(ND)) {
         DIGlobalVariableArray DG = CU->getGlobalVariables(); 
         for (auto I = DG.begin(), IE = DG.end(); I != IE; ++I) {
@@ -393,10 +393,8 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
     }
 
     if (isa<BitCastInst>(I)) {
-      I->dump();
       if (isa<Instruction>(I->getOperand(0)))
         I = cast<Instruction>(I->getOperand(0));
-      I->dump();
     }
 
     if (!isa<AllocaInst>(I) && !isa<LoadInst>(I) && !isa<StoreInst>(I) &&

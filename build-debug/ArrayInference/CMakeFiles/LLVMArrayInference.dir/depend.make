@@ -839,6 +839,7 @@ ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverExpressions.cpp.o: ../Re
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverExpressions.cpp.o: ../ScopeTree/ScopeTree.h
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverExpressions.cpp.o: ../Task.h
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverExpressions.cpp.o: ../TaskMiner.h
+ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverExpressions.cpp.o: ../TaskMinerUtils.h
 
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverFunctionCall.cpp.o: /home/gleison/lge/llvm-3.7-src/build-debug/include/llvm/Config/AsmParsers.def
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/recoverFunctionCall.cpp.o: /home/gleison/lge/llvm-3.7-src/build-debug/include/llvm/Config/AsmPrinters.def
@@ -1923,4 +1924,5 @@ ArrayInference/CMakeFiles/LLVMArrayInference.dir/writeInFile.cpp.o: ../RegionTre
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/writeInFile.cpp.o: ../ScopeTree/ScopeTree.h
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/writeInFile.cpp.o: ../Task.h
 ArrayInference/CMakeFiles/LLVMArrayInference.dir/writeInFile.cpp.o: ../TaskMiner.h
+ArrayInference/CMakeFiles/LLVMArrayInference.dir/writeInFile.cpp.o: ../TaskMinerUtils.h
 

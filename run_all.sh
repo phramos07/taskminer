@@ -9,5 +9,7 @@
 ./runAnalyzes tests/benchmarks/bots/fib/fib.c
 ./runAnalyzes tests/benchmarks/bots/health/health.c
 ./runAnalyzes tests/benchmarks/bots/nqueens/nqueens.c
-
+./runAnalyzes tests/benchmarks/bots/sparselu/sparselu.c
+./runAnalyzes tests/benchmarks/bots/uts/uts.c
+./runAnalyzes tests/benchmarks/bots/jacobi/jacobi.c
 

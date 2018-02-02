@@ -119,7 +119,7 @@ class WriteInFile : public ModulePass {
   virtual bool runOnModule(Module &M);
 
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.addRequired<WriteExpressions>();
+//    AU.addRequired<WriteExpressions>();
     AU.addRequired<RecoverExpressions>();
     AU.addRequired<TaskMiner>();
     AU.setPreservesAll();

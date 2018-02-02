@@ -851,4 +851,5 @@ CMakeFiles/LLVMTaskFinder.dir/TaskMiner.cpp.o: ../RegionTree.h
 CMakeFiles/LLVMTaskFinder.dir/TaskMiner.cpp.o: ../Task.h
 CMakeFiles/LLVMTaskFinder.dir/TaskMiner.cpp.o: ../TaskMiner.cpp
 CMakeFiles/LLVMTaskFinder.dir/TaskMiner.cpp.o: ../TaskMiner.h
+CMakeFiles/LLVMTaskFinder.dir/TaskMiner.cpp.o: ../TaskMinerUtils.h
 
