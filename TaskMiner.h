@@ -44,7 +44,11 @@ namespace llvm
 
 	public:
 		static char ID;
-		TaskMiner() : ModulePass(ID) {}
+		static uint32_t N_WORKERS; //NUMBER OF THREADS
+		static uint32_t RUNTIME_COST; //RUNTIME COST
+		static const uint32_t THRESHOLD = 1; //THRESHOLD	
+
+		TaskMiner() : ModulePass(ID) { N_WORKERS=12; RUNTIME_COST=500;}
 		~TaskMiner() { /*delete taskGraph;*/ }
 		void getAnalysisUsage(AnalysisUsage &AU) const override;
 		bool runOnModule(Module &M) override;
