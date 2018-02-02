@@ -6,6 +6,14 @@
   it is more like an annotation based system than than a tool to perform
   automatic parallelization based on tasks.
 
+* Packirisamy09 - Exploring Speculative Parallelism in SPEC2006
+[Insight]
+- In 473.astar if we ignore dependences that only occur in less
+than 20% of all iterations, we can parallelize loops that correspond to 96% of
+total execution.
+- Potential dependencies often hinder parallelization, even when they seldom
+  happen.
+
 * Goff91 - Practical Dependence Testing
 [Insights]
 - Typical dependence tests are more general than necessary.
@@ -155,24 +163,56 @@ option by developers when striving for more performance.
 [Differentes]
 - Many. They don't point the parallelism out in every program, they simply state how much parallelism there is. Not only we find parallelism but we also annotate it with open mp directives.
 
+ZEHRA SURA
+
+Cited Zehra Sura's paper in introduciton, when talking about performance gains:
+
+Performance analysis and optimization of Clang's OpenMP 4.5 GPU support 
 
 
+I couldn't do much more than that about Zehra.
 
 
+KENJIRO TAURA
 
 
+Delay Spotter: A Tool for Spotting Scheduler-Caused Delays in Task Parallel Runtime Systems
 
 
+In the conclusion:
+
+"This scheduling policy suffers in two situations: (1) the parent is a long for loop creating a large number of children, all these children cannot start until the parent finishes the task-generating loop (SparseLU); (2) binary recursions that, rightly, spawn only the first recursive call as a task (FFT)."
 
 
+"It imposes an upper bound for the ready task queue of a worker; a worker is discouraged to create too many tasks ready on the queue"
 
 
+I was thinking of maybe citing this  in the "limiting the creation of tasks" section. I started the section with this citation, what do you think? He even cites TWO of our benchmarks that get speed ups with this optimization. 
 
 
+MURALI EMANI
 
 
+Celebrating Diversity: A Mixture of Experts Approach for Runtime Mapping in Dynamic Environments
 
 
+THis paper was PLDI 15. I think it's his major paper, so we could try to cite it. I thought on citing it in future work (conclusion) or maybe in related work. I don't know… He basically found the best number of running threads for several runtime environments, including OpenMP, claiming that it could go up to 1.66x faster than default. Check it out:
 
 
+"This paper focuses on selecting the best number of threads for a parallel application in dynamic environments"
+
+
+ZHENG WANG
+
+
+"Towards a holistic approach to auto-parallelization: integrating profile-driven parallelism detection and machine-learning based mapping"
+
+
+His most cited paper, PLDI'2009. (200+). He basically does profiling on parallelism. Any ideas how we could cite him? Our works are not exactly on the same page.
+
+
+"Integrating Profile-driven Parallelism Detection and Machine-learning-based Mapping"
+
+
+TACO 2014, same scope as above. It's a form of automatically detection of parallelism, maybe in related work?
 
