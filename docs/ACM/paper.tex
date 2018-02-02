@@ -941,6 +941,16 @@ user, or even completely disabled.}
 
 % In the past there has been not much opportunity to take advantage of parallelism on 2 core platforms (especially notebook designs used to limit the number of real cores), but with 6 or 8 core processors entering the main stream, we may take advantage of running more processors slower (lower voltage) or spreading out the workload over a larger die area. It is quite interesting to note that running one core hot will increase the leakage in that area of the die much more (exponentially with temperature), so distributing work over a larger die area results in reduced leakage - having said that, a similar effect can be achieved by migrating the workload from core to core.
 
+\paragraph{On the Implementation of \Taskminer.}
+We have implemented all the techniques described in this paper in
+LLVM~\cite{Lattner04}.
+This decision was motivated by two factors.
+First, the possibility to reuse all the infra-structure already
+available in LLVM to infer symbolic bounds of integer
+expressions~\cite{Mendonca17}.
+Second, given the state-of-the-art support that LLVM already provides to the
+compilation of OpenMP~\cite{Bertolli14,Martineau16,Samuel16}.
+
 We performed a thorough evaluation on \Taskminer{}'s applicability in real programs. Our test framework is divided in five aspects:
 
 \begin{compactitem}
