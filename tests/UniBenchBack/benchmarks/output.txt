@@ -1,0 +1,343 @@
+Running Array Inference
+./run_all.sh: line 157: count: command not found
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 157: count: command not found
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 157: count: command not found
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 157: count: command not found
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.004s
+
+real	0m0.002s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 157: count: command not found
+Parboil/common/parboil.c: In function 'pb_AddSubTimer':
+Parboil/common/parboil.c:394:31: warning: embedded '\0' in format [-Wformat-contains-nul]
+   sprintf(subtimer->label, "%s\0", label);
+                               ^
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+Parboil/common/parboil.c: In function 'pb_AddSubTimer':
+Parboil/common/parboil.c:394:31: warning: embedded '\0' in format [-Wformat-contains-nul]
+   sprintf(subtimer->label, "%s\0", label);
+                               ^
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+/tmp/ccw1RyMx.o: In function `mriqGPU':
+main.c:(.text+0x366): undefined reference to `pb_ReadParameters'
+main.c:(.text+0x3fa): undefined reference to `inputData'
+main.c:(.text+0x4b5): undefined reference to `ComputePhiMagCPU'
+main.c:(.text+0x5e1): undefined reference to `ComputeQGPU'
+/tmp/ccw1RyMx.o: In function `mriqCPU':
+main.c:(.text+0x6e6): undefined reference to `pb_ReadParameters'
+main.c:(.text+0x77a): undefined reference to `inputData'
+main.c:(.text+0x835): undefined reference to `ComputePhiMagCPU'
+main.c:(.text+0x961): undefined reference to `ComputeQCPU'
+collect2: error: ld returned 1 exit status
+/tmp/ccjw9stK.o: In function `mriqGPU':
+main.c:(.text+0x366): undefined reference to `pb_ReadParameters'
+main.c:(.text+0x3fa): undefined reference to `inputData'
+main.c:(.text+0x4b5): undefined reference to `ComputePhiMagCPU'
+main.c:(.text+0x5e1): undefined reference to `ComputeQGPU'
+/tmp/ccjw9stK.o: In function `mriqCPU':
+main.c:(.text+0x6e6): undefined reference to `pb_ReadParameters'
+main.c:(.text+0x77a): undefined reference to `inputData'
+main.c:(.text+0x835): undefined reference to `ComputePhiMagCPU'
+main.c:(.text+0x961): undefined reference to `ComputeQCPU'
+collect2: error: ld returned 1 exit status
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.004s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+Parboil/mri-q/src/file.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/mri-q/src/file.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/mri-q/src/file.c:1:9: error: unknown type name 'file'
+Parboil/mri-q/src/file.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/mri-q/src/file.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/mri-q/src/file.c:1:9: error: unknown type name 'file'
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+Parboil/sgemm/src/io.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/sgemm/src/io.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/sgemm/src/io.c:1:9: error: unknown type name 'file'
+Parboil/sgemm/src/io.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/sgemm/src/io.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/sgemm/src/io.c:1:9: error: unknown type name 'file'
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+Parboil/sgemm/src/main.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/sgemm/src/main.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/sgemm/src/main.c:1:9: error: unknown type name 'file'
+Parboil/sgemm/src/main.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/sgemm/src/main.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/sgemm/src/main.c:1:9: error: unknown type name 'file'
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+Parboil/sgemm/src/sgemm_kernel.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/sgemm/src/sgemm_kernel.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/sgemm/src/sgemm_kernel.c:1:9: error: unknown type name 'file'
+Parboil/sgemm/src/sgemm_kernel.c:1:1: error: unknown type name 'No'
+ No such file or directory
+ ^~
+Parboil/sgemm/src/sgemm_kernel.c:1:9: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'file'
+ No such file or directory
+         ^~~~
+Parboil/sgemm/src/sgemm_kernel.c:1:9: error: unknown type name 'file'
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/cc3fAFz2.o: In function `coo_to_jds':
+convert_dataset.c:(.text+0x139): undefined reference to `mm_read_banner'
+convert_dataset.c:(.text+0x184): undefined reference to `mm_typecode_to_str'
+convert_dataset.c:(.text+0x1b8): undefined reference to `mm_read_mtx_crd_size'
+convert_dataset.c:(.text+0x877): undefined reference to `ceil'
+collect2: error: ld returned 1 exit status
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/cc4gfMWX.o: In function `coo_to_jds':
+convert_dataset.c:(.text+0x139): undefined reference to `mm_read_banner'
+convert_dataset.c:(.text+0x184): undefined reference to `mm_typecode_to_str'
+convert_dataset.c:(.text+0x1b8): undefined reference to `mm_read_mtx_crd_size'
+convert_dataset.c:(.text+0x877): undefined reference to `ceil'
+collect2: error: ld returned 1 exit status
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+Parboil/spmv/src/main.c: In function 'spmvGPU':
+Parboil/spmv/src/main.c:139:14: error: expected expression before ':' token
+ to: h_nzcnt[ : nzcnt_len],                                                \
+              ^
+Parboil/spmv/src/main.c:140:26: error: expected expression before ':' token
+                   h_ptr[ : col_count],                                         \
+                          ^
+Parboil/spmv/src/main.c:141:37: error: expected expression before ':' token
+                          h_indices[ : len],                                    \
+                                     ^
+Parboil/spmv/src/main.c:142:45: error: expected expression before ':' token
+                                     h_data[ : len],                            \
+                                             ^
+Parboil/spmv/src/main.c:143:53: error: expected expression before ':' token
+                                             h_perm[ : col_count],              \
+                                                     ^
+Parboil/spmv/src/main.c:144:65: error: expected expression before ':' token
+                                                     h_x_vector[ : dim]) map(   \
+                                                                 ^
+Parboil/spmv/src/main.c:144:71: error: expected ';' before ')' token
+                                                     h_x_vector[ : dim]) map(   \
+                                                                       ^
+Parboil/spmv/src/main.c:144:71: error: expected statement before ')' token
+Parboil/spmv/src/main.c:144:73: warning: implicit declaration of function 'map' [-Wimplicit-function-declaration]
+                                                     h_x_vector[ : dim]) map(   \
+                                                                         ^~~
+Parboil/spmv/src/main.c:145:49: error: 'from' undeclared (first use in this function)
+                                                 from : h_Ax_vector[ : dim])
+                                                 ^~~~
+Parboil/spmv/src/main.c:145:49: note: each undeclared identifier is reported only once for each function it appears in
+Parboil/spmv/src/main.c:145:54: error: expected ')' before ':' token
+                                                 from : h_Ax_vector[ : dim])
+                                                      ^
+Parboil/spmv/src/main.c:146:3: error: expected ';' before 'for'
+   for (p = 0; p < 50; p++) {
+   ^~~
+Parboil/spmv/src/main.c: In function 'spmvGPU':
+Parboil/spmv/src/main.c:139:14: error: expected expression before ':' token
+ to: h_nzcnt[ : nzcnt_len],                                                \
+              ^
+Parboil/spmv/src/main.c:140:26: error: expected expression before ':' token
+                   h_ptr[ : col_count],                                         \
+                          ^
+Parboil/spmv/src/main.c:141:37: error: expected expression before ':' token
+                          h_indices[ : len],                                    \
+                                     ^
+Parboil/spmv/src/main.c:142:45: error: expected expression before ':' token
+                                     h_data[ : len],                            \
+                                             ^
+Parboil/spmv/src/main.c:143:53: error: expected expression before ':' token
+                                             h_perm[ : col_count],              \
+                                                     ^
+Parboil/spmv/src/main.c:144:65: error: expected expression before ':' token
+                                                     h_x_vector[ : dim]) map(   \
+                                                                 ^
+Parboil/spmv/src/main.c:144:71: error: expected ';' before ')' token
+                                                     h_x_vector[ : dim]) map(   \
+                                                                       ^
+Parboil/spmv/src/main.c:144:71: error: expected statement before ')' token
+Parboil/spmv/src/main.c:144:73: warning: implicit declaration of function 'map' [-Wimplicit-function-declaration]
+                                                     h_x_vector[ : dim]) map(   \
+                                                                         ^~~
+Parboil/spmv/src/main.c:145:49: error: 'from' undeclared (first use in this function)
+                                                 from : h_Ax_vector[ : dim])
+                                                 ^~~~
+Parboil/spmv/src/main.c:145:49: note: each undeclared identifier is reported only once for each function it appears in
+Parboil/spmv/src/main.c:145:54: error: expected ')' before ':' token
+                                                 from : h_Ax_vector[ : dim])
+                                                      ^
+Parboil/spmv/src/main.c:146:3: error: expected ';' before 'for'
+   for (p = 0; p < 50; p++) {
+   ^~~
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.004s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 157: count: command not found
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status

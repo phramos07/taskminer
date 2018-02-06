@@ -1,0 +1,18 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:37 BRST 2016
+./benchmarks/Parboil/spmv/../common/parboil.c:437:31: warning: format string contains '\0' within the string body [-Wformat]
+  sprintf(subtimer->label, "%s\0", label);
+                           ~~~^~~
+1 warning generated.
+/tmp/convert_dataset-ENZlfY.o: In function `coo_to_jds':
+./benchmarks/Parboil/spmv/src/convert_dataset.c:(.text+0xa2f): undefined reference to `ceil'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+\n---------------------------------------------------------
+Thu Feb 18 15:22:35 BRST 2016
+./benchmarks/Parboil/spmv/../common/parboil.c:437:31: warning: format string contains '\0' within the string body [-Wformat]
+  sprintf(subtimer->label, "%s\0", label);
+                           ~~~^~~
+1 warning generated.
+/tmp/convert_dataset-H8uYUL.o: In function `coo_to_jds':
+./benchmarks/Parboil/spmv/src/convert_dataset.c:(.text+0xa2f): undefined reference to `ceil'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

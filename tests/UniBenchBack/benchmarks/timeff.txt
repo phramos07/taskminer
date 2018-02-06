@@ -1,0 +1,1407 @@
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/2DCONV/src/2DConvolution.c
+
+real	0m5.999s
+user	0m6.320s
+sys	0m0.084s
+
+real	0m4.202s
+user	0m4.116s
+sys	0m0.084s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/2MM/src/2mm.c
+
+real	1m1.240s
+user	1m2.056s
+sys	0m0.012s
+
+real	0m42.962s
+user	0m42.956s
+sys	0m0.004s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/3DCONV/src/3DConvolution.c
+
+real	0m18.169s
+user	0m18.332s
+sys	0m0.216s
+
+real	0m13.044s
+user	0m12.900s
+sys	0m0.140s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/3MM/src/3mm.c
+
+real	0m12.935s
+user	0m13.936s
+sys	0m0.008s
+
+real	0m8.114s
+user	0m8.104s
+sys	0m0.008s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/ATAX/src/atax.c
+
+real	0m4.215s
+user	0m4.392s
+sys	0m0.040s
+
+real	0m2.694s
+user	0m2.660s
+sys	0m0.032s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/BICG/src/bicg.c
+Polybench/BICG/src/bicg_AI.c: In function 'bicg_OMP':
+Polybench/BICG/src/bicg_AI.c:118:13: error: for statement expected before '#pragma'
+     #pragma omp parallel
+             ^~~
+Polybench/BICG/src/bicg_AI.c:132:13: error: for statement expected before '#pragma'
+     #pragma omp parallel
+             ^~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m2.648s
+user	0m2.604s
+sys	0m0.040s
+rm: cannot remove 'testP': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/CORR/src/correlation.c
+Polybench/CORR/src/correlation_AI.c: In function 'correlation':
+Polybench/CORR/src/correlation_AI.c:119:27: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 10 * (24 + tmc3);
+                           ^~~~
+Polybench/CORR/src/correlation_AI.c:119:27: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/CORR/src/correlation_AI.c: In function 'correlation_OMP':
+Polybench/CORR/src/correlation_AI.c:154:13: error: for statement expected before '#pragma'
+     #pragma omp parallel
+             ^~~
+Polybench/CORR/src/correlation_AI.c:172:13: error: for statement expected before '#pragma'
+     #pragma omp parallel
+             ^~~
+Polybench/CORR/src/correlation_AI.c:197:13: error: for statement expected before '#pragma'
+     #pragma omp parallel
+             ^~~
+Polybench/CORR/src/correlation_AI.c:213:13: error: for statement expected before '#pragma'
+     #pragma omp parallel
+             ^~~
+Polybench/CORR/src/correlation_AI.c:216:29: error: 'tmc3' undeclared (first use in this function)
+       int tmc2 = 10 * (24 + tmc3);
+                             ^~~~
+Polybench/CORR/src/correlation_AI.c: In function 'correlation':
+Polybench/CORR/src/correlation_AI.c:119:27: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 10 * (24 + tmc3);
+                           ^~~~
+Polybench/CORR/src/correlation_AI.c:119:27: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/CORR/src/correlation_AI.c: In function 'correlation_OMP':
+Polybench/CORR/src/correlation_AI.c:216:29: error: 'tmc3' undeclared (first use in this function)
+       int tmc2 = 10 * (24 + tmc3);
+                             ^~~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/COVAR/src/covariance.c
+Polybench/COVAR/src/covariance_AI.c: In function 'covariance':
+Polybench/COVAR/src/covariance_AI.c:111:27: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 10 * (24 + tmc3);
+                           ^~~~
+Polybench/COVAR/src/covariance_AI.c:111:27: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/COVAR/src/covariance_AI.c: In function 'covariance_OMP':
+Polybench/COVAR/src/covariance_AI.c:137:11: error: for statement expected before '#pragma'
+   #pragma omp parallel
+           ^~~
+Polybench/COVAR/src/covariance_AI.c:156:11: error: for statement expected before '#pragma'
+   #pragma omp parallel
+           ^~~
+Polybench/COVAR/src/covariance_AI.c:173:11: error: for statement expected before '#pragma'
+   #pragma omp parallel
+           ^~~
+Polybench/COVAR/src/covariance_AI.c:176:27: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 10 * (24 + tmc3);
+                           ^~~~
+Polybench/COVAR/src/covariance_AI.c:134:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : data[ : (M + 1) * (N + 1)]) \
+         ^~~
+Polybench/COVAR/src/covariance_AI.c: In function 'covariance':
+Polybench/COVAR/src/covariance_AI.c:111:27: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 10 * (24 + tmc3);
+                           ^~~~
+Polybench/COVAR/src/covariance_AI.c:111:27: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/COVAR/src/covariance_AI.c: In function 'covariance_OMP':
+Polybench/COVAR/src/covariance_AI.c:176:27: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 10 * (24 + tmc3);
+                           ^~~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/FDTD-2D/src/fdtd2d.c
+Polybench/FDTD-2D/src/fdtd2d_AI.c: In function 'runFdtd':
+Polybench/FDTD-2D/src/fdtd2d_AI.c:95:26: error: 'tmc4' undeclared (first use in this function)
+     int tmc3 = 10 * (9 + tmc4);
+                          ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:95:26: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/FDTD-2D/src/fdtd2d_AI.c:97:28: error: 'tmc6' undeclared (first use in this function)
+     int tmc5 = 2048 * (9 + tmc6);
+                            ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:99:28: error: 'tmc8' undeclared (first use in this function)
+     int tmc7 = 2048 * (9 + tmc8);
+                            ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c: In function 'runFdtd_OMP':
+Polybench/FDTD-2D/src/fdtd2d_AI.c:147:22: error: 'tmc4' undeclared (first use in this function)
+ int tmc3 = 10 * (9 + tmc4);
+                      ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:149:24: error: 'tmc6' undeclared (first use in this function)
+ int tmc5 = 2048 * (9 + tmc6);
+                        ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:151:24: error: 'tmc8' undeclared (first use in this function)
+ int tmc7 = 2048 * (9 + tmc8);
+                        ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:139:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : _fict_[ : tmax], ex[ : (NX *(NY + 1))], \
+         ^~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:141:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(tofrom : hz[ : (NX *(NY + 1))])
+         ^~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:141:9: warning: 'target' construct inside of 'target' region
+Polybench/FDTD-2D/src/fdtd2d_AI.c: In function 'runFdtd':
+Polybench/FDTD-2D/src/fdtd2d_AI.c:95:26: error: 'tmc4' undeclared (first use in this function)
+     int tmc3 = 10 * (9 + tmc4);
+                          ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:95:26: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/FDTD-2D/src/fdtd2d_AI.c:97:28: error: 'tmc6' undeclared (first use in this function)
+     int tmc5 = 2048 * (9 + tmc6);
+                            ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:99:28: error: 'tmc8' undeclared (first use in this function)
+     int tmc7 = 2048 * (9 + tmc8);
+                            ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c: In function 'runFdtd_OMP':
+Polybench/FDTD-2D/src/fdtd2d_AI.c:147:22: error: 'tmc4' undeclared (first use in this function)
+ int tmc3 = 10 * (9 + tmc4);
+                      ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:149:24: error: 'tmc6' undeclared (first use in this function)
+ int tmc5 = 2048 * (9 + tmc6);
+                        ^~~~
+Polybench/FDTD-2D/src/fdtd2d_AI.c:151:24: error: 'tmc8' undeclared (first use in this function)
+ int tmc7 = 2048 * (9 + tmc8);
+                        ^~~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/GEMM/src/gemm.c
+Polybench/GEMM/src/gemm_AI.c: In function 'gemm':
+Polybench/GEMM/src/gemm_AI.c:54:28: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 512 * (16 + tmc3);
+                            ^~~~
+Polybench/GEMM/src/gemm_AI.c:54:28: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/GEMM/src/gemm_AI.c: In function 'gemm_OMP':
+Polybench/GEMM/src/gemm_AI.c:77:11: error: for statement expected before '#pragma'
+   #pragma omp parallel
+           ^~~
+Polybench/GEMM/src/gemm_AI.c:80:28: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 512 * (16 + tmc3);
+                            ^~~~
+Polybench/GEMM/src/gemm_AI.c:74:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : A[ : NI *NK], \
+         ^~~
+Polybench/GEMM/src/gemm_AI.c: In function 'gemm':
+Polybench/GEMM/src/gemm_AI.c:54:28: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 512 * (16 + tmc3);
+                            ^~~~
+Polybench/GEMM/src/gemm_AI.c:54:28: note: each undeclared identifier is reported only once for each function it appears in
+Polybench/GEMM/src/gemm_AI.c: In function 'gemm_OMP':
+Polybench/GEMM/src/gemm_AI.c:80:28: error: 'tmc3' undeclared (first use in this function)
+     int tmc2 = 512 * (16 + tmc3);
+                            ^~~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/GESUMMV/src/gesummv.c
+Polybench/GESUMMV/src/gesummv_AI.c: In function 'gesummv_OMP':
+Polybench/GESUMMV/src/gesummv_AI.c:77:11: error: for statement expected before '#pragma'
+   #pragma omp parallel
+           ^~~
+Polybench/GESUMMV/src/gesummv_AI.c:74:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : A[ : N *N], B[ : N *N], x[ : N], tmp[ : N]) \
+         ^~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m1.567s
+user	0m1.548s
+sys	0m0.016s
+rm: cannot remove 'testP': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/GRAMSCHM/src/gramschmidt.c
+/tmp/cc9lOYFJ.o: In function `gramschmidt._omp_fn.1':
+gramschmidt_AI.c:(.text+0x774): undefined reference to `sqrt'
+/tmp/cc9lOYFJ.o: In function `gramschmidt_OMP._omp_fn.3':
+gramschmidt_AI.c:(.text+0xda0): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+/tmp/cceA61BY.o: In function `gramschmidt':
+gramschmidt_AI.c:(.text+0x1d2): undefined reference to `sqrt'
+/tmp/cceA61BY.o: In function `gramschmidt_OMP':
+gramschmidt_AI.c:(.text+0x521): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/MVT/src/mvt.c
+
+real	0m1.457s
+user	0m1.956s
+sys	0m0.020s
+
+real	0m0.911s
+user	0m0.904s
+sys	0m0.004s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/SYR2K/src/syr2k.c
+
+real	4m42.113s
+user	4m42.436s
+sys	0m0.012s
+
+real	2m56.879s
+user	2m56.860s
+sys	0m0.012s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/SYRK/src/syrk.c
+Polybench/SYRK/src/syrk_AI.c: In function 'syrkGPU':
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+ }
+ ^
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+Polybench/SYRK/src/syrk_AI.c: In function 'syrkGPU':
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+ }
+ ^
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+Polybench/SYRK/src/syrk_AI.c:216:1: error: expected declaration or statement at end of input
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Polybench/SYRK_M/src/syrk_m.c
+
+real	0m10.976s
+user	0m10.972s
+sys	0m0.000s
+
+real	0m10.889s
+user	0m10.888s
+sys	0m0.000s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/backprop/src/backprop.c
+Rodinia/backprop/src/backprop_AI.c:88:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ bpnn_randomize_weights(w, m, n) float **w;
+ ^~~~~~~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c:101:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ bpnn_randomize_row(w, m) float *w;
+ ^~~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c:119:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ bpnn_zero_weights(w, m, n) float **w;
+ ^~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_initialize':
+Rodinia/backprop/src/backprop_AI.c:131:6: warning: type of 'seed' defaults to 'int' [-Wimplicit-int]
+ void bpnn_initialize(seed) {
+      ^~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_layerforward':
+Rodinia/backprop/src/backprop_AI.c:286:5: error: for statement expected before 'long'
+     long long int AI1[21];
+     ^~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_adjust_weights':
+Rodinia/backprop/src/backprop_AI.c:442:6: warning: type of 'ndelta' defaults to 'int' [-Wimplicit-int]
+ void bpnn_adjust_weights(delta, ndelta, ly, nly, w, oldw) float *delta, *ly,
+      ^~~~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c:442:6: warning: type of 'nly' defaults to 'int' [-Wimplicit-int]
+Rodinia/backprop/src/backprop_AI.c:472:5: error: for statement expected before 'long'
+     long long int AI1[33];
+     ^~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_read':
+Rodinia/backprop/src/backprop_AI.c:663:13: warning: implicit declaration of function 'open' [-Wimplicit-function-declaration]
+   if ((fd = open(filename, 0, 0644)) == -1) {
+             ^~~~
+Rodinia/backprop/src/backprop_AI.c:669:3: warning: implicit declaration of function 'read' [-Wimplicit-function-declaration]
+   read(fd, (char *)&n1, sizeof(int));
+   ^~~~
+Rodinia/backprop/src/backprop_AI.c:700:3: warning: implicit declaration of function 'close' [-Wimplicit-function-declaration]
+   close(fd);
+   ^~~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_layerforward':
+Rodinia/backprop/src/backprop_AI.c:282:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : conn_gpu[ : (                                      \
+         ^~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_adjust_weights':
+Rodinia/backprop/src/backprop_AI.c:467:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(                                                        \
+         ^~~
+Rodinia/backprop/src/backprop_AI.c:88:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ bpnn_randomize_weights(w, m, n) float **w;
+ ^~~~~~~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c:101:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ bpnn_randomize_row(w, m) float *w;
+ ^~~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c:119:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ bpnn_zero_weights(w, m, n) float **w;
+ ^~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_initialize':
+Rodinia/backprop/src/backprop_AI.c:131:6: warning: type of 'seed' defaults to 'int' [-Wimplicit-int]
+ void bpnn_initialize(seed) {
+      ^~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_adjust_weights':
+Rodinia/backprop/src/backprop_AI.c:442:6: warning: type of 'ndelta' defaults to 'int' [-Wimplicit-int]
+ void bpnn_adjust_weights(delta, ndelta, ly, nly, w, oldw) float *delta, *ly,
+      ^~~~~~~~~~~~~~~~~~~
+Rodinia/backprop/src/backprop_AI.c:442:6: warning: type of 'nly' defaults to 'int' [-Wimplicit-int]
+Rodinia/backprop/src/backprop_AI.c: In function 'bpnn_read':
+Rodinia/backprop/src/backprop_AI.c:663:13: warning: implicit declaration of function 'open' [-Wimplicit-function-declaration]
+   if ((fd = open(filename, 0, 0644)) == -1) {
+             ^~~~
+Rodinia/backprop/src/backprop_AI.c:669:3: warning: implicit declaration of function 'read' [-Wimplicit-function-declaration]
+   read(fd, (char *)&n1, sizeof(int));
+   ^~~~
+Rodinia/backprop/src/backprop_AI.c:700:3: warning: implicit declaration of function 'close' [-Wimplicit-function-declaration]
+   close(fd);
+   ^~~~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccjf9W8f.o: In function `squash':
+backprop_AI.c:(.text+0x1c4): undefined reference to `exp'
+/tmp/ccjf9W8f.o: In function `bpnn_layerforward':
+backprop_AI.c:(.text+0xf79): undefined reference to `exp'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/backprop/src/backprop_kernel.c
+/tmp/ccC9ynzv.o: In function `main':
+backprop_kernel_AI.c:(.text+0x84): undefined reference to `setup'
+/tmp/ccC9ynzv.o: In function `bpnn_train_kernel':
+backprop_kernel_AI.c:(.text+0xfe): undefined reference to `bpnn_layerforward'
+backprop_kernel_AI.c:(.text+0x127): undefined reference to `bpnn_layerforward'
+backprop_kernel_AI.c:(.text+0x151): undefined reference to `bpnn_output_error'
+backprop_kernel_AI.c:(.text+0x188): undefined reference to `bpnn_hidden_error'
+backprop_kernel_AI.c:(.text+0x1c0): undefined reference to `bpnn_adjust_weights'
+backprop_kernel_AI.c:(.text+0x1f4): undefined reference to `bpnn_adjust_weights'
+collect2: error: ld returned 1 exit status
+/tmp/ccRfgYnB.o: In function `main':
+backprop_kernel_AI.c:(.text+0x84): undefined reference to `setup'
+/tmp/ccRfgYnB.o: In function `bpnn_train_kernel':
+backprop_kernel_AI.c:(.text+0xfe): undefined reference to `bpnn_layerforward'
+backprop_kernel_AI.c:(.text+0x127): undefined reference to `bpnn_layerforward'
+backprop_kernel_AI.c:(.text+0x151): undefined reference to `bpnn_output_error'
+backprop_kernel_AI.c:(.text+0x188): undefined reference to `bpnn_hidden_error'
+backprop_kernel_AI.c:(.text+0x1c0): undefined reference to `bpnn_adjust_weights'
+backprop_kernel_AI.c:(.text+0x1f4): undefined reference to `bpnn_adjust_weights'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/backprop/src/facetrain.c
+Rodinia/backprop/src/facetrain_AI.c:12:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ backprop_face() {
+ ^~~~~~~~~~~~~
+Rodinia/backprop/src/facetrain_AI.c: In function 'backprop_face':
+Rodinia/backprop/src/facetrain_AI.c:18:3: warning: implicit declaration of function 'load' [-Wimplicit-function-declaration]
+   load(net);
+   ^~~~
+Rodinia/backprop/src/facetrain_AI.c:22:3: warning: implicit declaration of function 'bpnn_train_kernel' [-Wimplicit-function-declaration]
+   bpnn_train_kernel(net, &out_err, &hid_err);
+   ^~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccxh4MyK.o: In function `backprop_face':
+facetrain_AI.c:(.text+0x2f): undefined reference to `bpnn_create'
+facetrain_AI.c:(.text+0x5b): undefined reference to `load'
+facetrain_AI.c:(.text+0x81): undefined reference to `bpnn_train_kernel'
+facetrain_AI.c:(.text+0x92): undefined reference to `bpnn_free'
+/tmp/ccxh4MyK.o: In function `setup':
+facetrain_AI.c:(.text+0x11f): undefined reference to `bpnn_initialize'
+collect2: error: ld returned 1 exit status
+Rodinia/backprop/src/facetrain_AI.c:12:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ backprop_face() {
+ ^~~~~~~~~~~~~
+Rodinia/backprop/src/facetrain_AI.c: In function 'backprop_face':
+Rodinia/backprop/src/facetrain_AI.c:18:3: warning: implicit declaration of function 'load' [-Wimplicit-function-declaration]
+   load(net);
+   ^~~~
+Rodinia/backprop/src/facetrain_AI.c:22:3: warning: implicit declaration of function 'bpnn_train_kernel' [-Wimplicit-function-declaration]
+   bpnn_train_kernel(net, &out_err, &hid_err);
+   ^~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccGUz3UN.o: In function `backprop_face':
+facetrain_AI.c:(.text+0x2f): undefined reference to `bpnn_create'
+facetrain_AI.c:(.text+0x5b): undefined reference to `load'
+facetrain_AI.c:(.text+0x81): undefined reference to `bpnn_train_kernel'
+facetrain_AI.c:(.text+0x92): undefined reference to `bpnn_free'
+/tmp/ccGUz3UN.o: In function `setup':
+facetrain_AI.c:(.text+0x11f): undefined reference to `bpnn_initialize'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/backprop/src/imagenet.c
+Rodinia/backprop/src/imagenet_AI.c:13:8: warning: type defaults to 'int' in declaration of 'layer_size' [-Wimplicit-int]
+ extern layer_size;
+        ^~~~~~~~~~
+Rodinia/backprop/src/imagenet_AI.c:15:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ load(net) BPNN *net;
+ ^~~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccwH64ZV.o: In function `load':
+imagenet_AI.c:(.text+0x23): undefined reference to `layer_size'
+collect2: error: ld returned 1 exit status
+Rodinia/backprop/src/imagenet_AI.c:13:8: warning: type defaults to 'int' in declaration of 'layer_size' [-Wimplicit-int]
+ extern layer_size;
+        ^~~~~~~~~~
+Rodinia/backprop/src/imagenet_AI.c:15:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ load(net) BPNN *net;
+ ^~~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccvgkUx2.o: In function `load':
+imagenet_AI.c:(.text+0x24): undefined reference to `layer_size'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/bfs/src/bfs.c
+Rodinia/bfs/src/bfs_AI.c: In function 'BFSGraph':
+Rodinia/bfs/src/bfs_AI.c:162:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(                                                        \
+         ^~~
+Usage: ./testP <num_threads> <input_file>
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+Usage: ./testS <num_threads> <input_file>
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.004s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/b+tree/src/main.c
+In file included from Rodinia/b+tree/src/main_AI.c:98:0:
+Rodinia/b+tree/src/./kernel/kernel_cpu.h:26:1: warning: data definition has no type or storage class
+ kernel_gpu( int cores_arg,
+ ^~~~~~~~~~
+Rodinia/b+tree/src/./kernel/kernel_cpu.h:26:1: warning: type defaults to 'int' in declaration of 'kernel_gpu' [-Wimplicit-int]
+Rodinia/b+tree/src/main_AI.c: In function 'transform_to_cuda':
+Rodinia/b+tree/src/main_AI.c:614:36: warning: format '%d' expects argument of type 'int', but argument 2 has type 'long int' [-Wformat=]
+     printf("\nNumber of records = %d, sizeof(record)=%d, total=%d\n", size,
+                                    ^
+Rodinia/b+tree/src/main_AI.c:614:55: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long unsigned int' [-Wformat=]
+     printf("\nNumber of records = %d, sizeof(record)=%d, total=%d\n", size,
+                                                       ^
+Rodinia/b+tree/src/main_AI.c:614:65: warning: format '%d' expects argument of type 'int', but argument 4 has type 'long unsigned int' [-Wformat=]
+     printf("\nNumber of records = %d, sizeof(record)=%d, total=%d\n", size,
+                                                                 ^
+Rodinia/b+tree/src/main_AI.c:616:33: warning: format '%d' expects argument of type 'int', but argument 2 has type 'long int' [-Wformat=]
+     printf("Number of knodes = %d, sizeof(knode)=%d, total=%d\n", nodeindex,
+                                 ^
+Rodinia/b+tree/src/main_AI.c:616:51: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long unsigned int' [-Wformat=]
+     printf("Number of knodes = %d, sizeof(knode)=%d, total=%d\n", nodeindex,
+                                                   ^
+Rodinia/b+tree/src/main_AI.c:616:61: warning: format '%d' expects argument of type 'int', but argument 4 has type 'long unsigned int' [-Wformat=]
+     printf("Number of knodes = %d, sizeof(knode)=%d, total=%d\n", nodeindex,
+                                                             ^
+Rodinia/b+tree/src/main_AI.c:618:47: warning: format '%d' expects argument of type 'int', but argument 2 has type 'long int' [-Wformat=]
+     printf("\nDone Transformation. Mem used: %d\n", mem_used);
+                                               ^
+Rodinia/b+tree/src/main_AI.c: In function 'print_tree':
+Rodinia/b+tree/src/main_AI.c:798:17: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'node * {aka struct node *}' [-Wformat=]
+       printf("(%x)", n);
+                 ^
+Rodinia/b+tree/src/main_AI.c:801:18: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'void *' [-Wformat=]
+         printf("%x ", n->pointers[i]);
+                  ^
+Rodinia/b+tree/src/main_AI.c:809:18: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'void *' [-Wformat=]
+         printf("%x ", n->pointers[order - 1]);
+                  ^
+Rodinia/b+tree/src/main_AI.c:811:18: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'void *' [-Wformat=]
+         printf("%x ", n->pointers[n->num_keys]);
+                  ^
+Rodinia/b+tree/src/main_AI.c: At top level:
+Rodinia/b+tree/src/main_AI.c:1647:21: error: unknown type name 'count'
+                     count) {
+                     ^~~~~
+Rodinia/b+tree/src/main_AI.c: In function 'main':
+Rodinia/b+tree/src/main_AI.c:1777:34: warning: passing argument 2 of 'fputs' from incompatible pointer type [-Wincompatible-pointer-types]
+     fputs("Fail to open %s !\n", output);
+                                  ^~~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:63:0:
+/usr/include/stdio.h:689:12: note: expected 'FILE * restrict {aka struct _IO_FILE * restrict}' but argument is of type 'char *'
+ extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+            ^~~~~
+Rodinia/b+tree/src/main_AI.c:1964:54: warning: comparison between pointer and integer
+       while (*commandPointer != 32 && commandPointer != '\n')
+                                                      ^~
+Rodinia/b+tree/src/main_AI.c:2061:7: warning: implicit declaration of function 'compareResults' [-Wimplicit-function-declaration]
+       compareResults(offset_cpu, offset_gpu, currKnode_cpu, currKnode_gpu,
+       ^~~~~~~~~~~~~~
+Rodinia/b+tree/src/main_AI.c:2075:38: warning: passing argument 2 of 'fputs' from incompatible pointer type [-Wincompatible-pointer-types]
+         fputs("Fail to open %s !\n", output);
+                                      ^~~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:63:0:
+/usr/include/stdio.h:689:12: note: expected 'FILE * restrict {aka struct _IO_FILE * restrict}' but argument is of type 'char *'
+ extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+            ^~~~~
+Rodinia/b+tree/src/main_AI.c:2129:54: warning: comparison between pointer and integer
+       while (*commandPointer != 32 && commandPointer != '\n')
+                                                      ^~
+Rodinia/b+tree/src/main_AI.c:2134:54: warning: comparison between pointer and integer
+       while (*commandPointer != 32 && commandPointer != '\n')
+                                                      ^~
+Rodinia/b+tree/src/main_AI.c:2224:38: warning: passing argument 2 of 'fputs' from incompatible pointer type [-Wincompatible-pointer-types]
+         fputs("Fail to open %s !\n", output);
+                                      ^~~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:63:0:
+/usr/include/stdio.h:689:12: note: expected 'FILE * restrict {aka struct _IO_FILE * restrict}' but argument is of type 'char *'
+ extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+            ^~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:98:0:
+Rodinia/b+tree/src/./kernel/kernel_cpu.h:26:1: warning: data definition has no type or storage class
+ kernel_gpu( int cores_arg,
+ ^~~~~~~~~~
+Rodinia/b+tree/src/./kernel/kernel_cpu.h:26:1: warning: type defaults to 'int' in declaration of 'kernel_gpu' [-Wimplicit-int]
+Rodinia/b+tree/src/main_AI.c: In function 'transform_to_cuda':
+Rodinia/b+tree/src/main_AI.c:614:36: warning: format '%d' expects argument of type 'int', but argument 2 has type 'long int' [-Wformat=]
+     printf("\nNumber of records = %d, sizeof(record)=%d, total=%d\n", size,
+                                    ^
+Rodinia/b+tree/src/main_AI.c:614:55: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long unsigned int' [-Wformat=]
+     printf("\nNumber of records = %d, sizeof(record)=%d, total=%d\n", size,
+                                                       ^
+Rodinia/b+tree/src/main_AI.c:614:65: warning: format '%d' expects argument of type 'int', but argument 4 has type 'long unsigned int' [-Wformat=]
+     printf("\nNumber of records = %d, sizeof(record)=%d, total=%d\n", size,
+                                                                 ^
+Rodinia/b+tree/src/main_AI.c:616:33: warning: format '%d' expects argument of type 'int', but argument 2 has type 'long int' [-Wformat=]
+     printf("Number of knodes = %d, sizeof(knode)=%d, total=%d\n", nodeindex,
+                                 ^
+Rodinia/b+tree/src/main_AI.c:616:51: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long unsigned int' [-Wformat=]
+     printf("Number of knodes = %d, sizeof(knode)=%d, total=%d\n", nodeindex,
+                                                   ^
+Rodinia/b+tree/src/main_AI.c:616:61: warning: format '%d' expects argument of type 'int', but argument 4 has type 'long unsigned int' [-Wformat=]
+     printf("Number of knodes = %d, sizeof(knode)=%d, total=%d\n", nodeindex,
+                                                             ^
+Rodinia/b+tree/src/main_AI.c:618:47: warning: format '%d' expects argument of type 'int', but argument 2 has type 'long int' [-Wformat=]
+     printf("\nDone Transformation. Mem used: %d\n", mem_used);
+                                               ^
+Rodinia/b+tree/src/main_AI.c: In function 'print_tree':
+Rodinia/b+tree/src/main_AI.c:798:17: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'node * {aka struct node *}' [-Wformat=]
+       printf("(%x)", n);
+                 ^
+Rodinia/b+tree/src/main_AI.c:801:18: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'void *' [-Wformat=]
+         printf("%x ", n->pointers[i]);
+                  ^
+Rodinia/b+tree/src/main_AI.c:809:18: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'void *' [-Wformat=]
+         printf("%x ", n->pointers[order - 1]);
+                  ^
+Rodinia/b+tree/src/main_AI.c:811:18: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'void *' [-Wformat=]
+         printf("%x ", n->pointers[n->num_keys]);
+                  ^
+Rodinia/b+tree/src/main_AI.c: At top level:
+Rodinia/b+tree/src/main_AI.c:1647:21: error: unknown type name 'count'
+                     count) {
+                     ^~~~~
+Rodinia/b+tree/src/main_AI.c: In function 'main':
+Rodinia/b+tree/src/main_AI.c:1777:34: warning: passing argument 2 of 'fputs' from incompatible pointer type [-Wincompatible-pointer-types]
+     fputs("Fail to open %s !\n", output);
+                                  ^~~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:63:0:
+/usr/include/stdio.h:689:12: note: expected 'FILE * restrict {aka struct _IO_FILE * restrict}' but argument is of type 'char *'
+ extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+            ^~~~~
+Rodinia/b+tree/src/main_AI.c:1964:54: warning: comparison between pointer and integer
+       while (*commandPointer != 32 && commandPointer != '\n')
+                                                      ^~
+Rodinia/b+tree/src/main_AI.c:2061:7: warning: implicit declaration of function 'compareResults' [-Wimplicit-function-declaration]
+       compareResults(offset_cpu, offset_gpu, currKnode_cpu, currKnode_gpu,
+       ^~~~~~~~~~~~~~
+Rodinia/b+tree/src/main_AI.c:2075:38: warning: passing argument 2 of 'fputs' from incompatible pointer type [-Wincompatible-pointer-types]
+         fputs("Fail to open %s !\n", output);
+                                      ^~~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:63:0:
+/usr/include/stdio.h:689:12: note: expected 'FILE * restrict {aka struct _IO_FILE * restrict}' but argument is of type 'char *'
+ extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+            ^~~~~
+Rodinia/b+tree/src/main_AI.c:2129:54: warning: comparison between pointer and integer
+       while (*commandPointer != 32 && commandPointer != '\n')
+                                                      ^~
+Rodinia/b+tree/src/main_AI.c:2134:54: warning: comparison between pointer and integer
+       while (*commandPointer != 32 && commandPointer != '\n')
+                                                      ^~
+Rodinia/b+tree/src/main_AI.c:2224:38: warning: passing argument 2 of 'fputs' from incompatible pointer type [-Wincompatible-pointer-types]
+         fputs("Fail to open %s !\n", output);
+                                      ^~~~~~
+In file included from Rodinia/b+tree/src/main_AI.c:63:0:
+/usr/include/stdio.h:689:12: note: expected 'FILE * restrict {aka struct _IO_FILE * restrict}' but argument is of type 'char *'
+ extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+            ^~~~~
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/b+tree/src/kernel/kernel_cpu.c
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c: In function 'kernel_gpu':
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:50:18: warning: implicit declaration of function 'omp_get_max_threads' [-Wimplicit-function-declaration]
+   max_nthreads = omp_get_max_threads();
+                  ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:52:3: warning: implicit declaration of function 'omp_set_num_threads' [-Wimplicit-function-declaration]
+   omp_set_num_threads(cores_arg);
+   ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c: At top level:
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:122:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ kernel_cpu(int cores_arg,
+ ^~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c: In function 'kernel_gpu':
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:74:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(                                                        \
+         ^~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c: In function 'kernel_gpu':
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:50:18: warning: implicit declaration of function 'omp_get_max_threads' [-Wimplicit-function-declaration]
+   max_nthreads = omp_get_max_threads();
+                  ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:52:3: warning: implicit declaration of function 'omp_set_num_threads' [-Wimplicit-function-declaration]
+   omp_set_num_threads(cores_arg);
+   ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c: At top level:
+Rodinia/b+tree/src/kernel/kernel_cpu_AI.c:122:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ kernel_cpu(int cores_arg,
+ ^~~~~~~~~~
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccSfiZ3J.o: In function `kernel_gpu':
+kernel_cpu_AI.c:(.text+0x25): undefined reference to `omp_get_max_threads'
+kernel_cpu_AI.c:(.text+0x37): undefined reference to `omp_set_num_threads'
+/tmp/ccSfiZ3J.o: In function `kernel_cpu':
+kernel_cpu_AI.c:(.text+0x33a): undefined reference to `omp_get_max_threads'
+kernel_cpu_AI.c:(.text+0x34c): undefined reference to `omp_set_num_threads'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.004s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/b+tree/src/kernel/kernel_cpu_2.c
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c: In function 'kernel_cpu_2':
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:68:18: warning: implicit declaration of function 'omp_get_max_threads' [-Wimplicit-function-declaration]
+   max_nthreads = omp_get_max_threads();
+                  ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:70:3: warning: implicit declaration of function 'omp_set_num_threads' [-Wimplicit-function-declaration]
+   omp_set_num_threads(cores_arg);
+   ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:153:3: warning: implicit declaration of function 'printf' [-Wimplicit-function-declaration]
+   printf("Time spent in different stages of CPU/MCPU KERNEL:\n");
+   ^~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:153:3: warning: incompatible implicit declaration of built-in function 'printf'
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:153:3: note: include '<stdio.h>' or provide a declaration of 'printf'
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:155:32: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%15.12f s, %15.12f % : MCPU: SET DEVICE\n",
+                                ^
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:158:32: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%15.12f s, %15.12f % : CPU/MCPU: KERNEL\n",
+                                ^
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccabCMVP.o: In function `kernel_cpu_2':
+kernel_cpu_2_AI.c:(.text+0xa0): undefined reference to `get_time'
+kernel_cpu_2_AI.c:(.text+0xef): undefined reference to `get_time'
+kernel_cpu_2_AI.c:(.text+0x1a3): undefined reference to `get_time'
+collect2: error: ld returned 1 exit status
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c: In function 'kernel_cpu_2':
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:68:18: warning: implicit declaration of function 'omp_get_max_threads' [-Wimplicit-function-declaration]
+   max_nthreads = omp_get_max_threads();
+                  ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:70:3: warning: implicit declaration of function 'omp_set_num_threads' [-Wimplicit-function-declaration]
+   omp_set_num_threads(cores_arg);
+   ^~~~~~~~~~~~~~~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:153:3: warning: implicit declaration of function 'printf' [-Wimplicit-function-declaration]
+   printf("Time spent in different stages of CPU/MCPU KERNEL:\n");
+   ^~~~~~
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:153:3: warning: incompatible implicit declaration of built-in function 'printf'
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:153:3: note: include '<stdio.h>' or provide a declaration of 'printf'
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:155:32: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%15.12f s, %15.12f % : MCPU: SET DEVICE\n",
+                                ^
+Rodinia/b+tree/src/kernel/kernel_cpu_2_AI.c:158:32: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%15.12f s, %15.12f % : CPU/MCPU: KERNEL\n",
+                                ^
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+/tmp/ccybOioY.o: In function `kernel_cpu_2':
+kernel_cpu_2_AI.c:(.text+0x24): undefined reference to `get_time'
+kernel_cpu_2_AI.c:(.text+0x32): undefined reference to `omp_get_max_threads'
+kernel_cpu_2_AI.c:(.text+0x44): undefined reference to `omp_set_num_threads'
+kernel_cpu_2_AI.c:(.text+0x61): undefined reference to `get_time'
+kernel_cpu_2_AI.c:(.text+0x4e7): undefined reference to `get_time'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/lud/src/lud.c
+Rodinia/lud/src/lud_AI.c: In function 'main':
+Rodinia/lud/src/lud_AI.c:125:3: warning: implicit declaration of function 'lud_omp_cpu' [-Wimplicit-function-declaration]
+   lud_omp_cpu(m_cpu, matrix_dim);
+   ^~~~~~~~~~~
+Rodinia/lud/src/lud_AI.c:130:3: warning: implicit declaration of function 'lud_omp_gpu' [-Wimplicit-function-declaration]
+   lud_omp_gpu(m_gpu, matrix_dim);
+   ^~~~~~~~~~~
+/tmp/ccq8wFN2.o: In function `main':
+lud_AI.c:(.text+0x310): undefined reference to `create_matrix_from_file'
+lud_AI.c:(.text+0x32a): undefined reference to `create_matrix_from_file'
+lud_AI.c:(.text+0x39a): undefined reference to `create_matrix'
+lud_AI.c:(.text+0x3ae): undefined reference to `create_matrix'
+lud_AI.c:(.text+0x42b): undefined reference to `matrix_duplicate'
+lud_AI.c:(.text+0x441): undefined reference to `matrix_duplicate'
+lud_AI.c:(.text+0x44d): undefined reference to `stopwatch_start'
+lud_AI.c:(.text+0x476): undefined reference to `lud_omp_cpu'
+lud_AI.c:(.text+0x4d5): undefined reference to `lud_omp_gpu'
+lud_AI.c:(.text+0x517): undefined reference to `stopwatch_stop'
+lud_AI.c:(.text+0x523): undefined reference to `get_interval_by_sec'
+lud_AI.c:(.text+0x576): undefined reference to `lud_verify'
+lud_AI.c:(.text+0x58c): undefined reference to `lud_verify'
+collect2: error: ld returned 1 exit status
+Rodinia/lud/src/lud_AI.c: In function 'main':
+Rodinia/lud/src/lud_AI.c:125:3: warning: implicit declaration of function 'lud_omp_cpu' [-Wimplicit-function-declaration]
+   lud_omp_cpu(m_cpu, matrix_dim);
+   ^~~~~~~~~~~
+Rodinia/lud/src/lud_AI.c:130:3: warning: implicit declaration of function 'lud_omp_gpu' [-Wimplicit-function-declaration]
+   lud_omp_gpu(m_gpu, matrix_dim);
+   ^~~~~~~~~~~
+/tmp/ccRR8Tha.o: In function `main':
+lud_AI.c:(.text+0x310): undefined reference to `create_matrix_from_file'
+lud_AI.c:(.text+0x32a): undefined reference to `create_matrix_from_file'
+lud_AI.c:(.text+0x39a): undefined reference to `create_matrix'
+lud_AI.c:(.text+0x3ae): undefined reference to `create_matrix'
+lud_AI.c:(.text+0x42b): undefined reference to `matrix_duplicate'
+lud_AI.c:(.text+0x441): undefined reference to `matrix_duplicate'
+lud_AI.c:(.text+0x44d): undefined reference to `stopwatch_start'
+lud_AI.c:(.text+0x476): undefined reference to `lud_omp_cpu'
+lud_AI.c:(.text+0x4d5): undefined reference to `lud_omp_gpu'
+lud_AI.c:(.text+0x517): undefined reference to `stopwatch_stop'
+lud_AI.c:(.text+0x523): undefined reference to `get_interval_by_sec'
+lud_AI.c:(.text+0x576): undefined reference to `lud_verify'
+lud_AI.c:(.text+0x58c): undefined reference to `lud_verify'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/lud/src/lud_omp.c
+Rodinia/lud/src/lud_omp_AI.c: In function 'lud_omp_cpu':
+Rodinia/lud/src/lud_omp_AI.c:91:16: error: 'TM19' undeclared (first use in this function)
+     int tmc5 = TM19[1] * (21);
+                ^~~~
+Rodinia/lud/src/lud_omp_AI.c:91:16: note: each undeclared identifier is reported only once for each function it appears in
+Rodinia/lud/src/lud_omp_AI.c:93:16: error: 'TM18' undeclared (first use in this function)
+     int tmc3 = TM18[1] * (21);
+                ^~~~
+Rodinia/lud/src/lud_omp_AI.c: In function 'lud_omp_gpu':
+Rodinia/lud/src/lud_omp_AI.c:196:18: error: 'TM19' undeclared (first use in this function)
+       int tmc5 = TM19[1] * (21);
+                  ^~~~
+Rodinia/lud/src/lud_omp_AI.c:198:18: error: 'TM18' undeclared (first use in this function)
+       int tmc3 = TM18[1] * (21);
+                  ^~~~
+Rodinia/lud/src/lud_omp_AI.c:299:1: error: expected declaration or statement at end of input
+ }
+ ^
+Rodinia/lud/src/lud_omp_AI.c:299:1: error: expected declaration or statement at end of input
+Rodinia/lud/src/lud_omp_AI.c: In function 'lud_omp_cpu':
+Rodinia/lud/src/lud_omp_AI.c:91:16: error: 'TM19' undeclared (first use in this function)
+     int tmc5 = TM19[1] * (21);
+                ^~~~
+Rodinia/lud/src/lud_omp_AI.c:91:16: note: each undeclared identifier is reported only once for each function it appears in
+Rodinia/lud/src/lud_omp_AI.c:93:16: error: 'TM18' undeclared (first use in this function)
+     int tmc3 = TM18[1] * (21);
+                ^~~~
+Rodinia/lud/src/lud_omp_AI.c: In function 'lud_omp_gpu':
+Rodinia/lud/src/lud_omp_AI.c:196:18: error: 'TM19' undeclared (first use in this function)
+       int tmc5 = TM19[1] * (21);
+                  ^~~~
+Rodinia/lud/src/lud_omp_AI.c:198:18: error: 'TM18' undeclared (first use in this function)
+       int tmc3 = TM18[1] * (21);
+                  ^~~~
+Rodinia/lud/src/lud_omp_AI.c:299:1: error: expected declaration or statement at end of input
+ }
+ ^
+Rodinia/lud/src/lud_omp_AI.c:299:1: error: expected declaration or statement at end of input
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/lud/src/tools/gen_input.c
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/srad/src/define.c
+gcc-6: error: Rodinia/srad/src/define_AI.c: No such file or directory
+gcc-6: error: Rodinia/srad/src/define_AI.c: No such file or directory
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/srad/src/graphics.c
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.004s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/srad/src/main.c
+Rodinia/srad/src/main_AI.c: In function 'main':
+Rodinia/srad/src/main_AI.c:627:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : SETUP VARIABLES\n",
+                            ^
+Rodinia/srad/src/main_AI.c:630:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : READ COMMAND LINE PARAMETERS\n",
+                            ^
+Rodinia/srad/src/main_AI.c:633:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : READ IMAGE FROM FILE\n",
+                            ^
+Rodinia/srad/src/main_AI.c:636:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : RESIZE IMAGE\n", (float)(time4 - time3) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:638:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : SETUP, MEMORY ALLOCATION\n",
+                            ^
+Rodinia/srad/src/main_AI.c:641:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : EXTRACT IMAGE\n", (float)(time6 - time5) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:643:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : COMPUTE\n", (float)(time7 - time6) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:645:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : COMPRESS IMAGE\n",
+                            ^
+Rodinia/srad/src/main_AI.c:648:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : SAVE IMAGE INTO FILE\n",
+                            ^
+Rodinia/srad/src/main_AI.c:651:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : FREE MEMORY\n", (float)(time10 - time9) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+ }
+ ^
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+Rodinia/srad/src/main_AI.c:436:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(                                               \
+         ^~~
+Rodinia/srad/src/main_AI.c: In function 'main':
+Rodinia/srad/src/main_AI.c:627:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : SETUP VARIABLES\n",
+                            ^
+Rodinia/srad/src/main_AI.c:630:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : READ COMMAND LINE PARAMETERS\n",
+                            ^
+Rodinia/srad/src/main_AI.c:633:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : READ IMAGE FROM FILE\n",
+                            ^
+Rodinia/srad/src/main_AI.c:636:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : RESIZE IMAGE\n", (float)(time4 - time3) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:638:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : SETUP, MEMORY ALLOCATION\n",
+                            ^
+Rodinia/srad/src/main_AI.c:641:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : EXTRACT IMAGE\n", (float)(time6 - time5) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:643:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : COMPUTE\n", (float)(time7 - time6) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:645:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : COMPRESS IMAGE\n",
+                            ^
+Rodinia/srad/src/main_AI.c:648:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : SAVE IMAGE INTO FILE\n",
+                            ^
+Rodinia/srad/src/main_AI.c:651:28: warning: unknown conversion type character ':' in format [-Wformat=]
+   printf("%.12f s, %.12f % : FREE MEMORY\n", (float)(time10 - time9) / 1000000,
+                            ^
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+ }
+ ^
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+Rodinia/srad/src/main_AI.c:667:1: error: expected declaration or statement at end of input
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/srad/src/resize.c
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : Rodinia/srad/src/timer.c
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+/usr/lib/gcc/x86_64-linux-gnu/6/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/collinear-list/src/collinear-list_gpu.c
+mgBench/collinear-list/src/collinear-list_gpu_AI.c: In function 'colinear_list_points_GPU':
+mgBench/collinear-list/src/collinear-list_gpu_AI.c:67:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : points[0 : SIZE]) \
+         ^~~
+
+real	0m17.480s
+user	0m45.392s
+sys	0m0.004s
+
+real	0m29.003s
+user	0m29.000s
+sys	0m0.000s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/cholesky/src/cholesky_gpu.c
+/tmp/ccvlL8XX.o: In function `cholesky_GPU':
+cholesky_gpu_AI.c:(.text+0x355): undefined reference to `sqrt'
+/tmp/ccvlL8XX.o: In function `cholesky_CPU._omp_fn.3':
+cholesky_gpu_AI.c:(.text+0xc80): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+/tmp/ccEVouab.o: In function `cholesky_GPU':
+cholesky_gpu_AI.c:(.text+0x3bc): undefined reference to `sqrt'
+/tmp/ccEVouab.o: In function `cholesky_CPU':
+cholesky_gpu_AI.c:(.text+0x5b0): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/floyd/src/floyd_gpu.c
+mgBench/floyd/src/floyd_gpu_AI.c: In function 'init':
+mgBench/floyd/src/floyd_gpu_AI.c:64:16: error: 'TM15' undeclared (first use in this function)
+     int tmc2 = TM15[3] * (24);
+                ^~~~
+mgBench/floyd/src/floyd_gpu_AI.c:64:16: note: each undeclared identifier is reported only once for each function it appears in
+mgBench/floyd/src/floyd_gpu_AI.c:243:1: error: expected declaration or statement at end of input
+ }
+ ^
+mgBench/floyd/src/floyd_gpu_AI.c:243:1: error: expected declaration or statement at end of input
+mgBench/floyd/src/floyd_gpu_AI.c: In function 'init':
+mgBench/floyd/src/floyd_gpu_AI.c:64:16: error: 'TM15' undeclared (first use in this function)
+     int tmc2 = TM15[3] * (24);
+                ^~~~
+mgBench/floyd/src/floyd_gpu_AI.c:64:16: note: each undeclared identifier is reported only once for each function it appears in
+mgBench/floyd/src/floyd_gpu_AI.c:243:1: error: expected declaration or statement at end of input
+ }
+ ^
+mgBench/floyd/src/floyd_gpu_AI.c:243:1: error: expected declaration or statement at end of input
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.004s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/k-nearest/src/k-nearest_gpu.c
+mgBench/k-nearest/src/k-nearest_gpu_AI.c: In function 'k_nearest_gpu':
+mgBench/k-nearest/src/k-nearest_gpu_AI.c:72:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : pivots[0 : SIZE_2], the_points[0 : SIZE]) \
+         ^~~
+/tmp/cc8LP1Is.o: In function `k_nearest_cpu':
+k-nearest_gpu_AI.c:(.text+0x45a): undefined reference to `sqrt'
+/tmp/cc8LP1Is.o: In function `k_nearest_gpu._omp_fn.2':
+k-nearest_gpu_AI.c:(.text+0xbb5): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+/tmp/ccZFRfAC.o: In function `k_nearest_gpu':
+k-nearest_gpu_AI.c:(.text+0x3a6): undefined reference to `sqrt'
+/tmp/ccZFRfAC.o: In function `k_nearest_cpu':
+k-nearest_gpu_AI.c:(.text+0x623): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/lu-decomposition/src/lu-decomposition_gpu.c
+/tmp/ccb1wWLQ.o: In function `main':
+lu-decomposition_gpu_AI.c:(.text+0x781): undefined reference to `omp_get_num_threads'
+lu-decomposition_gpu_AI.c:(.text+0x7ae): undefined reference to `omp_get_num_threads'
+lu-decomposition_gpu_AI.c:(.text+0x83a): undefined reference to `omp_get_num_threads'
+lu-decomposition_gpu_AI.c:(.text+0x867): undefined reference to `omp_get_num_threads'
+collect2: error: ld returned 1 exit status
+
+real	0m4.664s
+user	0m51.188s
+sys	0m0.004s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/mat-mul/src/mat-mul_gpu.c
+
+real	0m18.519s
+user	0m18.852s
+sys	0m0.004s
+
+real	0m9.390s
+user	0m9.380s
+sys	0m0.008s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/mat-sum/src/mat-sum_gpu.c
+mgBench/mat-sum/src/mat-sum_gpu_AI.c: In function 'sum_GPU':
+mgBench/mat-sum/src/mat-sum_gpu_AI.c:52:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : a[0 : SIZE *SIZE], b[0 : SIZE *SIZE]) \
+         ^~~
+
+real	0m0.083s
+user	0m0.168s
+sys	0m0.004s
+
+real	0m0.057s
+user	0m0.048s
+sys	0m0.008s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/other-nearest/src/other-nearest_gpu.c
+mgBench/other-nearest/src/other-nearest_gpu_AI.c: In function 'compareResults':
+mgBench/other-nearest/src/other-nearest_gpu_AI.c:222:1: error: expected declaration or statement at end of input
+ }
+ ^
+mgBench/other-nearest/src/other-nearest_gpu_AI.c:222:1: error: expected declaration or statement at end of input
+mgBench/other-nearest/src/other-nearest_gpu_AI.c: In function 'compareResults':
+mgBench/other-nearest/src/other-nearest_gpu_AI.c:222:1: error: expected declaration or statement at end of input
+ }
+ ^
+mgBench/other-nearest/src/other-nearest_gpu_AI.c:222:1: error: expected declaration or statement at end of input
+./run_all.sh: line 160: ./testP: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 161: ./testS: No such file or directory
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+rm: cannot remove 'testP': No such file or directory
+rm: cannot remove 'testS': No such file or directory
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/search-vector/src/search-vector_gpu.c
+
+real	0m0.012s
+user	0m0.040s
+sys	0m0.004s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/str-matching/src/str-matching_gpu.c
+mgBench/str-matching/src/str-matching_gpu_AI.c: In function 'string_matching_GPU':
+mgBench/str-matching/src/str-matching_gpu_AI.c:67:9: warning: 'target' construct inside of 'target' region
+ #pragma omp target map(to : frase[0 : SIZE], palavra[0 : SIZE2]) \
+         ^~~
+
+real	0m0.023s
+user	0m0.096s
+sys	0m0.004s
+
+real	0m0.004s
+user	0m0.000s
+sys	0m0.000s
+./run_all.sh: line 156: count: command not found
+./run_all.sh: line 157: count: command not found
+Running  : mgBench/vector-product/src/vector-product_gpu.c
+
+real	0m0.012s
+user	0m0.028s
+sys	0m0.004s
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.000s

@@ -1,0 +1,429 @@
+Running  : OMPSpec/target-3c/src/target-3c.c
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 28.294542s
+CPU Runtime: 33.524787s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 21.752169s
+CPU Runtime: 21.646549s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : OMPSpec/target-data-1c/src/target-data-1c.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : OMPSpec/target-data-2c/src/target-data-2c.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : OMPSpec/target-data-6c/src/target-data-6c.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/2DCONV/src/2DConvolution.c
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 1.701046s
+CPU Runtime: 1.689118s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+>> Two dimensional (2D) convolution <<
+GPU Runtime: 1.362263s
+CPU Runtime: 1.362699s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Polybench/2MM/src/2mm.c
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 27.910109s
+CPU Runtime: 34.581067s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
+GPU Runtime: 21.089220s
+CPU Runtime: 20.978772s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Polybench/3DCONV/src/3DConvolution.c
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 6.720645s
+CPU Runtime: 7.636305s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 0
+>> Three dimensional (3D) convolution <<
+GPU Runtime: 5.062425s
+CPU Runtime: 5.064134s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 0
+Running  : Polybench/3MM/src/3mm.c
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 6.350508s
+CPU Runtime: 6.313582s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
+GPU Runtime: 3.852942s
+CPU Runtime: 3.815564s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Polybench/ATAX/src/atax.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/BICG/src/bicg.c
+./run_all.sh: line 160: ./testP: No such file or directory
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 1.626798s
+CPU Runtime: 0.569093s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 0
+Running  : Polybench/CORR/src/correlation.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/COVAR/src/covariance.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/FDTD-2D/src/fdtd2d.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/GEMM/src/gemm.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/GESUMMV/src/gesummv.c
+./run_all.sh: line 160: ./testP: No such file or directory
+<< Scalar, Vector and Matrix Multiplication >>
+GPU Runtime: 0.582146s
+CPU Runtime: 0.529295s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Polybench/GRAMSCHM/src/gramschmidt.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/MVT/src/mvt.c
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.482414s
+CPU Runtime: 0.838240s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Matrix Vector Product and Transpose >>
+GPU Runtime: 0.407949s
+CPU Runtime: 0.405627s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Polybench/SYR2K/src/syr2k.c
+<< Symmetric rank-2k operations >>
+GPU Runtime: 125.315742s
+CPU Runtime: 159.437010s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1938602
+<< Symmetric rank-2k operations >>
+GPU Runtime: 78.515723s
+CPU Runtime: 98.117981s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1938602
+Running  : Polybench/SYRK/src/syrk.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Polybench/SYRK_M/src/syrk_m.c
+GPU Runtime: 5.769588s
+CPU Runtime: 5.136668s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+GPU Runtime: 5.690548s
+CPU Runtime: 5.144602s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Rodinia/backprop/src/backprop.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/backprop/src/backprop_kernel.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/backprop/src/facetrain.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/backprop/src/imagenet.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/bfs/src/bfs.c
+Usage: ./testP <num_threads> <input_file>
+Usage: ./testS <num_threads> <input_file>
+Running  : Rodinia/b+tree/src/main.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/b+tree/src/kernel/kernel_cpu.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/b+tree/src/kernel/kernel_cpu_2.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/lud/src/lud.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/lud/src/lud_omp.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/lud/src/tools/gen_input.c
+./gen_input [Matrix_Dimension_size]
+./gen_input [Matrix_Dimension_size]
+Running  : Rodinia/srad/src/define.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/srad/src/graphics.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/srad/src/main.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/srad/src/resize.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/srad/src/timer.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : mgBench/collinear-list/src/collinear-list_gpu.c
+<< Collinear List >>
+GPU Runtime: 2.604788s
+CPU Runtime: 14.443315s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Collinear List >>
+GPU Runtime: 14.550842s
+CPU Runtime: 14.442543s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : mgBench/cholesky/src/cholesky_gpu.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : mgBench/floyd/src/floyd_gpu.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : mgBench/k-nearest/src/k-nearest_gpu.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : mgBench/lu-decomposition/src/lu-decomposition_gpu.c
+<< LU decomposition GPU >>
+GPU Runtime: 2.336322s
+CPU Runtime: 2.246685s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : mgBench/mat-mul/src/mat-mul_gpu.c
+<< Matrix Multiplication >>
+GPU Runtime: 9.143984s
+CPU Runtime: 9.067273s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
+<< Matrix Multiplication >>
+GPU Runtime: 4.751596s
+CPU Runtime: 4.618707s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
+Running  : mgBench/mat-sum/src/mat-sum_gpu.c
+<< Matrix Sum >>
+GPU Runtime: 0.018418s
+CPU Runtime: 0.006760s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
+<< Matrix Sum >>
+GPU Runtime: 0.010144s
+CPU Runtime: 0.009014s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
+Running  : mgBench/other-nearest/src/other-nearest_gpu.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : mgBench/search-vector/src/search-vector_gpu.c
+<< Search Vector >>
+GPU Runtime: 0.000003s
+CPU Runtime: 0.000003s
+Working 494=494
+<< Search Vector >>
+GPU Runtime: 0.000004s
+CPU Runtime: 0.000003s
+Working 494=494
+Running  : mgBench/str-matching/src/str-matching_gpu.c
+<< String Matching >>
+CPU Runtime: 0.002036s
+GPU Runtime: 0.015888s
+Error: 500 != 445
+<< String Matching >>
+CPU Runtime: 0.001305s
+GPU Runtime: 0.001390s
+Corrects answers: 500 = 500
+Running  : mgBench/vector-product/src/vector-product_gpu.c
+<< Vector Product >>
+GPU Runtime: 0.006118s
+CPU Runtime: 0.006160s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Vector Product >>
+GPU Runtime: 0.000005s
+CPU Runtime: 0.000005s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : OMPSpec/target-3c/src/target-3c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-1c/src/target-data-1c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-2c/src/target-data-2c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-6c/src/target-data-6c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/2DCONV/src/2DConvolution.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/2MM/src/2mm.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/3DCONV/src/3DConvolution.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/3MM/src/3mm.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/ATAX/src/atax.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/BICG/src/bicg.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/CORR/src/correlation.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/COVAR/src/covariance.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/FDTD-2D/src/fdtd2d.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/GEMM/src/gemm.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/GESUMMV/src/gesummv.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/GRAMSCHM/src/gramschmidt.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/MVT/src/mvt.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/SYR2K/src/syr2k.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/SYRK/src/syrk.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/SYRK_M/src/syrk_m.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/backprop/src/backprop.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/backprop/src/backprop_kernel.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/backprop/src/facetrain.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/backprop/src/imagenet.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/bfs/src/bfs.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/b+tree/src/main.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/b+tree/src/kernel/kernel_cpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/b+tree/src/kernel/kernel_cpu_2.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/lud/src/lud.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/lud/src/lud_omp.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/lud/src/tools/gen_input.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/srad/src/define.c
+./run_all.sh: line 160: ./testP: No such file or directory
+./run_all.sh: line 161: ./testS: No such file or directory
+Running  : Rodinia/srad/src/graphics.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/srad/src/main.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/srad/src/resize.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Rodinia/srad/src/timer.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/collinear-list/src/collinear-list_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/cholesky/src/cholesky_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/floyd/src/floyd_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/k-nearest/src/k-nearest_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/lu-decomposition/src/lu-decomposition_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/mat-mul/src/mat-mul_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/mat-sum/src/mat-sum_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/other-nearest/src/other-nearest_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/search-vector/src/search-vector_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/str-matching/src/str-matching_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : mgBench/vector-product/src/vector-product_gpu.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-3c/src/target-3c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-1c/src/target-data-1c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-2c/src/target-data-2c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-6c/src/target-data-6c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/2DCONV/src/2DConvolution.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/2MM/src/2mm.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/3DCONV/src/3DConvolution.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/3MM/src/3mm.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/ATAX/src/atax.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/BICG/src/bicg.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/CORR/src/correlation.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/COVAR/src/covariance.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/FDTD-2D/src/fdtd2d.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/GEMM/src/gemm.c
+Running  : OMPSpec/target-3c/src/target-3c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-1c/src/target-data-1c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-2c/src/target-data-2c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : OMPSpec/target-data-6c/src/target-data-6c.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/2DCONV/src/2DConvolution.c
+./run_all.sh: line 160: ./testP: Permission denied
+./run_all.sh: line 161: ./testS: Permission denied
+Running  : Polybench/2MM/src/2mm.c

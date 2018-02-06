@@ -1,0 +1,8 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:39 BRST 2016
+./benchmarks/Polybench/2MM/src/2mm.c:18:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+\n---------------------------------------------------------
+Thu Feb 18 15:22:37 BRST 2016

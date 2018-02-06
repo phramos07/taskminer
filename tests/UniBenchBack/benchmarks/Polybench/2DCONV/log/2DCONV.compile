@@ -1,0 +1,8 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:38 BRST 2016
+./benchmarks/Polybench/2DCONV/src/2DConvolution.c:19:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+\n---------------------------------------------------------
+Thu Feb 18 15:22:37 BRST 2016
