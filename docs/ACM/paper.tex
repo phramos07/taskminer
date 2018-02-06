@@ -333,23 +333,27 @@ correctness of the automatic parallelization of this program.}
 \end{center}
 \end{figure}
 
-The OpenMP runtime support allows the parallelization of irregular applications,
+OpenMP's runtime support allows the parallelization of irregular applications,
 such as programs that traverse data-structures formed by a mesh of pointers.
 In such programs, control constructs like {\tt if} statements make the
-execution  of certain pieces of code dependent on the program's input.
+execution of some statements dependent on the program's input.
 The runtime can capture such dependences, in contrast to static analysis tools.
 As an example, Figure~\ref{fig:ex_book_filter} shows an application that
-finds patterns in lines of a book.
-The book is given as an array of pointers; each pointer leads to a
-string representing a --potentially-- different line.
-The natural parallelization of this program consists in firing off a task
+finds patterns in lines of a book\footnote{Whenever we show code, statements in
+black font are part of the original program.
+The annotations that we create automatically appear in grey.
+The meaning of the pragmas used in the examples is explained in
+Section~\ref{sec:sol}}.
+The book is given as an array of pointers.
+Each pointer leads to a string representing a potentially different line.
+Out parallelization of this program consists in firing off a task
 to process each line.
-Figure~\ref{fig:ex_book_filter} has been annotated automatically by
+Figure~\ref{fig:ex_book_filter} has been annotated by
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, by assuring that the annotated input dependencies
-{\tt line} and {\tt pattern}  are 
-respected at runtime.
+created at lines 9 and 11, by assuring that the annotated dependencies
+{\tt line} and {\tt pattern}
+are respected at runtime.
 
 \subsection{Challenges}
 \label{sub:dif}
@@ -378,9 +382,7 @@ tasks.}
 \end{figure}
 
 Figure~\ref{fig:ex_Regions} illustrates Challenge~\ref{ch:Regions}, and shows
-how we solve it\footnote{Whenever we show code, statements in black font are part
-of the original program.
-The annotations that we create automatically appear in grey.}.
+how we solve it.
 That program receives an $\mathsf{M}\times\mathsf{N}$ matrix \textsf{V}, in
 linearized format, and produces a vector \textsf{U}, so that \textsf{U[i]}
 contains the sum of all the elements in line \textsf{i} of matrix \textsf{V}.
@@ -508,7 +510,8 @@ techniques, in order to adapt them to our purposes.
 \begin{figure}[b]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/alg_main}
-\caption{The main steps of our code generator.}
+\caption{The main steps of our code generator.
+Grey boxes show sections in this paper where each phase is discussed.}
 \label{fig:alg_main}
 \end{center}
 \end{figure}
@@ -817,7 +820,7 @@ In other words, we use symbolic range analysis to construct expressions that
 represent the number of iterations of loops.
 Similar approach has already been used to decide when to migrate virtual memory
 pages in NUMA architectures~\cite{Piccoli14}.
-OpenMP 3.0 contains syntax to enable the conditional creation of tasks.
+OpenMP 4.0 contains syntax to enable the conditional creation of tasks.
 Our symbolic analysis lets us build predicates for such conditional expressions.
 
 \begin{example}

@@ -130,11 +130,15 @@ class RecoverExpressions : public FunctionPass {
 
   std::string getPrivateStr (std::set<Value*> V);
 
+  std::string getSharedStr (std::set<Value*> V);
+
   std::string getDataPragmaRegion (std::map<std::string, std::string> & vctLower,
                                std::map<std::string, std::string> & vctUpper,
                                std::map<std::string, char> & vctPtMA);
 
   bool isValidPrivateStr (std::set<Value*> V);
+
+  bool isValidSharedStr (std::set<Value*> V);
 
   bool analyzeLoop (Loop* L, int Line, int LastLine, PtrRangeAnalysis *ptrRA,
                     RegionInfoPass *rp, AliasAnalysis *aa, ScalarEvolution *se,

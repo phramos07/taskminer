@@ -159,6 +159,7 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
     return output;
   }
   std::string priv = std::string();
+  std::string shar = std::string();
   std::string name = F->getName();
   /*if (F->empty() || (name == "llvm.dbg.declare")) {
     valid = false;
@@ -204,7 +205,10 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
         }
         if (!isValidPrivateStr(I->getPrivateValues()))
           isTask = false;
+        if (!isValidSharedStr(I->getSharedValues()))
+           isTask = false;
         priv = getPrivateStr(I->getPrivateValues());
+        shar = getSharedStr(I->getSharedValues());
         output = std::string();
         isTask = true;
         break;
@@ -223,7 +227,10 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
         insertCutoff(CI->getCalledFunction());
         if (!isValidPrivateStr(I->getPrivateValues()))
           isTask = false;
+        if (!isValidSharedStr(I->getSharedValues()))
+           isTask = false;
         priv = getPrivateStr(I->getPrivateValues());
+        shar = getSharedStr(I->getSharedValues());
         /*if (RT->hasSyncBarrier()) {
           L1 = this->li->getLoopFor(CI->getParent());
           L2 = L1;
@@ -306,13 +313,17 @@ std::string RecoverExpressions::analyzeCallInst(CallInst *CI,
   }
   // HERE
   if (output == std::string()) {
+    if ((priv != std::string()) && (shar != std::string()))
+      return priv + shar;
     if (priv != std::string())
       return priv;
+    if (shar != std::string())
+      return shar;
+    
     return "\n\n[UNDEF\nVALUE]\n\n";
   }
-  errs() << "PRIV = " << priv << "\n";
   output += priv;
-  errs() << "OUTP = " << output << "\n";
+  output += shar;
   return output;
 }
 
@@ -652,6 +663,52 @@ bool RecoverExpressions::isValidPrivateStr(std::set<Value*> V) {
   if ((V.size() > 0) && (getPrivateStr(V) != std::string()))
     return true;
   return false;
+}
+
+bool RecoverExpressions::isValidSharedStr(std::set<Value*> V) {
+  bool hasInst = false;
+  for (auto &It : V) {
+    if (isa<Instruction>(It))
+      hasInst = true;
+  }
+  if ((hasInst == false) || (V.size() == 0))
+    return true;
+  errs() << "Test = " << ((V.size() > 0) && (getSharedStr(V) != std::string())) << "\n";
+  if ((V.size() > 0) && (getSharedStr(V) != std::string()))
+    return true;
+  return false;
+}
+
+std::string RecoverExpressions::getSharedStr(std::set<Value*> V) {
+  if (V.size() == 0)
+    return std::string();
+  std::string str = " shared(";
+  Instruction *I = nullptr;
+  for (auto &It : V) {
+    if (isa<Instruction>(It))
+      I = cast<Instruction>(It);
+  }
+  if (I == nullptr) {
+    errs() << "Error 1\n";
+    return std::string();
+  }
+  Module *M = I->getParent()->getParent()->getParent();
+  const DataLayout DT = DataLayout(M); 
+  RecoverPointerMD RPM;
+  std::string computationName = "TM" + std::to_string(getNewIndex());
+  RPM.setNAME(computationName);
+  RPM.setRecoverNames(rn);
+  RPM.initializeNewVars();
+  int i = 1;
+  for (auto &It : V) {
+    str += analyzeValue(It, &DT, &RPM); 
+    if (i != V.size())
+      str += ",";
+    i++;
+  }
+  str += ")";
+  //errs() << str << "\n";
+  return str;
 }
 
 std::string RecoverExpressions::getPrivateStr(std::set<Value*> V) {
