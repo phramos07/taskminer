@@ -1,0 +1,8 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:41 BRST 2016
+./benchmarks/Polybench/GESUMMV/src/gesummv.c:19:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+\n---------------------------------------------------------
+Thu Feb 18 15:22:40 BRST 2016

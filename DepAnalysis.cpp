@@ -164,16 +164,23 @@ void DepAnalysis::createProgramDependenceGraph(Function &F)
 
 void DepAnalysis::createRegionTree(Function &F)
 {
+	errs() << "\nCreating region tree for funntion F: " << F.getName() << "\n";
 	RT = new RegionTree();
 	std::set<Region*> allRegions;
 
 	//Create all region wrappers
 	std::map<Region*, RegionWrapper*> regionWrappers;
+	errs() << "\nIterating on basic blocks of this function...\n";
 	for (Function::iterator BB = F.begin(), E = F.end(); BB != E; ++BB)
 	{
+		errs() << BB->getName() << "\n";
 		RegionWrapper* RW = new RegionWrapper();
 		Region* R = RI->getRegionFor(BB);
+		if (R == nullptr)
+			continue;
 		regionWrappers[R] = RW;
+
+		R->dump();
 
 		RW->topLevel = R->isTopLevelRegion();
 		Loop* L = LI->getLoopFor(BB);
@@ -184,6 +191,7 @@ void DepAnalysis::createRegionTree(Function &F)
 		}
 	}
 
+	errs() << "\nInsterting nodes in region tree\n";
 	//Collect all region data and insert the nodes in the region tree
 	for (auto &r : regionWrappers)
 	{

@@ -1,0 +1,78 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:49 BRST 2016
+./benchmarks/Rodinia/backprop/src/backprop.c:10:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+./benchmarks/Rodinia/backprop/src/facetrain.c:5:10: fatal error: 'omp.h' file not found
+#include "omp.h"
+         ^
+1 error generated.
+./benchmarks/Rodinia/backprop/src/imagenet.c:6:8: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+extern layer_size;
+~~~~~~ ^
+./benchmarks/Rodinia/backprop/src/imagenet.c:8:1: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+load(net)
+^~~~
+./benchmarks/Rodinia/backprop/src/imagenet.c:24:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+3 warnings generated.
+\n---------------------------------------------------------
+Thu Feb 18 15:22:46 BRST 2016
+./benchmarks/Rodinia/backprop/src/backprop.c:97:1: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+bpnn_randomize_weights(w, m, n)
+^~~~~~~~~~~~~~~~~~~~~~
+./benchmarks/Rodinia/backprop/src/backprop.c:109:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+./benchmarks/Rodinia/backprop/src/backprop.c:111:1: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+bpnn_randomize_row(w, m)
+^~~~~~~~~~~~~~~~~~
+./benchmarks/Rodinia/backprop/src/backprop.c:120:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+./benchmarks/Rodinia/backprop/src/backprop.c:123:1: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+bpnn_zero_weights(w, m, n)
+^~~~~~~~~~~~~~~~~
+./benchmarks/Rodinia/backprop/src/backprop.c:134:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+./benchmarks/Rodinia/backprop/src/backprop.c:563:13: warning: implicit declaration of function 'open' is invalid in C99 [-Wimplicit-function-declaration]
+  if ((fd = open(filename, 0, 0644)) == -1) {
+            ^
+./benchmarks/Rodinia/backprop/src/backprop.c:569:3: warning: implicit declaration of function 'read' is invalid in C99 [-Wimplicit-function-declaration]
+  read(fd, (char *) &n1, sizeof(int));
+  ^
+./benchmarks/Rodinia/backprop/src/backprop.c:600:3: warning: implicit declaration of function 'close' is invalid in C99 [-Wimplicit-function-declaration]
+  close(fd);
+  ^
+9 warnings generated.
+./benchmarks/Rodinia/backprop/src/facetrain.c:12:1: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+backprop_face()
+^~~~~~~~~~~~~
+./benchmarks/Rodinia/backprop/src/facetrain.c:19:3: warning: implicit declaration of function 'load' is invalid in C99 [-Wimplicit-function-declaration]
+  load(net);
+  ^
+./benchmarks/Rodinia/backprop/src/facetrain.c:24:3: warning: implicit declaration of function 'bpnn_train_kernel' is invalid in C99 [-Wimplicit-function-declaration]
+  bpnn_train_kernel(net, &out_err, &hid_err);
+  ^
+./benchmarks/Rodinia/backprop/src/facetrain.c:29:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+4 warnings generated.
+./benchmarks/Rodinia/backprop/src/imagenet.c:6:8: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+extern layer_size;
+~~~~~~ ^
+./benchmarks/Rodinia/backprop/src/imagenet.c:8:1: warning: type specifier missing, defaults to 'int' [-Wimplicit-int]
+load(net)
+^~~~
+./benchmarks/Rodinia/backprop/src/imagenet.c:24:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+3 warnings generated.
+/tmp/backprop-CrlB0w.o: In function `squash':
+./benchmarks/Rodinia/backprop/src/backprop.c:(.text+0x218): undefined reference to `exp'
+/tmp/backprop-CrlB0w.o: In function `bpnn_layerforward':
+./benchmarks/Rodinia/backprop/src/backprop.c:(.text+0xb26): undefined reference to `exp'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

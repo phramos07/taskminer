@@ -1,0 +1,2659 @@
+; ModuleID = '/home/gleison/lge/dawn-3.7/UniBench/benchmarks//mgBench/k-nearest/src/k-nearest_gpu.bc'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+%struct._IO_FILE = type { i32, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, %struct._IO_marker*, %struct._IO_FILE*, i32, i32, i64, i16, i8, [1 x i8], i8*, i64, i8*, i8*, i8*, i8*, i64, i32, [20 x i8] }
+%struct._IO_marker = type { %struct._IO_marker*, %struct._IO_FILE*, i32 }
+%struct.timezone = type { i32, i32 }
+%struct.timeval = type { i64, i64 }
+%struct.point = type { i32, i32 }
+%struct.sel_points = type { i32, float }
+
+@.str = private unnamed_addr constant [35 x i8] c"Error return from gettimeofday: %d\00", align 1
+@.str.1 = private unnamed_addr constant [74 x i8] c"Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\0A\00", align 1
+@stdout = external global %struct._IO_FILE*, align 8
+@.str.2 = private unnamed_addr constant [17 x i8] c"<< K-nearest >>\0A\00", align 1
+@.str.3 = private unnamed_addr constant [22 x i8] c"GPU Runtime: %0.6lfs\0A\00", align 1
+@.str.4 = private unnamed_addr constant [22 x i8] c"CPU Runtime: %0.6lfs\0A\00", align 1
+
+; Function Attrs: nounwind uwtable
+define double @rtclock() #0 {
+entry:
+  %Tzp = alloca %struct.timezone, align 4
+  %Tp = alloca %struct.timeval, align 8
+  call void @llvm.dbg.declare(metadata %struct.timezone* %Tzp, metadata !49, metadata !55), !dbg !56
+  call void @llvm.dbg.declare(metadata %struct.timeval* %Tp, metadata !57, metadata !55), !dbg !67
+  %call = call i32 @gettimeofday(%struct.timeval* %Tp, %struct.timezone* %Tzp) #4, !dbg !68
+  call void @llvm.dbg.value(metadata i32 %call, i64 0, metadata !69, metadata !55), !dbg !70
+  %cmp = icmp ne i32 %call, 0, !dbg !71
+  br i1 %cmp, label %if.then, label %if.end, !dbg !73
+
+if.then:                                          ; preds = %entry
+  %call1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([35 x i8], [35 x i8]* @.str, i32 0, i32 0), i32 %call), !dbg !74
+  br label %if.end, !dbg !74
+
+if.end:                                           ; preds = %if.then, %entry
+  %tv_sec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i32 0, i32 0, !dbg !75
+  %tmp = load i64, i64* %tv_sec, align 8, !dbg !75
+  %conv = sitofp i64 %tmp to double, !dbg !76
+  %tv_usec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i32 0, i32 1, !dbg !77
+  %tmp1 = load i64, i64* %tv_usec, align 8, !dbg !77
+  %conv2 = sitofp i64 %tmp1 to double, !dbg !78
+  %mul = fmul double %conv2, 1.000000e-06, !dbg !79
+  %add = fadd double %conv, %mul, !dbg !80
+  ret double %add, !dbg !81
+}
+
+; Function Attrs: nounwind readnone
+declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
+
+; Function Attrs: nounwind
+declare i32 @gettimeofday(%struct.timeval*, %struct.timezone*) #2
+
+declare i32 @printf(i8*, ...) #3
+
+; Function Attrs: nounwind uwtable
+define float @absVal(float %a) #0 {
+entry:
+  call void @llvm.dbg.value(metadata float %a, i64 0, metadata !82, metadata !55), !dbg !83
+  %cmp = fcmp olt float %a, 0.000000e+00, !dbg !84
+  br i1 %cmp, label %if.then, label %if.else, !dbg !86
+
+if.then:                                          ; preds = %entry
+  %mul = fmul float %a, -1.000000e+00, !dbg !87
+  br label %return, !dbg !89
+
+if.else:                                          ; preds = %entry
+  br label %return, !dbg !90
+
+return:                                           ; preds = %if.else, %if.then
+  %retval.0 = phi float [ %mul, %if.then ], [ %a, %if.else ]
+  ret float %retval.0, !dbg !92
+}
+
+; Function Attrs: nounwind uwtable
+define float @percentDiff(double %val1, double %val2) #0 {
+entry:
+  call void @llvm.dbg.value(metadata double %val1, i64 0, metadata !93, metadata !55), !dbg !94
+  call void @llvm.dbg.value(metadata double %val2, i64 0, metadata !95, metadata !55), !dbg !96
+  %conv = fptrunc double %val1 to float, !dbg !97
+  %call = call float @absVal(float %conv), !dbg !99
+  %conv1 = fpext float %call to double, !dbg !99
+  %cmp = fcmp olt double %conv1, 1.000000e-02, !dbg !100
+  br i1 %cmp, label %land.lhs.true, label %if.else, !dbg !101
+
+land.lhs.true:                                    ; preds = %entry
+  %conv3 = fptrunc double %val2 to float, !dbg !102
+  %call4 = call float @absVal(float %conv3), !dbg !104
+  %conv5 = fpext float %call4 to double, !dbg !104
+  %cmp6 = fcmp olt double %conv5, 1.000000e-02, !dbg !105
+  br i1 %cmp6, label %if.then, label %if.else, !dbg !106
+
+if.then:                                          ; preds = %land.lhs.true
+  br label %return, !dbg !107
+
+if.else:                                          ; preds = %land.lhs.true, %entry
+  %sub = fsub double %val1, %val2, !dbg !109
+  %conv8 = fptrunc double %sub to float, !dbg !111
+  %call9 = call float @absVal(float %conv8), !dbg !112
+  %add = fadd double %val1, 0x3E45798EE0000000, !dbg !113
+  %conv10 = fptrunc double %add to float, !dbg !114
+  %call11 = call float @absVal(float %conv10), !dbg !115
+  %div = fdiv float %call9, %call11, !dbg !116
+  %call12 = call float @absVal(float %div), !dbg !117
+  %mul = fmul float 1.000000e+02, %call12, !dbg !118
+  br label %return, !dbg !119
+
+return:                                           ; preds = %if.else, %if.then
+  %retval.0 = phi float [ 0.000000e+00, %if.then ], [ %mul, %if.else ]
+  ret float %retval.0, !dbg !120
+}
+
+; Function Attrs: nounwind uwtable
+define void @init(%struct.point* %pivots, %struct.point* %the_points, %struct.sel_points* %selected_cpu, %struct.sel_points* %selected_gpu) #0 {
+entry:
+  call void @llvm.dbg.value(metadata i32 %inc, i64 0, metadata !121, metadata !55), !dbg !122
+  call void @llvm.dbg.value(metadata %struct.point* %pivots, i64 0, metadata !123, metadata !55), !dbg !124
+  call void @llvm.dbg.value(metadata %struct.point* %the_points, i64 0, metadata !125, metadata !55), !dbg !126
+  call void @llvm.dbg.value(metadata %struct.sel_points* %selected_cpu, i64 0, metadata !127, metadata !55), !dbg !128
+  call void @llvm.dbg.value(metadata %struct.sel_points* %selected_gpu, i64 0, metadata !129, metadata !55), !dbg !130
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !121, metadata !55), !dbg !122
+  %selected_gpu32 = ptrtoint %struct.sel_points* %selected_gpu to i64
+  %selected_gpu30 = bitcast %struct.sel_points* %selected_gpu to float*
+  %selected_cpu25 = ptrtoint %struct.sel_points* %selected_cpu to i64
+  %selected_cpu23 = bitcast %struct.sel_points* %selected_cpu to float*
+  %0 = ptrtoint %struct.sel_points* undef to i64
+  %1 = bitcast %struct.sel_points* undef to float*
+  %2 = ptrtoint %struct.sel_points* undef to i64
+  %3 = bitcast %struct.sel_points* undef to float*
+  %4 = ptrtoint %struct.sel_points* undef to i64
+  %5 = bitcast %struct.sel_points* undef to float*
+  %6 = ptrtoint %struct.sel_points* undef to i64
+  %7 = bitcast %struct.sel_points* undef to float*
+  %the_points18 = ptrtoint %struct.point* %the_points to i64
+  %the_points16 = bitcast %struct.point* %the_points to i32*
+  %8 = ptrtoint %struct.sel_points* undef to i64
+  %9 = bitcast %struct.sel_points* undef to float*
+  %10 = ptrtoint %struct.sel_points* undef to i64
+  %11 = bitcast %struct.sel_points* undef to float*
+  %12 = ptrtoint %struct.point* undef to i64
+  %13 = bitcast %struct.point* undef to i32*
+  %14 = ptrtoint %struct.sel_points* undef to i64
+  %15 = bitcast %struct.sel_points* undef to float*
+  %16 = ptrtoint %struct.sel_points* undef to i64
+  %17 = bitcast %struct.sel_points* undef to float*
+  %18 = ptrtoint %struct.sel_points* undef to i64
+  %19 = bitcast %struct.sel_points* undef to float*
+  %20 = ptrtoint %struct.sel_points* undef to i64
+  %21 = bitcast %struct.sel_points* undef to float*
+  %22 = ptrtoint %struct.point* undef to i64
+  %23 = bitcast %struct.point* undef to i32*
+  %24 = ptrtoint %struct.sel_points* undef to i64
+  %25 = bitcast %struct.sel_points* undef to float*
+  %26 = ptrtoint %struct.sel_points* undef to i64
+  %27 = bitcast %struct.sel_points* undef to float*
+  %28 = ptrtoint %struct.point* undef to i64
+  %29 = bitcast %struct.point* undef to i32*
+  %pivots2 = ptrtoint %struct.point* %pivots to i64
+  %pivots1 = bitcast %struct.point* %pivots to i32*
+  %30 = ptrtoint %struct.point* undef to i64
+  %31 = bitcast %struct.point* undef to i32*
+  %32 = ptrtoint %struct.point* undef to i64
+  %33 = bitcast %struct.point* undef to i32*
+  %scevgep = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !131
+  %34 = add i64 %pivots2, 512, !dbg !133
+  %scevgep3 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !131
+  %scevgep34 = ptrtoint i32* %scevgep3 to i64
+  %35 = add i64 %scevgep34, 512, !dbg !133
+  %scevgep5 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !131
+  %36 = add i64 %pivots2, 512, !dbg !133
+  %scevgep7 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !131
+  %scevgep78 = ptrtoint i32* %scevgep7 to i64
+  %37 = add i64 %scevgep78, 512, !dbg !133
+  %scevgep10 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !131
+  %38 = add i64 %pivots2, 512, !dbg !133
+  %scevgep12 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !131
+  %scevgep1213 = ptrtoint i32* %scevgep12 to i64
+  %39 = add i64 %scevgep1213, 512, !dbg !133
+  br label %for.cond, !dbg !131
+
+for.cond:                                         ; preds = %for.inc, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %inc, %for.inc ]
+  %40 = icmp ult i32* %scevgep10, %pivots1, !dbg !133
+  %umin11 = select i1 %40, i32* %scevgep10, i32* %pivots1, !dbg !133
+  %41 = icmp ugt i64 %39, %38, !dbg !133
+  %umax14 = select i1 %41, i64 %39, i64 %38, !dbg !133
+  %42 = icmp ult i32* %scevgep5, %pivots1, !dbg !133
+  %umin6 = select i1 %42, i32* %scevgep5, i32* %pivots1, !dbg !133
+  %43 = icmp ugt i64 %37, %36, !dbg !133
+  %umax9 = select i1 %43, i64 %37, i64 %36, !dbg !133
+  %44 = icmp ult i32* %scevgep, %pivots1, !dbg !133
+  %umin = select i1 %44, i32* %scevgep, i32* %pivots1, !dbg !133
+  %45 = icmp ugt i64 %35, %34, !dbg !133
+  %umax = select i1 %45, i64 %35, i64 %34, !dbg !133
+  %cmp = icmp slt i32 %i.0, 64, !dbg !133
+  br i1 %cmp, label %for.body, label %for.end, !dbg !135
+
+for.body:                                         ; preds = %for.cond
+  %mul = mul nsw i32 %i.0, 3, !dbg !136
+  %idxprom = sext i32 %i.0 to i64, !dbg !138
+  %arrayidx = getelementptr inbounds %struct.point, %struct.point* %pivots, i64 %idxprom, !dbg !138
+  %x = getelementptr inbounds %struct.point, %struct.point* %arrayidx, i32 0, i32 0, !dbg !139
+  store i32 %mul, i32* %x, align 4, !dbg !140
+  %mul1 = mul nsw i32 %i.0, 2, !dbg !141
+  %idxprom2 = sext i32 %i.0 to i64, !dbg !142
+  %arrayidx3 = getelementptr inbounds %struct.point, %struct.point* %pivots, i64 %idxprom2, !dbg !142
+  %y = getelementptr inbounds %struct.point, %struct.point* %arrayidx3, i32 0, i32 1, !dbg !143
+  store i32 %mul1, i32* %y, align 4, !dbg !144
+  br label %for.inc, !dbg !145
+
+for.inc:                                          ; preds = %for.body
+  %inc = add nsw i32 %i.0, 1, !dbg !146
+  br label %for.cond, !dbg !147
+
+for.end:                                          ; preds = %for.cond
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !148, metadata !55), !dbg !149
+  call void @llvm.dbg.value(metadata i32 %inc39, i64 0, metadata !121, metadata !55), !dbg !122
+  call void @llvm.dbg.value(metadata i32 %inc36, i64 0, metadata !148, metadata !55), !dbg !149
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !121, metadata !55), !dbg !122
+  %scevgep15 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %46 = add i64 %the_points18, 1024, !dbg !152
+  %scevgep19 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %scevgep1920 = ptrtoint i32* %scevgep19 to i64
+  %47 = add i64 %scevgep1920, 1024, !dbg !152
+  %scevgep22 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %48 = add i64 %selected_cpu25, 131072, !dbg !152
+  %49 = add i64 %48, 1024, !dbg !152
+  %scevgep26 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep2627 = ptrtoint float* %scevgep26 to i64
+  %50 = add i64 %scevgep2627, 131072, !dbg !152
+  %51 = add i64 %50, 1024, !dbg !152
+  %scevgep29 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %52 = add i64 %selected_gpu32, 131072, !dbg !152
+  %53 = add i64 %52, 1024, !dbg !152
+  %scevgep33 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep3334 = ptrtoint float* %scevgep33 to i64
+  %54 = add i64 %scevgep3334, 131072, !dbg !152
+  %55 = add i64 %54, 1024, !dbg !152
+  %scevgep36 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %56 = add i64 %the_points18, 1024, !dbg !152
+  %scevgep38 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %scevgep3839 = ptrtoint i32* %scevgep38 to i64
+  %57 = add i64 %scevgep3839, 1024, !dbg !152
+  %scevgep41 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %58 = add i64 %selected_cpu25, 131072, !dbg !152
+  %59 = add i64 %58, 1024, !dbg !152
+  %scevgep43 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep4344 = ptrtoint float* %scevgep43 to i64
+  %60 = add i64 %scevgep4344, 131072, !dbg !152
+  %61 = add i64 %60, 1024, !dbg !152
+  %scevgep46 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %62 = add i64 %selected_gpu32, 131072, !dbg !152
+  %63 = add i64 %62, 1024, !dbg !152
+  %scevgep48 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep4849 = ptrtoint float* %scevgep48 to i64
+  %64 = add i64 %scevgep4849, 131072, !dbg !152
+  %65 = add i64 %64, 1024, !dbg !152
+  %scevgep51 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %66 = add i64 %selected_cpu25, 131072, !dbg !154
+  %67 = add i64 %66, 1024, !dbg !154
+  %scevgep53 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep5354 = ptrtoint float* %scevgep53 to i64
+  %68 = add i64 %scevgep5354, 131072, !dbg !154
+  %69 = add i64 %68, 1024, !dbg !154
+  %scevgep56 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %70 = add i64 %selected_gpu32, 131072, !dbg !154
+  %71 = add i64 %70, 1024, !dbg !154
+  %scevgep58 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep5859 = ptrtoint float* %scevgep58 to i64
+  %72 = add i64 %scevgep5859, 131072, !dbg !154
+  %73 = add i64 %72, 1024, !dbg !154
+  %scevgep61 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %74 = add i64 %the_points18, 1024, !dbg !152
+  %scevgep63 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %scevgep6364 = ptrtoint i32* %scevgep63 to i64
+  %75 = add i64 %scevgep6364, 1024, !dbg !152
+  %scevgep66 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %76 = add i64 %selected_cpu25, 131072, !dbg !152
+  %77 = add i64 %76, 1024, !dbg !152
+  %scevgep68 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep6869 = ptrtoint float* %scevgep68 to i64
+  %78 = add i64 %scevgep6869, 131072, !dbg !152
+  %79 = add i64 %78, 1024, !dbg !152
+  %scevgep71 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %80 = add i64 %selected_gpu32, 131072, !dbg !152
+  %81 = add i64 %80, 1024, !dbg !152
+  %scevgep73 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep7374 = ptrtoint float* %scevgep73 to i64
+  %82 = add i64 %scevgep7374, 131072, !dbg !152
+  %83 = add i64 %82, 1024, !dbg !152
+  %scevgep76 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %84 = add i64 %the_points18, 1024, !dbg !152
+  %scevgep79 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !150
+  %scevgep7980 = ptrtoint i32* %scevgep79 to i64
+  %85 = add i64 %scevgep7980, 1024, !dbg !152
+  %scevgep82 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %86 = add i64 %selected_cpu25, 131072, !dbg !152
+  %87 = add i64 %86, 1024, !dbg !152
+  %scevgep84 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep8485 = ptrtoint float* %scevgep84 to i64
+  %88 = add i64 %scevgep8485, 131072, !dbg !152
+  %89 = add i64 %88, 1024, !dbg !152
+  %scevgep87 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %90 = add i64 %selected_gpu32, 131072, !dbg !152
+  %91 = add i64 %90, 1024, !dbg !152
+  %scevgep89 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep8990 = ptrtoint float* %scevgep89 to i64
+  %92 = add i64 %scevgep8990, 131072, !dbg !152
+  %93 = add i64 %92, 1024, !dbg !152
+  %scevgep92 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %94 = add i64 %selected_cpu25, 131072, !dbg !154
+  %95 = add i64 %94, 1024, !dbg !154
+  %scevgep94 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep9495 = ptrtoint float* %scevgep94 to i64
+  %96 = add i64 %scevgep9495, 131072, !dbg !154
+  %97 = add i64 %96, 1024, !dbg !154
+  %scevgep97 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %98 = add i64 %selected_gpu32, 131072, !dbg !154
+  %99 = add i64 %98, 1024, !dbg !154
+  %scevgep99 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep99100 = ptrtoint float* %scevgep99 to i64
+  %100 = add i64 %scevgep99100, 131072, !dbg !154
+  %101 = add i64 %100, 1024, !dbg !154
+  %scevgep102 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %102 = add i64 %selected_cpu25, 131072, !dbg !154
+  %103 = add i64 %102, 1024, !dbg !154
+  %scevgep104 = getelementptr %struct.sel_points, %struct.sel_points* %selected_cpu, i64 0, i32 1, !dbg !150
+  %scevgep104105 = ptrtoint float* %scevgep104 to i64
+  %104 = add i64 %scevgep104105, 131072, !dbg !154
+  %105 = add i64 %104, 1024, !dbg !154
+  %scevgep107 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %106 = add i64 %selected_gpu32, 131072, !dbg !154
+  %107 = add i64 %106, 1024, !dbg !154
+  %scevgep109 = getelementptr %struct.sel_points, %struct.sel_points* %selected_gpu, i64 0, i32 1, !dbg !150
+  %scevgep109110 = ptrtoint float* %scevgep109 to i64
+  %108 = add i64 %scevgep109110, 131072, !dbg !154
+  %109 = add i64 %108, 1024, !dbg !154
+  br label %for.cond.4, !dbg !150
+
+for.cond.4:                                       ; preds = %for.inc.38, %for.end
+  %i.1 = phi i32 [ 0, %for.end ], [ %inc39, %for.inc.38 ]
+  %110 = icmp ult i32* %scevgep76, %the_points16, !dbg !152
+  %umin77 = select i1 %110, i32* %scevgep76, i32* %the_points16, !dbg !152
+  %111 = icmp ugt i64 %85, %84, !dbg !152
+  %umax81 = select i1 %111, i64 %85, i64 %84, !dbg !152
+  %112 = icmp ult float* %scevgep82, %selected_cpu23, !dbg !152
+  %umin83 = select i1 %112, float* %scevgep82, float* %selected_cpu23, !dbg !152
+  %113 = icmp ugt i64 %89, %87, !dbg !152
+  %umax86 = select i1 %113, i64 %89, i64 %87, !dbg !152
+  %114 = icmp ult float* %scevgep87, %selected_gpu30, !dbg !152
+  %umin88 = select i1 %114, float* %scevgep87, float* %selected_gpu30, !dbg !152
+  %115 = icmp ugt i64 %93, %91, !dbg !152
+  %umax91 = select i1 %115, i64 %93, i64 %91, !dbg !152
+  %116 = icmp ult i32* %scevgep61, %the_points16, !dbg !152
+  %umin62 = select i1 %116, i32* %scevgep61, i32* %the_points16, !dbg !152
+  %117 = icmp ugt i64 %75, %74, !dbg !152
+  %umax65 = select i1 %117, i64 %75, i64 %74, !dbg !152
+  %118 = icmp ult float* %scevgep66, %selected_cpu23, !dbg !152
+  %umin67 = select i1 %118, float* %scevgep66, float* %selected_cpu23, !dbg !152
+  %119 = icmp ugt i64 %79, %77, !dbg !152
+  %umax70 = select i1 %119, i64 %79, i64 %77, !dbg !152
+  %120 = icmp ult float* %scevgep71, %selected_gpu30, !dbg !152
+  %umin72 = select i1 %120, float* %scevgep71, float* %selected_gpu30, !dbg !152
+  %121 = icmp ugt i64 %83, %81, !dbg !152
+  %umax75 = select i1 %121, i64 %83, i64 %81, !dbg !152
+  %122 = icmp ult i32* %scevgep36, %the_points16, !dbg !152
+  %umin37 = select i1 %122, i32* %scevgep36, i32* %the_points16, !dbg !152
+  %123 = icmp ugt i64 %57, %56, !dbg !152
+  %umax40 = select i1 %123, i64 %57, i64 %56, !dbg !152
+  %124 = icmp ult float* %scevgep41, %selected_cpu23, !dbg !152
+  %umin42 = select i1 %124, float* %scevgep41, float* %selected_cpu23, !dbg !152
+  %125 = icmp ugt i64 %61, %59, !dbg !152
+  %umax45 = select i1 %125, i64 %61, i64 %59, !dbg !152
+  %126 = icmp ult float* %scevgep46, %selected_gpu30, !dbg !152
+  %umin47 = select i1 %126, float* %scevgep46, float* %selected_gpu30, !dbg !152
+  %127 = icmp ugt i64 %65, %63, !dbg !152
+  %umax50 = select i1 %127, i64 %65, i64 %63, !dbg !152
+  %128 = icmp ult i32* %scevgep15, %the_points16, !dbg !152
+  %umin17 = select i1 %128, i32* %scevgep15, i32* %the_points16, !dbg !152
+  %129 = icmp ugt i64 %47, %46, !dbg !152
+  %umax21 = select i1 %129, i64 %47, i64 %46, !dbg !152
+  %130 = icmp ult float* %scevgep22, %selected_cpu23, !dbg !152
+  %umin24 = select i1 %130, float* %scevgep22, float* %selected_cpu23, !dbg !152
+  %131 = icmp ugt i64 %51, %49, !dbg !152
+  %umax28 = select i1 %131, i64 %51, i64 %49, !dbg !152
+  %132 = icmp ult float* %scevgep29, %selected_gpu30, !dbg !152
+  %umin31 = select i1 %132, float* %scevgep29, float* %selected_gpu30, !dbg !152
+  %133 = icmp ugt i64 %55, %53, !dbg !152
+  %umax35 = select i1 %133, i64 %55, i64 %53, !dbg !152
+  %cmp5 = icmp slt i32 %i.1, 128, !dbg !152
+  br i1 %cmp5, label %for.body.6, label %for.end.40, !dbg !158
+
+for.body.6:                                       ; preds = %for.cond.4
+  %mul7 = mul nsw i32 %i.1, 3, !dbg !159
+  %idxprom8 = sext i32 %i.1 to i64, !dbg !160
+  %arrayidx9 = getelementptr inbounds %struct.point, %struct.point* %the_points, i64 %idxprom8, !dbg !160
+  %x10 = getelementptr inbounds %struct.point, %struct.point* %arrayidx9, i32 0, i32 0, !dbg !161
+  store i32 %mul7, i32* %x10, align 4, !dbg !162
+  %mul11 = mul nsw i32 %i.1, 2, !dbg !163
+  %idxprom12 = sext i32 %i.1 to i64, !dbg !164
+  %arrayidx13 = getelementptr inbounds %struct.point, %struct.point* %the_points, i64 %idxprom12, !dbg !164
+  %y14 = getelementptr inbounds %struct.point, %struct.point* %arrayidx13, i32 0, i32 1, !dbg !165
+  store i32 %mul11, i32* %y14, align 4, !dbg !166
+  br label %for.cond.15, !dbg !167
+
+for.cond.15:                                      ; preds = %for.inc.35, %for.body.6
+  %j.0 = phi i32 [ 0, %for.body.6 ], [ %inc36, %for.inc.35 ]
+  %134 = icmp ult float* %scevgep102, %selected_cpu23, !dbg !154
+  %umin103 = select i1 %134, float* %scevgep102, float* %selected_cpu23, !dbg !154
+  %135 = icmp ugt i64 %105, %103, !dbg !154
+  %umax106 = select i1 %135, i64 %105, i64 %103, !dbg !154
+  %136 = icmp ult float* %scevgep107, %selected_gpu30, !dbg !154
+  %umin108 = select i1 %136, float* %scevgep107, float* %selected_gpu30, !dbg !154
+  %137 = icmp ugt i64 %109, %107, !dbg !154
+  %umax111 = select i1 %137, i64 %109, i64 %107, !dbg !154
+  %138 = icmp ult float* %scevgep92, %selected_cpu23, !dbg !154
+  %umin93 = select i1 %138, float* %scevgep92, float* %selected_cpu23, !dbg !154
+  %139 = icmp ugt i64 %97, %95, !dbg !154
+  %umax96 = select i1 %139, i64 %97, i64 %95, !dbg !154
+  %140 = icmp ult float* %scevgep97, %selected_gpu30, !dbg !154
+  %umin98 = select i1 %140, float* %scevgep97, float* %selected_gpu30, !dbg !154
+  %141 = icmp ugt i64 %101, %99, !dbg !154
+  %umax101 = select i1 %141, i64 %101, i64 %99, !dbg !154
+  %142 = icmp ult float* %scevgep51, %selected_cpu23, !dbg !154
+  %umin52 = select i1 %142, float* %scevgep51, float* %selected_cpu23, !dbg !154
+  %143 = icmp ugt i64 %69, %67, !dbg !154
+  %umax55 = select i1 %143, i64 %69, i64 %67, !dbg !154
+  %144 = icmp ult float* %scevgep56, %selected_gpu30, !dbg !154
+  %umin57 = select i1 %144, float* %scevgep56, float* %selected_gpu30, !dbg !154
+  %145 = icmp ugt i64 %73, %71, !dbg !154
+  %umax60 = select i1 %145, i64 %73, i64 %71, !dbg !154
+  %cmp16 = icmp slt i32 %j.0, 128, !dbg !154
+  br i1 %cmp16, label %for.body.17, label %for.end.37, !dbg !168
+
+for.body.17:                                      ; preds = %for.cond.15
+  %mul18 = mul nsw i32 %i.1, 128, !dbg !169
+  %add = add nsw i32 %mul18, %j.0, !dbg !171
+  %idxprom19 = sext i32 %add to i64, !dbg !172
+  %arrayidx20 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected_cpu, i64 %idxprom19, !dbg !172
+  %position = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx20, i32 0, i32 0, !dbg !173
+  store i32 0, i32* %position, align 4, !dbg !174
+  %mul21 = mul nsw i32 %i.1, 128, !dbg !175
+  %add22 = add nsw i32 %mul21, %j.0, !dbg !176
+  %idxprom23 = sext i32 %add22 to i64, !dbg !177
+  %arrayidx24 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected_cpu, i64 %idxprom23, !dbg !177
+  %value = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx24, i32 0, i32 1, !dbg !178
+  store float 1.000000e+05, float* %value, align 4, !dbg !179
+  %mul25 = mul nsw i32 %i.1, 128, !dbg !180
+  %add26 = add nsw i32 %mul25, %j.0, !dbg !181
+  %idxprom27 = sext i32 %add26 to i64, !dbg !182
+  %arrayidx28 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected_gpu, i64 %idxprom27, !dbg !182
+  %position29 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx28, i32 0, i32 0, !dbg !183
+  store i32 0, i32* %position29, align 4, !dbg !184
+  %mul30 = mul nsw i32 %i.1, 128, !dbg !185
+  %add31 = add nsw i32 %mul30, %j.0, !dbg !186
+  %idxprom32 = sext i32 %add31 to i64, !dbg !187
+  %arrayidx33 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected_gpu, i64 %idxprom32, !dbg !187
+  %value34 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx33, i32 0, i32 1, !dbg !188
+  store float 1.000000e+05, float* %value34, align 4, !dbg !189
+  br label %for.inc.35, !dbg !190
+
+for.inc.35:                                       ; preds = %for.body.17
+  %inc36 = add nsw i32 %j.0, 1, !dbg !191
+  br label %for.cond.15, !dbg !192
+
+for.end.37:                                       ; preds = %for.cond.15
+  br label %for.inc.38, !dbg !193
+
+for.inc.38:                                       ; preds = %for.end.37
+  %inc39 = add nsw i32 %i.1, 1, !dbg !194
+  br label %for.cond.4, !dbg !195
+
+for.end.40:                                       ; preds = %for.cond.4
+  ret void, !dbg !196
+}
+
+; Function Attrs: nounwind uwtable
+define void @k_nearest_gpu(%struct.point* %pivots, %struct.point* %the_points, %struct.sel_points* %selected) #0 {
+entry:
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !197, metadata !55), !dbg !198
+  call void @llvm.dbg.value(metadata i32 %inc28, i64 0, metadata !199, metadata !55), !dbg !200
+  call void @llvm.dbg.value(metadata float %conv, i64 0, metadata !201, metadata !55), !dbg !209
+  call void @llvm.dbg.value(metadata float %conv15, i64 0, metadata !210, metadata !55), !dbg !211
+  call void @llvm.dbg.value(metadata float %mul, i64 0, metadata !201, metadata !55), !dbg !209
+  call void @llvm.dbg.value(metadata float %mul16, i64 0, metadata !210, metadata !55), !dbg !211
+  call void @llvm.dbg.value(metadata float %add, i64 0, metadata !212, metadata !55), !dbg !213
+  call void @llvm.dbg.value(metadata float %conv18, i64 0, metadata !212, metadata !55), !dbg !213
+  call void @llvm.dbg.value(metadata i32 %inc, i64 0, metadata !197, metadata !55), !dbg !198
+  %selected28 = ptrtoint %struct.sel_points* %selected to i64
+  %the_points19 = ptrtoint %struct.point* %the_points to i64
+  %the_points17 = bitcast %struct.point* %the_points to i32*
+  %pivots13 = ptrtoint %struct.point* %pivots to i64
+  %pivots12 = bitcast %struct.point* %pivots to i32*
+  %0 = ptrtoint %struct.sel_points* undef to i64
+  %1 = ptrtoint %struct.point* undef to i64
+  %2 = bitcast %struct.point* undef to i32*
+  %3 = ptrtoint %struct.point* undef to i64
+  %4 = bitcast %struct.point* undef to i32*
+  %5 = ptrtoint %struct.sel_points* undef to i64
+  %6 = ptrtoint %struct.point* undef to i64
+  %7 = bitcast %struct.point* undef to i32*
+  %8 = ptrtoint %struct.point* undef to i64
+  %9 = bitcast %struct.point* undef to i32*
+  %10 = ptrtoint %struct.sel_points* undef to i64
+  %11 = ptrtoint %struct.point* undef to i64
+  %12 = bitcast %struct.point* undef to i32*
+  %13 = ptrtoint %struct.point* undef to i64
+  %14 = bitcast %struct.point* undef to i32*
+  %15 = ptrtoint %struct.sel_points* undef to i64
+  %16 = ptrtoint %struct.point* undef to i64
+  %17 = bitcast %struct.point* undef to i32*
+  %18 = ptrtoint %struct.point* undef to i64
+  %19 = bitcast %struct.point* undef to i32*
+  %20 = ptrtoint %struct.sel_points* undef to i64
+  %21 = ptrtoint %struct.point* undef to i64
+  %22 = bitcast %struct.point* undef to i32*
+  %23 = ptrtoint %struct.point* undef to i64
+  %24 = bitcast %struct.point* undef to i32*
+  %25 = ptrtoint %struct.sel_points* undef to i64
+  %26 = ptrtoint %struct.point* undef to i64
+  %27 = bitcast %struct.point* undef to i32*
+  %28 = ptrtoint %struct.point* undef to i64
+  %29 = bitcast %struct.point* undef to i32*
+  %aux = alloca %struct.sel_points, align 4
+  call void @llvm.dbg.value(metadata %struct.point* %pivots, i64 0, metadata !214, metadata !55), !dbg !215
+  call void @llvm.dbg.value(metadata %struct.point* %the_points, i64 0, metadata !216, metadata !55), !dbg !217
+  call void @llvm.dbg.value(metadata %struct.sel_points* %selected, i64 0, metadata !218, metadata !55), !dbg !219
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !199, metadata !55), !dbg !200
+  %scevgep = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %30 = add i64 %pivots13, 512, !dbg !221
+  %scevgep14 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep1415 = ptrtoint i32* %scevgep14 to i64
+  %31 = add i64 %scevgep1415, 512, !dbg !221
+  %scevgep16 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %32 = add i64 %the_points19, 1024, !dbg !221
+  %scevgep20 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep2021 = ptrtoint i32* %scevgep20 to i64
+  %33 = add i64 %scevgep2021, 1024, !dbg !221
+  %scevgep23 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep2324 = bitcast float* %scevgep23 to %struct.sel_points*
+  %scevgep26 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep2627 = ptrtoint float* %scevgep26 to i64
+  %34 = add i64 %scevgep2627, 65536, !dbg !221
+  %35 = add i64 %34, 1024, !dbg !221
+  %36 = add i64 %selected28, 65536, !dbg !221
+  %37 = add i64 %36, 1024, !dbg !221
+  %scevgep30 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %38 = add i64 %pivots13, 512, !dbg !221
+  %scevgep32 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep3233 = ptrtoint i32* %scevgep32 to i64
+  %39 = add i64 %scevgep3233, 512, !dbg !221
+  %scevgep35 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %40 = add i64 %the_points19, 1024, !dbg !221
+  %scevgep37 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep3738 = ptrtoint i32* %scevgep37 to i64
+  %41 = add i64 %scevgep3738, 1024, !dbg !221
+  %scevgep40 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep4041 = bitcast float* %scevgep40 to %struct.sel_points*
+  %scevgep43 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep4344 = ptrtoint float* %scevgep43 to i64
+  %42 = add i64 %scevgep4344, 65536, !dbg !221
+  %43 = add i64 %42, 1024, !dbg !221
+  %44 = add i64 %selected28, 65536, !dbg !221
+  %45 = add i64 %44, 1024, !dbg !221
+  %scevgep46 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %46 = add i64 %pivots13, 512, !dbg !222
+  %scevgep48 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep4849 = ptrtoint i32* %scevgep48 to i64
+  %47 = add i64 %scevgep4849, 512, !dbg !222
+  %scevgep51 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %48 = add i64 %the_points19, 1024, !dbg !222
+  %scevgep53 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep5354 = ptrtoint i32* %scevgep53 to i64
+  %49 = add i64 %scevgep5354, 1024, !dbg !222
+  %scevgep56 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep5657 = bitcast float* %scevgep56 to %struct.sel_points*
+  %scevgep59 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep5960 = ptrtoint float* %scevgep59 to i64
+  %50 = add i64 %scevgep5960, 65536, !dbg !222
+  %51 = add i64 %50, 1024, !dbg !222
+  %52 = add i64 %selected28, 65536, !dbg !222
+  %53 = add i64 %52, 1024, !dbg !222
+  %scevgep62 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %54 = add i64 %pivots13, 512, !dbg !221
+  %scevgep64 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep6465 = ptrtoint i32* %scevgep64 to i64
+  %55 = add i64 %scevgep6465, 512, !dbg !221
+  %scevgep67 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %56 = add i64 %the_points19, 1024, !dbg !221
+  %scevgep69 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep6970 = ptrtoint i32* %scevgep69 to i64
+  %57 = add i64 %scevgep6970, 1024, !dbg !221
+  %scevgep72 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep7273 = bitcast float* %scevgep72 to %struct.sel_points*
+  %scevgep75 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep7576 = ptrtoint float* %scevgep75 to i64
+  %58 = add i64 %scevgep7576, 65536, !dbg !221
+  %59 = add i64 %58, 1024, !dbg !221
+  %60 = add i64 %selected28, 65536, !dbg !221
+  %61 = add i64 %60, 1024, !dbg !221
+  %scevgep78 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %62 = add i64 %pivots13, 512, !dbg !221
+  %scevgep80 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep8081 = ptrtoint i32* %scevgep80 to i64
+  %63 = add i64 %scevgep8081, 512, !dbg !221
+  %scevgep83 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %64 = add i64 %the_points19, 1024, !dbg !221
+  %scevgep85 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep8586 = ptrtoint i32* %scevgep85 to i64
+  %65 = add i64 %scevgep8586, 1024, !dbg !221
+  %scevgep88 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep8889 = bitcast float* %scevgep88 to %struct.sel_points*
+  %scevgep91 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep9192 = ptrtoint float* %scevgep91 to i64
+  %66 = add i64 %scevgep9192, 65536, !dbg !221
+  %67 = add i64 %66, 1024, !dbg !221
+  %68 = add i64 %selected28, 65536, !dbg !221
+  %69 = add i64 %68, 1024, !dbg !221
+  %scevgep94 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %70 = add i64 %pivots13, 512, !dbg !222
+  %scevgep96 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep9697 = ptrtoint i32* %scevgep96 to i64
+  %71 = add i64 %scevgep9697, 512, !dbg !222
+  %scevgep99 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %72 = add i64 %the_points19, 1024, !dbg !222
+  %scevgep101 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep101102 = ptrtoint i32* %scevgep101 to i64
+  %73 = add i64 %scevgep101102, 1024, !dbg !222
+  %scevgep104 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep104105 = bitcast float* %scevgep104 to %struct.sel_points*
+  %scevgep107 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep107108 = ptrtoint float* %scevgep107 to i64
+  %74 = add i64 %scevgep107108, 65536, !dbg !222
+  %75 = add i64 %74, 1024, !dbg !222
+  %76 = add i64 %selected28, 65536, !dbg !222
+  %77 = add i64 %76, 1024, !dbg !222
+  %scevgep110 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %78 = add i64 %pivots13, 512, !dbg !222
+  %scevgep112 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !220
+  %scevgep112113 = ptrtoint i32* %scevgep112 to i64
+  %79 = add i64 %scevgep112113, 512, !dbg !222
+  %scevgep115 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %80 = add i64 %the_points19, 1024, !dbg !222
+  %scevgep117 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !220
+  %scevgep117118 = ptrtoint i32* %scevgep117 to i64
+  %81 = add i64 %scevgep117118, 1024, !dbg !222
+  %scevgep120 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep120121 = bitcast float* %scevgep120 to %struct.sel_points*
+  %scevgep123 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !220
+  %scevgep123124 = ptrtoint float* %scevgep123 to i64
+  %82 = add i64 %scevgep123124, 65536, !dbg !222
+  %83 = add i64 %82, 1024, !dbg !222
+  %84 = add i64 %selected28, 65536, !dbg !222
+  %85 = add i64 %84, 1024, !dbg !222
+  br label %for.cond, !dbg !220
+
+for.cond:                                         ; preds = %for.inc.27, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %inc28, %for.inc.27 ]
+  %86 = icmp ult i32* %scevgep78, %pivots12, !dbg !221
+  %umin79 = select i1 %86, i32* %scevgep78, i32* %pivots12, !dbg !221
+  %87 = icmp ugt i64 %63, %62, !dbg !221
+  %umax82 = select i1 %87, i64 %63, i64 %62, !dbg !221
+  %88 = icmp ult i32* %scevgep83, %the_points17, !dbg !221
+  %umin84 = select i1 %88, i32* %scevgep83, i32* %the_points17, !dbg !221
+  %89 = icmp ugt i64 %65, %64, !dbg !221
+  %umax87 = select i1 %89, i64 %65, i64 %64, !dbg !221
+  %90 = icmp ult %struct.sel_points* %selected, %scevgep8889, !dbg !221
+  %umin90 = select i1 %90, %struct.sel_points* %selected, %struct.sel_points* %scevgep8889, !dbg !221
+  %91 = icmp ugt i64 %69, %67, !dbg !221
+  %umax93 = select i1 %91, i64 %69, i64 %67, !dbg !221
+  %92 = icmp ult i32* %scevgep62, %pivots12, !dbg !221
+  %umin63 = select i1 %92, i32* %scevgep62, i32* %pivots12, !dbg !221
+  %93 = icmp ugt i64 %55, %54, !dbg !221
+  %umax66 = select i1 %93, i64 %55, i64 %54, !dbg !221
+  %94 = icmp ult i32* %scevgep67, %the_points17, !dbg !221
+  %umin68 = select i1 %94, i32* %scevgep67, i32* %the_points17, !dbg !221
+  %95 = icmp ugt i64 %57, %56, !dbg !221
+  %umax71 = select i1 %95, i64 %57, i64 %56, !dbg !221
+  %96 = icmp ult %struct.sel_points* %selected, %scevgep7273, !dbg !221
+  %umin74 = select i1 %96, %struct.sel_points* %selected, %struct.sel_points* %scevgep7273, !dbg !221
+  %97 = icmp ugt i64 %61, %59, !dbg !221
+  %umax77 = select i1 %97, i64 %61, i64 %59, !dbg !221
+  %98 = icmp ult i32* %scevgep30, %pivots12, !dbg !221
+  %umin31 = select i1 %98, i32* %scevgep30, i32* %pivots12, !dbg !221
+  %99 = icmp ugt i64 %39, %38, !dbg !221
+  %umax34 = select i1 %99, i64 %39, i64 %38, !dbg !221
+  %100 = icmp ult i32* %scevgep35, %the_points17, !dbg !221
+  %umin36 = select i1 %100, i32* %scevgep35, i32* %the_points17, !dbg !221
+  %101 = icmp ugt i64 %41, %40, !dbg !221
+  %umax39 = select i1 %101, i64 %41, i64 %40, !dbg !221
+  %102 = icmp ult %struct.sel_points* %selected, %scevgep4041, !dbg !221
+  %umin42 = select i1 %102, %struct.sel_points* %selected, %struct.sel_points* %scevgep4041, !dbg !221
+  %103 = icmp ugt i64 %45, %43, !dbg !221
+  %umax45 = select i1 %103, i64 %45, i64 %43, !dbg !221
+  %104 = icmp ult i32* %scevgep, %pivots12, !dbg !221
+  %umin = select i1 %104, i32* %scevgep, i32* %pivots12, !dbg !221
+  %105 = icmp ugt i64 %31, %30, !dbg !221
+  %umax = select i1 %105, i64 %31, i64 %30, !dbg !221
+  %106 = icmp ult i32* %scevgep16, %the_points17, !dbg !221
+  %umin18 = select i1 %106, i32* %scevgep16, i32* %the_points17, !dbg !221
+  %107 = icmp ugt i64 %33, %32, !dbg !221
+  %umax22 = select i1 %107, i64 %33, i64 %32, !dbg !221
+  %108 = icmp ult %struct.sel_points* %selected, %scevgep2324, !dbg !221
+  %umin25 = select i1 %108, %struct.sel_points* %selected, %struct.sel_points* %scevgep2324, !dbg !221
+  %109 = icmp ugt i64 %37, %35, !dbg !221
+  %umax29 = select i1 %109, i64 %37, i64 %35, !dbg !221
+  %cmp = icmp slt i32 %i.0, 64, !dbg !221
+  br i1 %cmp, label %for.body, label %for.end.29, !dbg !223
+
+for.body:                                         ; preds = %for.cond
+  br label %for.cond.1, !dbg !224
+
+for.cond.1:                                       ; preds = %for.inc, %for.body
+  %j.0 = phi i32 [ 0, %for.body ], [ %inc, %for.inc ]
+  %110 = icmp ult i32* %scevgep110, %pivots12, !dbg !222
+  %umin111 = select i1 %110, i32* %scevgep110, i32* %pivots12, !dbg !222
+  %111 = icmp ugt i64 %79, %78, !dbg !222
+  %umax114 = select i1 %111, i64 %79, i64 %78, !dbg !222
+  %112 = icmp ult i32* %scevgep115, %the_points17, !dbg !222
+  %umin116 = select i1 %112, i32* %scevgep115, i32* %the_points17, !dbg !222
+  %113 = icmp ugt i64 %81, %80, !dbg !222
+  %umax119 = select i1 %113, i64 %81, i64 %80, !dbg !222
+  %114 = icmp ult %struct.sel_points* %selected, %scevgep120121, !dbg !222
+  %umin122 = select i1 %114, %struct.sel_points* %selected, %struct.sel_points* %scevgep120121, !dbg !222
+  %115 = icmp ugt i64 %85, %83, !dbg !222
+  %umax125 = select i1 %115, i64 %85, i64 %83, !dbg !222
+  %116 = icmp ult i32* %scevgep94, %pivots12, !dbg !222
+  %umin95 = select i1 %116, i32* %scevgep94, i32* %pivots12, !dbg !222
+  %117 = icmp ugt i64 %71, %70, !dbg !222
+  %umax98 = select i1 %117, i64 %71, i64 %70, !dbg !222
+  %118 = icmp ult i32* %scevgep99, %the_points17, !dbg !222
+  %umin100 = select i1 %118, i32* %scevgep99, i32* %the_points17, !dbg !222
+  %119 = icmp ugt i64 %73, %72, !dbg !222
+  %umax103 = select i1 %119, i64 %73, i64 %72, !dbg !222
+  %120 = icmp ult %struct.sel_points* %selected, %scevgep104105, !dbg !222
+  %umin106 = select i1 %120, %struct.sel_points* %selected, %struct.sel_points* %scevgep104105, !dbg !222
+  %121 = icmp ugt i64 %77, %75, !dbg !222
+  %umax109 = select i1 %121, i64 %77, i64 %75, !dbg !222
+  %122 = icmp ult i32* %scevgep46, %pivots12, !dbg !222
+  %umin47 = select i1 %122, i32* %scevgep46, i32* %pivots12, !dbg !222
+  %123 = icmp ugt i64 %47, %46, !dbg !222
+  %umax50 = select i1 %123, i64 %47, i64 %46, !dbg !222
+  %124 = icmp ult i32* %scevgep51, %the_points17, !dbg !222
+  %umin52 = select i1 %124, i32* %scevgep51, i32* %the_points17, !dbg !222
+  %125 = icmp ugt i64 %49, %48, !dbg !222
+  %umax55 = select i1 %125, i64 %49, i64 %48, !dbg !222
+  %126 = icmp ult %struct.sel_points* %selected, %scevgep5657, !dbg !222
+  %umin58 = select i1 %126, %struct.sel_points* %selected, %struct.sel_points* %scevgep5657, !dbg !222
+  %127 = icmp ugt i64 %53, %51, !dbg !222
+  %umax61 = select i1 %127, i64 %53, i64 %51, !dbg !222
+  %cmp2 = icmp slt i32 %j.0, 128, !dbg !222
+  br i1 %cmp2, label %for.body.3, label %for.end, !dbg !225
+
+for.body.3:                                       ; preds = %for.cond.1
+  %idxprom = sext i32 %i.0 to i64, !dbg !226
+  %arrayidx = getelementptr inbounds %struct.point, %struct.point* %pivots, i64 %idxprom, !dbg !226
+  %x4 = getelementptr inbounds %struct.point, %struct.point* %arrayidx, i32 0, i32 0, !dbg !227
+  %tmp = load i32, i32* %x4, align 4, !dbg !227
+  %idxprom5 = sext i32 %j.0 to i64, !dbg !228
+  %arrayidx6 = getelementptr inbounds %struct.point, %struct.point* %the_points, i64 %idxprom5, !dbg !228
+  %x7 = getelementptr inbounds %struct.point, %struct.point* %arrayidx6, i32 0, i32 0, !dbg !229
+  %tmp1 = load i32, i32* %x7, align 4, !dbg !229
+  %sub = sub nsw i32 %tmp, %tmp1, !dbg !230
+  %conv = sitofp i32 %sub to float, !dbg !226
+  %idxprom8 = sext i32 %i.0 to i64, !dbg !231
+  %arrayidx9 = getelementptr inbounds %struct.point, %struct.point* %pivots, i64 %idxprom8, !dbg !231
+  %y10 = getelementptr inbounds %struct.point, %struct.point* %arrayidx9, i32 0, i32 1, !dbg !232
+  %tmp2 = load i32, i32* %y10, align 4, !dbg !232
+  %idxprom11 = sext i32 %j.0 to i64, !dbg !233
+  %arrayidx12 = getelementptr inbounds %struct.point, %struct.point* %the_points, i64 %idxprom11, !dbg !233
+  %y13 = getelementptr inbounds %struct.point, %struct.point* %arrayidx12, i32 0, i32 1, !dbg !234
+  %tmp3 = load i32, i32* %y13, align 4, !dbg !234
+  %sub14 = sub nsw i32 %tmp2, %tmp3, !dbg !235
+  %conv15 = sitofp i32 %sub14 to float, !dbg !231
+  %mul = fmul float %conv, %conv, !dbg !236
+  %mul16 = fmul float %conv15, %conv15, !dbg !237
+  %add = fadd float %mul, %mul16, !dbg !238
+  %conv17 = fpext float %add to double, !dbg !239
+  %call = call double @sqrt(double %conv17) #4, !dbg !240
+  %conv18 = fptrunc double %call to float, !dbg !240
+  %mul19 = mul nsw i32 %i.0, 128, !dbg !241
+  %add20 = add nsw i32 %mul19, %j.0, !dbg !242
+  %idxprom21 = sext i32 %add20 to i64, !dbg !243
+  %arrayidx22 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom21, !dbg !243
+  %value = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx22, i32 0, i32 1, !dbg !244
+  store float %conv18, float* %value, align 4, !dbg !245
+  %mul23 = mul nsw i32 %i.0, 128, !dbg !246
+  %add24 = add nsw i32 %mul23, %j.0, !dbg !247
+  %idxprom25 = sext i32 %add24 to i64, !dbg !248
+  %arrayidx26 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom25, !dbg !248
+  %position = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx26, i32 0, i32 0, !dbg !249
+  store i32 %j.0, i32* %position, align 4, !dbg !250
+  br label %for.inc, !dbg !251
+
+for.inc:                                          ; preds = %for.body.3
+  %inc = add nsw i32 %j.0, 1, !dbg !252
+  br label %for.cond.1, !dbg !253
+
+for.end:                                          ; preds = %for.cond.1
+  br label %for.inc.27, !dbg !254
+
+for.inc.27:                                       ; preds = %for.end
+  %inc28 = add nsw i32 %i.0, 1, !dbg !255
+  br label %for.cond, !dbg !256
+
+for.end.29:                                       ; preds = %for.cond
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !197, metadata !55), !dbg !198
+  call void @llvm.dbg.value(metadata i32 %inc78, i64 0, metadata !199, metadata !55), !dbg !200
+  call void @llvm.dbg.value(metadata i32 %add38, i64 0, metadata !257, metadata !55), !dbg !258
+  call void @llvm.dbg.value(metadata i32 %inc75, i64 0, metadata !197, metadata !55), !dbg !198
+  call void @llvm.dbg.declare(metadata %struct.sel_points* %aux, metadata !259, metadata !55), !dbg !271
+  call void @llvm.dbg.value(metadata i32 %inc72, i64 0, metadata !257, metadata !55), !dbg !258
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !199, metadata !55), !dbg !200
+  %scevgep126 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep127 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep129 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep129130 = ptrtoint float* %scevgep129 to i64
+  %128 = add i64 %scevgep129130, 65536, !dbg !273
+  %129 = add i64 %128, 1024, !dbg !273
+  %scevgep131 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep131132 = ptrtoint float* %scevgep131 to i64
+  %130 = add i64 %scevgep131132, 65536, !dbg !273
+  %131 = add i64 %130, 1024, !dbg !273
+  %132 = add i64 %131, -8, !dbg !273
+  %scevgep134 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep135 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep137 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep137138 = ptrtoint float* %scevgep137 to i64
+  %133 = add i64 %scevgep137138, 65536, !dbg !273
+  %134 = add i64 %133, 1024, !dbg !273
+  %scevgep139 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep139140 = ptrtoint float* %scevgep139 to i64
+  %135 = add i64 %scevgep139140, 65536, !dbg !273
+  %136 = add i64 %135, 1024, !dbg !273
+  %137 = add i64 %136, -8, !dbg !273
+  %scevgep142 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep143 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep145 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep145146 = ptrtoint float* %scevgep145 to i64
+  %138 = add i64 %scevgep145146, 65536, !dbg !274
+  %139 = add i64 %138, 1024, !dbg !274
+  %scevgep147 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep147148 = ptrtoint float* %scevgep147 to i64
+  %140 = add i64 %scevgep147148, 65536, !dbg !274
+  %141 = add i64 %140, 1024, !dbg !274
+  %142 = add i64 %141, -8, !dbg !274
+  %scevgep150 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep151 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep153 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep153154 = ptrtoint float* %scevgep153 to i64
+  %143 = add i64 %scevgep153154, 65536, !dbg !273
+  %144 = add i64 %143, 1024, !dbg !273
+  %scevgep155 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep155156 = ptrtoint float* %scevgep155 to i64
+  %145 = add i64 %scevgep155156, 65536, !dbg !273
+  %146 = add i64 %145, 1024, !dbg !273
+  %147 = add i64 %146, -8, !dbg !273
+  %scevgep158 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep159 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep161 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep161162 = ptrtoint float* %scevgep161 to i64
+  %148 = add i64 %scevgep161162, 65536, !dbg !273
+  %149 = add i64 %148, 1024, !dbg !273
+  %scevgep163 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep163164 = ptrtoint float* %scevgep163 to i64
+  %150 = add i64 %scevgep163164, 65536, !dbg !273
+  %151 = add i64 %150, 1024, !dbg !273
+  %152 = add i64 %151, -8, !dbg !273
+  %scevgep166 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep167 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep169 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep169170 = ptrtoint float* %scevgep169 to i64
+  %153 = add i64 %scevgep169170, 65536, !dbg !274
+  %154 = add i64 %153, 1024, !dbg !274
+  %scevgep171 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep171172 = ptrtoint float* %scevgep171 to i64
+  %155 = add i64 %scevgep171172, 65536, !dbg !274
+  %156 = add i64 %155, 1024, !dbg !274
+  %157 = add i64 %156, -8, !dbg !274
+  %scevgep174 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep175 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep177 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep177178 = ptrtoint float* %scevgep177 to i64
+  %158 = add i64 %scevgep177178, 65536, !dbg !275
+  %159 = add i64 %158, 1024, !dbg !275
+  %scevgep179 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep179180 = ptrtoint float* %scevgep179 to i64
+  %160 = add i64 %scevgep179180, 65536, !dbg !275
+  %161 = add i64 %160, 1024, !dbg !275
+  %162 = add i64 %161, -8, !dbg !275
+  %scevgep182 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep183 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep185 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep185186 = ptrtoint float* %scevgep185 to i64
+  %163 = add i64 %scevgep185186, 65536, !dbg !274
+  %164 = add i64 %163, 1024, !dbg !274
+  %scevgep187 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep187188 = ptrtoint float* %scevgep187 to i64
+  %165 = add i64 %scevgep187188, 65536, !dbg !274
+  %166 = add i64 %165, 1024, !dbg !274
+  %167 = add i64 %166, -8, !dbg !274
+  %scevgep190 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep191 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep193 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep193194 = ptrtoint float* %scevgep193 to i64
+  %168 = add i64 %scevgep193194, 65536, !dbg !274
+  %169 = add i64 %168, 1024, !dbg !274
+  %scevgep195 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep195196 = ptrtoint float* %scevgep195 to i64
+  %170 = add i64 %scevgep195196, 65536, !dbg !274
+  %171 = add i64 %170, 1024, !dbg !274
+  %172 = add i64 %171, -8, !dbg !274
+  %scevgep198 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep199 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep201 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep201202 = ptrtoint float* %scevgep201 to i64
+  %173 = add i64 %scevgep201202, 65536, !dbg !276
+  %174 = add i64 %173, 1024, !dbg !276
+  %scevgep203 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep203204 = ptrtoint float* %scevgep203 to i64
+  %175 = add i64 %scevgep203204, 65536, !dbg !276
+  %176 = add i64 %175, 1024, !dbg !276
+  %177 = add i64 %176, -8, !dbg !276
+  %scevgep206 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep207 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep209 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep209210 = ptrtoint float* %scevgep209 to i64
+  %178 = add i64 %scevgep209210, 65536, !dbg !276
+  %179 = add i64 %178, 1024, !dbg !276
+  %scevgep211 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep211212 = ptrtoint float* %scevgep211 to i64
+  %180 = add i64 %scevgep211212, 65536, !dbg !276
+  %181 = add i64 %180, 1024, !dbg !276
+  %182 = add i64 %181, -8, !dbg !276
+  %scevgep214 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep215 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep217 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep217218 = ptrtoint float* %scevgep217 to i64
+  %183 = add i64 %scevgep217218, 65536, !dbg !275
+  %184 = add i64 %183, 1024, !dbg !275
+  %scevgep219 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep219220 = ptrtoint float* %scevgep219 to i64
+  %185 = add i64 %scevgep219220, 65536, !dbg !275
+  %186 = add i64 %185, 1024, !dbg !275
+  %187 = add i64 %186, -8, !dbg !275
+  %scevgep222 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep223 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep225 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !272
+  %scevgep225226 = ptrtoint float* %scevgep225 to i64
+  %188 = add i64 %scevgep225226, 65536, !dbg !275
+  %189 = add i64 %188, 1024, !dbg !275
+  %scevgep227 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !272
+  %scevgep227228 = ptrtoint float* %scevgep227 to i64
+  %190 = add i64 %scevgep227228, 65536, !dbg !275
+  %191 = add i64 %190, 1024, !dbg !275
+  %192 = add i64 %191, -8, !dbg !275
+  br label %for.cond.30, !dbg !272
+
+for.cond.30:                                      ; preds = %for.inc.77, %for.end.29
+  %i.1 = phi i32 [ 0, %for.end.29 ], [ %inc78, %for.inc.77 ]
+  %193 = icmp ult float* %scevgep159, %scevgep158, !dbg !273
+  %umin160 = select i1 %193, float* %scevgep159, float* %scevgep158, !dbg !273
+  %194 = icmp ugt i64 %152, %149, !dbg !273
+  %umax165 = select i1 %194, i64 %152, i64 %149, !dbg !273
+  %195 = icmp ult float* %scevgep151, %scevgep150, !dbg !273
+  %umin152 = select i1 %195, float* %scevgep151, float* %scevgep150, !dbg !273
+  %196 = icmp ugt i64 %147, %144, !dbg !273
+  %umax157 = select i1 %196, i64 %147, i64 %144, !dbg !273
+  %197 = icmp ult float* %scevgep135, %scevgep134, !dbg !273
+  %umin136 = select i1 %197, float* %scevgep135, float* %scevgep134, !dbg !273
+  %198 = icmp ugt i64 %137, %134, !dbg !273
+  %umax141 = select i1 %198, i64 %137, i64 %134, !dbg !273
+  %199 = icmp ult float* %scevgep127, %scevgep126, !dbg !273
+  %umin128 = select i1 %199, float* %scevgep127, float* %scevgep126, !dbg !273
+  %200 = icmp ugt i64 %132, %129, !dbg !273
+  %umax133 = select i1 %200, i64 %132, i64 %129, !dbg !273
+  %cmp31 = icmp slt i32 %i.1, 64, !dbg !273
+  br i1 %cmp31, label %for.body.33, label %for.end.79, !dbg !277
+
+for.body.33:                                      ; preds = %for.cond.30
+  br label %for.cond.34, !dbg !278
+
+for.cond.34:                                      ; preds = %for.inc.74, %for.body.33
+  %j.1 = phi i32 [ 0, %for.body.33 ], [ %inc75, %for.inc.74 ]
+  %201 = icmp ult float* %scevgep191, %scevgep190, !dbg !274
+  %umin192 = select i1 %201, float* %scevgep191, float* %scevgep190, !dbg !274
+  %202 = icmp ugt i64 %172, %169, !dbg !274
+  %umax197 = select i1 %202, i64 %172, i64 %169, !dbg !274
+  %203 = icmp ult float* %scevgep183, %scevgep182, !dbg !274
+  %umin184 = select i1 %203, float* %scevgep183, float* %scevgep182, !dbg !274
+  %204 = icmp ugt i64 %167, %164, !dbg !274
+  %umax189 = select i1 %204, i64 %167, i64 %164, !dbg !274
+  %205 = icmp ult float* %scevgep167, %scevgep166, !dbg !274
+  %umin168 = select i1 %205, float* %scevgep167, float* %scevgep166, !dbg !274
+  %206 = icmp ugt i64 %157, %154, !dbg !274
+  %umax173 = select i1 %206, i64 %157, i64 %154, !dbg !274
+  %207 = icmp ult float* %scevgep143, %scevgep142, !dbg !274
+  %umin144 = select i1 %207, float* %scevgep143, float* %scevgep142, !dbg !274
+  %208 = icmp ugt i64 %142, %139, !dbg !274
+  %umax149 = select i1 %208, i64 %142, i64 %139, !dbg !274
+  %cmp35 = icmp slt i32 %j.1, 128, !dbg !274
+  br i1 %cmp35, label %for.body.37, label %for.end.76, !dbg !279
+
+for.body.37:                                      ; preds = %for.cond.34
+  %add38 = add nsw i32 %j.1, 1, !dbg !280
+  br label %for.cond.39, !dbg !281
+
+for.cond.39:                                      ; preds = %for.inc.71, %for.body.37
+  %m.0 = phi i32 [ %add38, %for.body.37 ], [ %inc72, %for.inc.71 ]
+  %209 = icmp ult float* %scevgep223, %scevgep222, !dbg !275
+  %umin224 = select i1 %209, float* %scevgep223, float* %scevgep222, !dbg !275
+  %210 = icmp ugt i64 %192, %189, !dbg !275
+  %umax229 = select i1 %210, i64 %192, i64 %189, !dbg !275
+  %211 = icmp ult float* %scevgep215, %scevgep214, !dbg !275
+  %umin216 = select i1 %211, float* %scevgep215, float* %scevgep214, !dbg !275
+  %212 = icmp ugt i64 %187, %184, !dbg !275
+  %umax221 = select i1 %212, i64 %187, i64 %184, !dbg !275
+  %213 = icmp ult float* %scevgep175, %scevgep174, !dbg !275
+  %umin176 = select i1 %213, float* %scevgep175, float* %scevgep174, !dbg !275
+  %214 = icmp ugt i64 %162, %159, !dbg !275
+  %umax181 = select i1 %214, i64 %162, i64 %159, !dbg !275
+  %cmp40 = icmp slt i32 %m.0, 128, !dbg !275
+  br i1 %cmp40, label %for.body.42, label %for.end.73, !dbg !282
+
+for.body.42:                                      ; preds = %for.cond.39
+  %215 = icmp ult float* %scevgep207, %scevgep206, !dbg !276
+  %umin208 = select i1 %215, float* %scevgep207, float* %scevgep206, !dbg !276
+  %216 = icmp ugt i64 %182, %179, !dbg !276
+  %umax213 = select i1 %216, i64 %182, i64 %179, !dbg !276
+  %217 = icmp ult float* %scevgep199, %scevgep198, !dbg !276
+  %umin200 = select i1 %217, float* %scevgep199, float* %scevgep198, !dbg !276
+  %218 = icmp ugt i64 %177, %174, !dbg !276
+  %umax205 = select i1 %218, i64 %177, i64 %174, !dbg !276
+  %mul43 = mul nsw i32 %i.1, 128, !dbg !276
+  %add44 = add nsw i32 %mul43, %j.1, !dbg !283
+  %idxprom45 = sext i32 %add44 to i64, !dbg !284
+  %arrayidx46 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom45, !dbg !284
+  %value47 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx46, i32 0, i32 1, !dbg !285
+  %tmp4 = load float, float* %value47, align 4, !dbg !285
+  %mul48 = mul nsw i32 %i.1, 128, !dbg !286
+  %add49 = add nsw i32 %mul48, %m.0, !dbg !287
+  %idxprom50 = sext i32 %add49 to i64, !dbg !288
+  %arrayidx51 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom50, !dbg !288
+  %value52 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx51, i32 0, i32 1, !dbg !289
+  %tmp5 = load float, float* %value52, align 4, !dbg !289
+  %cmp53 = fcmp ogt float %tmp4, %tmp5, !dbg !290
+  br i1 %cmp53, label %if.then, label %if.end, !dbg !291
+
+if.then:                                          ; preds = %for.body.42
+  %mul55 = mul nsw i32 %i.1, 128, !dbg !292
+  %add56 = add nsw i32 %mul55, %j.1, !dbg !293
+  %idxprom57 = sext i32 %add56 to i64, !dbg !294
+  %arrayidx58 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom57, !dbg !294
+  %tmp6 = bitcast %struct.sel_points* %aux to i8*, !dbg !294
+  %tmp7 = bitcast %struct.sel_points* %arrayidx58 to i8*, !dbg !294
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %tmp6, i8* %tmp7, i64 8, i32 4, i1 false), !dbg !294
+  %mul59 = mul nsw i32 %i.1, 128, !dbg !295
+  %add60 = add nsw i32 %mul59, %j.1, !dbg !296
+  %idxprom61 = sext i32 %add60 to i64, !dbg !297
+  %arrayidx62 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom61, !dbg !297
+  %mul63 = mul nsw i32 %i.1, 128, !dbg !298
+  %add64 = add nsw i32 %mul63, %m.0, !dbg !299
+  %idxprom65 = sext i32 %add64 to i64, !dbg !300
+  %arrayidx66 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom65, !dbg !300
+  %tmp8 = bitcast %struct.sel_points* %arrayidx62 to i8*, !dbg !300
+  %tmp9 = bitcast %struct.sel_points* %arrayidx66 to i8*, !dbg !300
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %tmp8, i8* %tmp9, i64 8, i32 4, i1 false), !dbg !300
+  %mul67 = mul nsw i32 %i.1, 128, !dbg !301
+  %add68 = add nsw i32 %mul67, %m.0, !dbg !302
+  %idxprom69 = sext i32 %add68 to i64, !dbg !303
+  %arrayidx70 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom69, !dbg !303
+  %tmp10 = bitcast %struct.sel_points* %arrayidx70 to i8*, !dbg !304
+  %tmp11 = bitcast %struct.sel_points* %aux to i8*, !dbg !304
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %tmp10, i8* %tmp11, i64 8, i32 4, i1 false), !dbg !304
+  br label %if.end, !dbg !305
+
+if.end:                                           ; preds = %if.then, %for.body.42
+  br label %for.inc.71, !dbg !306
+
+for.inc.71:                                       ; preds = %if.end
+  %inc72 = add nsw i32 %m.0, 1, !dbg !307
+  br label %for.cond.39, !dbg !308
+
+for.end.73:                                       ; preds = %for.cond.39
+  br label %for.inc.74, !dbg !309
+
+for.inc.74:                                       ; preds = %for.end.73
+  %inc75 = add nsw i32 %j.1, 1, !dbg !310
+  br label %for.cond.34, !dbg !311
+
+for.end.76:                                       ; preds = %for.cond.34
+  br label %for.inc.77, !dbg !312
+
+for.inc.77:                                       ; preds = %for.end.76
+  %inc78 = add nsw i32 %i.1, 1, !dbg !313
+  br label %for.cond.30, !dbg !314
+
+for.end.79:                                       ; preds = %for.cond.30
+  ret void, !dbg !315
+}
+
+; Function Attrs: nounwind
+declare double @sqrt(double) #2
+
+; Function Attrs: nounwind
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i32, i1) #4
+
+; Function Attrs: nounwind uwtable
+define void @k_nearest_cpu(%struct.point* %pivots, %struct.point* %the_points, %struct.sel_points* %selected) #0 {
+entry:
+  call void @llvm.dbg.value(metadata float %conv, i64 0, metadata !316, metadata !55), !dbg !323
+  call void @llvm.dbg.value(metadata float %conv15, i64 0, metadata !324, metadata !55), !dbg !325
+  call void @llvm.dbg.value(metadata float %mul, i64 0, metadata !316, metadata !55), !dbg !323
+  call void @llvm.dbg.value(metadata float %mul16, i64 0, metadata !324, metadata !55), !dbg !325
+  call void @llvm.dbg.value(metadata float %add, i64 0, metadata !326, metadata !55), !dbg !327
+  call void @llvm.dbg.value(metadata float %conv18, i64 0, metadata !326, metadata !55), !dbg !327
+  call void @llvm.dbg.value(metadata i32 %inc, i64 0, metadata !328, metadata !55), !dbg !329
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !328, metadata !55), !dbg !329
+  call void @llvm.dbg.value(metadata i32 %inc28, i64 0, metadata !330, metadata !55), !dbg !331
+  %selected28 = ptrtoint %struct.sel_points* %selected to i64
+  %the_points19 = ptrtoint %struct.point* %the_points to i64
+  %the_points17 = bitcast %struct.point* %the_points to i32*
+  %pivots13 = ptrtoint %struct.point* %pivots to i64
+  %pivots12 = bitcast %struct.point* %pivots to i32*
+  %0 = ptrtoint %struct.sel_points* undef to i64
+  %1 = ptrtoint %struct.point* undef to i64
+  %2 = bitcast %struct.point* undef to i32*
+  %3 = ptrtoint %struct.point* undef to i64
+  %4 = bitcast %struct.point* undef to i32*
+  %5 = ptrtoint %struct.sel_points* undef to i64
+  %6 = ptrtoint %struct.point* undef to i64
+  %7 = bitcast %struct.point* undef to i32*
+  %8 = ptrtoint %struct.point* undef to i64
+  %9 = bitcast %struct.point* undef to i32*
+  %10 = ptrtoint %struct.sel_points* undef to i64
+  %11 = ptrtoint %struct.point* undef to i64
+  %12 = bitcast %struct.point* undef to i32*
+  %13 = ptrtoint %struct.point* undef to i64
+  %14 = bitcast %struct.point* undef to i32*
+  %15 = ptrtoint %struct.sel_points* undef to i64
+  %16 = ptrtoint %struct.point* undef to i64
+  %17 = bitcast %struct.point* undef to i32*
+  %18 = ptrtoint %struct.point* undef to i64
+  %19 = bitcast %struct.point* undef to i32*
+  %20 = ptrtoint %struct.sel_points* undef to i64
+  %21 = ptrtoint %struct.point* undef to i64
+  %22 = bitcast %struct.point* undef to i32*
+  %23 = ptrtoint %struct.point* undef to i64
+  %24 = bitcast %struct.point* undef to i32*
+  %25 = ptrtoint %struct.sel_points* undef to i64
+  %26 = ptrtoint %struct.point* undef to i64
+  %27 = bitcast %struct.point* undef to i32*
+  %28 = ptrtoint %struct.point* undef to i64
+  %29 = bitcast %struct.point* undef to i32*
+  %aux = alloca %struct.sel_points, align 4
+  call void @llvm.dbg.value(metadata %struct.point* %pivots, i64 0, metadata !332, metadata !55), !dbg !333
+  call void @llvm.dbg.value(metadata %struct.point* %the_points, i64 0, metadata !334, metadata !55), !dbg !335
+  call void @llvm.dbg.value(metadata %struct.sel_points* %selected, i64 0, metadata !336, metadata !55), !dbg !337
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !330, metadata !55), !dbg !331
+  %scevgep = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %30 = add i64 %pivots13, 512, !dbg !339
+  %scevgep14 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep1415 = ptrtoint i32* %scevgep14 to i64
+  %31 = add i64 %scevgep1415, 512, !dbg !339
+  %scevgep16 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %32 = add i64 %the_points19, 1024, !dbg !339
+  %scevgep20 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep2021 = ptrtoint i32* %scevgep20 to i64
+  %33 = add i64 %scevgep2021, 1024, !dbg !339
+  %scevgep23 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep2324 = bitcast float* %scevgep23 to %struct.sel_points*
+  %scevgep26 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep2627 = ptrtoint float* %scevgep26 to i64
+  %34 = add i64 %scevgep2627, 65536, !dbg !339
+  %35 = add i64 %34, 1024, !dbg !339
+  %36 = add i64 %selected28, 65536, !dbg !339
+  %37 = add i64 %36, 1024, !dbg !339
+  %scevgep30 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %38 = add i64 %pivots13, 512, !dbg !339
+  %scevgep32 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep3233 = ptrtoint i32* %scevgep32 to i64
+  %39 = add i64 %scevgep3233, 512, !dbg !339
+  %scevgep35 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %40 = add i64 %the_points19, 1024, !dbg !339
+  %scevgep37 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep3738 = ptrtoint i32* %scevgep37 to i64
+  %41 = add i64 %scevgep3738, 1024, !dbg !339
+  %scevgep40 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep4041 = bitcast float* %scevgep40 to %struct.sel_points*
+  %scevgep43 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep4344 = ptrtoint float* %scevgep43 to i64
+  %42 = add i64 %scevgep4344, 65536, !dbg !339
+  %43 = add i64 %42, 1024, !dbg !339
+  %44 = add i64 %selected28, 65536, !dbg !339
+  %45 = add i64 %44, 1024, !dbg !339
+  %scevgep46 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %46 = add i64 %pivots13, 512, !dbg !340
+  %scevgep48 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep4849 = ptrtoint i32* %scevgep48 to i64
+  %47 = add i64 %scevgep4849, 512, !dbg !340
+  %scevgep51 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %48 = add i64 %the_points19, 1024, !dbg !340
+  %scevgep53 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep5354 = ptrtoint i32* %scevgep53 to i64
+  %49 = add i64 %scevgep5354, 1024, !dbg !340
+  %scevgep56 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep5657 = bitcast float* %scevgep56 to %struct.sel_points*
+  %scevgep59 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep5960 = ptrtoint float* %scevgep59 to i64
+  %50 = add i64 %scevgep5960, 65536, !dbg !340
+  %51 = add i64 %50, 1024, !dbg !340
+  %52 = add i64 %selected28, 65536, !dbg !340
+  %53 = add i64 %52, 1024, !dbg !340
+  %scevgep62 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %54 = add i64 %pivots13, 512, !dbg !339
+  %scevgep64 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep6465 = ptrtoint i32* %scevgep64 to i64
+  %55 = add i64 %scevgep6465, 512, !dbg !339
+  %scevgep67 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %56 = add i64 %the_points19, 1024, !dbg !339
+  %scevgep69 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep6970 = ptrtoint i32* %scevgep69 to i64
+  %57 = add i64 %scevgep6970, 1024, !dbg !339
+  %scevgep72 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep7273 = bitcast float* %scevgep72 to %struct.sel_points*
+  %scevgep75 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep7576 = ptrtoint float* %scevgep75 to i64
+  %58 = add i64 %scevgep7576, 65536, !dbg !339
+  %59 = add i64 %58, 1024, !dbg !339
+  %60 = add i64 %selected28, 65536, !dbg !339
+  %61 = add i64 %60, 1024, !dbg !339
+  %scevgep78 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %62 = add i64 %pivots13, 512, !dbg !339
+  %scevgep80 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep8081 = ptrtoint i32* %scevgep80 to i64
+  %63 = add i64 %scevgep8081, 512, !dbg !339
+  %scevgep83 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %64 = add i64 %the_points19, 1024, !dbg !339
+  %scevgep85 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep8586 = ptrtoint i32* %scevgep85 to i64
+  %65 = add i64 %scevgep8586, 1024, !dbg !339
+  %scevgep88 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep8889 = bitcast float* %scevgep88 to %struct.sel_points*
+  %scevgep91 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep9192 = ptrtoint float* %scevgep91 to i64
+  %66 = add i64 %scevgep9192, 65536, !dbg !339
+  %67 = add i64 %66, 1024, !dbg !339
+  %68 = add i64 %selected28, 65536, !dbg !339
+  %69 = add i64 %68, 1024, !dbg !339
+  %scevgep94 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %70 = add i64 %pivots13, 512, !dbg !340
+  %scevgep96 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep9697 = ptrtoint i32* %scevgep96 to i64
+  %71 = add i64 %scevgep9697, 512, !dbg !340
+  %scevgep99 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %72 = add i64 %the_points19, 1024, !dbg !340
+  %scevgep101 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep101102 = ptrtoint i32* %scevgep101 to i64
+  %73 = add i64 %scevgep101102, 1024, !dbg !340
+  %scevgep104 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep104105 = bitcast float* %scevgep104 to %struct.sel_points*
+  %scevgep107 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep107108 = ptrtoint float* %scevgep107 to i64
+  %74 = add i64 %scevgep107108, 65536, !dbg !340
+  %75 = add i64 %74, 1024, !dbg !340
+  %76 = add i64 %selected28, 65536, !dbg !340
+  %77 = add i64 %76, 1024, !dbg !340
+  %scevgep110 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %78 = add i64 %pivots13, 512, !dbg !340
+  %scevgep112 = getelementptr %struct.point, %struct.point* %pivots, i64 0, i32 1, !dbg !338
+  %scevgep112113 = ptrtoint i32* %scevgep112 to i64
+  %79 = add i64 %scevgep112113, 512, !dbg !340
+  %scevgep115 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %80 = add i64 %the_points19, 1024, !dbg !340
+  %scevgep117 = getelementptr %struct.point, %struct.point* %the_points, i64 0, i32 1, !dbg !338
+  %scevgep117118 = ptrtoint i32* %scevgep117 to i64
+  %81 = add i64 %scevgep117118, 1024, !dbg !340
+  %scevgep120 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep120121 = bitcast float* %scevgep120 to %struct.sel_points*
+  %scevgep123 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !338
+  %scevgep123124 = ptrtoint float* %scevgep123 to i64
+  %82 = add i64 %scevgep123124, 65536, !dbg !340
+  %83 = add i64 %82, 1024, !dbg !340
+  %84 = add i64 %selected28, 65536, !dbg !340
+  %85 = add i64 %84, 1024, !dbg !340
+  br label %for.cond, !dbg !338
+
+for.cond:                                         ; preds = %for.inc.27, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %inc28, %for.inc.27 ]
+  %86 = icmp ult i32* %scevgep78, %pivots12, !dbg !339
+  %umin79 = select i1 %86, i32* %scevgep78, i32* %pivots12, !dbg !339
+  %87 = icmp ugt i64 %63, %62, !dbg !339
+  %umax82 = select i1 %87, i64 %63, i64 %62, !dbg !339
+  %88 = icmp ult i32* %scevgep83, %the_points17, !dbg !339
+  %umin84 = select i1 %88, i32* %scevgep83, i32* %the_points17, !dbg !339
+  %89 = icmp ugt i64 %65, %64, !dbg !339
+  %umax87 = select i1 %89, i64 %65, i64 %64, !dbg !339
+  %90 = icmp ult %struct.sel_points* %selected, %scevgep8889, !dbg !339
+  %umin90 = select i1 %90, %struct.sel_points* %selected, %struct.sel_points* %scevgep8889, !dbg !339
+  %91 = icmp ugt i64 %69, %67, !dbg !339
+  %umax93 = select i1 %91, i64 %69, i64 %67, !dbg !339
+  %92 = icmp ult i32* %scevgep62, %pivots12, !dbg !339
+  %umin63 = select i1 %92, i32* %scevgep62, i32* %pivots12, !dbg !339
+  %93 = icmp ugt i64 %55, %54, !dbg !339
+  %umax66 = select i1 %93, i64 %55, i64 %54, !dbg !339
+  %94 = icmp ult i32* %scevgep67, %the_points17, !dbg !339
+  %umin68 = select i1 %94, i32* %scevgep67, i32* %the_points17, !dbg !339
+  %95 = icmp ugt i64 %57, %56, !dbg !339
+  %umax71 = select i1 %95, i64 %57, i64 %56, !dbg !339
+  %96 = icmp ult %struct.sel_points* %selected, %scevgep7273, !dbg !339
+  %umin74 = select i1 %96, %struct.sel_points* %selected, %struct.sel_points* %scevgep7273, !dbg !339
+  %97 = icmp ugt i64 %61, %59, !dbg !339
+  %umax77 = select i1 %97, i64 %61, i64 %59, !dbg !339
+  %98 = icmp ult i32* %scevgep30, %pivots12, !dbg !339
+  %umin31 = select i1 %98, i32* %scevgep30, i32* %pivots12, !dbg !339
+  %99 = icmp ugt i64 %39, %38, !dbg !339
+  %umax34 = select i1 %99, i64 %39, i64 %38, !dbg !339
+  %100 = icmp ult i32* %scevgep35, %the_points17, !dbg !339
+  %umin36 = select i1 %100, i32* %scevgep35, i32* %the_points17, !dbg !339
+  %101 = icmp ugt i64 %41, %40, !dbg !339
+  %umax39 = select i1 %101, i64 %41, i64 %40, !dbg !339
+  %102 = icmp ult %struct.sel_points* %selected, %scevgep4041, !dbg !339
+  %umin42 = select i1 %102, %struct.sel_points* %selected, %struct.sel_points* %scevgep4041, !dbg !339
+  %103 = icmp ugt i64 %45, %43, !dbg !339
+  %umax45 = select i1 %103, i64 %45, i64 %43, !dbg !339
+  %104 = icmp ult i32* %scevgep, %pivots12, !dbg !339
+  %umin = select i1 %104, i32* %scevgep, i32* %pivots12, !dbg !339
+  %105 = icmp ugt i64 %31, %30, !dbg !339
+  %umax = select i1 %105, i64 %31, i64 %30, !dbg !339
+  %106 = icmp ult i32* %scevgep16, %the_points17, !dbg !339
+  %umin18 = select i1 %106, i32* %scevgep16, i32* %the_points17, !dbg !339
+  %107 = icmp ugt i64 %33, %32, !dbg !339
+  %umax22 = select i1 %107, i64 %33, i64 %32, !dbg !339
+  %108 = icmp ult %struct.sel_points* %selected, %scevgep2324, !dbg !339
+  %umin25 = select i1 %108, %struct.sel_points* %selected, %struct.sel_points* %scevgep2324, !dbg !339
+  %109 = icmp ugt i64 %37, %35, !dbg !339
+  %umax29 = select i1 %109, i64 %37, i64 %35, !dbg !339
+  %cmp = icmp slt i32 %i.0, 64, !dbg !339
+  br i1 %cmp, label %for.body, label %for.end.29, !dbg !341
+
+for.body:                                         ; preds = %for.cond
+  br label %for.cond.1, !dbg !342
+
+for.cond.1:                                       ; preds = %for.inc, %for.body
+  %j.0 = phi i32 [ 0, %for.body ], [ %inc, %for.inc ]
+  %110 = icmp ult i32* %scevgep110, %pivots12, !dbg !340
+  %umin111 = select i1 %110, i32* %scevgep110, i32* %pivots12, !dbg !340
+  %111 = icmp ugt i64 %79, %78, !dbg !340
+  %umax114 = select i1 %111, i64 %79, i64 %78, !dbg !340
+  %112 = icmp ult i32* %scevgep115, %the_points17, !dbg !340
+  %umin116 = select i1 %112, i32* %scevgep115, i32* %the_points17, !dbg !340
+  %113 = icmp ugt i64 %81, %80, !dbg !340
+  %umax119 = select i1 %113, i64 %81, i64 %80, !dbg !340
+  %114 = icmp ult %struct.sel_points* %selected, %scevgep120121, !dbg !340
+  %umin122 = select i1 %114, %struct.sel_points* %selected, %struct.sel_points* %scevgep120121, !dbg !340
+  %115 = icmp ugt i64 %85, %83, !dbg !340
+  %umax125 = select i1 %115, i64 %85, i64 %83, !dbg !340
+  %116 = icmp ult i32* %scevgep94, %pivots12, !dbg !340
+  %umin95 = select i1 %116, i32* %scevgep94, i32* %pivots12, !dbg !340
+  %117 = icmp ugt i64 %71, %70, !dbg !340
+  %umax98 = select i1 %117, i64 %71, i64 %70, !dbg !340
+  %118 = icmp ult i32* %scevgep99, %the_points17, !dbg !340
+  %umin100 = select i1 %118, i32* %scevgep99, i32* %the_points17, !dbg !340
+  %119 = icmp ugt i64 %73, %72, !dbg !340
+  %umax103 = select i1 %119, i64 %73, i64 %72, !dbg !340
+  %120 = icmp ult %struct.sel_points* %selected, %scevgep104105, !dbg !340
+  %umin106 = select i1 %120, %struct.sel_points* %selected, %struct.sel_points* %scevgep104105, !dbg !340
+  %121 = icmp ugt i64 %77, %75, !dbg !340
+  %umax109 = select i1 %121, i64 %77, i64 %75, !dbg !340
+  %122 = icmp ult i32* %scevgep46, %pivots12, !dbg !340
+  %umin47 = select i1 %122, i32* %scevgep46, i32* %pivots12, !dbg !340
+  %123 = icmp ugt i64 %47, %46, !dbg !340
+  %umax50 = select i1 %123, i64 %47, i64 %46, !dbg !340
+  %124 = icmp ult i32* %scevgep51, %the_points17, !dbg !340
+  %umin52 = select i1 %124, i32* %scevgep51, i32* %the_points17, !dbg !340
+  %125 = icmp ugt i64 %49, %48, !dbg !340
+  %umax55 = select i1 %125, i64 %49, i64 %48, !dbg !340
+  %126 = icmp ult %struct.sel_points* %selected, %scevgep5657, !dbg !340
+  %umin58 = select i1 %126, %struct.sel_points* %selected, %struct.sel_points* %scevgep5657, !dbg !340
+  %127 = icmp ugt i64 %53, %51, !dbg !340
+  %umax61 = select i1 %127, i64 %53, i64 %51, !dbg !340
+  %cmp2 = icmp slt i32 %j.0, 128, !dbg !340
+  br i1 %cmp2, label %for.body.3, label %for.end, !dbg !343
+
+for.body.3:                                       ; preds = %for.cond.1
+  %idxprom = sext i32 %i.0 to i64, !dbg !344
+  %arrayidx = getelementptr inbounds %struct.point, %struct.point* %pivots, i64 %idxprom, !dbg !344
+  %x4 = getelementptr inbounds %struct.point, %struct.point* %arrayidx, i32 0, i32 0, !dbg !345
+  %tmp = load i32, i32* %x4, align 4, !dbg !345
+  %idxprom5 = sext i32 %j.0 to i64, !dbg !346
+  %arrayidx6 = getelementptr inbounds %struct.point, %struct.point* %the_points, i64 %idxprom5, !dbg !346
+  %x7 = getelementptr inbounds %struct.point, %struct.point* %arrayidx6, i32 0, i32 0, !dbg !347
+  %tmp1 = load i32, i32* %x7, align 4, !dbg !347
+  %sub = sub nsw i32 %tmp, %tmp1, !dbg !348
+  %conv = sitofp i32 %sub to float, !dbg !344
+  %idxprom8 = sext i32 %i.0 to i64, !dbg !349
+  %arrayidx9 = getelementptr inbounds %struct.point, %struct.point* %pivots, i64 %idxprom8, !dbg !349
+  %y10 = getelementptr inbounds %struct.point, %struct.point* %arrayidx9, i32 0, i32 1, !dbg !350
+  %tmp2 = load i32, i32* %y10, align 4, !dbg !350
+  %idxprom11 = sext i32 %j.0 to i64, !dbg !351
+  %arrayidx12 = getelementptr inbounds %struct.point, %struct.point* %the_points, i64 %idxprom11, !dbg !351
+  %y13 = getelementptr inbounds %struct.point, %struct.point* %arrayidx12, i32 0, i32 1, !dbg !352
+  %tmp3 = load i32, i32* %y13, align 4, !dbg !352
+  %sub14 = sub nsw i32 %tmp2, %tmp3, !dbg !353
+  %conv15 = sitofp i32 %sub14 to float, !dbg !349
+  %mul = fmul float %conv, %conv, !dbg !354
+  %mul16 = fmul float %conv15, %conv15, !dbg !355
+  %add = fadd float %mul, %mul16, !dbg !356
+  %conv17 = fpext float %add to double, !dbg !357
+  %call = call double @sqrt(double %conv17) #4, !dbg !358
+  %conv18 = fptrunc double %call to float, !dbg !358
+  %mul19 = mul nsw i32 %i.0, 128, !dbg !359
+  %add20 = add nsw i32 %mul19, %j.0, !dbg !360
+  %idxprom21 = sext i32 %add20 to i64, !dbg !361
+  %arrayidx22 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom21, !dbg !361
+  %value = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx22, i32 0, i32 1, !dbg !362
+  store float %conv18, float* %value, align 4, !dbg !363
+  %mul23 = mul nsw i32 %i.0, 128, !dbg !364
+  %add24 = add nsw i32 %mul23, %j.0, !dbg !365
+  %idxprom25 = sext i32 %add24 to i64, !dbg !366
+  %arrayidx26 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom25, !dbg !366
+  %position = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx26, i32 0, i32 0, !dbg !367
+  store i32 %j.0, i32* %position, align 4, !dbg !368
+  br label %for.inc, !dbg !369
+
+for.inc:                                          ; preds = %for.body.3
+  %inc = add nsw i32 %j.0, 1, !dbg !370
+  br label %for.cond.1, !dbg !371
+
+for.end:                                          ; preds = %for.cond.1
+  br label %for.inc.27, !dbg !372
+
+for.inc.27:                                       ; preds = %for.end
+  %inc28 = add nsw i32 %i.0, 1, !dbg !373
+  br label %for.cond, !dbg !374
+
+for.end.29:                                       ; preds = %for.cond
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !375, metadata !55), !dbg !379
+  call void @llvm.dbg.value(metadata i32 %inc79, i64 0, metadata !330, metadata !55), !dbg !331
+  call void @llvm.dbg.value(metadata i32 %add39, i64 0, metadata !380, metadata !55), !dbg !384
+  call void @llvm.dbg.value(metadata i32 %inc76, i64 0, metadata !375, metadata !55), !dbg !379
+  call void @llvm.dbg.declare(metadata %struct.sel_points* %aux, metadata !385, metadata !55), !dbg !391
+  call void @llvm.dbg.value(metadata i32 %inc73, i64 0, metadata !380, metadata !55), !dbg !384
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !330, metadata !55), !dbg !331
+  %scevgep126 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep127 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep129 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep129130 = ptrtoint float* %scevgep129 to i64
+  %128 = add i64 %scevgep129130, 65536, !dbg !393
+  %129 = add i64 %128, 1024, !dbg !393
+  %scevgep131 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep131132 = ptrtoint float* %scevgep131 to i64
+  %130 = add i64 %scevgep131132, 65536, !dbg !393
+  %131 = add i64 %130, 1024, !dbg !393
+  %132 = add i64 %131, -8, !dbg !393
+  %scevgep134 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep135 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep137 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep137138 = ptrtoint float* %scevgep137 to i64
+  %133 = add i64 %scevgep137138, 65536, !dbg !393
+  %134 = add i64 %133, 1024, !dbg !393
+  %scevgep139 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep139140 = ptrtoint float* %scevgep139 to i64
+  %135 = add i64 %scevgep139140, 65536, !dbg !393
+  %136 = add i64 %135, 1024, !dbg !393
+  %137 = add i64 %136, -8, !dbg !393
+  %scevgep142 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep143 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep145 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep145146 = ptrtoint float* %scevgep145 to i64
+  %138 = add i64 %scevgep145146, 65536, !dbg !394
+  %139 = add i64 %138, 1024, !dbg !394
+  %scevgep147 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep147148 = ptrtoint float* %scevgep147 to i64
+  %140 = add i64 %scevgep147148, 65536, !dbg !394
+  %141 = add i64 %140, 1024, !dbg !394
+  %142 = add i64 %141, -8, !dbg !394
+  %scevgep150 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep151 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep153 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep153154 = ptrtoint float* %scevgep153 to i64
+  %143 = add i64 %scevgep153154, 65536, !dbg !393
+  %144 = add i64 %143, 1024, !dbg !393
+  %scevgep155 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep155156 = ptrtoint float* %scevgep155 to i64
+  %145 = add i64 %scevgep155156, 65536, !dbg !393
+  %146 = add i64 %145, 1024, !dbg !393
+  %147 = add i64 %146, -8, !dbg !393
+  %scevgep158 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep159 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep161 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep161162 = ptrtoint float* %scevgep161 to i64
+  %148 = add i64 %scevgep161162, 65536, !dbg !393
+  %149 = add i64 %148, 1024, !dbg !393
+  %scevgep163 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep163164 = ptrtoint float* %scevgep163 to i64
+  %150 = add i64 %scevgep163164, 65536, !dbg !393
+  %151 = add i64 %150, 1024, !dbg !393
+  %152 = add i64 %151, -8, !dbg !393
+  %scevgep166 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep167 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep169 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep169170 = ptrtoint float* %scevgep169 to i64
+  %153 = add i64 %scevgep169170, 65536, !dbg !394
+  %154 = add i64 %153, 1024, !dbg !394
+  %scevgep171 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep171172 = ptrtoint float* %scevgep171 to i64
+  %155 = add i64 %scevgep171172, 65536, !dbg !394
+  %156 = add i64 %155, 1024, !dbg !394
+  %157 = add i64 %156, -8, !dbg !394
+  %scevgep174 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep175 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep177 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep177178 = ptrtoint float* %scevgep177 to i64
+  %158 = add i64 %scevgep177178, 65536, !dbg !395
+  %159 = add i64 %158, 1024, !dbg !395
+  %scevgep179 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep179180 = ptrtoint float* %scevgep179 to i64
+  %160 = add i64 %scevgep179180, 65536, !dbg !395
+  %161 = add i64 %160, 1024, !dbg !395
+  %162 = add i64 %161, -8, !dbg !395
+  %scevgep182 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep183 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep185 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep185186 = ptrtoint float* %scevgep185 to i64
+  %163 = add i64 %scevgep185186, 65536, !dbg !394
+  %164 = add i64 %163, 1024, !dbg !394
+  %scevgep187 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep187188 = ptrtoint float* %scevgep187 to i64
+  %165 = add i64 %scevgep187188, 65536, !dbg !394
+  %166 = add i64 %165, 1024, !dbg !394
+  %167 = add i64 %166, -8, !dbg !394
+  %scevgep190 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep191 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep193 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep193194 = ptrtoint float* %scevgep193 to i64
+  %168 = add i64 %scevgep193194, 65536, !dbg !394
+  %169 = add i64 %168, 1024, !dbg !394
+  %scevgep195 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep195196 = ptrtoint float* %scevgep195 to i64
+  %170 = add i64 %scevgep195196, 65536, !dbg !394
+  %171 = add i64 %170, 1024, !dbg !394
+  %172 = add i64 %171, -8, !dbg !394
+  %scevgep198 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep199 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep201 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep201202 = ptrtoint float* %scevgep201 to i64
+  %173 = add i64 %scevgep201202, 65536, !dbg !396
+  %174 = add i64 %173, 1024, !dbg !396
+  %scevgep203 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep203204 = ptrtoint float* %scevgep203 to i64
+  %175 = add i64 %scevgep203204, 65536, !dbg !396
+  %176 = add i64 %175, 1024, !dbg !396
+  %177 = add i64 %176, -8, !dbg !396
+  %scevgep206 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep207 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep209 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep209210 = ptrtoint float* %scevgep209 to i64
+  %178 = add i64 %scevgep209210, 65536, !dbg !396
+  %179 = add i64 %178, 1024, !dbg !396
+  %scevgep211 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep211212 = ptrtoint float* %scevgep211 to i64
+  %180 = add i64 %scevgep211212, 65536, !dbg !396
+  %181 = add i64 %180, 1024, !dbg !396
+  %182 = add i64 %181, -8, !dbg !396
+  %scevgep214 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep215 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep217 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep217218 = ptrtoint float* %scevgep217 to i64
+  %183 = add i64 %scevgep217218, 65536, !dbg !395
+  %184 = add i64 %183, 1024, !dbg !395
+  %scevgep219 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep219220 = ptrtoint float* %scevgep219 to i64
+  %185 = add i64 %scevgep219220, 65536, !dbg !395
+  %186 = add i64 %185, 1024, !dbg !395
+  %187 = add i64 %186, -8, !dbg !395
+  %scevgep222 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep223 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep225 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 0, i32 1, !dbg !392
+  %scevgep225226 = ptrtoint float* %scevgep225 to i64
+  %188 = add i64 %scevgep225226, 65536, !dbg !395
+  %189 = add i64 %188, 1024, !dbg !395
+  %scevgep227 = getelementptr %struct.sel_points, %struct.sel_points* %selected, i64 1, i32 1, !dbg !392
+  %scevgep227228 = ptrtoint float* %scevgep227 to i64
+  %190 = add i64 %scevgep227228, 65536, !dbg !395
+  %191 = add i64 %190, 1024, !dbg !395
+  %192 = add i64 %191, -8, !dbg !395
+  br label %for.cond.30, !dbg !392
+
+for.cond.30:                                      ; preds = %for.inc.78, %for.end.29
+  %i.1 = phi i32 [ 0, %for.end.29 ], [ %inc79, %for.inc.78 ]
+  %193 = icmp ult float* %scevgep159, %scevgep158, !dbg !393
+  %umin160 = select i1 %193, float* %scevgep159, float* %scevgep158, !dbg !393
+  %194 = icmp ugt i64 %152, %149, !dbg !393
+  %umax165 = select i1 %194, i64 %152, i64 %149, !dbg !393
+  %195 = icmp ult float* %scevgep151, %scevgep150, !dbg !393
+  %umin152 = select i1 %195, float* %scevgep151, float* %scevgep150, !dbg !393
+  %196 = icmp ugt i64 %147, %144, !dbg !393
+  %umax157 = select i1 %196, i64 %147, i64 %144, !dbg !393
+  %197 = icmp ult float* %scevgep135, %scevgep134, !dbg !393
+  %umin136 = select i1 %197, float* %scevgep135, float* %scevgep134, !dbg !393
+  %198 = icmp ugt i64 %137, %134, !dbg !393
+  %umax141 = select i1 %198, i64 %137, i64 %134, !dbg !393
+  %199 = icmp ult float* %scevgep127, %scevgep126, !dbg !393
+  %umin128 = select i1 %199, float* %scevgep127, float* %scevgep126, !dbg !393
+  %200 = icmp ugt i64 %132, %129, !dbg !393
+  %umax133 = select i1 %200, i64 %132, i64 %129, !dbg !393
+  %cmp31 = icmp slt i32 %i.1, 64, !dbg !393
+  br i1 %cmp31, label %for.body.33, label %for.end.80, !dbg !397
+
+for.body.33:                                      ; preds = %for.cond.30
+  br label %for.cond.35, !dbg !398
+
+for.cond.35:                                      ; preds = %for.inc.75, %for.body.33
+  %j34.0 = phi i32 [ 0, %for.body.33 ], [ %inc76, %for.inc.75 ]
+  %201 = icmp ult float* %scevgep191, %scevgep190, !dbg !394
+  %umin192 = select i1 %201, float* %scevgep191, float* %scevgep190, !dbg !394
+  %202 = icmp ugt i64 %172, %169, !dbg !394
+  %umax197 = select i1 %202, i64 %172, i64 %169, !dbg !394
+  %203 = icmp ult float* %scevgep183, %scevgep182, !dbg !394
+  %umin184 = select i1 %203, float* %scevgep183, float* %scevgep182, !dbg !394
+  %204 = icmp ugt i64 %167, %164, !dbg !394
+  %umax189 = select i1 %204, i64 %167, i64 %164, !dbg !394
+  %205 = icmp ult float* %scevgep167, %scevgep166, !dbg !394
+  %umin168 = select i1 %205, float* %scevgep167, float* %scevgep166, !dbg !394
+  %206 = icmp ugt i64 %157, %154, !dbg !394
+  %umax173 = select i1 %206, i64 %157, i64 %154, !dbg !394
+  %207 = icmp ult float* %scevgep143, %scevgep142, !dbg !394
+  %umin144 = select i1 %207, float* %scevgep143, float* %scevgep142, !dbg !394
+  %208 = icmp ugt i64 %142, %139, !dbg !394
+  %umax149 = select i1 %208, i64 %142, i64 %139, !dbg !394
+  %cmp36 = icmp slt i32 %j34.0, 128, !dbg !394
+  br i1 %cmp36, label %for.body.38, label %for.end.77, !dbg !399
+
+for.body.38:                                      ; preds = %for.cond.35
+  %add39 = add nsw i32 %j34.0, 1, !dbg !400
+  br label %for.cond.40, !dbg !401
+
+for.cond.40:                                      ; preds = %for.inc.72, %for.body.38
+  %m.0 = phi i32 [ %add39, %for.body.38 ], [ %inc73, %for.inc.72 ]
+  %209 = icmp ult float* %scevgep223, %scevgep222, !dbg !395
+  %umin224 = select i1 %209, float* %scevgep223, float* %scevgep222, !dbg !395
+  %210 = icmp ugt i64 %192, %189, !dbg !395
+  %umax229 = select i1 %210, i64 %192, i64 %189, !dbg !395
+  %211 = icmp ult float* %scevgep215, %scevgep214, !dbg !395
+  %umin216 = select i1 %211, float* %scevgep215, float* %scevgep214, !dbg !395
+  %212 = icmp ugt i64 %187, %184, !dbg !395
+  %umax221 = select i1 %212, i64 %187, i64 %184, !dbg !395
+  %213 = icmp ult float* %scevgep175, %scevgep174, !dbg !395
+  %umin176 = select i1 %213, float* %scevgep175, float* %scevgep174, !dbg !395
+  %214 = icmp ugt i64 %162, %159, !dbg !395
+  %umax181 = select i1 %214, i64 %162, i64 %159, !dbg !395
+  %cmp41 = icmp slt i32 %m.0, 128, !dbg !395
+  br i1 %cmp41, label %for.body.43, label %for.end.74, !dbg !402
+
+for.body.43:                                      ; preds = %for.cond.40
+  %215 = icmp ult float* %scevgep207, %scevgep206, !dbg !396
+  %umin208 = select i1 %215, float* %scevgep207, float* %scevgep206, !dbg !396
+  %216 = icmp ugt i64 %182, %179, !dbg !396
+  %umax213 = select i1 %216, i64 %182, i64 %179, !dbg !396
+  %217 = icmp ult float* %scevgep199, %scevgep198, !dbg !396
+  %umin200 = select i1 %217, float* %scevgep199, float* %scevgep198, !dbg !396
+  %218 = icmp ugt i64 %177, %174, !dbg !396
+  %umax205 = select i1 %218, i64 %177, i64 %174, !dbg !396
+  %mul44 = mul nsw i32 %i.1, 128, !dbg !396
+  %add45 = add nsw i32 %mul44, %j34.0, !dbg !403
+  %idxprom46 = sext i32 %add45 to i64, !dbg !404
+  %arrayidx47 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom46, !dbg !404
+  %value48 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx47, i32 0, i32 1, !dbg !405
+  %tmp4 = load float, float* %value48, align 4, !dbg !405
+  %mul49 = mul nsw i32 %i.1, 128, !dbg !406
+  %add50 = add nsw i32 %mul49, %m.0, !dbg !407
+  %idxprom51 = sext i32 %add50 to i64, !dbg !408
+  %arrayidx52 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom51, !dbg !408
+  %value53 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx52, i32 0, i32 1, !dbg !409
+  %tmp5 = load float, float* %value53, align 4, !dbg !409
+  %cmp54 = fcmp ogt float %tmp4, %tmp5, !dbg !410
+  br i1 %cmp54, label %if.then, label %if.end, !dbg !411
+
+if.then:                                          ; preds = %for.body.43
+  %mul56 = mul nsw i32 %i.1, 128, !dbg !412
+  %add57 = add nsw i32 %mul56, %j34.0, !dbg !413
+  %idxprom58 = sext i32 %add57 to i64, !dbg !414
+  %arrayidx59 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom58, !dbg !414
+  %tmp6 = bitcast %struct.sel_points* %aux to i8*, !dbg !414
+  %tmp7 = bitcast %struct.sel_points* %arrayidx59 to i8*, !dbg !414
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %tmp6, i8* %tmp7, i64 8, i32 4, i1 false), !dbg !414
+  %mul60 = mul nsw i32 %i.1, 128, !dbg !415
+  %add61 = add nsw i32 %mul60, %j34.0, !dbg !416
+  %idxprom62 = sext i32 %add61 to i64, !dbg !417
+  %arrayidx63 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom62, !dbg !417
+  %mul64 = mul nsw i32 %i.1, 128, !dbg !418
+  %add65 = add nsw i32 %mul64, %m.0, !dbg !419
+  %idxprom66 = sext i32 %add65 to i64, !dbg !420
+  %arrayidx67 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom66, !dbg !420
+  %tmp8 = bitcast %struct.sel_points* %arrayidx63 to i8*, !dbg !420
+  %tmp9 = bitcast %struct.sel_points* %arrayidx67 to i8*, !dbg !420
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %tmp8, i8* %tmp9, i64 8, i32 4, i1 false), !dbg !420
+  %mul68 = mul nsw i32 %i.1, 128, !dbg !421
+  %add69 = add nsw i32 %mul68, %m.0, !dbg !422
+  %idxprom70 = sext i32 %add69 to i64, !dbg !423
+  %arrayidx71 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %selected, i64 %idxprom70, !dbg !423
+  %tmp10 = bitcast %struct.sel_points* %arrayidx71 to i8*, !dbg !424
+  %tmp11 = bitcast %struct.sel_points* %aux to i8*, !dbg !424
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %tmp10, i8* %tmp11, i64 8, i32 4, i1 false), !dbg !424
+  br label %if.end, !dbg !425
+
+if.end:                                           ; preds = %if.then, %for.body.43
+  br label %for.inc.72, !dbg !426
+
+for.inc.72:                                       ; preds = %if.end
+  %inc73 = add nsw i32 %m.0, 1, !dbg !427
+  br label %for.cond.40, !dbg !428
+
+for.end.74:                                       ; preds = %for.cond.40
+  br label %for.inc.75, !dbg !429
+
+for.inc.75:                                       ; preds = %for.end.74
+  %inc76 = add nsw i32 %j34.0, 1, !dbg !430
+  br label %for.cond.35, !dbg !431
+
+for.end.77:                                       ; preds = %for.cond.35
+  br label %for.inc.78, !dbg !432
+
+for.inc.78:                                       ; preds = %for.end.77
+  %inc79 = add nsw i32 %i.1, 1, !dbg !433
+  br label %for.cond.30, !dbg !434
+
+for.end.80:                                       ; preds = %for.cond.30
+  ret void, !dbg !435
+}
+
+; Function Attrs: nounwind uwtable
+define void @compareResults(%struct.sel_points* %B, %struct.sel_points* %B_GPU) #0 {
+entry:
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !436, metadata !55), !dbg !437
+  call void @llvm.dbg.value(metadata i32 %inc33, i64 0, metadata !438, metadata !55), !dbg !439
+  call void @llvm.dbg.value(metadata i32 %inc, i64 0, metadata !440, metadata !55), !dbg !441
+  call void @llvm.dbg.value(metadata i32 %inc29, i64 0, metadata !440, metadata !55), !dbg !441
+  call void @llvm.dbg.value(metadata i32 %inc31, i64 0, metadata !436, metadata !55), !dbg !437
+  call void @llvm.dbg.value(metadata %struct.sel_points* %B, i64 0, metadata !442, metadata !55), !dbg !443
+  call void @llvm.dbg.value(metadata %struct.sel_points* %B_GPU, i64 0, metadata !444, metadata !55), !dbg !445
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !440, metadata !55), !dbg !441
+  call void @llvm.dbg.value(metadata i32 0, i64 0, metadata !438, metadata !55), !dbg !439
+  %B_GPU13 = ptrtoint %struct.sel_points* %B_GPU to i64
+  %B7 = ptrtoint %struct.sel_points* %B to i64
+  %0 = ptrtoint %struct.sel_points* undef to i64
+  %1 = ptrtoint %struct.sel_points* undef to i64
+  %2 = ptrtoint %struct.sel_points* undef to i64
+  %3 = ptrtoint %struct.sel_points* undef to i64
+  %4 = ptrtoint %struct.sel_points* undef to i64
+  %5 = ptrtoint %struct.sel_points* undef to i64
+  %6 = ptrtoint %struct.sel_points* undef to i64
+  %7 = ptrtoint %struct.sel_points* undef to i64
+  %8 = ptrtoint %struct.sel_points* undef to i64
+  %9 = ptrtoint %struct.sel_points* undef to i64
+  %10 = ptrtoint %struct.sel_points* undef to i64
+  %11 = ptrtoint %struct.sel_points* undef to i64
+  %12 = ptrtoint %struct.sel_points* undef to i64
+  %13 = ptrtoint %struct.sel_points* undef to i64
+  %14 = ptrtoint %struct.sel_points* undef to i64
+  %15 = ptrtoint %struct.sel_points* undef to i64
+  %scevgep = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep4 = bitcast float* %scevgep to %struct.sel_points*
+  %scevgep5 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep56 = ptrtoint float* %scevgep5 to i64
+  %16 = add i64 %scevgep56, 131072, !dbg !448
+  %17 = add i64 %16, 1024, !dbg !448
+  %18 = add i64 %B7, 131072, !dbg !448
+  %19 = add i64 %18, 1024, !dbg !448
+  %scevgep8 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep89 = bitcast float* %scevgep8 to %struct.sel_points*
+  %scevgep11 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep1112 = ptrtoint float* %scevgep11 to i64
+  %20 = add i64 %scevgep1112, 131072, !dbg !448
+  %21 = add i64 %20, 1024, !dbg !448
+  %22 = add i64 %B_GPU13, 131072, !dbg !448
+  %23 = add i64 %22, 1024, !dbg !448
+  %scevgep15 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep1516 = bitcast float* %scevgep15 to %struct.sel_points*
+  %scevgep18 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep1819 = ptrtoint float* %scevgep18 to i64
+  %24 = add i64 %scevgep1819, 131072, !dbg !448
+  %25 = add i64 %24, 1024, !dbg !448
+  %26 = add i64 %B7, 131072, !dbg !448
+  %27 = add i64 %26, 1024, !dbg !448
+  %scevgep21 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep2122 = bitcast float* %scevgep21 to %struct.sel_points*
+  %scevgep24 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep2425 = ptrtoint float* %scevgep24 to i64
+  %28 = add i64 %scevgep2425, 131072, !dbg !448
+  %29 = add i64 %28, 1024, !dbg !448
+  %30 = add i64 %B_GPU13, 131072, !dbg !448
+  %31 = add i64 %30, 1024, !dbg !448
+  %scevgep27 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep2728 = bitcast float* %scevgep27 to %struct.sel_points*
+  %scevgep30 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep3031 = ptrtoint float* %scevgep30 to i64
+  %32 = add i64 %scevgep3031, 131072, !dbg !450
+  %33 = add i64 %32, 1024, !dbg !450
+  %34 = add i64 %B7, 131072, !dbg !450
+  %35 = add i64 %34, 1024, !dbg !450
+  %scevgep33 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep3334 = bitcast float* %scevgep33 to %struct.sel_points*
+  %scevgep36 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep3637 = ptrtoint float* %scevgep36 to i64
+  %36 = add i64 %scevgep3637, 131072, !dbg !450
+  %37 = add i64 %36, 1024, !dbg !450
+  %38 = add i64 %B_GPU13, 131072, !dbg !450
+  %39 = add i64 %38, 1024, !dbg !450
+  %scevgep39 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep3940 = bitcast float* %scevgep39 to %struct.sel_points*
+  %scevgep42 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep4243 = ptrtoint float* %scevgep42 to i64
+  %40 = add i64 %scevgep4243, 131072, !dbg !448
+  %41 = add i64 %40, 1024, !dbg !448
+  %42 = add i64 %B7, 131072, !dbg !448
+  %43 = add i64 %42, 1024, !dbg !448
+  %scevgep45 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep4546 = bitcast float* %scevgep45 to %struct.sel_points*
+  %scevgep48 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep4849 = ptrtoint float* %scevgep48 to i64
+  %44 = add i64 %scevgep4849, 131072, !dbg !448
+  %45 = add i64 %44, 1024, !dbg !448
+  %46 = add i64 %B_GPU13, 131072, !dbg !448
+  %47 = add i64 %46, 1024, !dbg !448
+  %scevgep51 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep5152 = bitcast float* %scevgep51 to %struct.sel_points*
+  %scevgep54 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep5455 = ptrtoint float* %scevgep54 to i64
+  %48 = add i64 %scevgep5455, 131072, !dbg !448
+  %49 = add i64 %48, 1024, !dbg !448
+  %50 = add i64 %B7, 131072, !dbg !448
+  %51 = add i64 %50, 1024, !dbg !448
+  %scevgep57 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep5758 = bitcast float* %scevgep57 to %struct.sel_points*
+  %scevgep60 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep6061 = ptrtoint float* %scevgep60 to i64
+  %52 = add i64 %scevgep6061, 131072, !dbg !448
+  %53 = add i64 %52, 1024, !dbg !448
+  %54 = add i64 %B_GPU13, 131072, !dbg !448
+  %55 = add i64 %54, 1024, !dbg !448
+  %scevgep63 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep64 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep6465 = ptrtoint float* %scevgep64 to i64
+  %56 = add i64 %scevgep6465, 131072, !dbg !454
+  %57 = add i64 %56, 1024, !dbg !454
+  %scevgep66 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep67 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep6768 = ptrtoint float* %scevgep67 to i64
+  %58 = add i64 %scevgep6768, 131072, !dbg !454
+  %59 = add i64 %58, 1024, !dbg !454
+  %scevgep69 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep70 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep7071 = ptrtoint float* %scevgep70 to i64
+  %60 = add i64 %scevgep7071, 131072, !dbg !454
+  %61 = add i64 %60, 1024, !dbg !454
+  %scevgep72 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep73 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep7374 = ptrtoint float* %scevgep73 to i64
+  %62 = add i64 %scevgep7374, 131072, !dbg !454
+  %63 = add i64 %62, 1024, !dbg !454
+  %64 = add i64 %B7, 131072, !dbg !457
+  %65 = add i64 %64, 1024, !dbg !457
+  %66 = add i64 %B_GPU13, 131072, !dbg !457
+  %67 = add i64 %66, 1024, !dbg !457
+  %68 = add i64 %B7, 131072, !dbg !457
+  %69 = add i64 %68, 1024, !dbg !457
+  %70 = add i64 %B_GPU13, 131072, !dbg !457
+  %71 = add i64 %70, 1024, !dbg !457
+  %scevgep75 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep7576 = bitcast float* %scevgep75 to %struct.sel_points*
+  %scevgep78 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep7879 = ptrtoint float* %scevgep78 to i64
+  %72 = add i64 %scevgep7879, 131072, !dbg !450
+  %73 = add i64 %72, 1024, !dbg !450
+  %74 = add i64 %B7, 131072, !dbg !450
+  %75 = add i64 %74, 1024, !dbg !450
+  %scevgep81 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep8182 = bitcast float* %scevgep81 to %struct.sel_points*
+  %scevgep84 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep8485 = ptrtoint float* %scevgep84 to i64
+  %76 = add i64 %scevgep8485, 131072, !dbg !450
+  %77 = add i64 %76, 1024, !dbg !450
+  %78 = add i64 %B_GPU13, 131072, !dbg !450
+  %79 = add i64 %78, 1024, !dbg !450
+  %scevgep87 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep8788 = bitcast float* %scevgep87 to %struct.sel_points*
+  %scevgep90 = getelementptr %struct.sel_points, %struct.sel_points* %B, i64 0, i32 1, !dbg !446
+  %scevgep9091 = ptrtoint float* %scevgep90 to i64
+  %80 = add i64 %scevgep9091, 131072, !dbg !450
+  %81 = add i64 %80, 1024, !dbg !450
+  %82 = add i64 %B7, 131072, !dbg !450
+  %83 = add i64 %82, 1024, !dbg !450
+  %scevgep93 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep9394 = bitcast float* %scevgep93 to %struct.sel_points*
+  %scevgep96 = getelementptr %struct.sel_points, %struct.sel_points* %B_GPU, i64 0, i32 1, !dbg !446
+  %scevgep9697 = ptrtoint float* %scevgep96 to i64
+  %84 = add i64 %scevgep9697, 131072, !dbg !450
+  %85 = add i64 %84, 1024, !dbg !450
+  %86 = add i64 %B_GPU13, 131072, !dbg !450
+  %87 = add i64 %86, 1024, !dbg !450
+  br label %for.cond, !dbg !446
+
+for.cond:                                         ; preds = %for.inc.32, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %inc33, %for.inc.32 ]
+  %fail.0 = phi i32 [ 0, %entry ], [ %fail.1.lcssa, %for.inc.32 ]
+  %88 = icmp ult %struct.sel_points* %B, %scevgep5152, !dbg !448
+  %umin53 = select i1 %88, %struct.sel_points* %B, %struct.sel_points* %scevgep5152, !dbg !448
+  %89 = icmp ugt i64 %51, %49, !dbg !448
+  %umax56 = select i1 %89, i64 %51, i64 %49, !dbg !448
+  %90 = icmp ult %struct.sel_points* %B_GPU, %scevgep5758, !dbg !448
+  %umin59 = select i1 %90, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep5758, !dbg !448
+  %91 = icmp ugt i64 %55, %53, !dbg !448
+  %umax62 = select i1 %91, i64 %55, i64 %53, !dbg !448
+  %92 = icmp ult %struct.sel_points* %B, %scevgep3940, !dbg !448
+  %umin41 = select i1 %92, %struct.sel_points* %B, %struct.sel_points* %scevgep3940, !dbg !448
+  %93 = icmp ugt i64 %43, %41, !dbg !448
+  %umax44 = select i1 %93, i64 %43, i64 %41, !dbg !448
+  %94 = icmp ult %struct.sel_points* %B_GPU, %scevgep4546, !dbg !448
+  %umin47 = select i1 %94, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep4546, !dbg !448
+  %95 = icmp ugt i64 %47, %45, !dbg !448
+  %umax50 = select i1 %95, i64 %47, i64 %45, !dbg !448
+  %96 = icmp ult %struct.sel_points* %B, %scevgep1516, !dbg !448
+  %umin17 = select i1 %96, %struct.sel_points* %B, %struct.sel_points* %scevgep1516, !dbg !448
+  %97 = icmp ugt i64 %27, %25, !dbg !448
+  %umax20 = select i1 %97, i64 %27, i64 %25, !dbg !448
+  %98 = icmp ult %struct.sel_points* %B_GPU, %scevgep2122, !dbg !448
+  %umin23 = select i1 %98, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep2122, !dbg !448
+  %99 = icmp ugt i64 %31, %29, !dbg !448
+  %umax26 = select i1 %99, i64 %31, i64 %29, !dbg !448
+  %100 = icmp ult %struct.sel_points* %B, %scevgep4, !dbg !448
+  %umin = select i1 %100, %struct.sel_points* %B, %struct.sel_points* %scevgep4, !dbg !448
+  %101 = icmp ugt i64 %19, %17, !dbg !448
+  %umax = select i1 %101, i64 %19, i64 %17, !dbg !448
+  %102 = icmp ult %struct.sel_points* %B_GPU, %scevgep89, !dbg !448
+  %umin10 = select i1 %102, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep89, !dbg !448
+  %103 = icmp ugt i64 %23, %21, !dbg !448
+  %umax14 = select i1 %103, i64 %23, i64 %21, !dbg !448
+  %cmp = icmp slt i32 %i.0, 128, !dbg !448
+  br i1 %cmp, label %for.body, label %for.end.34, !dbg !459
+
+for.body:                                         ; preds = %for.cond
+  br label %for.cond.1, !dbg !460
+
+for.cond.1:                                       ; preds = %for.inc, %for.body
+  %j.0 = phi i32 [ 0, %for.body ], [ %inc31, %for.inc ]
+  %fail.1 = phi i32 [ %fail.0, %for.body ], [ %fail.3, %for.inc ]
+  %104 = icmp ult %struct.sel_points* %B, %scevgep8788, !dbg !450
+  %umin89 = select i1 %104, %struct.sel_points* %B, %struct.sel_points* %scevgep8788, !dbg !450
+  %105 = icmp ugt i64 %83, %81, !dbg !450
+  %umax92 = select i1 %105, i64 %83, i64 %81, !dbg !450
+  %106 = icmp ult %struct.sel_points* %B_GPU, %scevgep9394, !dbg !450
+  %umin95 = select i1 %106, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep9394, !dbg !450
+  %107 = icmp ugt i64 %87, %85, !dbg !450
+  %umax98 = select i1 %107, i64 %87, i64 %85, !dbg !450
+  %108 = icmp ult %struct.sel_points* %B, %scevgep7576, !dbg !450
+  %umin77 = select i1 %108, %struct.sel_points* %B, %struct.sel_points* %scevgep7576, !dbg !450
+  %109 = icmp ugt i64 %75, %73, !dbg !450
+  %umax80 = select i1 %109, i64 %75, i64 %73, !dbg !450
+  %110 = icmp ult %struct.sel_points* %B_GPU, %scevgep8182, !dbg !450
+  %umin83 = select i1 %110, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep8182, !dbg !450
+  %111 = icmp ugt i64 %79, %77, !dbg !450
+  %umax86 = select i1 %111, i64 %79, i64 %77, !dbg !450
+  %112 = icmp ult %struct.sel_points* %B, %scevgep2728, !dbg !450
+  %umin29 = select i1 %112, %struct.sel_points* %B, %struct.sel_points* %scevgep2728, !dbg !450
+  %113 = icmp ugt i64 %35, %33, !dbg !450
+  %umax32 = select i1 %113, i64 %35, i64 %33, !dbg !450
+  %114 = icmp ult %struct.sel_points* %B_GPU, %scevgep3334, !dbg !450
+  %umin35 = select i1 %114, %struct.sel_points* %B_GPU, %struct.sel_points* %scevgep3334, !dbg !450
+  %115 = icmp ugt i64 %39, %37, !dbg !450
+  %umax38 = select i1 %115, i64 %39, i64 %37, !dbg !450
+  %cmp2 = icmp slt i32 %j.0, 128, !dbg !450
+  br i1 %cmp2, label %for.body.3, label %for.end, !dbg !461
+
+for.body.3:                                       ; preds = %for.cond.1
+  %mul = mul nsw i32 %i.0, 128, !dbg !454
+  %add = add nsw i32 %mul, %j.0, !dbg !462
+  %idxprom = sext i32 %add to i64, !dbg !463
+  %arrayidx = getelementptr inbounds %struct.sel_points, %struct.sel_points* %B, i64 %idxprom, !dbg !463
+  %value = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx, i32 0, i32 1, !dbg !464
+  %tmp = load float, float* %value, align 4, !dbg !464
+  %conv = fpext float %tmp to double, !dbg !463
+  %mul4 = mul nsw i32 %i.0, 128, !dbg !465
+  %add5 = add nsw i32 %mul4, %j.0, !dbg !466
+  %idxprom6 = sext i32 %add5 to i64, !dbg !467
+  %arrayidx7 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %B_GPU, i64 %idxprom6, !dbg !467
+  %value8 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx7, i32 0, i32 1, !dbg !468
+  %tmp1 = load float, float* %value8, align 4, !dbg !468
+  %conv9 = fpext float %tmp1 to double, !dbg !467
+  %call = call float @percentDiff(double %conv, double %conv9), !dbg !469
+  %conv10 = fpext float %call to double, !dbg !469
+  %cmp11 = fcmp ogt double %conv10, 5.000000e-02, !dbg !470
+  br i1 %cmp11, label %if.then, label %if.end, !dbg !471
+
+if.then:                                          ; preds = %for.body.3
+  %inc = add nsw i32 %fail.1, 1, !dbg !472
+  br label %if.end, !dbg !474
+
+if.end:                                           ; preds = %if.then, %for.body.3
+  %fail.2 = phi i32 [ %inc, %if.then ], [ %fail.1, %for.body.3 ]
+  %mul13 = mul nsw i32 %i.0, 128, !dbg !457
+  %add14 = add nsw i32 %mul13, %j.0, !dbg !475
+  %idxprom15 = sext i32 %add14 to i64, !dbg !476
+  %arrayidx16 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %B, i64 %idxprom15, !dbg !476
+  %position = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx16, i32 0, i32 0, !dbg !477
+  %tmp2 = load i32, i32* %position, align 4, !dbg !477
+  %conv17 = sitofp i32 %tmp2 to double, !dbg !476
+  %mul18 = mul nsw i32 %i.0, 128, !dbg !478
+  %add19 = add nsw i32 %mul18, %j.0, !dbg !479
+  %idxprom20 = sext i32 %add19 to i64, !dbg !480
+  %arrayidx21 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %B_GPU, i64 %idxprom20, !dbg !480
+  %position22 = getelementptr inbounds %struct.sel_points, %struct.sel_points* %arrayidx21, i32 0, i32 0, !dbg !481
+  %tmp3 = load i32, i32* %position22, align 4, !dbg !481
+  %conv23 = sitofp i32 %tmp3 to double, !dbg !480
+  %call24 = call float @percentDiff(double %conv17, double %conv23), !dbg !482
+  %conv25 = fpext float %call24 to double, !dbg !482
+  %cmp26 = fcmp ogt double %conv25, 5.000000e-02, !dbg !483
+  br i1 %cmp26, label %if.then.28, label %if.end.30, !dbg !484
+
+if.then.28:                                       ; preds = %if.end
+  %inc29 = add nsw i32 %fail.2, 1, !dbg !485
+  br label %if.end.30, !dbg !487
+
+if.end.30:                                        ; preds = %if.then.28, %if.end
+  %fail.3 = phi i32 [ %inc29, %if.then.28 ], [ %fail.2, %if.end ]
+  br label %for.inc, !dbg !488
+
+for.inc:                                          ; preds = %if.end.30
+  %inc31 = add nsw i32 %j.0, 1, !dbg !489
+  br label %for.cond.1, !dbg !490
+
+for.end:                                          ; preds = %for.cond.1
+  %fail.1.lcssa = phi i32 [ %fail.1, %for.cond.1 ]
+  br label %for.inc.32, !dbg !491
+
+for.inc.32:                                       ; preds = %for.end
+  %inc33 = add nsw i32 %i.0, 1, !dbg !492
+  br label %for.cond, !dbg !493
+
+for.end.34:                                       ; preds = %for.cond
+  %fail.0.lcssa = phi i32 [ %fail.0, %for.cond ]
+  %call35 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.1, i32 0, i32 0), double 5.000000e-02, i32 %fail.0.lcssa), !dbg !494
+  ret void, !dbg !495
+}
+
+; Function Attrs: nounwind uwtable
+define i32 @main(i32 %argc, i8** %argv) #0 {
+entry:
+  call void @llvm.dbg.value(metadata i32 %argc, i64 0, metadata !496, metadata !55), !dbg !497
+  call void @llvm.dbg.value(metadata i8** %argv, i64 0, metadata !498, metadata !55), !dbg !499
+  %tmp = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !500
+  %call = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @.str.2, i32 0, i32 0)), !dbg !501
+  %call1 = call noalias i8* @malloc(i64 1024) #4, !dbg !502
+  %tmp1 = bitcast i8* %call1 to %struct.point*, !dbg !503
+  call void @llvm.dbg.value(metadata %struct.point* %tmp1, i64 0, metadata !504, metadata !55), !dbg !505
+  %call2 = call noalias i8* @malloc(i64 1024) #4, !dbg !506
+  %tmp2 = bitcast i8* %call2 to %struct.point*, !dbg !507
+  call void @llvm.dbg.value(metadata %struct.point* %tmp2, i64 0, metadata !508, metadata !55), !dbg !509
+  %call3 = call noalias i8* @malloc(i64 131072) #4, !dbg !510
+  %tmp3 = bitcast i8* %call3 to %struct.sel_points*, !dbg !511
+  call void @llvm.dbg.value(metadata %struct.sel_points* %tmp3, i64 0, metadata !512, metadata !55), !dbg !513
+  %call4 = call noalias i8* @malloc(i64 131072) #4, !dbg !514
+  %tmp4 = bitcast i8* %call4 to %struct.sel_points*, !dbg !515
+  call void @llvm.dbg.value(metadata %struct.sel_points* %tmp4, i64 0, metadata !516, metadata !55), !dbg !517
+  call void @init(%struct.point* %tmp1, %struct.point* %tmp2, %struct.sel_points* %tmp3, %struct.sel_points* %tmp4), !dbg !518
+  %call5 = call double @rtclock(), !dbg !519
+  call void @llvm.dbg.value(metadata double %call5, i64 0, metadata !520, metadata !55), !dbg !521
+  call void @k_nearest_gpu(%struct.point* %tmp1, %struct.point* %tmp2, %struct.sel_points* %tmp4), !dbg !522
+  %call6 = call double @rtclock(), !dbg !523
+  call void @llvm.dbg.value(metadata double %call6, i64 0, metadata !524, metadata !55), !dbg !525
+  %tmp5 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !526
+  %sub = fsub double %call6, %call5, !dbg !527
+  %call7 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp5, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.3, i32 0, i32 0), double %sub), !dbg !528
+  %call8 = call double @rtclock(), !dbg !529
+  call void @llvm.dbg.value(metadata double %call8, i64 0, metadata !520, metadata !55), !dbg !521
+  call void @k_nearest_cpu(%struct.point* %tmp1, %struct.point* %tmp2, %struct.sel_points* %tmp3), !dbg !530
+  %call9 = call double @rtclock(), !dbg !531
+  call void @llvm.dbg.value(metadata double %call9, i64 0, metadata !524, metadata !55), !dbg !525
+  %tmp6 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !532
+  %sub10 = fsub double %call9, %call8, !dbg !533
+  %call11 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp6, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.4, i32 0, i32 0), double %sub10), !dbg !534
+  call void @compareResults(%struct.sel_points* %tmp3, %struct.sel_points* %tmp4), !dbg !535
+  %tmp7 = bitcast %struct.sel_points* %tmp3 to i8*, !dbg !536
+  call void @free(i8* %tmp7) #4, !dbg !537
+  %tmp8 = bitcast %struct.sel_points* %tmp4 to i8*, !dbg !538
+  call void @free(i8* %tmp8) #4, !dbg !539
+  %tmp9 = bitcast %struct.point* %tmp1 to i8*, !dbg !540
+  call void @free(i8* %tmp9) #4, !dbg !541
+  %tmp10 = bitcast %struct.point* %tmp2 to i8*, !dbg !542
+  call void @free(i8* %tmp10) #4, !dbg !543
+  ret i32 0, !dbg !544
+}
+
+declare i32 @fprintf(%struct._IO_FILE*, i8*, ...) #3
+
+; Function Attrs: nounwind
+declare noalias i8* @malloc(i64) #2
+
+; Function Attrs: nounwind
+declare void @free(i8*) #2
+
+; Function Attrs: nounwind readnone
+declare void @llvm.dbg.value(metadata, i64, metadata, metadata) #1
+
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #3 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { nounwind }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!46, !47}
+!llvm.ident = !{!48}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "clang version 3.7.0 (tags/RELEASE_370/rc3)", isOptimized: false, runtimeVersion: 0, emissionKind: 1, enums: !2, retainedTypes: !3, subprograms: !18)
+!1 = !DIFile(filename: "/home/gleison/lge/dawn-3.7/UniBench/benchmarks//mgBench/k-nearest/src/k-nearest_gpu.c", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!2 = !{}
+!3 = !{!4, !11}
+!4 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !5, size: 64, align: 64)
+!5 = !DIDerivedType(tag: DW_TAG_typedef, name: "point", file: !1, line: 34, baseType: !6)
+!6 = !DICompositeType(tag: DW_TAG_structure_type, name: "point", file: !1, line: 30, size: 64, align: 32, elements: !7)
+!7 = !{!8, !10}
+!8 = !DIDerivedType(tag: DW_TAG_member, name: "x", scope: !6, file: !1, line: 32, baseType: !9, size: 32, align: 32)
+!9 = !DIBasicType(name: "int", size: 32, align: 32, encoding: DW_ATE_signed)
+!10 = !DIDerivedType(tag: DW_TAG_member, name: "y", scope: !6, file: !1, line: 33, baseType: !9, size: 32, align: 32, offset: 32)
+!11 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !12, size: 64, align: 64)
+!12 = !DIDerivedType(tag: DW_TAG_typedef, name: "sel_points", file: !1, line: 40, baseType: !13)
+!13 = !DICompositeType(tag: DW_TAG_structure_type, name: "sel_points", file: !1, line: 36, size: 64, align: 32, elements: !14)
+!14 = !{!15, !16}
+!15 = !DIDerivedType(tag: DW_TAG_member, name: "position", scope: !13, file: !1, line: 38, baseType: !9, size: 32, align: 32)
+!16 = !DIDerivedType(tag: DW_TAG_member, name: "value", scope: !13, file: !1, line: 39, baseType: !17, size: 32, align: 32, offset: 32)
+!17 = !DIBasicType(name: "float", size: 32, align: 32, encoding: DW_ATE_float)
+!18 = !{!19, !24, !27, !30, !33, !36, !37, !40}
+!19 = !DISubprogram(name: "rtclock", scope: !20, file: !20, line: 7, type: !21, isLocal: false, isDefinition: true, scopeLine: 8, isOptimized: false, function: double ()* @rtclock, variables: !2)
+!20 = !DIFile(filename: "/home/gleison/lge/dawn-3.7/UniBench/benchmarks//mgBench/k-nearest/src/../../common/mgbenchUtilFunctions.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!21 = !DISubroutineType(types: !22)
+!22 = !{!23}
+!23 = !DIBasicType(name: "double", size: 64, align: 64, encoding: DW_ATE_float)
+!24 = !DISubprogram(name: "absVal", scope: !20, file: !20, line: 18, type: !25, isLocal: false, isDefinition: true, scopeLine: 19, flags: DIFlagPrototyped, isOptimized: false, function: float (float)* @absVal, variables: !2)
+!25 = !DISubroutineType(types: !26)
+!26 = !{!17, !17}
+!27 = !DISubprogram(name: "percentDiff", scope: !20, file: !20, line: 32, type: !28, isLocal: false, isDefinition: true, scopeLine: 33, flags: DIFlagPrototyped, isOptimized: false, function: float (double, double)* @percentDiff, variables: !2)
+!28 = !DISubroutineType(types: !29)
+!29 = !{!17, !23, !23}
+!30 = !DISubprogram(name: "init", scope: !1, file: !1, line: 43, type: !31, isLocal: false, isDefinition: true, scopeLine: 44, flags: DIFlagPrototyped, isOptimized: false, function: void (%struct.point*, %struct.point*, %struct.sel_points*, %struct.sel_points*)* @init, variables: !2)
+!31 = !DISubroutineType(types: !32)
+!32 = !{null, !4, !4, !11, !11}
+!33 = !DISubprogram(name: "k_nearest_gpu", scope: !1, file: !1, line: 67, type: !34, isLocal: false, isDefinition: true, scopeLine: 68, flags: DIFlagPrototyped, isOptimized: false, function: void (%struct.point*, %struct.point*, %struct.sel_points*)* @k_nearest_gpu, variables: !2)
+!34 = !DISubroutineType(types: !35)
+!35 = !{null, !4, !4, !11}
+!36 = !DISubprogram(name: "k_nearest_cpu", scope: !1, file: !1, line: 115, type: !34, isLocal: false, isDefinition: true, scopeLine: 116, flags: DIFlagPrototyped, isOptimized: false, function: void (%struct.point*, %struct.point*, %struct.sel_points*)* @k_nearest_cpu, variables: !2)
+!37 = !DISubprogram(name: "compareResults", scope: !1, file: !1, line: 159, type: !38, isLocal: false, isDefinition: true, scopeLine: 160, flags: DIFlagPrototyped, isOptimized: false, function: void (%struct.sel_points*, %struct.sel_points*)* @compareResults, variables: !2)
+!38 = !DISubroutineType(types: !39)
+!39 = !{null, !11, !11}
+!40 = !DISubprogram(name: "main", scope: !1, file: !1, line: 186, type: !41, isLocal: false, isDefinition: true, scopeLine: 187, flags: DIFlagPrototyped, isOptimized: false, function: i32 (i32, i8**)* @main, variables: !2)
+!41 = !DISubroutineType(types: !42)
+!42 = !{!9, !9, !43}
+!43 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !44, size: 64, align: 64)
+!44 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !45, size: 64, align: 64)
+!45 = !DIBasicType(name: "char", size: 8, align: 8, encoding: DW_ATE_signed_char)
+!46 = !{i32 2, !"Dwarf Version", i32 4}
+!47 = !{i32 2, !"Debug Info Version", i32 3}
+!48 = !{!"clang version 3.7.0 (tags/RELEASE_370/rc3)"}
+!49 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "Tzp", scope: !19, file: !20, line: 9, type: !50)
+!50 = !DICompositeType(tag: DW_TAG_structure_type, name: "timezone", file: !51, line: 57, size: 64, align: 32, elements: !52)
+!51 = !DIFile(filename: "/usr/include/x86_64-linux-gnu/sys/time.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!52 = !{!53, !54}
+!53 = !DIDerivedType(tag: DW_TAG_member, name: "tz_minuteswest", scope: !50, file: !51, line: 59, baseType: !9, size: 32, align: 32)
+!54 = !DIDerivedType(tag: DW_TAG_member, name: "tz_dsttime", scope: !50, file: !51, line: 60, baseType: !9, size: 32, align: 32, offset: 32)
+!55 = !DIExpression()
+!56 = !DILocation(line: 9, column: 21, scope: !19)
+!57 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "Tp", scope: !19, file: !20, line: 10, type: !58)
+!58 = !DICompositeType(tag: DW_TAG_structure_type, name: "timeval", file: !59, line: 31, size: 128, align: 64, elements: !60)
+!59 = !DIFile(filename: "/usr/include/x86_64-linux-gnu/bits/time.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!60 = !{!61, !65}
+!61 = !DIDerivedType(tag: DW_TAG_member, name: "tv_sec", scope: !58, file: !59, line: 33, baseType: !62, size: 64, align: 64)
+!62 = !DIDerivedType(tag: DW_TAG_typedef, name: "__time_t", file: !63, line: 149, baseType: !64)
+!63 = !DIFile(filename: "/usr/include/x86_64-linux-gnu/bits/types.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!64 = !DIBasicType(name: "long int", size: 64, align: 64, encoding: DW_ATE_signed)
+!65 = !DIDerivedType(tag: DW_TAG_member, name: "tv_usec", scope: !58, file: !59, line: 34, baseType: !66, size: 64, align: 64, offset: 64)
+!66 = !DIDerivedType(tag: DW_TAG_typedef, name: "__suseconds_t", file: !63, line: 151, baseType: !64)
+!67 = !DILocation(line: 10, column: 20, scope: !19)
+!68 = !DILocation(line: 12, column: 12, scope: !19)
+!69 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "stat", scope: !19, file: !20, line: 11, type: !9)
+!70 = !DILocation(line: 11, column: 9, scope: !19)
+!71 = !DILocation(line: 13, column: 14, scope: !72)
+!72 = distinct !DILexicalBlock(scope: !19, file: !20, line: 13, column: 9)
+!73 = !DILocation(line: 13, column: 9, scope: !19)
+!74 = !DILocation(line: 13, column: 20, scope: !72)
+!75 = !DILocation(line: 14, column: 15, scope: !19)
+!76 = !DILocation(line: 14, column: 12, scope: !19)
+!77 = !DILocation(line: 14, column: 27, scope: !19)
+!78 = !DILocation(line: 14, column: 24, scope: !19)
+!79 = !DILocation(line: 14, column: 34, scope: !19)
+!80 = !DILocation(line: 14, column: 22, scope: !19)
+!81 = !DILocation(line: 14, column: 5, scope: !19)
+!82 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "a", arg: 1, scope: !24, file: !20, line: 18, type: !17)
+!83 = !DILocation(line: 18, column: 20, scope: !24)
+!84 = !DILocation(line: 20, column: 7, scope: !85)
+!85 = distinct !DILexicalBlock(scope: !24, file: !20, line: 20, column: 5)
+!86 = !DILocation(line: 20, column: 5, scope: !24)
+!87 = !DILocation(line: 22, column: 13, scope: !88)
+!88 = distinct !DILexicalBlock(scope: !85, file: !20, line: 21, column: 2)
+!89 = !DILocation(line: 22, column: 3, scope: !88)
+!90 = !DILocation(line: 26, column: 3, scope: !91)
+!91 = distinct !DILexicalBlock(scope: !85, file: !20, line: 25, column: 2)
+!92 = !DILocation(line: 28, column: 1, scope: !24)
+!93 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "val1", arg: 1, scope: !27, file: !20, line: 32, type: !23)
+!94 = !DILocation(line: 32, column: 26, scope: !27)
+!95 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "val2", arg: 2, scope: !27, file: !20, line: 32, type: !23)
+!96 = !DILocation(line: 32, column: 39, scope: !27)
+!97 = !DILocation(line: 34, column: 14, scope: !98)
+!98 = distinct !DILexicalBlock(scope: !27, file: !20, line: 34, column: 6)
+!99 = !DILocation(line: 34, column: 7, scope: !98)
+!100 = !DILocation(line: 34, column: 20, scope: !98)
+!101 = !DILocation(line: 34, column: 28, scope: !98)
+!102 = !DILocation(line: 34, column: 39, scope: !103)
+!103 = !DILexicalBlockFile(scope: !98, file: !20, discriminator: 1)
+!104 = !DILocation(line: 34, column: 32, scope: !98)
+!105 = !DILocation(line: 34, column: 45, scope: !98)
+!106 = !DILocation(line: 34, column: 6, scope: !27)
+!107 = !DILocation(line: 36, column: 3, scope: !108)
+!108 = distinct !DILexicalBlock(scope: !98, file: !20, line: 35, column: 2)
+!109 = !DILocation(line: 41, column: 43, scope: !110)
+!110 = distinct !DILexicalBlock(scope: !98, file: !20, line: 40, column: 2)
+!111 = !DILocation(line: 41, column: 38, scope: !110)
+!112 = !DILocation(line: 41, column: 31, scope: !110)
+!113 = !DILocation(line: 41, column: 65, scope: !110)
+!114 = !DILocation(line: 41, column: 60, scope: !110)
+!115 = !DILocation(line: 41, column: 53, scope: !110)
+!116 = !DILocation(line: 41, column: 51, scope: !110)
+!117 = !DILocation(line: 41, column: 24, scope: !110)
+!118 = !DILocation(line: 41, column: 21, scope: !110)
+!119 = !DILocation(line: 41, column: 7, scope: !110)
+!120 = !DILocation(line: 43, column: 1, scope: !27)
+!121 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "i", scope: !30, file: !1, line: 45, type: !9)
+!122 = !DILocation(line: 45, column: 9, scope: !30)
+!123 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "pivots", arg: 1, scope: !30, file: !1, line: 43, type: !4)
+!124 = !DILocation(line: 43, column: 18, scope: !30)
+!125 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "the_points", arg: 2, scope: !30, file: !1, line: 43, type: !4)
+!126 = !DILocation(line: 43, column: 33, scope: !30)
+!127 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "selected_cpu", arg: 3, scope: !30, file: !1, line: 43, type: !11)
+!128 = !DILocation(line: 43, column: 57, scope: !30)
+!129 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "selected_gpu", arg: 4, scope: !30, file: !1, line: 43, type: !11)
+!130 = !DILocation(line: 43, column: 83, scope: !30)
+!131 = !DILocation(line: 46, column: 9, scope: !132)
+!132 = distinct !DILexicalBlock(scope: !30, file: !1, line: 46, column: 5)
+!133 = !DILocation(line: 46, column: 14, scope: !134)
+!134 = distinct !DILexicalBlock(scope: !132, file: !1, line: 46, column: 5)
+!135 = !DILocation(line: 46, column: 5, scope: !132)
+!136 = !DILocation(line: 48, column: 24, scope: !137)
+!137 = distinct !DILexicalBlock(scope: !134, file: !1, line: 47, column: 5)
+!138 = !DILocation(line: 48, column: 9, scope: !137)
+!139 = !DILocation(line: 48, column: 19, scope: !137)
+!140 = !DILocation(line: 48, column: 21, scope: !137)
+!141 = !DILocation(line: 49, column: 24, scope: !137)
+!142 = !DILocation(line: 49, column: 9, scope: !137)
+!143 = !DILocation(line: 49, column: 19, scope: !137)
+!144 = !DILocation(line: 49, column: 21, scope: !137)
+!145 = !DILocation(line: 50, column: 5, scope: !137)
+!146 = !DILocation(line: 46, column: 23, scope: !134)
+!147 = !DILocation(line: 46, column: 5, scope: !134)
+!148 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "j", scope: !30, file: !1, line: 45, type: !9)
+!149 = !DILocation(line: 45, column: 11, scope: !30)
+!150 = !DILocation(line: 52, column: 9, scope: !151)
+!151 = distinct !DILexicalBlock(scope: !30, file: !1, line: 52, column: 5)
+!152 = !DILocation(line: 52, column: 14, scope: !153)
+!153 = distinct !DILexicalBlock(scope: !151, file: !1, line: 52, column: 5)
+!154 = !DILocation(line: 57, column: 18, scope: !155)
+!155 = distinct !DILexicalBlock(scope: !156, file: !1, line: 57, column: 9)
+!156 = distinct !DILexicalBlock(scope: !157, file: !1, line: 57, column: 9)
+!157 = distinct !DILexicalBlock(scope: !153, file: !1, line: 53, column: 5)
+!158 = !DILocation(line: 52, column: 5, scope: !151)
+!159 = !DILocation(line: 54, column: 28, scope: !157)
+!160 = !DILocation(line: 54, column: 9, scope: !157)
+!161 = !DILocation(line: 54, column: 23, scope: !157)
+!162 = !DILocation(line: 54, column: 25, scope: !157)
+!163 = !DILocation(line: 55, column: 28, scope: !157)
+!164 = !DILocation(line: 55, column: 9, scope: !157)
+!165 = !DILocation(line: 55, column: 23, scope: !157)
+!166 = !DILocation(line: 55, column: 25, scope: !157)
+!167 = !DILocation(line: 57, column: 13, scope: !156)
+!168 = !DILocation(line: 57, column: 9, scope: !156)
+!169 = !DILocation(line: 59, column: 27, scope: !170)
+!170 = distinct !DILexicalBlock(scope: !155, file: !1, line: 58, column: 9)
+!171 = !DILocation(line: 59, column: 32, scope: !170)
+!172 = !DILocation(line: 59, column: 13, scope: !170)
+!173 = !DILocation(line: 59, column: 36, scope: !170)
+!174 = !DILocation(line: 59, column: 45, scope: !170)
+!175 = !DILocation(line: 60, column: 27, scope: !170)
+!176 = !DILocation(line: 60, column: 32, scope: !170)
+!177 = !DILocation(line: 60, column: 13, scope: !170)
+!178 = !DILocation(line: 60, column: 36, scope: !170)
+!179 = !DILocation(line: 60, column: 42, scope: !170)
+!180 = !DILocation(line: 61, column: 27, scope: !170)
+!181 = !DILocation(line: 61, column: 32, scope: !170)
+!182 = !DILocation(line: 61, column: 13, scope: !170)
+!183 = !DILocation(line: 61, column: 36, scope: !170)
+!184 = !DILocation(line: 61, column: 45, scope: !170)
+!185 = !DILocation(line: 62, column: 27, scope: !170)
+!186 = !DILocation(line: 62, column: 32, scope: !170)
+!187 = !DILocation(line: 62, column: 13, scope: !170)
+!188 = !DILocation(line: 62, column: 36, scope: !170)
+!189 = !DILocation(line: 62, column: 42, scope: !170)
+!190 = !DILocation(line: 63, column: 9, scope: !170)
+!191 = !DILocation(line: 57, column: 25, scope: !155)
+!192 = !DILocation(line: 57, column: 9, scope: !155)
+!193 = !DILocation(line: 64, column: 5, scope: !157)
+!194 = !DILocation(line: 52, column: 21, scope: !153)
+!195 = !DILocation(line: 52, column: 5, scope: !153)
+!196 = !DILocation(line: 65, column: 1, scope: !30)
+!197 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "j", scope: !33, file: !1, line: 69, type: !9)
+!198 = !DILocation(line: 69, column: 11, scope: !33)
+!199 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "i", scope: !33, file: !1, line: 69, type: !9)
+!200 = !DILocation(line: 69, column: 9, scope: !33)
+!201 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "x", scope: !202, file: !1, line: 79, type: !17)
+!202 = distinct !DILexicalBlock(scope: !203, file: !1, line: 78, column: 13)
+!203 = distinct !DILexicalBlock(scope: !204, file: !1, line: 77, column: 13)
+!204 = distinct !DILexicalBlock(scope: !205, file: !1, line: 77, column: 13)
+!205 = distinct !DILexicalBlock(scope: !206, file: !1, line: 76, column: 9)
+!206 = distinct !DILexicalBlock(scope: !207, file: !1, line: 75, column: 9)
+!207 = distinct !DILexicalBlock(scope: !208, file: !1, line: 75, column: 9)
+!208 = distinct !DILexicalBlock(scope: !33, file: !1, line: 73, column: 5)
+!209 = !DILocation(line: 79, column: 32, scope: !202)
+!210 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "y", scope: !202, file: !1, line: 79, type: !17)
+!211 = !DILocation(line: 79, column: 34, scope: !202)
+!212 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "distance", scope: !202, file: !1, line: 79, type: !17)
+!213 = !DILocation(line: 79, column: 23, scope: !202)
+!214 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "pivots", arg: 1, scope: !33, file: !1, line: 67, type: !4)
+!215 = !DILocation(line: 67, column: 27, scope: !33)
+!216 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "the_points", arg: 2, scope: !33, file: !1, line: 67, type: !4)
+!217 = !DILocation(line: 67, column: 42, scope: !33)
+!218 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "selected", arg: 3, scope: !33, file: !1, line: 67, type: !11)
+!219 = !DILocation(line: 67, column: 66, scope: !33)
+!220 = !DILocation(line: 75, column: 13, scope: !207)
+!221 = !DILocation(line: 75, column: 18, scope: !206)
+!222 = !DILocation(line: 77, column: 22, scope: !203)
+!223 = !DILocation(line: 75, column: 9, scope: !207)
+!224 = !DILocation(line: 77, column: 17, scope: !204)
+!225 = !DILocation(line: 77, column: 13, scope: !204)
+!226 = !DILocation(line: 80, column: 21, scope: !202)
+!227 = !DILocation(line: 80, column: 31, scope: !202)
+!228 = !DILocation(line: 80, column: 35, scope: !202)
+!229 = !DILocation(line: 80, column: 49, scope: !202)
+!230 = !DILocation(line: 80, column: 33, scope: !202)
+!231 = !DILocation(line: 81, column: 21, scope: !202)
+!232 = !DILocation(line: 81, column: 31, scope: !202)
+!233 = !DILocation(line: 81, column: 35, scope: !202)
+!234 = !DILocation(line: 81, column: 49, scope: !202)
+!235 = !DILocation(line: 81, column: 33, scope: !202)
+!236 = !DILocation(line: 82, column: 23, scope: !202)
+!237 = !DILocation(line: 83, column: 23, scope: !202)
+!238 = !DILocation(line: 85, column: 30, scope: !202)
+!239 = !DILocation(line: 86, column: 33, scope: !202)
+!240 = !DILocation(line: 86, column: 28, scope: !202)
+!241 = !DILocation(line: 88, column: 27, scope: !202)
+!242 = !DILocation(line: 88, column: 32, scope: !202)
+!243 = !DILocation(line: 88, column: 17, scope: !202)
+!244 = !DILocation(line: 88, column: 36, scope: !202)
+!245 = !DILocation(line: 88, column: 42, scope: !202)
+!246 = !DILocation(line: 89, column: 27, scope: !202)
+!247 = !DILocation(line: 89, column: 32, scope: !202)
+!248 = !DILocation(line: 89, column: 17, scope: !202)
+!249 = !DILocation(line: 89, column: 36, scope: !202)
+!250 = !DILocation(line: 89, column: 45, scope: !202)
+!251 = !DILocation(line: 90, column: 13, scope: !202)
+!252 = !DILocation(line: 77, column: 29, scope: !203)
+!253 = !DILocation(line: 77, column: 13, scope: !203)
+!254 = !DILocation(line: 91, column: 9, scope: !205)
+!255 = !DILocation(line: 75, column: 27, scope: !206)
+!256 = !DILocation(line: 75, column: 9, scope: !206)
+!257 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "m", scope: !33, file: !1, line: 69, type: !9)
+!258 = !DILocation(line: 69, column: 13, scope: !33)
+!259 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "aux", scope: !260, file: !1, line: 105, type: !12)
+!260 = distinct !DILexicalBlock(scope: !261, file: !1, line: 104, column: 21)
+!261 = distinct !DILexicalBlock(scope: !262, file: !1, line: 103, column: 24)
+!262 = distinct !DILexicalBlock(scope: !263, file: !1, line: 102, column: 17)
+!263 = distinct !DILexicalBlock(scope: !264, file: !1, line: 101, column: 17)
+!264 = distinct !DILexicalBlock(scope: !265, file: !1, line: 101, column: 17)
+!265 = distinct !DILexicalBlock(scope: !266, file: !1, line: 100, column: 13)
+!266 = distinct !DILexicalBlock(scope: !267, file: !1, line: 99, column: 13)
+!267 = distinct !DILexicalBlock(scope: !268, file: !1, line: 99, column: 13)
+!268 = distinct !DILexicalBlock(scope: !269, file: !1, line: 98, column: 9)
+!269 = distinct !DILexicalBlock(scope: !270, file: !1, line: 97, column: 9)
+!270 = distinct !DILexicalBlock(scope: !208, file: !1, line: 97, column: 9)
+!271 = !DILocation(line: 105, column: 36, scope: !260)
+!272 = !DILocation(line: 97, column: 13, scope: !270)
+!273 = !DILocation(line: 97, column: 18, scope: !269)
+!274 = !DILocation(line: 99, column: 22, scope: !266)
+!275 = !DILocation(line: 101, column: 28, scope: !263)
+!276 = !DILocation(line: 103, column: 34, scope: !261)
+!277 = !DILocation(line: 97, column: 9, scope: !270)
+!278 = !DILocation(line: 99, column: 17, scope: !267)
+!279 = !DILocation(line: 99, column: 13, scope: !267)
+!280 = !DILocation(line: 101, column: 24, scope: !264)
+!281 = !DILocation(line: 101, column: 21, scope: !264)
+!282 = !DILocation(line: 101, column: 17, scope: !264)
+!283 = !DILocation(line: 103, column: 39, scope: !261)
+!284 = !DILocation(line: 103, column: 24, scope: !261)
+!285 = !DILocation(line: 103, column: 43, scope: !261)
+!286 = !DILocation(line: 103, column: 59, scope: !261)
+!287 = !DILocation(line: 103, column: 64, scope: !261)
+!288 = !DILocation(line: 103, column: 49, scope: !261)
+!289 = !DILocation(line: 103, column: 68, scope: !261)
+!290 = !DILocation(line: 103, column: 48, scope: !261)
+!291 = !DILocation(line: 103, column: 24, scope: !262)
+!292 = !DILocation(line: 106, column: 41, scope: !260)
+!293 = !DILocation(line: 106, column: 46, scope: !260)
+!294 = !DILocation(line: 106, column: 31, scope: !260)
+!295 = !DILocation(line: 107, column: 35, scope: !260)
+!296 = !DILocation(line: 107, column: 40, scope: !260)
+!297 = !DILocation(line: 107, column: 25, scope: !260)
+!298 = !DILocation(line: 107, column: 56, scope: !260)
+!299 = !DILocation(line: 107, column: 61, scope: !260)
+!300 = !DILocation(line: 107, column: 46, scope: !260)
+!301 = !DILocation(line: 108, column: 35, scope: !260)
+!302 = !DILocation(line: 108, column: 40, scope: !260)
+!303 = !DILocation(line: 108, column: 25, scope: !260)
+!304 = !DILocation(line: 108, column: 46, scope: !260)
+!305 = !DILocation(line: 109, column: 22, scope: !260)
+!306 = !DILocation(line: 110, column: 17, scope: !262)
+!307 = !DILocation(line: 101, column: 35, scope: !263)
+!308 = !DILocation(line: 101, column: 17, scope: !263)
+!309 = !DILocation(line: 111, column: 13, scope: !265)
+!310 = !DILocation(line: 99, column: 29, scope: !266)
+!311 = !DILocation(line: 99, column: 13, scope: !266)
+!312 = !DILocation(line: 112, column: 9, scope: !268)
+!313 = !DILocation(line: 97, column: 27, scope: !269)
+!314 = !DILocation(line: 97, column: 9, scope: !269)
+!315 = !DILocation(line: 114, column: 1, scope: !33)
+!316 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "x", scope: !317, file: !1, line: 122, type: !17)
+!317 = distinct !DILexicalBlock(scope: !318, file: !1, line: 121, column: 9)
+!318 = distinct !DILexicalBlock(scope: !319, file: !1, line: 120, column: 9)
+!319 = distinct !DILexicalBlock(scope: !320, file: !1, line: 120, column: 9)
+!320 = distinct !DILexicalBlock(scope: !321, file: !1, line: 119, column: 5)
+!321 = distinct !DILexicalBlock(scope: !322, file: !1, line: 118, column: 5)
+!322 = distinct !DILexicalBlock(scope: !36, file: !1, line: 118, column: 5)
+!323 = !DILocation(line: 122, column: 28, scope: !317)
+!324 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "y", scope: !317, file: !1, line: 122, type: !17)
+!325 = !DILocation(line: 122, column: 30, scope: !317)
+!326 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "distance", scope: !317, file: !1, line: 122, type: !17)
+!327 = !DILocation(line: 122, column: 19, scope: !317)
+!328 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "j", scope: !36, file: !1, line: 117, type: !9)
+!329 = !DILocation(line: 117, column: 11, scope: !36)
+!330 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "i", scope: !36, file: !1, line: 117, type: !9)
+!331 = !DILocation(line: 117, column: 9, scope: !36)
+!332 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "pivots", arg: 1, scope: !36, file: !1, line: 115, type: !4)
+!333 = !DILocation(line: 115, column: 27, scope: !36)
+!334 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "the_points", arg: 2, scope: !36, file: !1, line: 115, type: !4)
+!335 = !DILocation(line: 115, column: 42, scope: !36)
+!336 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "selected", arg: 3, scope: !36, file: !1, line: 115, type: !11)
+!337 = !DILocation(line: 115, column: 66, scope: !36)
+!338 = !DILocation(line: 118, column: 9, scope: !322)
+!339 = !DILocation(line: 118, column: 14, scope: !321)
+!340 = !DILocation(line: 120, column: 18, scope: !318)
+!341 = !DILocation(line: 118, column: 5, scope: !322)
+!342 = !DILocation(line: 120, column: 13, scope: !319)
+!343 = !DILocation(line: 120, column: 9, scope: !319)
+!344 = !DILocation(line: 123, column: 17, scope: !317)
+!345 = !DILocation(line: 123, column: 27, scope: !317)
+!346 = !DILocation(line: 123, column: 31, scope: !317)
+!347 = !DILocation(line: 123, column: 45, scope: !317)
+!348 = !DILocation(line: 123, column: 29, scope: !317)
+!349 = !DILocation(line: 124, column: 17, scope: !317)
+!350 = !DILocation(line: 124, column: 27, scope: !317)
+!351 = !DILocation(line: 124, column: 31, scope: !317)
+!352 = !DILocation(line: 124, column: 45, scope: !317)
+!353 = !DILocation(line: 124, column: 29, scope: !317)
+!354 = !DILocation(line: 125, column: 19, scope: !317)
+!355 = !DILocation(line: 126, column: 19, scope: !317)
+!356 = !DILocation(line: 128, column: 26, scope: !317)
+!357 = !DILocation(line: 129, column: 29, scope: !317)
+!358 = !DILocation(line: 129, column: 24, scope: !317)
+!359 = !DILocation(line: 131, column: 23, scope: !317)
+!360 = !DILocation(line: 131, column: 28, scope: !317)
+!361 = !DILocation(line: 131, column: 13, scope: !317)
+!362 = !DILocation(line: 131, column: 32, scope: !317)
+!363 = !DILocation(line: 131, column: 38, scope: !317)
+!364 = !DILocation(line: 132, column: 23, scope: !317)
+!365 = !DILocation(line: 132, column: 28, scope: !317)
+!366 = !DILocation(line: 132, column: 13, scope: !317)
+!367 = !DILocation(line: 132, column: 32, scope: !317)
+!368 = !DILocation(line: 132, column: 41, scope: !317)
+!369 = !DILocation(line: 133, column: 9, scope: !317)
+!370 = !DILocation(line: 120, column: 25, scope: !318)
+!371 = !DILocation(line: 120, column: 9, scope: !318)
+!372 = !DILocation(line: 134, column: 5, scope: !320)
+!373 = !DILocation(line: 118, column: 23, scope: !321)
+!374 = !DILocation(line: 118, column: 5, scope: !321)
+!375 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "j", scope: !376, file: !1, line: 140, type: !9)
+!376 = distinct !DILexicalBlock(scope: !377, file: !1, line: 137, column: 5)
+!377 = distinct !DILexicalBlock(scope: !378, file: !1, line: 136, column: 5)
+!378 = distinct !DILexicalBlock(scope: !36, file: !1, line: 136, column: 5)
+!379 = !DILocation(line: 140, column: 13, scope: !376)
+!380 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "m", scope: !381, file: !1, line: 143, type: !9)
+!381 = distinct !DILexicalBlock(scope: !382, file: !1, line: 142, column: 9)
+!382 = distinct !DILexicalBlock(scope: !383, file: !1, line: 141, column: 9)
+!383 = distinct !DILexicalBlock(scope: !376, file: !1, line: 141, column: 9)
+!384 = !DILocation(line: 143, column: 17, scope: !381)
+!385 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "aux", scope: !386, file: !1, line: 148, type: !12)
+!386 = distinct !DILexicalBlock(scope: !387, file: !1, line: 147, column: 17)
+!387 = distinct !DILexicalBlock(scope: !388, file: !1, line: 146, column: 20)
+!388 = distinct !DILexicalBlock(scope: !389, file: !1, line: 145, column: 13)
+!389 = distinct !DILexicalBlock(scope: !390, file: !1, line: 144, column: 13)
+!390 = distinct !DILexicalBlock(scope: !381, file: !1, line: 144, column: 13)
+!391 = !DILocation(line: 148, column: 32, scope: !386)
+!392 = !DILocation(line: 136, column: 9, scope: !378)
+!393 = !DILocation(line: 136, column: 14, scope: !377)
+!394 = !DILocation(line: 141, column: 18, scope: !382)
+!395 = !DILocation(line: 144, column: 24, scope: !389)
+!396 = !DILocation(line: 146, column: 30, scope: !387)
+!397 = !DILocation(line: 136, column: 5, scope: !378)
+!398 = !DILocation(line: 141, column: 13, scope: !383)
+!399 = !DILocation(line: 141, column: 9, scope: !383)
+!400 = !DILocation(line: 144, column: 20, scope: !390)
+!401 = !DILocation(line: 144, column: 17, scope: !390)
+!402 = !DILocation(line: 144, column: 13, scope: !390)
+!403 = !DILocation(line: 146, column: 35, scope: !387)
+!404 = !DILocation(line: 146, column: 20, scope: !387)
+!405 = !DILocation(line: 146, column: 39, scope: !387)
+!406 = !DILocation(line: 146, column: 55, scope: !387)
+!407 = !DILocation(line: 146, column: 60, scope: !387)
+!408 = !DILocation(line: 146, column: 45, scope: !387)
+!409 = !DILocation(line: 146, column: 64, scope: !387)
+!410 = !DILocation(line: 146, column: 44, scope: !387)
+!411 = !DILocation(line: 146, column: 20, scope: !388)
+!412 = !DILocation(line: 149, column: 37, scope: !386)
+!413 = !DILocation(line: 149, column: 42, scope: !386)
+!414 = !DILocation(line: 149, column: 27, scope: !386)
+!415 = !DILocation(line: 150, column: 31, scope: !386)
+!416 = !DILocation(line: 150, column: 36, scope: !386)
+!417 = !DILocation(line: 150, column: 21, scope: !386)
+!418 = !DILocation(line: 150, column: 52, scope: !386)
+!419 = !DILocation(line: 150, column: 57, scope: !386)
+!420 = !DILocation(line: 150, column: 42, scope: !386)
+!421 = !DILocation(line: 151, column: 31, scope: !386)
+!422 = !DILocation(line: 151, column: 36, scope: !386)
+!423 = !DILocation(line: 151, column: 21, scope: !386)
+!424 = !DILocation(line: 151, column: 42, scope: !386)
+!425 = !DILocation(line: 152, column: 17, scope: !386)
+!426 = !DILocation(line: 153, column: 13, scope: !388)
+!427 = !DILocation(line: 144, column: 31, scope: !389)
+!428 = !DILocation(line: 144, column: 13, scope: !389)
+!429 = !DILocation(line: 155, column: 9, scope: !381)
+!430 = !DILocation(line: 141, column: 25, scope: !382)
+!431 = !DILocation(line: 141, column: 9, scope: !382)
+!432 = !DILocation(line: 156, column: 5, scope: !376)
+!433 = !DILocation(line: 136, column: 23, scope: !377)
+!434 = !DILocation(line: 136, column: 5, scope: !377)
+!435 = !DILocation(line: 157, column: 1, scope: !36)
+!436 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "j", scope: !37, file: !1, line: 161, type: !9)
+!437 = !DILocation(line: 161, column: 10, scope: !37)
+!438 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "i", scope: !37, file: !1, line: 161, type: !9)
+!439 = !DILocation(line: 161, column: 7, scope: !37)
+!440 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "fail", scope: !37, file: !1, line: 161, type: !9)
+!441 = !DILocation(line: 161, column: 13, scope: !37)
+!442 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "B", arg: 1, scope: !37, file: !1, line: 159, type: !11)
+!443 = !DILocation(line: 159, column: 33, scope: !37)
+!444 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "B_GPU", arg: 2, scope: !37, file: !1, line: 159, type: !11)
+!445 = !DILocation(line: 159, column: 48, scope: !37)
+!446 = !DILocation(line: 165, column: 8, scope: !447)
+!447 = distinct !DILexicalBlock(scope: !37, file: !1, line: 165, column: 3)
+!448 = !DILocation(line: 165, column: 15, scope: !449)
+!449 = distinct !DILexicalBlock(scope: !447, file: !1, line: 165, column: 3)
+!450 = !DILocation(line: 167, column: 19, scope: !451)
+!451 = distinct !DILexicalBlock(scope: !452, file: !1, line: 167, column: 7)
+!452 = distinct !DILexicalBlock(scope: !453, file: !1, line: 167, column: 7)
+!453 = distinct !DILexicalBlock(scope: !449, file: !1, line: 166, column: 5)
+!454 = !DILocation(line: 170, column: 23, scope: !455)
+!455 = distinct !DILexicalBlock(scope: !456, file: !1, line: 170, column: 8)
+!456 = distinct !DILexicalBlock(scope: !451, file: !1, line: 168, column: 2)
+!457 = !DILocation(line: 175, column: 23, scope: !458)
+!458 = distinct !DILexicalBlock(scope: !456, file: !1, line: 175, column: 8)
+!459 = !DILocation(line: 165, column: 3, scope: !447)
+!460 = !DILocation(line: 167, column: 12, scope: !452)
+!461 = !DILocation(line: 167, column: 7, scope: !452)
+!462 = !DILocation(line: 170, column: 29, scope: !455)
+!463 = !DILocation(line: 170, column: 20, scope: !455)
+!464 = !DILocation(line: 170, column: 34, scope: !455)
+!465 = !DILocation(line: 170, column: 48, scope: !455)
+!466 = !DILocation(line: 170, column: 54, scope: !455)
+!467 = !DILocation(line: 170, column: 41, scope: !455)
+!468 = !DILocation(line: 170, column: 59, scope: !455)
+!469 = !DILocation(line: 170, column: 8, scope: !455)
+!470 = !DILocation(line: 170, column: 66, scope: !455)
+!471 = !DILocation(line: 170, column: 8, scope: !456)
+!472 = !DILocation(line: 172, column: 12, scope: !473)
+!473 = distinct !DILexicalBlock(scope: !455, file: !1, line: 171, column: 6)
+!474 = !DILocation(line: 173, column: 6, scope: !473)
+!475 = !DILocation(line: 175, column: 29, scope: !458)
+!476 = !DILocation(line: 175, column: 20, scope: !458)
+!477 = !DILocation(line: 175, column: 34, scope: !458)
+!478 = !DILocation(line: 175, column: 51, scope: !458)
+!479 = !DILocation(line: 175, column: 57, scope: !458)
+!480 = !DILocation(line: 175, column: 44, scope: !458)
+!481 = !DILocation(line: 175, column: 62, scope: !458)
+!482 = !DILocation(line: 175, column: 8, scope: !458)
+!483 = !DILocation(line: 175, column: 72, scope: !458)
+!484 = !DILocation(line: 175, column: 8, scope: !456)
+!485 = !DILocation(line: 177, column: 12, scope: !486)
+!486 = distinct !DILexicalBlock(scope: !458, file: !1, line: 176, column: 6)
+!487 = !DILocation(line: 178, column: 6, scope: !486)
+!488 = !DILocation(line: 179, column: 2, scope: !456)
+!489 = !DILocation(line: 167, column: 28, scope: !451)
+!490 = !DILocation(line: 167, column: 7, scope: !451)
+!491 = !DILocation(line: 180, column: 5, scope: !453)
+!492 = !DILocation(line: 165, column: 24, scope: !449)
+!493 = !DILocation(line: 165, column: 3, scope: !449)
+!494 = !DILocation(line: 182, column: 3, scope: !37)
+!495 = !DILocation(line: 184, column: 1, scope: !37)
+!496 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "argc", arg: 1, scope: !40, file: !1, line: 186, type: !9)
+!497 = !DILocation(line: 186, column: 14, scope: !40)
+!498 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "argv", arg: 2, scope: !40, file: !1, line: 186, type: !43)
+!499 = !DILocation(line: 186, column: 26, scope: !40)
+!500 = !DILocation(line: 193, column: 13, scope: !40)
+!501 = !DILocation(line: 193, column: 5, scope: !40)
+!502 = !DILocation(line: 195, column: 24, scope: !40)
+!503 = !DILocation(line: 195, column: 14, scope: !40)
+!504 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "pivots", scope: !40, file: !1, line: 189, type: !4)
+!505 = !DILocation(line: 189, column: 12, scope: !40)
+!506 = !DILocation(line: 196, column: 28, scope: !40)
+!507 = !DILocation(line: 196, column: 18, scope: !40)
+!508 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "the_points", scope: !40, file: !1, line: 190, type: !4)
+!509 = !DILocation(line: 190, column: 12, scope: !40)
+!510 = !DILocation(line: 197, column: 34, scope: !40)
+!511 = !DILocation(line: 197, column: 20, scope: !40)
+!512 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "selected_cpu", scope: !40, file: !1, line: 191, type: !11)
+!513 = !DILocation(line: 191, column: 17, scope: !40)
+!514 = !DILocation(line: 198, column: 34, scope: !40)
+!515 = !DILocation(line: 198, column: 20, scope: !40)
+!516 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "selected_gpu", scope: !40, file: !1, line: 191, type: !11)
+!517 = !DILocation(line: 191, column: 32, scope: !40)
+!518 = !DILocation(line: 200, column: 5, scope: !40)
+!519 = !DILocation(line: 202, column: 15, scope: !40)
+!520 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "t_start", scope: !40, file: !1, line: 188, type: !23)
+!521 = !DILocation(line: 188, column: 12, scope: !40)
+!522 = !DILocation(line: 203, column: 5, scope: !40)
+!523 = !DILocation(line: 204, column: 13, scope: !40)
+!524 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "t_end", scope: !40, file: !1, line: 188, type: !23)
+!525 = !DILocation(line: 188, column: 21, scope: !40)
+!526 = !DILocation(line: 205, column: 13, scope: !40)
+!527 = !DILocation(line: 205, column: 53, scope: !40)
+!528 = !DILocation(line: 205, column: 5, scope: !40)
+!529 = !DILocation(line: 207, column: 15, scope: !40)
+!530 = !DILocation(line: 208, column: 5, scope: !40)
+!531 = !DILocation(line: 209, column: 13, scope: !40)
+!532 = !DILocation(line: 210, column: 13, scope: !40)
+!533 = !DILocation(line: 210, column: 53, scope: !40)
+!534 = !DILocation(line: 210, column: 5, scope: !40)
+!535 = !DILocation(line: 212, column: 5, scope: !40)
+!536 = !DILocation(line: 214, column: 10, scope: !40)
+!537 = !DILocation(line: 214, column: 5, scope: !40)
+!538 = !DILocation(line: 215, column: 10, scope: !40)
+!539 = !DILocation(line: 215, column: 5, scope: !40)
+!540 = !DILocation(line: 216, column: 10, scope: !40)
+!541 = !DILocation(line: 216, column: 5, scope: !40)
+!542 = !DILocation(line: 217, column: 10, scope: !40)
+!543 = !DILocation(line: 217, column: 5, scope: !40)
+!544 = !DILocation(line: 219, column: 5, scope: !40)

@@ -114,12 +114,12 @@ void knapsack_par(struct item *e, int c, int n, int v, int *sol, int l) {
       * compute the best solution without the current item in the knapsack
       */
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:without) firstprivate(without) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:without) shared(without) if(cutoff_test)
   knapsack_par(e + 1, c, n - 1, v, &without, l + 1);
 
   /* compute the best solution with the current item in the knapsack */
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:with) firstprivate(with) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:with) shared(with) if(cutoff_test)
   knapsack_par(e + 1, c - e->weight, n - 1, v + e->value, &with, l + 1);
 #pragma omp taskwait
 
@@ -166,12 +166,12 @@ void knapsack_seq(struct item *e, int c, int n, int v, int *sol) {
       * compute the best solution without the current item in the knapsack
       */
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:without) firstprivate(without) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:without) shared(without) if(cutoff_test)
   knapsack_seq(e + 1, c, n - 1, v, &without);
 
   /* compute the best solution with the current item in the knapsack */
   cutoff_test = (taskminer_depth_cutoff < DEPTH_CUTOFF);
-  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:with) firstprivate(with) if(cutoff_test)
+  #pragma omp task untied default(shared) depend(in:e[1]) depend(out:with) shared(with) if(cutoff_test)
   knapsack_seq(e + 1, c - e->weight, n - 1, v + e->value, &with);
 #pragma omp taskwait
 

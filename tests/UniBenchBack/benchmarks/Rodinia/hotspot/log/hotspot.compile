@@ -1,0 +1,12 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:50 BRST 2016
+./benchmarks/Rodinia/hotspot/src/hotspot_openmp.cpp:3:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+\n---------------------------------------------------------
+Thu Feb 18 15:22:48 BRST 2016
+./benchmarks/Rodinia/hotspot/src/hotspot_openmp.cpp:3:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.

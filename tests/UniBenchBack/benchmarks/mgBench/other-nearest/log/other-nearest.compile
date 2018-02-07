@@ -1,0 +1,14 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:46 BRST 2016
+/tmp/other-nearest_gpu-VlqJI4.o: In function `k_nearest_gpu':
+./benchmarks/mgBench/other-nearest/src/other-nearest_gpu.c:(.text+0x31a): undefined reference to `sqrt'
+/tmp/other-nearest_gpu-VlqJI4.o: In function `k_nearest_cpu':
+./benchmarks/mgBench/other-nearest/src/other-nearest_gpu.c:(.text+0x580): undefined reference to `sqrt'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+\n---------------------------------------------------------
+Thu Feb 18 15:22:44 BRST 2016
+/tmp/other-nearest_gpu-WDwdzP.o: In function `k_nearest_gpu':
+./benchmarks/mgBench/other-nearest/src/other-nearest_gpu.c:(.text+0x31a): undefined reference to `sqrt'
+/tmp/other-nearest_gpu-WDwdzP.o: In function `k_nearest_cpu':
+./benchmarks/mgBench/other-nearest/src/other-nearest_gpu.c:(.text+0x580): undefined reference to `sqrt'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

@@ -1,0 +1,15 @@
+\n---------------------------------------------------------
+Thu Jan 21 09:11:40 BRST 2016
+./benchmarks/Polybench/CORR/src/correlation.c:17:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+\n---------------------------------------------------------
+Thu Feb 18 15:22:39 BRST 2016
+/tmp/correlation-sQ3lvv.o: In function `correlation':
+./benchmarks/Polybench/CORR/src/correlation.c:(.text+0x3bd): undefined reference to `sqrt'
+./benchmarks/Polybench/CORR/src/correlation.c:(.text+0x497): undefined reference to `sqrt'
+/tmp/correlation-sQ3lvv.o: In function `correlation_OMP':
+./benchmarks/Polybench/CORR/src/correlation.c:(.text+0x7ed): undefined reference to `sqrt'
+./benchmarks/Polybench/CORR/src/correlation.c:(.text+0x8a7): undefined reference to `sqrt'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

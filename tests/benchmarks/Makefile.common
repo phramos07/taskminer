@@ -12,9 +12,9 @@ endif
 
 LFLAGS = -lm 
 CFLAGS =  -I$(IDIR)
-LLVM_FLAGS = -c -emit-llvm $(CFLAGS)
+LLVM_FLAGS = -g -S -c -emit-llvm $(CFLAGS)
 OMP_FLAGS = -fopenmp
-OPT_FLAGS = -mem2reg -instnamer
+OPT_FLAGS = -S -mem2reg -instnamer
 IDIR = .
 
 SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*_SER.c')

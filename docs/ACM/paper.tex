@@ -940,19 +940,19 @@ is heavily jeopardized by the excessive queueing up of tasks. Specifically, algo
 such as \emph{SparseLU} and \emph{FFT} can suffer bloat because of
 too many tasks in the Task Graph\cite{Huynh17}.
 
-\pedro{In the Kenjiro's paper: "This scheduling policy suffers in two situations: 
-(1) the parent is a long for loop creating a large number of children, 
-all these children cannot start until the parent finishes the task-generating loop (SparseLU); 
-(2) binary recursions that, rightly, spawn only the first recursive call as a task (FFT). 
-It imposes an upper bound for the ready task queue of a worker; a worker 
-is discouraged to create too many tasks ready on the queue"}.
+%\pedro{In the Kenjiro's paper: "This scheduling policy suffers in two situations: 
+%(1) the parent is a long for loop creating a large number of children, 
+%all these children cannot start until the parent finishes the task-generating loop (SparseLU); 
+%(2) binary recursions that, rightly, spawn only the first recursive call as a task (FFT). 
+%It imposes an upper bound for the ready task queue of a worker; a worker 
+%is discouraged to create too many tasks ready on the queue"}.
 
 To solve this problem, we conservatively limit the number of tasks
 that can be created tied to the same Task Region. We do that by two means:
 (1) limiting the creation of recursive tasks by depth; (2) limiting the creation of 
 tasks in the whole program.
 
-Consider the FFT example, shown in Figure X.
+Consider the FIB
 
 \pedro{Show FFT example}
 
@@ -1032,6 +1032,27 @@ non-trivial speedups.}
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
 %And the types of tasks that are going to be mined can be easily set, should the programmer ever desires to.
 \textbf{\textit{Versatility}}.
+
+\begin{table}[h]
+\centering
+\caption{Different kinds of tasks among the BOTS benchmarks. {\Taskminer}'s versaitily allows the user to define which type of tasks should be mined, annotated or cared for.}
+\label{tab:types}
+\begin{tabular}{|r|c|c|c|}
+\hline
+                   & \textbf{Recursive} & \textbf{FunctionCall} & \textbf{Region} \\ \hline
+\textbf{fft}       & \checkmark         &                       & \checkmark      \\ \hline
+\textbf{fib}       & \checkmark         &                       &                 \\ \hline
+\textbf{floorplan} & \checkmark         &                       & \checkmark      \\ \hline
+\textbf{sort}      & \checkmark         &                       & \checkmark      \\ \hline
+\textbf{sparselu}  &                    & \checkmark            & \checkmark      \\ \hline
+\textbf{strassen}  & \checkmark         &                       & \checkmark      \\ \hline
+\textbf{uts}       & \checkmark         &                       &                 \\ \hline
+\textbf{nqueens}   & \checkmark         &                       & \checkmark      \\ \hline
+\textbf{knapsack}  & \checkmark         &                       & \checkmark      \\ \hline
+\textbf{health}    & \checkmark         & \checkmark            & \checkmark      \\ \hline
+\textbf{jacobi}    &                    &                       &                 \\ \hline
+\end{tabular}
+\end{table}
 
 
 %APPLICABILITY

@@ -1,0 +1,254 @@
+; ModuleID = '/home/gleison/lge/dawn-3.7/UniBench/benchmarks//Rodinia/backprop/src/backprop_kernel.bc'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+%struct.timeval = type { i64, i64 }
+%struct.timezone = type { i32, i32 }
+%struct.BPNN = type { i32, i32, i32, float*, float*, float*, float*, float*, float*, float**, float**, float**, float** }
+
+@.str = private unnamed_addr constant [37 x i8] c"Performing CPU and GPU computation\0A\0A\00", align 1
+
+; Function Attrs: nounwind uwtable
+define double @gettime() #0 {
+entry:
+  %t = alloca %struct.timeval, align 8
+  call void @llvm.dbg.declare(metadata %struct.timeval* %t, metadata !42, metadata !52), !dbg !53
+  %call = call i32 @gettimeofday(%struct.timeval* %t, %struct.timezone* null) #4, !dbg !54
+  %tv_sec = getelementptr inbounds %struct.timeval, %struct.timeval* %t, i32 0, i32 0, !dbg !55
+  %tmp = load i64, i64* %tv_sec, align 8, !dbg !55
+  %conv = sitofp i64 %tmp to double, !dbg !56
+  %tv_usec = getelementptr inbounds %struct.timeval, %struct.timeval* %t, i32 0, i32 1, !dbg !57
+  %tmp1 = load i64, i64* %tv_usec, align 8, !dbg !57
+  %conv1 = sitofp i64 %tmp1 to double, !dbg !58
+  %mul = fmul double %conv1, 1.000000e-06, !dbg !59
+  %add = fadd double %conv, %mul, !dbg !60
+  ret double %add, !dbg !61
+}
+
+; Function Attrs: nounwind readnone
+declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
+
+; Function Attrs: nounwind
+declare i32 @gettimeofday(%struct.timeval*, %struct.timezone*) #2
+
+; Function Attrs: nounwind uwtable
+define i32 @main(i32 %argc, i8** %argv) #0 {
+entry:
+  call void @llvm.dbg.value(metadata i32 %argc, i64 0, metadata !62, metadata !52), !dbg !63
+  call void @llvm.dbg.value(metadata i8** %argv, i64 0, metadata !64, metadata !52), !dbg !65
+  %call = call i32 @setup(i32 %argc, i8** %argv), !dbg !66
+  ret i32 0, !dbg !67
+}
+
+declare i32 @setup(i32, i8**) #3
+
+; Function Attrs: nounwind uwtable
+define void @bpnn_train_kernel(%struct.BPNN* %net, float* %eo, float* %eh) #0 {
+entry:
+  %out_err = alloca float, align 4
+  %hid_err = alloca float, align 4
+  call void @llvm.dbg.value(metadata %struct.BPNN* %net, i64 0, metadata !68, metadata !52), !dbg !69
+  call void @llvm.dbg.value(metadata float* %eo, i64 0, metadata !70, metadata !52), !dbg !71
+  call void @llvm.dbg.value(metadata float* %eh, i64 0, metadata !72, metadata !52), !dbg !73
+  call void @llvm.dbg.declare(metadata float* %out_err, metadata !74, metadata !52), !dbg !75
+  call void @llvm.dbg.declare(metadata float* %hid_err, metadata !76, metadata !52), !dbg !77
+  %input_n = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 0, !dbg !78
+  %tmp = load i32, i32* %input_n, align 4, !dbg !78
+  call void @llvm.dbg.value(metadata i32 %tmp, i64 0, metadata !79, metadata !52), !dbg !80
+  %hidden_n = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 1, !dbg !81
+  %tmp1 = load i32, i32* %hidden_n, align 4, !dbg !81
+  call void @llvm.dbg.value(metadata i32 %tmp1, i64 0, metadata !82, metadata !52), !dbg !83
+  %output_n = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 2, !dbg !84
+  %tmp2 = load i32, i32* %output_n, align 4, !dbg !84
+  call void @llvm.dbg.value(metadata i32 %tmp2, i64 0, metadata !85, metadata !52), !dbg !86
+  %call = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str, i32 0, i32 0)), !dbg !87
+  %input_units = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 3, !dbg !88
+  %tmp3 = load float*, float** %input_units, align 8, !dbg !88
+  %hidden_units = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 4, !dbg !89
+  %tmp4 = load float*, float** %hidden_units, align 8, !dbg !89
+  %input_weights = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 9, !dbg !90
+  %tmp5 = load float**, float*** %input_weights, align 8, !dbg !90
+  call void @bpnn_layerforward(float* %tmp3, float* %tmp4, float** %tmp5, i32 %tmp, i32 %tmp1), !dbg !91
+  %hidden_units1 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 4, !dbg !92
+  %tmp6 = load float*, float** %hidden_units1, align 8, !dbg !92
+  %output_units = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 5, !dbg !93
+  %tmp7 = load float*, float** %output_units, align 8, !dbg !93
+  %hidden_weights = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 10, !dbg !94
+  %tmp8 = load float**, float*** %hidden_weights, align 8, !dbg !94
+  call void @bpnn_layerforward(float* %tmp6, float* %tmp7, float** %tmp8, i32 %tmp1, i32 %tmp2), !dbg !95
+  %output_delta = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 7, !dbg !96
+  %tmp9 = load float*, float** %output_delta, align 8, !dbg !96
+  %target = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 8, !dbg !97
+  %tmp10 = load float*, float** %target, align 8, !dbg !97
+  %output_units2 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 5, !dbg !98
+  %tmp11 = load float*, float** %output_units2, align 8, !dbg !98
+  call void @bpnn_output_error(float* %tmp9, float* %tmp10, float* %tmp11, i32 %tmp2, float* %out_err), !dbg !99
+  %hidden_delta = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 6, !dbg !100
+  %tmp12 = load float*, float** %hidden_delta, align 8, !dbg !100
+  %output_delta3 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 7, !dbg !101
+  %tmp13 = load float*, float** %output_delta3, align 8, !dbg !101
+  %hidden_weights4 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 10, !dbg !102
+  %tmp14 = load float**, float*** %hidden_weights4, align 8, !dbg !102
+  %hidden_units5 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 4, !dbg !103
+  %tmp15 = load float*, float** %hidden_units5, align 8, !dbg !103
+  call void @bpnn_hidden_error(float* %tmp12, i32 %tmp1, float* %tmp13, i32 %tmp2, float** %tmp14, float* %tmp15, float* %hid_err), !dbg !104
+  %output_delta6 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 7, !dbg !105
+  %tmp16 = load float*, float** %output_delta6, align 8, !dbg !105
+  %hidden_units7 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 4, !dbg !106
+  %tmp17 = load float*, float** %hidden_units7, align 8, !dbg !106
+  %hidden_weights8 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 10, !dbg !107
+  %tmp18 = load float**, float*** %hidden_weights8, align 8, !dbg !107
+  %hidden_prev_weights = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 12, !dbg !108
+  %tmp19 = load float**, float*** %hidden_prev_weights, align 8, !dbg !108
+  call void @bpnn_adjust_weights(float* %tmp16, i32 %tmp2, float* %tmp17, i32 %tmp1, float** %tmp18, float** %tmp19), !dbg !109
+  %hidden_delta9 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 6, !dbg !110
+  %tmp20 = load float*, float** %hidden_delta9, align 8, !dbg !110
+  %input_units10 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 3, !dbg !111
+  %tmp21 = load float*, float** %input_units10, align 8, !dbg !111
+  %input_weights11 = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 9, !dbg !112
+  %tmp22 = load float**, float*** %input_weights11, align 8, !dbg !112
+  %input_prev_weights = getelementptr inbounds %struct.BPNN, %struct.BPNN* %net, i32 0, i32 11, !dbg !113
+  %tmp23 = load float**, float*** %input_prev_weights, align 8, !dbg !113
+  call void @bpnn_adjust_weights(float* %tmp20, i32 %tmp1, float* %tmp21, i32 %tmp, float** %tmp22, float** %tmp23), !dbg !114
+  ret void, !dbg !115
+}
+
+declare i32 @printf(i8*, ...) #3
+
+declare void @bpnn_layerforward(float*, float*, float**, i32, i32) #3
+
+declare void @bpnn_output_error(float*, float*, float*, i32, float*) #3
+
+declare void @bpnn_hidden_error(float*, i32, float*, i32, float**, float*, float*) #3
+
+declare void @bpnn_adjust_weights(float*, i32, float*, i32, float**, float**) #3
+
+; Function Attrs: nounwind readnone
+declare void @llvm.dbg.value(metadata, i64, metadata, metadata) #1
+
+attributes #0 = { nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #3 = { "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+sse,+sse2" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { nounwind }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!39, !40}
+!llvm.ident = !{!41}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "clang version 3.7.0 (tags/RELEASE_370/rc3)", isOptimized: false, runtimeVersion: 0, emissionKind: 1, enums: !2, subprograms: !3)
+!1 = !DIFile(filename: "/home/gleison/lge/dawn-3.7/UniBench/benchmarks//Rodinia/backprop/src/backprop_kernel.c", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!2 = !{}
+!3 = !{!4, !8, !15}
+!4 = !DISubprogram(name: "gettime", scope: !1, file: !1, line: 26, type: !5, isLocal: false, isDefinition: true, scopeLine: 26, isOptimized: false, function: double ()* @gettime, variables: !2)
+!5 = !DISubroutineType(types: !6)
+!6 = !{!7}
+!7 = !DIBasicType(name: "double", size: 64, align: 64, encoding: DW_ATE_float)
+!8 = !DISubprogram(name: "main", scope: !1, file: !1, line: 36, type: !9, isLocal: false, isDefinition: true, scopeLine: 37, flags: DIFlagPrototyped, isOptimized: false, function: i32 (i32, i8**)* @main, variables: !2)
+!9 = !DISubroutineType(types: !10)
+!10 = !{!11, !11, !12}
+!11 = !DIBasicType(name: "int", size: 32, align: 32, encoding: DW_ATE_signed)
+!12 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !13, size: 64, align: 64)
+!13 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !14, size: 64, align: 64)
+!14 = !DIBasicType(name: "char", size: 8, align: 8, encoding: DW_ATE_signed_char)
+!15 = !DISubprogram(name: "bpnn_train_kernel", scope: !1, file: !1, line: 42, type: !16, isLocal: false, isDefinition: true, scopeLine: 43, flags: DIFlagPrototyped, isOptimized: false, function: void (%struct.BPNN*, float*, float*)* @bpnn_train_kernel, variables: !2)
+!16 = !DISubroutineType(types: !17)
+!17 = !{null, !18, !27, !27}
+!18 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !19, size: 64, align: 64)
+!19 = !DIDerivedType(tag: DW_TAG_typedef, name: "BPNN", file: !20, line: 32, baseType: !21)
+!20 = !DIFile(filename: "/home/gleison/lge/dawn-3.7/UniBench/benchmarks//Rodinia/backprop/src/backprop.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!21 = !DICompositeType(tag: DW_TAG_structure_type, file: !20, line: 12, size: 768, align: 64, elements: !22)
+!22 = !{!23, !24, !25, !26, !29, !30, !31, !32, !33, !34, !36, !37, !38}
+!23 = !DIDerivedType(tag: DW_TAG_member, name: "input_n", scope: !21, file: !20, line: 13, baseType: !11, size: 32, align: 32)
+!24 = !DIDerivedType(tag: DW_TAG_member, name: "hidden_n", scope: !21, file: !20, line: 14, baseType: !11, size: 32, align: 32, offset: 32)
+!25 = !DIDerivedType(tag: DW_TAG_member, name: "output_n", scope: !21, file: !20, line: 15, baseType: !11, size: 32, align: 32, offset: 64)
+!26 = !DIDerivedType(tag: DW_TAG_member, name: "input_units", scope: !21, file: !20, line: 17, baseType: !27, size: 64, align: 64, offset: 128)
+!27 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !28, size: 64, align: 64)
+!28 = !DIBasicType(name: "float", size: 32, align: 32, encoding: DW_ATE_float)
+!29 = !DIDerivedType(tag: DW_TAG_member, name: "hidden_units", scope: !21, file: !20, line: 18, baseType: !27, size: 64, align: 64, offset: 192)
+!30 = !DIDerivedType(tag: DW_TAG_member, name: "output_units", scope: !21, file: !20, line: 19, baseType: !27, size: 64, align: 64, offset: 256)
+!31 = !DIDerivedType(tag: DW_TAG_member, name: "hidden_delta", scope: !21, file: !20, line: 21, baseType: !27, size: 64, align: 64, offset: 320)
+!32 = !DIDerivedType(tag: DW_TAG_member, name: "output_delta", scope: !21, file: !20, line: 22, baseType: !27, size: 64, align: 64, offset: 384)
+!33 = !DIDerivedType(tag: DW_TAG_member, name: "target", scope: !21, file: !20, line: 24, baseType: !27, size: 64, align: 64, offset: 448)
+!34 = !DIDerivedType(tag: DW_TAG_member, name: "input_weights", scope: !21, file: !20, line: 26, baseType: !35, size: 64, align: 64, offset: 512)
+!35 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !27, size: 64, align: 64)
+!36 = !DIDerivedType(tag: DW_TAG_member, name: "hidden_weights", scope: !21, file: !20, line: 27, baseType: !35, size: 64, align: 64, offset: 576)
+!37 = !DIDerivedType(tag: DW_TAG_member, name: "input_prev_weights", scope: !21, file: !20, line: 30, baseType: !35, size: 64, align: 64, offset: 640)
+!38 = !DIDerivedType(tag: DW_TAG_member, name: "hidden_prev_weights", scope: !21, file: !20, line: 31, baseType: !35, size: 64, align: 64, offset: 704)
+!39 = !{i32 2, !"Dwarf Version", i32 4}
+!40 = !{i32 2, !"Debug Info Version", i32 3}
+!41 = !{!"clang version 3.7.0 (tags/RELEASE_370/rc3)"}
+!42 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "t", scope: !4, file: !1, line: 27, type: !43)
+!43 = !DICompositeType(tag: DW_TAG_structure_type, name: "timeval", file: !44, line: 31, size: 128, align: 64, elements: !45)
+!44 = !DIFile(filename: "/usr/include/x86_64-linux-gnu/bits/time.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!45 = !{!46, !50}
+!46 = !DIDerivedType(tag: DW_TAG_member, name: "tv_sec", scope: !43, file: !44, line: 33, baseType: !47, size: 64, align: 64)
+!47 = !DIDerivedType(tag: DW_TAG_typedef, name: "__time_t", file: !48, line: 149, baseType: !49)
+!48 = !DIFile(filename: "/usr/include/x86_64-linux-gnu/bits/types.h", directory: "/home/gleison/lge/llvm-3.7-src/build-debug/bin")
+!49 = !DIBasicType(name: "long int", size: 64, align: 64, encoding: DW_ATE_signed)
+!50 = !DIDerivedType(tag: DW_TAG_member, name: "tv_usec", scope: !43, file: !44, line: 34, baseType: !51, size: 64, align: 64, offset: 64)
+!51 = !DIDerivedType(tag: DW_TAG_typedef, name: "__suseconds_t", file: !48, line: 151, baseType: !49)
+!52 = !DIExpression()
+!53 = !DILocation(line: 27, column: 18, scope: !4)
+!54 = !DILocation(line: 28, column: 3, scope: !4)
+!55 = !DILocation(line: 29, column: 12, scope: !4)
+!56 = !DILocation(line: 29, column: 10, scope: !4)
+!57 = !DILocation(line: 29, column: 21, scope: !4)
+!58 = !DILocation(line: 29, column: 19, scope: !4)
+!59 = !DILocation(line: 29, column: 28, scope: !4)
+!60 = !DILocation(line: 29, column: 18, scope: !4)
+!61 = !DILocation(line: 29, column: 3, scope: !4)
+!62 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "argc", arg: 1, scope: !8, file: !1, line: 36, type: !11)
+!63 = !DILocation(line: 36, column: 11, scope: !8)
+!64 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "argv", arg: 2, scope: !8, file: !1, line: 36, type: !12)
+!65 = !DILocation(line: 36, column: 24, scope: !8)
+!66 = !DILocation(line: 38, column: 2, scope: !8)
+!67 = !DILocation(line: 39, column: 1, scope: !8)
+!68 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "net", arg: 1, scope: !15, file: !1, line: 42, type: !18)
+!69 = !DILocation(line: 42, column: 30, scope: !15)
+!70 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "eo", arg: 2, scope: !15, file: !1, line: 42, type: !27)
+!71 = !DILocation(line: 42, column: 42, scope: !15)
+!72 = !DILocalVariable(tag: DW_TAG_arg_variable, name: "eh", arg: 3, scope: !15, file: !1, line: 42, type: !27)
+!73 = !DILocation(line: 42, column: 53, scope: !15)
+!74 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "out_err", scope: !15, file: !1, line: 45, type: !28)
+!75 = !DILocation(line: 45, column: 9, scope: !15)
+!76 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "hid_err", scope: !15, file: !1, line: 45, type: !28)
+!77 = !DILocation(line: 45, column: 18, scope: !15)
+!78 = !DILocation(line: 47, column: 13, scope: !15)
+!79 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "in", scope: !15, file: !1, line: 44, type: !11)
+!80 = !DILocation(line: 44, column: 7, scope: !15)
+!81 = !DILocation(line: 48, column: 14, scope: !15)
+!82 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "hid", scope: !15, file: !1, line: 44, type: !11)
+!83 = !DILocation(line: 44, column: 11, scope: !15)
+!84 = !DILocation(line: 49, column: 14, scope: !15)
+!85 = !DILocalVariable(tag: DW_TAG_auto_variable, name: "out", scope: !15, file: !1, line: 44, type: !11)
+!86 = !DILocation(line: 44, column: 16, scope: !15)
+!87 = !DILocation(line: 52, column: 3, scope: !15)
+!88 = !DILocation(line: 54, column: 26, scope: !15)
+!89 = !DILocation(line: 54, column: 44, scope: !15)
+!90 = !DILocation(line: 54, column: 62, scope: !15)
+!91 = !DILocation(line: 54, column: 3, scope: !15)
+!92 = !DILocation(line: 55, column: 26, scope: !15)
+!93 = !DILocation(line: 55, column: 45, scope: !15)
+!94 = !DILocation(line: 55, column: 64, scope: !15)
+!95 = !DILocation(line: 55, column: 3, scope: !15)
+!96 = !DILocation(line: 56, column: 26, scope: !15)
+!97 = !DILocation(line: 56, column: 45, scope: !15)
+!98 = !DILocation(line: 56, column: 58, scope: !15)
+!99 = !DILocation(line: 56, column: 3, scope: !15)
+!100 = !DILocation(line: 57, column: 26, scope: !15)
+!101 = !DILocation(line: 57, column: 50, scope: !15)
+!102 = !DILocation(line: 57, column: 74, scope: !15)
+!103 = !DILocation(line: 57, column: 95, scope: !15)
+!104 = !DILocation(line: 57, column: 3, scope: !15)
+!105 = !DILocation(line: 58, column: 28, scope: !15)
+!106 = !DILocation(line: 58, column: 52, scope: !15)
+!107 = !DILocation(line: 58, column: 76, scope: !15)
+!108 = !DILocation(line: 58, column: 97, scope: !15)
+!109 = !DILocation(line: 58, column: 3, scope: !15)
+!110 = !DILocation(line: 59, column: 28, scope: !15)
+!111 = !DILocation(line: 59, column: 52, scope: !15)
+!112 = !DILocation(line: 59, column: 74, scope: !15)
+!113 = !DILocation(line: 59, column: 94, scope: !15)
+!114 = !DILocation(line: 59, column: 3, scope: !15)
+!115 = !DILocation(line: 61, column: 1, scope: !15)
