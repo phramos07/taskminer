@@ -251,7 +251,7 @@ To fulfil this goal, \Taskminer{} solves different challenges.
 First, it finds program regions, e.g., loops or functions, that can be
 effectively mapped onto tasks (Section~\ref{sub:identification}).
 Second, it determines symbolic bounds to the memory blocks accessed within
-those regions (Section~\ref{sub:symb}).
+those regions (Section~\ref{sub:sra}).
 Third, it extracts parameters from the code to estimate when it is profitable to
 create tasks.
 These parameters feed conditional checks, which, at runtime, enable or disable
@@ -393,7 +393,7 @@ Thus, tasks comprise the innermost loop, and traverse the memory region
 between addresses $\textsf{\&V + i * N}$ and $\textsf{\&V + i * N + M}$.
 The identification of such ranges involves the use of a symbolic algebra,
 which we have borrowed from the compiler-related literature, as we
-explain in Section~\ref{sub:symb}.
+explain in Section~\ref{sub:sra}.
 Figure~\ref{fig:ex_Regions} also introduces the second challenge that we
 tackle:
 
@@ -497,13 +497,12 @@ shared variables.
 
 Figure~\ref{fig:alg_main} provides a high-level view of a source-to-source
 compiler that incorporates the techniques discussed in this paper.
+The many parts of this algorithm shall be explained throughout this section.
 This pseudo-code uses several concepts well-known in the compiler's
 literature, such as control flow graphs~\cite{Kildall73} and
 dependence graphs~\cite{Ferrante87}.
-We built on top of such concepts, as well as others, like
-symbolic range analysis~\cite{Blume94}, and natural loops~\cite{Allen70}.
 In the rest of this section we explain how we have combined this previous
-knowledge in order to delimit and annotate tasks in structured programs.
+knowledge to delimit and annotate tasks in structured programs.
 Our presentation focus on the new elements that we had to add onto known
 techniques, in order to adapt them to our purposes.
 
@@ -518,18 +517,18 @@ Grey boxes show sections in this paper where each phase is discussed.}
 
 \paragraph{Tasks: syntax and scope:}
 Our goal is to identify {\em tasks} in {\em structured} programs.
-Definition~\ref{def:task} formalizes the notion of task.
 A structured program is a program that can be partitioned in {\em hammock
 regions}, a concept introduced by Ferrante {\em et al.}~\cite{Ferrante87} in
 the middle 80's.
 For completeness, we re-state it in Definition~\ref{def:hammock}.
-The structure of this program is described by a a Control Flow Graph $G$ --
-a directed graph with a starting node $s$, and an exit node $x$.
+Definition~\ref{def:task} formalizes the notion of task.
 
 \begin{definition}[Hammock Region~\cite{Ferrante87}]
 \label{def:hammock}
-A hammock region $G'$ from a CFG $G$ is a subgraph $G' \subseteq G$, with a
-node $h$, that {\em dominates}\footnote{A node $n_1 \in G$ dominates another node
+A Control Flow Graph $G$ is a directed graph with a starting node $s$, and an
+exit node $x$.
+A hammock region $G$ is a subgraph of $G$ with a node $h$ that
+{\em dominates}\footnote{A node $n_1 \in G$ dominates another node
 $n_2 \in G$ if every path from  $S$ to $n_2$ goes across $n_1$.
 Inversely, $n_1$ post-dominates $n_2$ if every path from $n_2$ to $x$ must
 go across $n_1$.} the other nodes in $G'$.
@@ -570,15 +569,15 @@ relations, leads to the same results as the sequential execution of $P$.
 Below we have two tasks, $T_{\mathit{foo}} = (\mathsf{foo}, \{\mathsf{v[i - 1]}\},
 \{v[i]\})$ and $T_{\mathit{bar}} = (\mathsf{bar}, \{v[i]\}, \{\})$.
 Dependencies are identified via the \textsf{depend} clause.
-In this example, each SESE region is formed by one function call:
+In this example, each hammock region is formed by one function call:
 \end{example}
 
 \includegraphics[width=1\columnwidth]{images/ex_depends}
 
 \paragraph{The annotation zoo.}
 Our equipment of choice to reveal task parallelism in programs is OpenMP 4.0.
-This annotation system provides us with a set of pragmas that indicate to compiler
-and runtime environment when and how tasks must be created.
+%This annotation system lets us indicate to compiler
+%and runtime environment when and how tasks must be created.
 We describe below which annotations we are using, and explain, informally, their
 semantics.
 Full overviews of the syntax and semantics of these annotations is publicly
@@ -616,92 +615,13 @@ under which a task is allowed to create threads.
 We use it to enforce the cost model.
 \end{compactitem}
 
-\subsection{Mapping Program Regions to Tasks}
-\label{sub:identification}
-
-% Windmills and vanes
-A {\em task candidate} is a set of program statements that can run in parallel
-with the rest of the program.
-To identify task candidates, we rely on the program's
-{\em Dependence Graph}.
-For completeness, Definition~\ref{def:pdg} revisits this notion.
-
-\begin{definition}[Program Dependence Graph -- \cite{Ferrante87}]
-\label{def:pdg}
-Given a program $P$, its PDG contains one vertex for each statement $s \in P$.
-There exists an edge from $s_1$ to $s_2$ if the latter depends on the former.
-Statement $s_2$ is {\em data-dependent} on $s_1$ if it reads data that $s_1$
-writes.
-It is {\em control dependent} on $s_1$ if $s_1$ determines the outcome of a
-branch, and depending on this outcome, we might execute $s_2$ or not.
-\end{definition}
-
-Task candidates are vanes in windmills.
-{\em Windmills} are a family of graphs.
-To the best of our knowledge, the term was coined by Rideau
-{\em et al.}~\cite{Rideau08} to describe structural relations between register
-copies.
-Our windmills exist as subgraphs of the program's dependence graph.
-We adopt a slightly more general definition than Rideaus'; however, the
-metaphor that gave origin to the name: the shape of the graphs, is still
-unmistakable:
-
-\begin{definition}[Windmill -- \cite{Rideau08}]
-\label{def:windmill}
-A windmill is a graph $G_w = G_c \cup G_{v1} \cup \ldots \cup G_{vn}$ formed by
-a strongly connected component $G_c$, its center, plus $n$ components (not
-necessarily strong) $G_{vi}$, the vanes, such that:
-\begin{compactenum}
-\item for any topological ordering of $G_w$, and nodes $n_c \in G_c$,
-$n_v \in G_{vi}$, we have $n_c$ ahead of $n_v$;
-\item for any $i$ and $j$, $1 \leq i < j \leq n$, $G_{vi}$ and $G_{vj}$ do not
-share vertices.
-\end{compactenum}
-\end{definition}
-
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=1\columnwidth]{images/ex_windmill}
-\caption{Examples of program dependence graphs.
-Nodes that form centers of windmills are coloured in gray.
-Data-dependence edges are solid; control-dependence edges are dashed.
-Vanes of windmills appear within dotted boxes.
-(a) PDG for Figure~\ref{fig:ex_book_filter};
-(b) PDG for Figure~\ref{fig:ex_Regions}}
-\label{fig:ex_windmill}
-\end{center}
-\end{figure}
-
-Figure~\ref{fig:ex_windmill} shows two program dependence graphs, highlighting
-windmills and their vanes.
-The structure of windmills naturally leads to task candidates.
-Vanes correspond to program parts that are likely to be executed
-several times, because they sprout from a loop -- the center of the windmill.
-Two different executions of the same vane can run in parallel.
-This is a property of the PDG, and one of the original motivations behind its
-design.
-These two different executions can be seen as two instances of the same
-structure (the vane), coming out of the same windmill center.
-A topological ordering of the dependence graph does not impose any order among
-these two hypothetical replicas of the same structure.
-
-Windmills gives us structural properties to identify tasks.
-We can easily find them via a depth-search traversal of the program dependence
-graph, for instance.
-However, not every windmill lead us to profitable tasks.
-Furthermore, some windmills simply cannot be annotated, due to structural 
-incompatibilities between the program dependence graph and its source code.
-We deal with the first shortcoming in Section~\ref{sub:profit}; the latter is
-the subject of Section~\ref{sub:ir}.
-
 \subsection{Finding Symbolic Bounds of Arrays}
-\label{sub:symb}
+\label{sub:sra}
 
 % Why this is necessary
-To produce the annotations that will lead to the creation of a task $T = (G, M_i,
-M_o)$, we need to determine the memory regions $M_i$ that $T$ reads, and the
-memory regions $M_o$ that it writes.
+To produce the annotations that create a task $T = (G, M_i, M_o)$, we need to
+determine the memory regions $M_i$ that $T$ reads, and the memory regions $M_o$
+that it writes.
 Memory regions consist of pointers, plus ranges of addresses that these pointers
 can dereference.
 Example~\ref{ex:mem_reg} illustrates this notion.
@@ -765,12 +685,92 @@ The example below clarifies this observation.
 
 \begin{example}
 \label{ex:sra}
-Symbolic range analysis, when applied onto Figure~\ref{fig:sra}, gives us
+Symbolic range analysis, when applied onto Figure~\ref{fig:ex_Regions}, gives us
 $R(\mathsf{i}) = [0, \mathsf{N} - 1]$, and $R(\mathsf{j}) = [0, \mathsf{M} - 1]$.
 The memory access \textsf{V[i*N + j]} at line 9, when combined with this
 information, yields the symbolic region that appears in the task annotation at
 line 6 of Figure~\ref{fig:ex_Regions}.
 \end{example}
+
+\subsection{Mapping Program Regions to Tasks}
+\label{sub:identification}
+
+% Windmills and vanes
+A {\em task candidate} is a set of program statements that can run in parallel
+with the rest of the program.
+To identify task candidates, we rely on the program's
+{\em Dependence Graph}.
+For completeness, Definition~\ref{def:pdg} revisits this notion.
+
+\begin{definition}[Program Dependence Graph -- \cite{Ferrante87}]
+\label{def:pdg}
+Given a program $P$, its PDG contains one vertex for each statement $s \in P$.
+There exists an edge from $s_1$ to $s_2$ if the latter depends on the former.
+Statement $s_2$ is {\em data-dependent} on $s_1$ if it reads data that $s_1$
+writes.
+It is {\em control dependent} on $s_1$ if $s_1$ determines the outcome of a
+branch, and depending on this outcome, we might execute $s_2$ or not.
+\end{definition}
+
+Task candidates are vanes in windmills.
+{\em Windmills} are a family of graphs.
+To the best of our knowledge, the term was coined by Rideau
+{\em et al.}~\cite{Rideau08} to describe structural relations between register
+copies.
+Our windmills exist as subgraphs of the program's dependence graph.
+We adopt a slightly more general definition than Rideaus'; however, the
+metaphor that gave origin to the name: the shape of the graphs, is still
+unmistakable:
+
+\begin{definition}[Windmill -- \cite{Rideau08}]
+\label{def:windmill}
+A windmill is a graph $G_w = G_c \cup G_{v1} \cup \ldots \cup G_{vn}$ formed by
+a strongly connected component $G_c$, its center, plus $n$ components (not
+necessarily strong) $G_{vi}$, the vanes, such that:
+\begin{compactenum}
+\item for any topological ordering of $G_w$, and nodes $n_c \in G_c$,
+$n_v \in G_{vi}$, we have $n_c$ ahead of $n_v$;
+\item for any $i$ and $j$, $1 \leq i < j \leq n$, $G_{vi}$ and $G_{vj}$ do not
+share vertices (thus, sharing edges is also impossible).
+\end{compactenum}
+\end{definition}
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/ex_windmill}
+\caption{Examples of program dependence graphs.
+Nodes that form centers of windmills are coloured in gray.
+Data-dependence edges are solid; control-dependence edges are dashed.
+Vanes of windmills appear within dotted boxes.
+(a) PDG for Figure~\ref{fig:ex_book_filter};
+(b) PDG for Figure~\ref{fig:ex_Regions}}
+\label{fig:ex_windmill}
+\end{center}
+\end{figure}
+
+Figure~\ref{fig:ex_windmill} shows two program dependence graphs, highlighting
+windmills and their vanes.
+The structure of windmills naturally leads to task candidates.
+Vanes correspond to program parts that are likely to be executed
+several times, because they sprout from a loop -- the center of the windmill.
+Two different executions of the same vane can run in parallel.
+This is a property of the PDG, and one of the original motivations behind its
+design.
+These two different executions can be seen as two instances of the same
+structure (the vane), coming out of the same windmill center.
+A topological ordering of the dependence graph does not impose any order among
+these two hypothetical replicas of the same structure.
+
+Windmills gives us structural properties to identify tasks.
+We can find them via a depth-search traversal of the program's dependence
+graph.
+Function \textsf{findVanes}, in Figure~\ref{fig:alg_main} implements this
+search.
+However, not every windmill lead us to profitable tasks.
+Furthermore, some windmills cannot be annotated, due to the inability of
+range analysis to find bounds to the memory they access.
+We deal with these shortcomings in the next two sections.
 
 \subsection{Estimating the Profitability of Tasks}
 \label{sub:profit}
@@ -778,21 +778,23 @@ line 6 of Figure~\ref{fig:ex_Regions}.
 % Explain the tension between large and small tasks.
 The benefit of creating tasks depend on two factors:
 runtime cost, and parallelism.
-These two factors lead to a sweet spot in the size of tasks, where size is
-measured as the amount of code they contain.
+This tension leads to a sweet spot in the size of tasks, where size is
+measured as the amount of code they execute.
 The smaller the tasks are, the more parallel they tend to be, as a consequence
 of less dependencies.
 However, if tasks are too small, then the performance gained by the extra
 parallelism might not compensate the cost of managing them.
 On the other hand, if tasks are too big, then we might not obtain enough
 parallelism, because individual tasks still execute sequentially.
-In this paper, {\em we extract the smallest thread above the runtime cost}.
-To bestow meaning into this last statement, in what follows, we define more
-formally the notions of task size and task expansion.
+In this paper, we mark as tasks {\em the first maximal analyzable vane above the
+runtime cost}.
+To imbue this last statement with meaning, in what follows, we define more
+formally the notions of task size.
+We leave the concept of maximal analyzable vane for Section~\ref{sub:expansion}.
 
 \paragraph{Estimating the Size of Tasks.}
-The size of a task is given by its workload, i.e., the number of instructions that
-such task executes.
+The size of a task is given by its workload, i.e., the number of instructions 
+that such task executes.
 The same program region might lead to the creation of tasks with different sizes.
 Therefore, the actual size of a task is only known after it finishes execution.
 However, to judge if the creation of a task is worth its cost, we must be able to
@@ -809,9 +811,9 @@ such that $W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
 
 Definition~\ref{def:swe} is too unconstrained: a function $W(G) = 0$ for any $G$
 satisfies it.
-Naturally, we would like to construct $W$ in such a way to approximate the 
+Naturally, we would like $W$ to approximate the 
 dynamic behavior of programs.
-The compiler-related literature contains heuristics to implement $W$.
+The literature contains heuristics to implement $W$.
 Perhaps, the best-known among these heuristics is the static profiler of
 Wu and Larus~\cite{Wu94}.
 In this paper, we adopted a different approach: we reuse the symbolic range
@@ -825,8 +827,8 @@ Our symbolic analysis lets us build predicates for such conditional expressions.
 
 \begin{example}
 \label{ex:cond_task}
-The condition in line 7 of Figure~\ref{fig:ex_Regions} determines that tasks will
-only be created if the expression \textsf{5 $\times$ M $<$ WORK\_CUTOFF}
+The condition in line 7 of Fig.~\ref{fig:ex_Regions} determines that tasks can be
+created if \textsf{5 $\times$ M $<$ WORK\_CUTOFF}
 holds.
 The expression \textsf{5 $\times$ M} is an approximation for the size of the
 task that comprises the loop at lines 8-10.
@@ -872,13 +874,28 @@ The latter represents loops that we can analyze using our Symbolic Range Analysi
 The auxiliary function $X(S)$ returns a symbolic expression that represents
 the range of values covered by the code $S$ that controls the number of
 iterations of the loop.
+In Figure~\ref{fig:alg_main}, these rules are implemented by function
+\textsf{profitabilityAnalysis}.
 
-\pedro{We need to discuss the THRESHOLD. Are we going to use
-César's experiments at Unicamp concerning the different runtimes? 
-Because if yes we need to think on how to write it.}
+\paragraph{The Cost Model.}
+A static workload estimate is only meaningful in the context of a {\em cost
+model}.
+A cost model is a collection of parameters that determine the impact of the
+underlying computer architecture onto the creation and management of tasks.
+The literature contains examples of techniques used to build cost models,
+be it analytically~\cite{Baghsorkhi10}, or empirically~\cite{Poesia17}.
+The automatic construction of a cost model is not the goal of this paper.
+Instead, the reader shall notice that Figure~\ref{fig:alg_main} receives a
+cost model as a parameter.
+For the experiments in Section~\ref{sec:eval}, we have determined a small
+collection of constants related to the creation of threads in our target
+architecture, including the value of \textsf{WORK\_CUTOFF}, seen in
+Example~\ref{ex:cond_task}.
 
 % Discuss the expansion algorithm.
-\paragraph{The Task Expansion Algorithm.}
+\subsection{Task Expansion}
+\label{sub:expansion}
+
 Task expansion consists in finding the smallest task that is large enough to
 pay for the thread creation cost.
 Figure \ref{fig:expand_alg} shows the algorithm that performs this activity.
