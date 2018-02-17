@@ -827,9 +827,10 @@ Our symbolic analysis lets us build predicates for such conditional expressions.
 
 \begin{example}
 \label{ex:cond_task}
-The condition in line 7 of Fig.~\ref{fig:ex_Regions} determines that tasks can be
-created if \textsf{5 $\times$ M $<$ WORK\_CUTOFF}
-holds.
+The condition in line 7 of Fig.~\ref{fig:ex_Regions} determines that tasks are
+created if \textsf{5 $\times$ M $<$ WORK\_CUTOFF}.
+\textsf{M} is a program symbol, i.e., a variable passed as argument to
+function \textsf{foo}.
 The expression \textsf{5 $\times$ M} is an approximation for the size of the
 task that comprises the loop at lines 8-10.
 The constant \textsf{WORK\_CUTOFF} represents the cost of creating a thread
@@ -851,11 +852,11 @@ W(\mbox{instr}) = \mbox{given by the spec.}
 {W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + w_2 + w_3}
 \\\\
 \textsc{[LoopInf]} &
-\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = \infty}
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ \mathit{Iter}(S_1) = \infty}
 {W(\mbox{while} (S_1) \ S_2;) = 10 \times (w_1 + w_2)}
 \\\\
 \textsc{[LoopExp]} &
-\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ X(S_1) = E}
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ \mathit{Iter}(S_1) = E}
 {W(\mbox{while} (S_1) \ S_2;) = E \times (w_1 + w_2)}
 \end{tabular}
 \end{eqnarray*}
@@ -866,12 +867,12 @@ W(\mbox{instr}) = \mbox{given by the spec.}
 % Explain how we use symbolic information to compute costs.
 The declarative rules in Figure~\ref{fig:swe} sketches the heuristics that
 we use to compute the SWE for a given hammock region $S$.
-The only rules that deserves comments are \textsc{LoopInf} and
-\textsc{LoopExp}.
-The former applies on loops whose number of iterations we cannot bound via some
-symbolic expression computed statically.
-The latter represents loops that we can analyze using our Symbolic Range Analysis.
-The auxiliary function $X(S)$ returns a symbolic expression that represents
+Rule \textsc{LoopInf} applies on loops whose number of iterations we cannot bound
+via some symbolic expression computed statically.
+Rule \textsc{LoopExp} represents loops that we can analyze using our Symbolic
+Range Analysis.
+The auxiliary function $\mathit{Iter}(S)$ returns a symbolic expression that
+represents
 the range of values covered by the code $S$ that controls the number of
 iterations of the loop.
 In Figure~\ref{fig:alg_main}, these rules are implemented by function
@@ -900,37 +901,63 @@ Task expansion consists in finding the smallest task that is large enough to
 pay for the thread creation cost.
 Figure \ref{fig:expand_alg} shows the algorithm that performs this activity.
 We start this algorithm by setting \textsf{REGION} to be a hammock graph $H$
-that is contained entirely within a windmill $W$.
+that corresponds to a vane within a windmill $W$.
 The hammock decomposition of a structured program forms a tree~\cite{Ferrante87},
 such that vertices in this tree represent hammock graphs.
-$H_1$ is a child of $H_2$ in this tree if $H_1 \subset H_2$, and for any other
-node $H_x$, $H_1 \subset H_x \Rightarrow H_2 \subset H_x$.
-In this context, we call $H_2$ the \textsf{PARENT} of $H_1$.
-
-\begin{definition}[Region expansion]
-\label{def:expansion}
-A task region $R$ can be expanded into a larger region $R'$ if, and only if:
-\begin{itemize}
-\item $|M(R')| \leq |M(R)|$, in which $M(R)$ and $M(R')$ are the set of input and output memory
-dependences in regions $R$ and $R'$ respectively.
-\item $R'$ is still inside a loop or a cyclic construct.
-\end{itemize}
-\end{definition}
-
-Figure \ref{fig:expand_alg} illustrate the algorithm of expansion. It simply tries to expand while
-all the conditions in Definition \ref{def:expansion} are met, and then halts
-when they are not. After this process, {\Taskminer} ends up with a list
-of potential \emph{task regions}, which will then pass under
-a series of operations prior to the annotation to source code, the 
-ultimate step.
+$H_1$ is a child of $H_2$ in this tree if two conditions apply:
+(i) $H_1 \subset H_2$, and (ii) for any 
+other node $H_x$, if $H_1 \subset H_x$ then $H_2 \subset H_x$.
+In this context, we call $H_2$ the {\em parent} of $H_1$.
 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/expand_alg}
-\caption{Task discovery via expansion of hammock regions.}
+\caption{Task discovery via expansion of hammock regions.
+\textsf{COST} is the overhead of creating and scheduling threads, as determined
+by a cost model.}
 \label{fig:expand_alg}
 \end{center}
 \end{figure}
+
+The boolean \textsf{CanExpand} in Figure~\ref{fig:expand_alg} is determined by
+the routine \textsf{checkExpansion}.
+This function remains true for as long as the following conditions apply with
+respect to its input \textsf{VANE}:
+(i) \textsf{VANE} is a hammock region with the structural properties of a
+windmill's vane, i.e., it is contained within a windmill $W$;
+(ii) we can analyze all the memory regions within \textsf{VANE} using the
+symbolic range analysis of Section~\ref{sub:sra};
+(iii) \textsf{VANE} does not depend on another vane inside the same windmill $W$.
+In the rest of this section, we shall use Figure~\ref{fig:ex_expansion} to
+explain these conditions.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/ex_expansion}
+\caption{(a) Example of doubly nested loop that shall be analyzed by the 
+\Taskminer.
+(b) The dependence graph of the program.
+(c) The decomposition of this loop into windmills and vanes.
+$D$ is the set of variables the vane depends on.}
+\label{fig:ex_expansion}
+\end{center}
+\end{figure}
+
+The program in Figure~\ref{fig:ex_expansion} (a), which is a slight variation of
+the code earlier seen in Figure~\ref{fig:ex_regions}, contains two windmills.
+The first consists in the \textsf{for} loop at line 1.
+The second, nested in the first, is the \textsf{for} loop at line 2.
+The vanes that sprout from these windmills, are highlighted in the program
+dependence graph seen in Figure~\ref{fig:ex_expansion} (b).
+The figure shows that we have three task candidates, each one formed by a
+different vane.
+In order to find the actual tasks, we apply function \textsf{expand}
+(Fig.~\ref{fig:expand_alg}) onto the innermost vanes: \textsf{Vane-2} and
+\textsf{Vane-3}.
+The latter cannot be further expanded, because it depends on the former.
+On the other hand, \textsf{Vane-2} can be expanded to include also
+\textsf{Vane-3}, as this expansion does not create new dependences between vanes
+in the same windmill.
 
 \subsection{Limiting the Creation of Recursive Tasks}
 \label{sub:rec}
