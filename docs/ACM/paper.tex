@@ -967,35 +967,78 @@ is heavily jeopardized by the excessive queueing up of tasks. Specifically, algo
 such as \emph{SparseLU} and \emph{FFT} can suffer bloat because of
 too many tasks in the Task Graph\cite{Huynh17}.
 
-%\pedro{In the Kenjiro's paper: "This scheduling policy suffers in two situations: 
-%(1) the parent is a long for loop creating a large number of children, 
-%all these children cannot start until the parent finishes the task-generating loop (SparseLU); 
-%(2) binary recursions that, rightly, spawn only the first recursive call as a task (FFT). 
-%It imposes an upper bound for the ready task queue of a worker; a worker 
-%is discouraged to create too many tasks ready on the queue"}.
-
 To solve this problem, we conservatively limit the number of tasks
 that can be created tied to the same Task Region. We do that by two means:
 (1) limiting the creation of recursive tasks by depth; (2) limiting the creation of 
-tasks in the whole program.
-
-Consider the FIB
-
-\pedro{Show FFT example}
-
-\pedro{Explain that the setting is conservative and thus the parameter of control
-(max recursion depth and total number of tasks) can be easily switched by the
-user, or even completely disabled.}
-
+tasks in the whole program. We do that by setting up static variables to count up
+the depth level in recursive calls. When the depth reaches a certain level, which
+can be defined by the user, task dispatch will be halted, avoiding creation of tasks that are
+too small. This technique is illustrated in Figure \ref{fig:ex_cutoff}. 
+This parameter's default value is very conservative and so can be easily switched off
+or set by the user. 
 
 \subsection{Separating Private from Shared Variables}
 \label{sub:variance}
 
+As described in Challenge \ref{ch:privatize}, the need for privatization of variables
+arises when tasks write on or read from variables that are shared among tasks but, instead,
+should be private for each task. To distinguish variables that should be replicated among tasks
+from those who shouldn't, we mapped this problem into a simple flow analysis, described
+as follows.
+
+\begin{definition}[Privatization]
+\label{def:privatize}
+A variable $X$ should be made private in a Task Region $T$ if the 
+\emph{Definition-Use Chain} of $X$ crosses
+the frontier of the task creation of $T$.
+\end{definition}
+
+This means that, if a variable $X$ is defined prior to the entry point of $T$, and then
+it is used (read/write) inside $T$, then it should be made private. Figure \ref{fig:ex_privatize}
+shows an example of privatization. 
+
+We only privatize values, not pointers. And for a matter of conservativeness, we set all the
+variables shared by default, and then we run the privatization analysis afterwards to pin out
+variables that should be made private.
+
 \subsection{Mapping IR onto Source Code}
 \label{sub:ir}
 
+All the analyses and techniques described previously in this section are made upon
+an \emph{intermediate representation} (IR) of the program. None of our work would
+be made possible if we couldn't recover information from the IR back to Source Code.
+{\Taskminer} needs not only to insert \emph{pragmas}
+around task regions, but also recover array bounds information and preserve
+soundness regarding scope. The bridge between IR and Source Code information
+has 3 main obstacles to be crossed over:
 
+\begin{compactitem}
+\item \textsf{Source Code mapping}: The first problem is, given a set of instructions in the IR,
+how to map them back to the source code file. {\Taskminer} compiles the source code
+with debugging flags on, in order to extract debugging information that maps
+instructions to lines of code. With these lines of code in hands, we then have to deal
+with two more problems before annotation: scope breaking and array bounds information.
 
+\item \textsf{Array bounds}: To recover array bounds information, we rely on strong 
+alias analyses \pedro{References here?}. We link several kinds of instructions such as
+loads, stores, array indexing and other pointer arithmetic instructions to 
+trace back information to Source Code. We build a symbolic range analysis
+for each pointer, map them to all loads and stores in the program and then come up with
+lower and upper bounds for each. If we cannot properly define the range for all pointers 
+inside a task region, \emph{we don't annotate the task.}
+
+\item \textsf{Scope}: Once the task region is defined in terms of basic blocks in 
+the \emph{Control Flow Graph} in the IR, a problem of scope breaking arises when
+inserting \emph{pragmas} around code fragments in the Source Code. To work around
+this problem, we build a \emph{Scope Tree} in LLVM's front-end (Clang) and before
+we annotate the tasks, we check if the region mapped back to Source Code will break
+any scope in the original program. The scope-breaking risk appears when many instructions
+inside basic blocks map back to their definition (instead of their uses) in the source code,
+which sometimes are outsite the region defined as a task. When that happens, we opt 
+not to annotate the task, because we can't recover enough information to correctly annotate
+the original code.
+ 
+\end{compactitem}
 
 \section{Evaluation}
 \label{sec:eval}
