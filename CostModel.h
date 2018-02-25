@@ -15,6 +15,7 @@ private:
 	static uint32_t nWorkers; //NUMBER OF THREADS
 	static uint32_t runtimeCost; //RUNTIME COST
 	static const uint32_t THRESHOLD = 1; //THRESHOLD	
+	static uint32_t singleTaskCost;
 
 	uint32_t tripcount=10; //LOOP'S TRIP COUNT
 	uint32_t nInDeps; // NUMBER OF IN-DEPS
@@ -22,6 +23,11 @@ private:
 
 public:
 	CostModel() {};
+	CostModel(uint32_t totalInsts, uint32_t workers)
+	{
+		this->singleTaskCost = totalInsts;
+		this->nWorkers = workers;
+	}
 	~CostModel() {};
 
 	static void setRuntimeCost(uint32_t rCost);
@@ -44,7 +50,7 @@ public:
 	uint32_t getNInsts() { return nInsts; }
 	uint32_t getNInDeps() { return nInDeps; }
 	uint32_t getNOutDeps() { return nOutDeps; }
-	uint32_t getIdealCost() const { return (nInsts*tripcount)/nWorkers; }
+	uint32_t getIdealCost() const { return singleTaskCost/nWorkers; }
 
 	llvm::raw_ostream& print(llvm::raw_ostream& os) const
 	{
