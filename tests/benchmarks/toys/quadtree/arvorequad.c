@@ -1,6 +1,7 @@
 #include "arvorequad.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 // #define DEBUG
 
 void imprimePesoDeTodosOsQuadrantes(Quadrante* Q, int index)
@@ -21,6 +22,11 @@ int main(int argc, char const *argv[])
 	unsigned numPontos;
 	scanf("%d", &maxLargura);
 	scanf("%d", &numPontos);
+	int debug = 0;
+	if (numPontos < 20)
+	{
+		debug = 1;
+	}
 	ArvoreQuad* A = criaNovaArvoreQuad(maxLargura);
 	while (numPontos > 0)
 	{
@@ -36,8 +42,9 @@ int main(int argc, char const *argv[])
 		numPontos--;
 	}
 
+	
+	if (debug) imprimePesoDeTodosOsQuadrantes(A->raiz, 0);
 	#ifdef DEBUG
-		imprimePesoDeTodosOsQuadrantes(A->raiz, 0);
 		if (pesototal != getPesoTotalDoQuadrante(A->raiz))
 			printf("PESO INCORRETO\n");
 	#endif
