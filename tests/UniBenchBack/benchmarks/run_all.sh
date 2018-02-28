@@ -48,36 +48,36 @@ list=(
     'Polybench/SYRK/src/syrk'
     'Polybench/SYRK_M/src/syrk_m'
     #Rodinia 
-    'Rodinia/backprop/src/backprop'
-    'Rodinia/backprop/src/backprop_kernel'
-    'Rodinia/backprop/src/facetrain'
-    'Rodinia/backprop/src/imagenet'
-    'Rodinia/bfs/src/bfs'
-    'Rodinia/b+tree/src/main'
-    'Rodinia/b+tree/src/kernel/kernel_cpu'
-    'Rodinia/b+tree/src/kernel/kernel_cpu_2'   
+#    'Rodinia/backprop/src/backprop'
+#    'Rodinia/backprop/src/backprop_kernel'
+#    'Rodinia/backprop/src/facetrain'
+#    'Rodinia/backprop/src/imagenet'
+#    'Rodinia/bfs/src/bfs'
+#    'Rodinia/b+tree/src/main'
+#    'Rodinia/b+tree/src/kernel/kernel_cpu'
+#    'Rodinia/b+tree/src/kernel/kernel_cpu_2'   
     # C++ code: 'Rodinia/hotspot/src/hotspot_openmp'
-    'Rodinia/lud/src/lud'
-    'Rodinia/lud/src/lud_omp'
-    'Rodinia/lud/src/tools/gen_input'
+#    'Rodinia/lud/src/lud'
+#    'Rodinia/lud/src/lud_omp'
+#    'Rodinia/lud/src/tools/gen_input'
     # C++ code: 'Rodinia/nw/src/needle'
-    'Rodinia/srad/src/define'
-    'Rodinia/srad/src/graphics'
-    'Rodinia/srad/src/main'
-    'Rodinia/srad/src/resize'
-    'Rodinia/srad/src/timer'
+#    'Rodinia/srad/src/define'
+#    'Rodinia/srad/src/graphics'
+#    'Rodinia/srad/src/main'
+#    'Rodinia/srad/src/resize'
+#    'Rodinia/srad/src/timer'
     #MG BENCH
-    'mgBench/collinear-list/src/collinear-list_gpu'
-    'mgBench/cholesky/src/cholesky_gpu'
-    'mgBench/floyd/src/floyd_gpu'
-    'mgBench/k-nearest/src/k-nearest_gpu'
-    'mgBench/lu-decomposition/src/lu-decomposition_gpu'
-    'mgBench/mat-mul/src/mat-mul_gpu'
-    'mgBench/mat-sum/src/mat-sum_gpu'
-    'mgBench/other-nearest/src/other-nearest_gpu'
-    'mgBench/search-vector/src/search-vector_gpu'
-    'mgBench/str-matching/src/str-matching_gpu'
-    'mgBench/vector-product/src/vector-product_gpu'
+#    'mgBench/collinear-list/src/collinear-list_gpu'
+#    'mgBench/cholesky/src/cholesky_gpu'
+#    'mgBench/floyd/src/floyd_gpu'
+#    'mgBench/k-nearest/src/k-nearest_gpu'
+#    'mgBench/lu-decomposition/src/lu-decomposition_gpu'
+#    'mgBench/mat-mul/src/mat-mul_gpu'
+#    'mgBench/mat-sum/src/mat-sum_gpu'
+#    'mgBench/other-nearest/src/other-nearest_gpu'
+#    'mgBench/search-vector/src/search-vector_gpu'
+#    'mgBench/str-matching/src/str-matching_gpu'
+#    'mgBench/vector-product/src/vector-product_gpu'
 )
 
 testList=(
@@ -155,8 +155,8 @@ while [ "x${list[count]}" != "x" ]
 do
   echo "Running $(count) : ${list[count]}.c" >> timef.txt
   echo "Running $(count) : ${list[count]}.c"
-  gcc-6 -lm -fopenmp "${list[count]}_AI.c" -o testP
-  gcc-6 -lm "${list[count]}_AI.c" -o testS
+  gcc-6 -fopenmp "${list[count]}_AI.c" -o testP -lm
+  gcc-6 "${list[count]}_AI.c" -o testS -lm
   time ./testP >> timef.txt
   time ./testS >> timef.txt
   rm testP testS

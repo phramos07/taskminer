@@ -1,167 +1,126 @@
 Running  : Polybench/2DCONV/src/2DConvolution.c
 >> Two dimensional (2D) convolution <<
-GPU Runtime: 1.711048s
-CPU Runtime: 1.694093s
+GPU Runtime: 1.703857s
+CPU Runtime: 1.703920s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 >> Two dimensional (2D) convolution <<
-GPU Runtime: 1.362651s
-CPU Runtime: 1.364185s
+GPU Runtime: 1.362307s
+CPU Runtime: 1.362633s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 Running  : Polybench/2MM/src/2mm.c
 << Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
-GPU Runtime: 27.719610s
-CPU Runtime: 33.419123s
+GPU Runtime: 28.123146s
+CPU Runtime: 34.838422s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 << Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>
-GPU Runtime: 21.661861s
-CPU Runtime: 21.266575s
+GPU Runtime: 21.578718s
+CPU Runtime: 21.255747s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 Running  : Polybench/3DCONV/src/3DConvolution.c
 >> Three dimensional (3D) convolution <<
-GPU Runtime: 6.796764s
-CPU Runtime: 7.612167s
+GPU Runtime: 6.722932s
+CPU Runtime: 7.637571s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 0
 >> Three dimensional (3D) convolution <<
-GPU Runtime: 5.060946s
-CPU Runtime: 5.066098s
+GPU Runtime: 5.062107s
+CPU Runtime: 5.064054s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 0
 Running  : Polybench/3MM/src/3mm.c
 << Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
-GPU Runtime: 6.431127s
-CPU Runtime: 6.447039s
+GPU Runtime: 6.597390s
+CPU Runtime: 6.691066s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 << Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>
-GPU Runtime: 4.056747s
-CPU Runtime: 4.047522s
+GPU Runtime: 4.072953s
+CPU Runtime: 4.044527s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 Running  : Polybench/ATAX/src/atax.c
 << Matrix Transpose and Vector Multiplication >>
-GPU Runtime: 2.646519s
-CPU Runtime: 1.021791s
+GPU Runtime: 2.520942s
+CPU Runtime: 0.995783s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 0
 << Matrix Transpose and Vector Multiplication >>
-GPU Runtime: 1.627832s
-CPU Runtime: 0.676146s
+GPU Runtime: 1.622747s
+CPU Runtime: 0.675881s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.50 Percent: 0
 Running  : Polybench/BICG/src/bicg.c
 << BiCG Sub Kernel of BiCGStab Linear Solver >>
-GPU Runtime: 1.621194s
-CPU Runtime: 0.569378s
+GPU Runtime: 2.697487s
+CPU Runtime: 0.872107s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 0
+<< BiCG Sub Kernel of BiCGStab Linear Solver >>
+GPU Runtime: 1.612913s
+CPU Runtime: 0.567993s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.70 Percent: 0
 Running  : Polybench/CORR/src/correlation.c
+<< Correlation Computation >>
+GPU Runtime: 4.879377s
+CPU Runtime: 6.924775s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 0
+<< Correlation Computation >>
+GPU Runtime: 4.694208s
+CPU Runtime: 4.696862s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 0
 Running  : Polybench/COVAR/src/covariance.c
+<< Covariance Computation >>
+GPU Runtime: 68.722164s
+CPU Runtime: 66.549835s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 0
+<< Covariance Computation >>
+GPU Runtime: 47.752439s
+CPU Runtime: 46.309710s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 1.05 Percent: 0
 Running  : Polybench/FDTD-2D/src/fdtd2d.c
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 92.634643s
+CPU Runtime: 92.414363s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 2202813
+<< 2-D Finite Different Time Domain Kernel >>
+GPU Runtime: 56.146582s
+CPU Runtime: 56.088751s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 10.05 Percent: 2202813
 Running  : Polybench/GEMM/src/gemm.c
-Running  : Polybench/GESUMMV/src/gesummv.c
-<< Scalar, Vector and Matrix Multiplication >>
-GPU Runtime: 0.592017s
-CPU Runtime: 0.529340s
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 2.490219s
+CPU Runtime: 2.358968s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Matrix-multiply C=alpha.A.B+beta.C >>
+GPU Runtime: 1.339194s
+CPU Runtime: 1.369880s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+Running  : Polybench/GESUMMV/src/gesummv.c
 Running  : Polybench/GRAMSCHM/src/gramschmidt.c
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 2.390024s
+CPU Runtime: 2.170944s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
+<< Gram-Schmidt decomposition >>
+GPU Runtime: 1.607766s
+CPU Runtime: 1.476720s
+Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 Running  : Polybench/MVT/src/mvt.c
 << Matrix Vector Product and Transpose >>
-GPU Runtime: 0.481897s
-CPU Runtime: 0.808066s
+GPU Runtime: 0.481129s
+CPU Runtime: 0.847575s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 << Matrix Vector Product and Transpose >>
-GPU Runtime: 0.409963s
-CPU Runtime: 0.411102s
+GPU Runtime: 0.460437s
+CPU Runtime: 0.405296s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
 Running  : Polybench/SYR2K/src/syr2k.c
 << Symmetric rank-2k operations >>
-GPU Runtime: 126.624196s
-CPU Runtime: 155.246164s
+GPU Runtime: 126.429648s
+CPU Runtime: 152.119794s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1938602
 << Symmetric rank-2k operations >>
-GPU Runtime: 78.516020s
-CPU Runtime: 98.184169s
+GPU Runtime: 78.501168s
+CPU Runtime: 98.200794s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 1938602
 Running  : Polybench/SYRK/src/syrk.c
 Running  : Polybench/SYRK_M/src/syrk_m.c
-GPU Runtime: 5.800008s
-CPU Runtime: 5.142786s
+GPU Runtime: 5.784714s
+CPU Runtime: 5.344064s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
-GPU Runtime: 5.681759s
-CPU Runtime: 5.177404s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
-Running  : Rodinia/backprop/src/backprop.c
-Running  : Rodinia/backprop/src/backprop_kernel.c
-Running  : Rodinia/backprop/src/facetrain.c
-Running  : Rodinia/backprop/src/imagenet.c
-Running  : Rodinia/bfs/src/bfs.c
-Running  : Rodinia/b+tree/src/main.c
-Running  : Rodinia/b+tree/src/kernel/kernel_cpu.c
-Running  : Rodinia/b+tree/src/kernel/kernel_cpu_2.c
-Running  : Rodinia/lud/src/lud.c
-Running  : Rodinia/lud/src/lud_omp.c
-Running  : Rodinia/lud/src/tools/gen_input.c
-./gen_input [Matrix_Dimension_size]
-./gen_input [Matrix_Dimension_size]
-Running  : Rodinia/srad/src/define.c
-Running  : Rodinia/srad/src/graphics.c
-Running  : Rodinia/srad/src/main.c
-Running  : Rodinia/srad/src/resize.c
-Running  : Rodinia/srad/src/timer.c
-Running  : mgBench/collinear-list/src/collinear-list_gpu.c
-<< Collinear List >>
-GPU Runtime: 2.581488s
-CPU Runtime: 14.896213s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
-<< Collinear List >>
-GPU Runtime: 14.555194s
-CPU Runtime: 14.446268s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
-Running  : mgBench/cholesky/src/cholesky_gpu.c
-Running  : mgBench/floyd/src/floyd_gpu.c
-Running  : mgBench/k-nearest/src/k-nearest_gpu.c
-Running  : mgBench/lu-decomposition/src/lu-decomposition_gpu.c
-<< LU decomposition GPU >>
-GPU Runtime: 2.365783s
-CPU Runtime: 2.284118s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
-Running  : mgBench/mat-mul/src/mat-mul_gpu.c
-<< Matrix Multiplication >>
-GPU Runtime: 9.236978s
-CPU Runtime: 9.213319s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
-<< Matrix Multiplication >>
-GPU Runtime: 4.725451s
-CPU Runtime: 4.614761s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
-Running  : mgBench/mat-sum/src/mat-sum_gpu.c
-<< Matrix Sum >>
-GPU Runtime: 0.021008s
-CPU Runtime: 0.007610s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
-<< Matrix Sum >>
-GPU Runtime: 0.006996s
-CPU Runtime: 0.006566s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.01 Percent: 0
-Running  : mgBench/other-nearest/src/other-nearest_gpu.c
-Running  : mgBench/search-vector/src/search-vector_gpu.c
-<< Search Vector >>
-GPU Runtime: 0.000003s
-CPU Runtime: 0.000003s
-Working 494=494
-<< Search Vector >>
-GPU Runtime: 0.000003s
-CPU Runtime: 0.000003s
-Working 494=494
-Running  : mgBench/str-matching/src/str-matching_gpu.c
-<< String Matching >>
-CPU Runtime: 0.001929s
-GPU Runtime: 0.018587s
-Error: 500 != 475
-<< String Matching >>
-CPU Runtime: 0.001424s
-GPU Runtime: 0.001565s
-Corrects answers: 500 = 500
-Running  : mgBench/vector-product/src/vector-product_gpu.c
-<< Vector Product >>
-GPU Runtime: 0.000068s
-CPU Runtime: 0.000067s
-Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0
-<< Vector Product >>
-GPU Runtime: 0.000005s
-CPU Runtime: 0.000008s
+GPU Runtime: 5.935489s
+CPU Runtime: 5.145781s
 Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.05 Percent: 0

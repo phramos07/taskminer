@@ -56,7 +56,7 @@ void gesummv_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y,
                  DATA_TYPE *tmp) {
   int i, j;
 
-  map(tofrom : y[:N]) for (i = 0; i < N; i++) {
+  for (i = 0; i < N; i++) {
     tmp[i] = 0;
     y[i] = 0;
     for (j = 0; j < N; j++) {

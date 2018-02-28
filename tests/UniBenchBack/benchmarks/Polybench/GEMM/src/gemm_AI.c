@@ -51,10 +51,11 @@ void gemm(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
   #pragma omp parallel
   #pragma omp single
   for (i = 0; i < NI; i++) {
-    int tmc2 = 512 * (16 + tmc3);
+    {
     int tmc3 = 512 * (26);
+    int tmc2 = 512 * (16 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NJ; j++) {
       C[i * NJ + j] *= BETA;
@@ -63,6 +64,7 @@ void gemm(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
         C[i * NJ + j] += ALPHA * A[i * NK + k] * B[k * NJ + j];
       }
     }
+  }
   }
   }
 }
@@ -70,17 +72,14 @@ void gemm(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
 void gemm_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
   int i, j, k;
 
-#pragma omp target device(GPU_DEVICE)
-#pragma omp target map(to : A[ : NI *NK], \
-                               B[ : NK *NJ]) map(tofrom : C[ : NI *NJ])
-#pragma omp parallel for collapse(2)
   #pragma omp parallel
   #pragma omp single
   for (i = 0; i < NI; i++) {
-    int tmc2 = 512 * (16 + tmc3);
+    {
     int tmc3 = 512 * (26);
+    int tmc2 = 512 * (16 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NJ; j++) {
       C[i * NJ + j] *= BETA;
@@ -91,28 +90,56 @@ void gemm_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
     }
   }
   }
+  }
 }
 
 void init(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *C_OMP) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NI; i++) {
+    {
+    int tmc6 = 512 * (16);
+    int tm_cost5 = (9 + tmc6);
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],C_OMP[0:262657]) if(tm_cost5 > 500)
+    {
     for (j = 0; j < NK; j++) {
       A[i * NK + j] = ((DATA_TYPE)i * j) / NI;
     }
   }
+  }
+  }
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NK; i++) {
+    {
+    int tmc4 = 512 * (17);
+    int tm_cost3 = (9 + tmc4);
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],C_OMP[0:262657]) if(tm_cost3 > 500)
+    {
     for (j = 0; j < NJ; j++) {
       B[i * NJ + j] = ((DATA_TYPE)i * j + 1) / NJ;
     }
   }
+  }
+  }
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NI; i++) {
+    {
+    int tmc2 = 512 * (27);
+    int tm_cost1 = (9 + tmc2);
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],C_OMP[0:262657]) if(tm_cost1 > 500)
+    {
     for (j = 0; j < NJ; j++) {
       C[i * NJ + j] = ((DATA_TYPE)i * j + 2) / NJ;
       C_OMP[i * NJ + j] = ((DATA_TYPE)i * j + 2) / NJ;
     }
+  }
+  }
   }
 }
 
@@ -121,13 +148,22 @@ void compareResults(DATA_TYPE *C, DATA_TYPE *C_outputFromGpu) {
   fail = 0;
 
   // Compare C1 and C2
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NI; i++) {
+    {
+    int tmc2 = 512 * (28);
+    int tm_cost1 = (11 + tmc2);
+    #pragma omp task depend(inout: C[0:262657],C_outputFromGpu[0:262657]) if(tm_cost1 > 500)
+    {
     for (j = 0; j < NJ; j++) {
       if (percentDiff(C[i * NJ + j], C_outputFromGpu[i * NJ + j]) >
           PERCENT_DIFF_ERROR_THRESHOLD) {
         fail++;
       }
     }
+  }
+  }
   }
 
   // Print results

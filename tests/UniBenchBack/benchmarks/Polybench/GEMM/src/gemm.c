@@ -55,17 +55,15 @@ void gemm(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
 void gemm_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
   int i, j, k;
 
-                               B[ : NK *NJ]) map(tofrom : C[ : NI *NJ])
   for (i = 0; i < NI; i++) {
-                                 for (j = 0; j < NJ; j++) {
-                                   C[i * NJ + j] *= BETA;
+    for (j = 0; j < NJ; j++) {
+      C[i * NJ + j] *= BETA;
 
-                                   for (k = 0; k < NK; ++k) {
-                                     C[i * NJ + j] +=
-                                         ALPHA * A[i * NK + k] * B[k * NJ + j];
-                                   }
-                                 }
-                               }
+      for (k = 0; k < NK; ++k) {
+        C[i * NJ + j] += ALPHA * A[i * NK + k] * B[k * NJ + j];
+      }
+    }
+  }
 }
 
 void init(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *C_OMP) {

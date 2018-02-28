@@ -57,9 +57,9 @@ void conv2D(DATA_TYPE *A, DATA_TYPE *B) {
   #pragma omp single
   for (i = 1; i < NI - 1; ++i) {
     {
-    int tmc2 = 10 * (92);
+    int tmc2 = 100 * (92);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057],B[8193:67100671]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:67117057],B[8193:67100671]) if(tm_cost1 > 6000)
     {
     for (j = 1; j < NJ - 1; ++j) {
       B[i * NJ + j] =
@@ -92,9 +92,9 @@ void conv2D_OMP(DATA_TYPE *A, DATA_TYPE *B) {
   #pragma omp single
   for (i = 1; i < NI - 1; ++i) {
     {
-    int tmc2 = 10 * (92);
+    int tmc2 = 100 * (92);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057],B[8193:67100671]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:67117057],B[8193:67100671]) if(tm_cost1 > 6000)
     {
     for (j = 1; j < NJ - 1; ++j) {
       B[i * NJ + j] =
@@ -118,7 +118,7 @@ void init(DATA_TYPE *A) {
     {
     int tmc2 = 8192 * (15);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:67117057]) if(tm_cost1 > 6000)
     {
     for (j = 0; j < NJ; ++j) {
       A[i * NJ + j] = (float)rand() / RAND_MAX;
@@ -137,9 +137,9 @@ void compareResults(DATA_TYPE *B, DATA_TYPE *B_GPU) {
   #pragma omp single
   for (i = 1; i < (NI - 1); i++) {
     {
-    int tmc2 = 10 * (28);
+    int tmc2 = 100 * (28);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: B[8193:67100671],B_GPU[8193:67100671]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: B[8193:67100671],B_GPU[8193:67100671]) if(tm_cost1 > 6000)
     {
     for (j = 1; j < (NJ - 1); j++) {
       if (percentDiff(B[i * NJ + j], B_GPU[i * NJ + j]) > ERROR_THRESHOLD) {

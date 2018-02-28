@@ -50,9 +50,10 @@ void gesummv(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y,
   #pragma omp parallel
   #pragma omp single
   for (i = 0; i < N; i++) {
+    {
     int tmc2 = 8192 * (39);
     int tm_cost1 = (27 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057],B[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: A[0:67117057],B[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 500)
     {
     tmp[i] = 0;
     y[i] = 0;
@@ -62,6 +63,7 @@ void gesummv(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y,
     }
 
     y[i] = ALPHA * tmp[i] + BETA * y[i];
+  }
   }
   }
 }
@@ -70,16 +72,13 @@ void gesummv_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y,
                  DATA_TYPE *tmp) {
   int i, j;
 
-#pragma omp target device(GPU_DEVICE)
-#pragma omp target map(to : A[ : N *N], B[ : N *N], x[ : N], tmp[ : N]) \
-                                                        map(tofrom : y[ : N])
-#pragma omp parallel for
   #pragma omp parallel
   #pragma omp single
   for (i = 0; i < N; i++) {
+    {
     int tmc2 = 8192 * (39);
     int tm_cost1 = (27 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057],B[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: A[0:67117057],B[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 500)
     {
     tmp[i] = 0;
     y[i] = 0;
@@ -91,17 +90,27 @@ void gesummv_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y,
     y[i] = ALPHA * tmp[i] + BETA * y[i];
   }
   }
+  }
 }
 
 void init(DATA_TYPE *A, DATA_TYPE *x) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < N; i++) {
+    {
+    int tmc2 = 8192 * (16);
+    int tm_cost1 = (14 + tmc2);
+    #pragma omp task depend(inout: A[0:67117057],x[0:8193]) if(tm_cost1 > 500)
+    {
     x[i] = ((DATA_TYPE)i) / N;
 
     for (j = 0; j < N; j++) {
       A[i * N + j] = ((DATA_TYPE)i * j) / N;
     }
+  }
+  }
   }
 }
 
@@ -109,10 +118,18 @@ void compareResults(DATA_TYPE *y, DATA_TYPE *y_outputFromGpu) {
   int i, fail;
   fail = 0;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < (N); i++) {
+    {
+    int tm_cost1 = (24);
+    #pragma omp task depend(inout: y[0:8193],y_outputFromGpu[0:8193]) if(tm_cost1 > 500)
+    {
     if (percentDiff(y[i], y_outputFromGpu[i]) > PERCENT_DIFF_ERROR_THRESHOLD) {
       fail++;
     }
+  }
+  }
   }
 
   // Print results

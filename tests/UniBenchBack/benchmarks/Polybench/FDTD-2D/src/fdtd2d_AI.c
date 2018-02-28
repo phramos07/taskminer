@@ -43,26 +43,52 @@ void init_arrays(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey,
                  DATA_TYPE *hz) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < tmax; i++) {
+    {
+    int tm_cost3 = (11);
+    #pragma omp task depend(inout: _fict_[0:501],ex[0:4196353],ey[0:4196353],hz[0:4196353]) if(tm_cost3 > 500)
+    {
     _fict_[i] = (DATA_TYPE)i;
   }
+  }
+  }
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NX; i++) {
+    {
+    int tmc2 = 2048 * (42);
+    int tm_cost1 = (9 + tmc2);
+    #pragma omp task depend(inout: _fict_[0:501],ex[0:4196353],ey[0:4196353],hz[0:4196353]) if(tm_cost1 > 500)
+    {
     for (j = 0; j < NY; j++) {
       ex[i * NY + j] = ((DATA_TYPE)i * (j + 1) + 1) / NX;
       ey[i * NY + j] = ((DATA_TYPE)(i - 1) * (j + 2) + 2) / NX;
       hz[i * NY + j] = ((DATA_TYPE)(i - 9) * (j + 4) + 3) / NX;
     }
   }
+  }
+  }
 }
 
 void init_array_hz(DATA_TYPE *hz) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NX; i++) {
+    {
+    int tmc2 = 2048 * (19);
+    int tm_cost1 = (9 + tmc2);
+    #pragma omp task depend(inout: hz[0:4196353]) if(tm_cost1 > 500)
+    {
     for (j = 0; j < NY; j++) {
       hz[i * NY + j] = ((DATA_TYPE)(i - 9) * (j + 4) + 3) / NX;
     }
+  }
+  }
   }
 }
 
@@ -70,13 +96,22 @@ void compareResults(DATA_TYPE *hz1, DATA_TYPE *hz2) {
   int i, j, fail;
   fail = 0;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NX; i++) {
+    {
+    int tmc2 = 2048 * (28);
+    int tm_cost1 = (11 + tmc2);
+    #pragma omp task depend(inout: hz1[0:4196353],hz2[0:4196353]) if(tm_cost1 > 500)
+    {
     for (j = 0; j < NY; j++) {
       if (percentDiff(hz1[i * NY + j], hz2[i * NY + j]) >
           PERCENT_DIFF_ERROR_THRESHOLD) {
         fail++;
       }
     }
+  }
+  }
   }
 
   // Print results
@@ -91,15 +126,16 @@ void runFdtd(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz) {
   #pragma omp parallel
   #pragma omp single
   for (t = 0; t < tmax; t++) {
+    {
     int tmc2 = 2048 * (14);
-    int tmc3 = 10 * (9 + tmc4);
     int tmc4 = 2048 * (34);
-    int tmc5 = 2048 * (9 + tmc6);
     int tmc6 = 10 * (34);
-    int tmc7 = 2048 * (9 + tmc8);
     int tmc8 = 2048 * (47);
+    int tmc3 = 10 * (9 + tmc4);
+    int tmc5 = 2048 * (9 + tmc6);
+    int tmc7 = 2048 * (9 + tmc8);
     int tm_cost1 = (15 + tmc2 + tmc3 + tmc5 + tmc7);
-    #pragma omp task depend(inout: _fict_[0:501],ex[0:4198402],ey[0:4198401],hz[0:4196353]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: _fict_[0:501],ex[0:4198402],ey[0:4198401],hz[0:4196353]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NY; j++) {
       ey[0 * NY + j] = _fict_[t];
@@ -129,36 +165,32 @@ void runFdtd(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz) {
     }
   }
   }
+  }
 }
 
 void runFdtd_OMP(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey,
                  DATA_TYPE *hz) {
   int t, i, j;
 
-#pragma omp target device(GPU_DEVICE)
-#pragma omp target map(to : _fict_[ : tmax], ex[ : (NX *(NY + 1))], \
-                                                 ey[ : ((NX + 1) * NY)])
-#pragma omp target map(tofrom : hz[ : (NX *(NY + 1))])
   {
     #pragma omp parallel
     #pragma omp single
     for (t = 0; t < tmax; t++) {
-int tmc2 = 2048 * (14);
-int tmc3 = 10 * (9 + tmc4);
-int tmc4 = 2048 * (34);
-int tmc5 = 2048 * (9 + tmc6);
-int tmc6 = 10 * (34);
-int tmc7 = 2048 * (9 + tmc8);
-int tmc8 = 2048 * (47);
-int tm_cost1 = (15 + tmc2 + tmc3 + tmc5 + tmc7);
-#pragma omp task depend(inout: _fict_[0:501],ex[0:4198402],ey[0:4198401],hz[0:4196353]) if(tm_cost1 > 1000)
-{
-#pragma omp parallel for
+      {
+      int tmc2 = 2048 * (14);
+      int tmc4 = 2048 * (34);
+      int tmc6 = 10 * (34);
+      int tmc8 = 2048 * (47);
+      int tmc3 = 10 * (9 + tmc4);
+      int tmc5 = 2048 * (9 + tmc6);
+      int tmc7 = 2048 * (9 + tmc8);
+      int tm_cost1 = (15 + tmc2 + tmc3 + tmc5 + tmc7);
+      #pragma omp task depend(inout: _fict_[0:501],ex[0:4198402],ey[0:4198401],hz[0:4196353]) if(tm_cost1 > 500)
+      {
       for (j = 0; j < NY; j++) {
         ey[0 * NY + j] = _fict_[t];
       }
 
-#pragma omp parallel for collapse(2)
       for (i = 1; i < NX; i++) {
         for (j = 0; j < NY; j++) {
           ey[i * NY + j] =
@@ -166,7 +198,6 @@ int tm_cost1 = (15 + tmc2 + tmc3 + tmc5 + tmc7);
         }
       }
 
-#pragma omp parallel for collapse(2)
       for (i = 0; i < NX; i++) {
         for (j = 1; j < NY; j++) {
           ex[i * (NY + 1) + j] = ex[i * (NY + 1) + j] -
@@ -174,7 +205,6 @@ int tm_cost1 = (15 + tmc2 + tmc3 + tmc5 + tmc7);
         }
       }
 
-#pragma omp parallel for collapse(2)
       for (i = 0; i < NX; i++) {
         for (j = 0; j < NY; j++) {
           hz[i * NY + j] =
@@ -183,6 +213,7 @@ int tm_cost1 = (15 + tmc2 + tmc3 + tmc5 + tmc7);
                      ey[(i + 1) * NY + j] - ey[i * NY + j]);
         }
       }
+    }
     }
     }
   }

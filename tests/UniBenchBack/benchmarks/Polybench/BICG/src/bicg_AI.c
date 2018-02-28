@@ -44,15 +44,32 @@ typedef float DATA_TYPE;
 void init_array(DATA_TYPE *A, DATA_TYPE *p, DATA_TYPE *r) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NX; i++) {
+    {
+    int tmc3 = 8192 * (16);
+    int tm_cost2 = (15 + tmc3);
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],r[0:8193]) if(tm_cost2 > 500)
+    {
     r[i] = i * M_PI;
     for (j = 0; j < NY; j++) {
       A[i * NY + j] = ((DATA_TYPE)i * j) / NX;
     }
   }
+  }
+  }
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NY; i++) {
+    {
+    int tm_cost1 = (13);
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],r[0:8193]) if(tm_cost1 > 500)
+    {
     p[i] = i * M_PI;
+  }
+  }
   }
 }
 
@@ -62,16 +79,32 @@ void compareResults(DATA_TYPE *s, DATA_TYPE *s_outputFromGpu, DATA_TYPE *q,
   fail = 0;
 
   // Compare s with s_cuda
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NX; i++) {
+    {
+    int tm_cost2 = (24);
+    #pragma omp task depend(inout: q[0:8193],q_outputFromGpu[0:8193]) if(tm_cost2 > 500)
+    {
     if (percentDiff(q[i], q_outputFromGpu[i]) > PERCENT_DIFF_ERROR_THRESHOLD) {
       fail++;
     }
   }
+  }
+  }
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NY; i++) {
+    {
+    int tm_cost1 = (24);
+    #pragma omp task depend(inout: s[0:8193],s_outputFromGpu[0:8193]) if(tm_cost1 > 500)
+    {
     if (percentDiff(s[i], s_outputFromGpu[i]) > PERCENT_DIFF_ERROR_THRESHOLD) {
       fail++;
     }
+  }
+  }
   }
 
   // print results
@@ -84,16 +117,33 @@ void bicg_cpu(DATA_TYPE *A, DATA_TYPE *r, DATA_TYPE *s, DATA_TYPE *p,
               DATA_TYPE *q) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NY; i++) {
+    {
+    int tm_cost3 = (10);
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost3 > 500)
+    {
     s[i] = 0.0;
   }
+  }
+  }
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < NX; i++) {
+    {
+    int tmc2 = 8192 * (39);
+    int tm_cost1 = (12 + tmc2);
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost1 > 500)
+    {
     q[i] = 0.0;
     for (j = 0; j < NY; j++) {
       s[j] = s[j] + r[i] * A[i * NY + j];
       q[i] = q[i] + A[i * NY + j] * p[j];
     }
+  }
+  }
   }
 }
 
@@ -104,44 +154,44 @@ void bicg_OMP(DATA_TYPE *A, DATA_TYPE *r, DATA_TYPE *s, DATA_TYPE *p,
   #pragma omp parallel
   #pragma omp single
   for (i = 0; i < NY; i++) {
+    {
     int tm_cost5 = (10);
-    #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost5 > 1000)
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost5 > 500)
     {
     s[i] = 0.0;
   }
   }
+  }
 
-#pragma omp target device(GPU_DEVICE) map( \
-    to : A[ : NX *NY], p[ : NY], r[ : NX]) map(tofrom : s[ : NY], q[ : NX])
-  {
-#pragma omp parallel for collapse(1)
-    #pragma omp parallel
-    #pragma omp single
-    for (j = 0; j < NY; j++) {
-      int tmc4 = 8192 * (23);
-      int tm_cost3 = (9 + tmc4);
-      #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost3 > 1000)
-      {
-      for (i = 0; i < NX; i++) {
-        s[j] = s[j] + r[i] * A[i * NY + j];
-      }
-    }
-    }
-
-#pragma omp parallel for collapse(1)
-    #pragma omp parallel
-    #pragma omp single
+  #pragma omp parallel
+  #pragma omp single
+  for (j = 0; j < NY; j++) {
+    {
+    int tmc4 = 8192 * (23);
+    int tm_cost3 = (9 + tmc4);
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost3 > 500)
+    {
     for (i = 0; i < NX; i++) {
-      int tmc2 = 8192 * (23);
-      int tm_cost1 = (12 + tmc2);
-      #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost1 > 1000)
-      {
-      q[i] = 0.0;
-      for (j = 0; j < NY; j++) {
-        q[i] = q[i] + A[i * NY + j] * p[j];
-      }
+      s[j] = s[j] + r[i] * A[i * NY + j];
     }
+  }
+  }
+  }
+
+  #pragma omp parallel
+  #pragma omp single
+  for (i = 0; i < NX; i++) {
+    {
+    int tmc2 = 8192 * (23);
+    int tm_cost1 = (12 + tmc2);
+    #pragma omp task depend(inout: A[0:67117057],p[0:8193],q[0:8193],r[0:8193],s[0:8193]) if(tm_cost1 > 500)
+    {
+    q[i] = 0.0;
+    for (j = 0; j < NY; j++) {
+      q[i] = q[i] + A[i * NY + j] * p[j];
     }
+  }
+  }
   }
 }
 

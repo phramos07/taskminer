@@ -88,10 +88,10 @@ void lud_omp_cpu(float *a, int size) {
     TM17[67] = -1 * TM17[64];
     TM17[68] = TM17[65] ? TM17[13] : TM17[66];
     TM17[69] = TM17[65] ? TM17[64] : TM17[67];
-    int tmc5 = TM19[1] * (21);
-    int tmc4 = 10 * (27 + tmc5);
     int tmc3 = TM18[1] * (21);
+    int tmc5 = TM19[1] * (21);
     int tmc2 = 10 * (21 + tmc3);
+    int tmc4 = 10 * (27 + tmc5);
     int tm_cost1 = (12 + tmc2 + tmc4);
     #pragma omp task depend(inout: a[TM17[68]:TM17[69]]) if(tm_cost1 > 41)
     {
@@ -193,10 +193,10 @@ void lud_omp_gpu(float *a, int size) {
       TM17[67] = -1 * TM17[64];
       TM17[68] = TM17[65] ? TM17[13] : TM17[66];
       TM17[69] = TM17[65] ? TM17[64] : TM17[67];
-      int tmc5 = TM19[1] * (21);
-      int tmc4 = 10 * (27 + tmc5);
       int tmc3 = TM18[1] * (21);
+      int tmc5 = TM19[1] * (21);
       int tmc2 = 10 * (21 + tmc3);
+      int tmc4 = 10 * (27 + tmc5);
       int tm_cost1 = (12 + tmc2 + tmc4);
       #pragma omp task depend(inout: a[TM17[68]:TM17[69]]) if(tm_cost1 > 41)
       {
@@ -272,10 +272,10 @@ void lud_omp_gpu(float *a, int size) {
       TM17[67] = -1 * TM17[64];
       TM17[68] = TM17[65] ? TM17[13] : TM17[66];
       TM17[69] = TM17[65] ? TM17[64] : TM17[67];
-      int tmc5 = TM19[1] * (27);
-      int tmc4 = 10 * (27 + tmc5);
       int tmc3 = TM18[1] * (27);
+      int tmc5 = TM19[1] * (27);
       int tmc2 = 10 * (21 + tmc3);
+      int tmc4 = 10 * (27 + tmc5);
       int tm_cost1 = (12 + tmc2 + tmc4);
       #pragma omp task depend(inout: a[TM17[68]:TM17[69]]) if(tm_cost1 > 41)
       {

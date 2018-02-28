@@ -50,10 +50,10 @@ void init_arrays(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *C_GPU) {
   #pragma omp single
   for (i = 0; i < N; i++) {
     {
-    int tmc3 = 2048 * (26);
     int tmc2 = 2048 * (27);
+    int tmc3 = 2048 * (26);
     int tm_cost1 = (11 + tmc2 + tmc3);
-    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353],C_GPU[0:4196353]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353],C_GPU[0:4196353]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       C[i * N + j] = ((DATA_TYPE)i * j + 2) / N;
@@ -78,7 +78,7 @@ void syr2k(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
     {
     int tmc5 = 2048 * (14);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353]) if(tm_cost4 > 500)
     {
     for (j = 0; j < N; j++) {
       C[i * N + j] *= BETA;
@@ -94,7 +94,7 @@ void syr2k(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
     int tmc3 = 2048 * (45);
     int tmc2 = 2048 * (9 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       for (k = 0; k < M; k++) {
@@ -117,7 +117,7 @@ void syr2k_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C) {
     int tmc3 = 2048 * (39);
     int tmc2 = 2048 * (16 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:4196353],B[0:4196353],C[0:4196353]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       C[i * N + j] *= BETA;
@@ -142,7 +142,7 @@ void compareResults(DATA_TYPE *C, DATA_TYPE *C_outputFromGpu) {
     {
     int tmc2 = 2048 * (28);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: C[0:4196353],C_outputFromGpu[0:4196353]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: C[0:4196353],C_outputFromGpu[0:4196353]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       if (percentDiff(C[i * N + j], C_outputFromGpu[i * N + j]) >

@@ -47,10 +47,10 @@ void init_arrays(DATA_TYPE *A, DATA_TYPE *C, DATA_TYPE *D) {
   #pragma omp single
   for (i = 0; i < N; i++) {
     {
-    int tmc3 = 1024 * (27);
     int tmc2 = 1024 * (16);
+    int tmc3 = 1024 * (27);
     int tm_cost1 = (11 + tmc2 + tmc3);
-    #pragma omp task depend(inout: A[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < M; j++) {
       A[i * M + j] = ((DATA_TYPE)i * j) / N;
@@ -75,7 +75,7 @@ void compareResults(DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc2 = 1024 * (28);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: C[0:1049601],D[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: C[0:1049601],D[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < M; j++) {
       if (percentDiff(C[i * M + j], D[i * M + j]) > ERROR_THRESHOLD) {
@@ -101,7 +101,7 @@ void syrk(DATA_TYPE *A, DATA_TYPE *C) {
     {
     int tmc5 = 1024 * (14);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:1049601],C[0:1049601]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:1049601],C[0:1049601]) if(tm_cost4 > 500)
     {
     for (j = 0; j < M; j++) {
       C[i * M + j] *= beta;
@@ -117,7 +117,7 @@ void syrk(DATA_TYPE *A, DATA_TYPE *C) {
     int tmc3 = 1024 * (26);
     int tmc2 = 1024 * (9 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:1049601],C[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:1049601],C[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < M; j++) {
       for (k = 0; k < M; k++) {
@@ -135,51 +135,49 @@ void syrkGPU(DATA_TYPE *A, DATA_TYPE *D) {
 
   t_start = rtclock();
 
-  {
-    #pragma omp parallel
-    #pragma omp single
-    for (i = 0; i < N; i++) {
-      {
-      int tmc5 = 1024 * (14);
-      int tm_cost4 = (14 + tmc5);
-      #pragma omp task depend(inout: D[0:1049601]) if(tm_cost4 > 41)
-      {
-      {
-      int tmc5 = 1024 * (14);
-      int tm_cost4 = (19 + tmc5);
-      #pragma omp task depend(inout: D[0:1049601]) if(tm_cost4 > 41)
-      {
-      for (j = 0; j < M; j++) {
-        D[i * M + j] *= beta;
-      }
+  #pragma omp parallel
+  #pragma omp single
+  for (i = 0; i < N; i++) {
+    {
+    int tmc5 = 1024 * (14);
+    int tm_cost4 = (14 + tmc5);
+    #pragma omp task depend(inout: D[0:1049601]) if(tm_cost4 > 500)
+    {
+    {
+    int tmc5 = 1024 * (14);
+    int tm_cost4 = (19 + tmc5);
+    #pragma omp task depend(inout: D[0:1049601]) if(tm_cost4 > 500)
+    {
+    for (j = 0; j < M; j++) {
+      D[i * M + j] *= beta;
     }
-    }
-    }
+  }
+  }
+  }
 
-    #pragma omp parallel
-    #pragma omp single
-    for (i = 0; i < N; i++) {
-      {
-      int tmc3 = 1024 * (26);
-      int tmc2 = 1024 * (9 + tmc3);
-      int tm_cost1 = (19 + tmc2);
-      #pragma omp task depend(inout: A[0:1049601],D[0:1049601]) if(tm_cost1 > 41)
-      {
-      {
-      int tmc3 = 1024 * (26);
-      int tmc2 = 1024 * (9 + tmc3);
-      int tm_cost1 = (29 + tmc2);
-      #pragma omp task depend(inout: A[0:1049601],D[0:1049601]) if(tm_cost1 > 41)
-      {
-      for (j = 0; j < M; j++) {
-        int k;
-        for (k = 0; k < M; k++) {
-          D[i * M + j] += alpha * A[i * M + k] * A[j * M + k];
-        }
+  #pragma omp parallel
+  #pragma omp single
+  for (i = 0; i < N; i++) {
+    {
+    int tmc3 = 1024 * (26);
+    int tmc2 = 1024 * (9 + tmc3);
+    int tm_cost1 = (19 + tmc2);
+    #pragma omp task depend(inout: A[0:1049601],D[0:1049601]) if(tm_cost1 > 500)
+    {
+    {
+    int tmc3 = 1024 * (26);
+    int tmc2 = 1024 * (9 + tmc3);
+    int tm_cost1 = (29 + tmc2);
+    #pragma omp task depend(inout: A[0:1049601],D[0:1049601]) if(tm_cost1 > 500)
+    {
+    for (j = 0; j < M; j++) {
+      int k;
+      for (k = 0; k < M; k++) {
+        D[i * M + j] += alpha * A[i * M + k] * A[j * M + k];
       }
     }
-    }
-    }
+  }
+  }
   }
 
   t_end = rtclock();

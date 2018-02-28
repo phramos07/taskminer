@@ -56,18 +56,16 @@ int string_matching_GPU(char *frase, char *palavra) {
     vector[i] = 0;
   }
 
-  map(tofrom : vector [0:parallel_size]) {
-    for (i = 0; i < diff; i++) {
-      int v;
-      v = 0;
-      for (j = 0; j < SIZE2; j++) {
-        if (frase[(i + j)] != palavra[j]) {
-          v = 1;
-        }
+  for (i = 0; i < diff; i++) {
+    int v;
+    v = 0;
+    for (j = 0; j < SIZE2; j++) {
+      if (frase[(i + j)] != palavra[j]) {
+        v = 1;
       }
-      if (v == 0) {
-        vector[i % parallel_size]++;
-      }
+    }
+    if (v == 0) {
+      vector[i % parallel_size]++;
     }
   }
 

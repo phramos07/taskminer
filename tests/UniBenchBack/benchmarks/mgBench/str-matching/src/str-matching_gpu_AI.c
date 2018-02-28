@@ -36,13 +36,29 @@ char cutoff_test = 0;
 /// initialize the two strings
 void init(char *frase, char *palavra) {
   int i;
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < SIZE; i++) {
+    {
+    int tm_cost2 = (10);
+    #pragma omp task depend(inout: frase[0:1001]) if(tm_cost2 > 41)
+    {
     frase[i] = 'a';
+  }
+  }
   }
 
   frase[i] = '\0';
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < SIZE2; i++) {
+    {
+    int tm_cost1 = (10);
+    #pragma omp task depend(inout: palavra[0:501]) if(tm_cost1 > 41)
+    {
     palavra[i] = 'a';
+  }
+  }
   }
 
   palavra[i] = '\0';
@@ -59,31 +75,55 @@ int string_matching_GPU(char *frase, char *palavra) {
   int *vector;
   vector = (int *)malloc(sizeof(int) * parallel_size);
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < parallel_size; i++) {
+    {
+    int tm_cost4 = (10);
+    #pragma omp task depend(inout: vector[0:10000]) if(tm_cost4 > 41)
+    {
     vector[i] = 0;
   }
-
-#pragma omp target device(GPU_DEVICE)
-#pragma omp target map(to : frase[0 : SIZE], palavra[0 : SIZE2]) \
-                           map(tofrom : vector[0 : parallel_size])
-  {
-#pragma omp parallel for
-    for (i = 0; i < diff; i++) {
-      int v;
-      v = 0;
-      for (j = 0; j < SIZE2; j++) {
-        if (frase[(i + j)] != palavra[j]) {
-          v = 1;
-        }
-      }
-      if (v == 0) {
-        vector[i % parallel_size]++;
-      }
-    }
+  }
   }
 
+  #pragma omp parallel
+  #pragma omp single
+  for (i = 0; i < diff; i++) {
+    {
+    int tmc3 = 500 * (22);
+    int tm_cost2 = (26 + tmc3);
+    #pragma omp task depend(inout: frase[0:1001],palavra[0:501],vector[0:10000]) if(tm_cost2 > 41)
+    {
+    {
+    int tmc3 = 500 * (22);
+    int tm_cost2 = (32 + tmc3);
+    #pragma omp task depend(inout: frase[0:1001],palavra[0:501],vector[0:10000]) if(tm_cost2 > 41)
+    {
+    int v;
+    v = 0;
+    for (j = 0; j < SIZE2; j++) {
+      if (frase[(i + j)] != palavra[j]) {
+        v = 1;
+      }
+    }
+    if (v == 0) {
+      vector[i % parallel_size]++;
+    }
+  }
+  }
+  }
+
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < parallel_size; i++) {
+    {
+    int tm_cost1 = (13);
+    #pragma omp task depend(inout: vector[0:10000]) if(tm_cost1 > 41)
+    {
     count += vector[i];
+  }
+  }
   }
 
   return count;
@@ -94,7 +134,14 @@ int string_matching_CPU(char *frase, char *palavra) {
   diff = SIZE - SIZE2;
   count = 0;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < diff; i++) {
+    {
+    int tmc2 = 500 * (22);
+    int tm_cost1 = (18 + tmc2);
+    #pragma omp task depend(inout: frase[0:1001],palavra[0:501]) if(tm_cost1 > 41)
+    {
     int v;
     v = 0;
     for (j = 0; j < SIZE2; j++) {
@@ -105,6 +152,8 @@ int string_matching_CPU(char *frase, char *palavra) {
     if (v == 0) {
       count++;
     }
+  }
+  }
   }
 
   return count;

@@ -61,7 +61,7 @@ void conv3D(DATA_TYPE *A, DATA_TYPE *B) {
     int tmc3 = 10 * (193);
     int tmc2 = 10 * (9 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:134480385],B[262657:133955071]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:134480385],B[262657:133955071]) if(tm_cost1 > 500)
     {
     for (i = 1; i < NI - 1; ++i) {
       for (k = 1; k < NK - 1; ++k) {
@@ -109,7 +109,7 @@ void conv3D_OMP(DATA_TYPE *A, DATA_TYPE *B) {
     int tmc3 = 10 * (193);
     int tmc2 = 10 * (9 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:134480385],B[262657:133955071]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:134480385],B[262657:133955071]) if(tm_cost1 > 500)
     {
     for (i = 1; i < NI - 1; ++i) {
       int k;
@@ -147,7 +147,7 @@ void init(DATA_TYPE *A) {
     int tmc3 = 512 * (22);
     int tmc2 = 512 * (9 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:134480385]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:134480385]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NJ; ++j) {
       for (k = 0; k < NK; ++k) {
@@ -171,7 +171,7 @@ void compareResults(DATA_TYPE *B, DATA_TYPE *B_GPU) {
     int tmc3 = 10 * (32);
     int tmc2 = 10 * (11 + tmc3);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: B[262657:133955071],B_GPU[262657:133955071]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: B[262657:133955071],B_GPU[262657:133955071]) if(tm_cost1 > 500)
     {
     for (j = 1; j < NJ - 1; ++j) {
       for (k = 1; k < NK - 1; ++k) {

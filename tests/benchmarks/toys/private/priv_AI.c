@@ -13,6 +13,7 @@ int sum_range(int *V, int N, int L, int U, int *A) {
   #pragma omp parallel
   #pragma omp single
   for (i = 0; i < N; i++) {
+    {
     long long int TM13[14];
     TM13[0] = L > 0;
     TM13[1] = (TM13[0] ? L : 0);
@@ -28,15 +29,18 @@ int sum_range(int *V, int N, int L, int U, int *A) {
     TM13[11] = TM13[10] / 4;
     TM13[12] = (TM13[11] > 0);
     TM13[13] = (TM13[12] ? TM13[11] : 0);
-    #pragma omp task depend(inout: A[0:TM13[13]],V[0:TM13[6]])
+    int tmc2 = TM14[1] * (15);
+    int tm_cost1 = (18 + tmc2);
+    #pragma omp task depend(inout: A[0:TM13[13]],V[0:TM13[6]]) if(tm_cost1 > 6000)
     {
     int j = 0; // V[i];
     A[i] = 0;
     for (; j < L; j++) {
       A[i] += V[j];
-      //j++;
+      // j++;
     }
     sum += A[i];
+  }
   }
   }
 

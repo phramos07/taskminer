@@ -140,11 +140,16 @@ class RecoverExpressions : public FunctionPass {
 
   bool isValidSharedStr (std::set<Value*> V);
 
+  bool analyzeTopLoop (Loop* L, int Line, int LastLine, PtrRangeAnalysis *ptrRA,
+                    RegionInfoPass *rp, AliasAnalysis *aa, ScalarEvolution *se,
+                    LoopInfo *li, DominatorTree *dt);
+
   bool analyzeLoop (Loop* L, int Line, int LastLine, PtrRangeAnalysis *ptrRA,
                     RegionInfoPass *rp, AliasAnalysis *aa, ScalarEvolution *se,
                     LoopInfo *li, DominatorTree *dt);
 
-  std::string getUniqueString (std::map<std::string, std::string> & exp);
+  std::string getUniqueString (std::map<int, std::string> & smbexp,       
+                               std::map<int, std::vector<int> > & ref);
 
   // Provide the cost using the phi nodes well knowed.
   // The default cost (case cannot be represented by symbols) is ten.
@@ -153,12 +158,15 @@ class RecoverExpressions : public FunctionPass {
   // Count the instructions inside the loop.
   int getStatitcLoopCost(Loop *L);
 
+  // Extract the numver associated with the string.
+  int extracttmcnumb(std::string str);
+
   // Calculate the top Level loop cost.
   std::string calculateTopLoopCost(Loop *L, std::string & comp);
 
   // The map contains (source code symbol / provided annotator symbol).
-  std::string calculateLoopCost(Loop *L, std::map<std::string, std::string> &
-  smbexp);
+  int calculateLoopCost(Loop *L, std::map<int, std::string> & smbexp,
+                        std::map<int, std::vector<int> > & ref);
 
 public:
 

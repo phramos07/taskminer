@@ -98,19 +98,16 @@ void bicg_OMP(DATA_TYPE *A, DATA_TYPE *r, DATA_TYPE *s, DATA_TYPE *p,
     s[i] = 0.0;
   }
 
-to: A[ : NX *NY], p[ : NY], r[ : NX]) map(tofrom : s[ : NY], q[ : NX])
-  {
-    for (j = 0; j < NY; j++) {
-      for (i = 0; i < NX; i++) {
-        s[j] = s[j] + r[i] * A[i * NY + j];
-      }
-    }
-
+  for (j = 0; j < NY; j++) {
     for (i = 0; i < NX; i++) {
-      q[i] = 0.0;
-      for (j = 0; j < NY; j++) {
-        q[i] = q[i] + A[i * NY + j] * p[j];
-      }
+      s[j] = s[j] + r[i] * A[i * NY + j];
+    }
+  }
+
+  for (i = 0; i < NX; i++) {
+    q[i] = 0.0;
+    for (j = 0; j < NY; j++) {
+      q[i] = q[i] + A[i * NY + j] * p[j];
     }
   }
 }

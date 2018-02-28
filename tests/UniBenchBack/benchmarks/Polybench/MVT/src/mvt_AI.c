@@ -47,7 +47,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *x1, DATA_TYPE *x2, DATA_TYPE *y1,
     {
     int tmc2 = 4096 * (16);
     int tm_cost1 = (44 + tmc2);
-    #pragma omp task depend(inout: A[0:16781313],x1[0:4097],x1_gpu[0:4097],x2[0:4097],x2_gpu[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:16781313],x1[0:4097],x1_gpu[0:4097],x2[0:4097],x2_gpu[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost1 > 500)
     {
     x1[i] = ((DATA_TYPE)i) / N;
     x2[i] = ((DATA_TYPE)i + 1) / N;
@@ -73,7 +73,7 @@ void runMvt(DATA_TYPE *a, DATA_TYPE *x1, DATA_TYPE *x2, DATA_TYPE *y1,
     {
     int tmc4 = 4096 * (23);
     int tm_cost3 = (9 + tmc4);
-    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost3 > 41)
+    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost3 > 500)
     {
     for (j = 0; j < N; j++) {
       x1[i] = x1[i] + a[i * N + j] * y1[j];
@@ -88,7 +88,7 @@ void runMvt(DATA_TYPE *a, DATA_TYPE *x1, DATA_TYPE *x2, DATA_TYPE *y1,
     {
     int tmc2 = 4096 * (23);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       x2[i] = x2[i] + a[j * N + i] * y2[j];
@@ -109,7 +109,7 @@ void runMvt_OMP(DATA_TYPE *a, DATA_TYPE *x1, DATA_TYPE *x2, DATA_TYPE *y1,
     {
     int tmc4 = 4096 * (23);
     int tm_cost3 = (9 + tmc4);
-    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost3 > 41)
+    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost3 > 500)
     {
     int j;
     for (j = 0; j < N; j++) {
@@ -125,7 +125,7 @@ void runMvt_OMP(DATA_TYPE *a, DATA_TYPE *x1, DATA_TYPE *x2, DATA_TYPE *y1,
     {
     int tmc2 = 4096 * (23);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: a[0:16781313],x1[0:4097],x2[0:4097],y1[0:4097],y2[0:4097]) if(tm_cost1 > 500)
     {
     int j;
     for (j = 0; j < N; j++) {
@@ -146,7 +146,7 @@ void compareResults(DATA_TYPE *x1, DATA_TYPE *x1_outputFromGpu, DATA_TYPE *x2,
   for (i = 0; i < N; i++) {
     {
     int tm_cost1 = (40);
-    #pragma omp task depend(inout: x1[0:4097],x1_outputFromGpu[0:4097],x2[0:4097],x2_outputFromGpu[0:4097]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: x1[0:4097],x1_outputFromGpu[0:4097],x2[0:4097],x2_outputFromGpu[0:4097]) if(tm_cost1 > 500)
     {
     if (percentDiff(x1[i], x1_outputFromGpu[i]) >
         PERCENT_DIFF_ERROR_THRESHOLD) {

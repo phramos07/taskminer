@@ -36,6 +36,8 @@ using namespace lge;
 #define DEBUG_TYPE "recoverExpressions"
 #define ERROR_VALUE -1
 
+STATISTIC(numRA , "Number of regions annotated"); 
+
 void RecoverExpressions::setTasksList(std::list<Task*> taskList) {
   this->tasksList = taskList;
 } 
@@ -554,7 +556,7 @@ Value *RecoverExpressions::getPointerOperand(Instruction *Inst) {
 }
 
 std::string RecoverExpressions::calculateLoopRangeCost(Loop *L) {
-  std::string exp = "10";
+  std::string exp = "100";
   Instruction *I = L->getCanonicalInductionVariable();
   if (I) {
     const SCEV* Limit = se->getSCEVAtScope(I, L);
@@ -566,8 +568,9 @@ std::string RecoverExpressions::calculateLoopRangeCost(Loop *L) {
     std::vector<const SCEV *> ExprList;
     ExprList.push_back(Limit);
     SCEVRangeBuilder rangeBuilder(se, DT, aa, li, dt, r, insertPt);
-    if (!rangeBuilder.canComputeBoundsFor(Limit))
+    if (!rangeBuilder.canComputeBoundsFor(Limit)) {
       return std::string();
+    }
 
     Value *low = rangeBuilder.getULowerBound(ExprList);
     Value *up = rangeBuilder.getUUpperBound(ExprList);
@@ -603,14 +606,55 @@ int RecoverExpressions::getStatitcLoopCost(Loop *L) {
   return inst;
 }
 
-std::string RecoverExpressions::getUniqueString (
-                         std::map<std::string, std::string> & exp) {
+int RecoverExpressions::extracttmcnumb(std::string str) {
+  int num = 0;
+  for (int i = 3; i < str.size(); i++) {
+    if ((str[i] == 't') && (str[i] == 'm') && (str[i] == 'c')) {
+      for (;str[i] != ' ';i++) {
+        num = num * 10;
+        num += str[i] - '0';
+        i = str.size();
+      }
+    }
+  }
+  return num;
+}
+
+std::string RecoverExpressions::getUniqueString(
+                               std::map<int, std::string> & smbexp,       
+                               std::map<int, std::vector<int> > & ref) {
   std::string result = std::string();
-  std::vector <std::string> Exp(getIndex());
-  
-  for (std::map<std::string, std::string>::iterator I = exp.begin(),
-       IE = exp.end(); I != IE; I++) {
-    result = I->first + result;
+  std::vector<bool> nc(smbexp.size(), false);
+  std::queue<int> q;
+  // Insert all computed values in a queue structure.
+  for (auto I = smbexp.begin(), IE = smbexp.end(); I != IE; I++)
+    q.push(I->first);    
+  // Iterate, and for each case, try to find one of the possible solutions:
+  while (!q.empty()) {
+    int id = q.front();
+    q.pop();
+    // Case 1: Without dependences.
+    if (ref[id].size() == 0) {
+       result = result + smbexp[id];
+       nc[id] = true;
+       continue; 
+    }
+    // Case 2: All dependences solved:
+    bool valid = true;
+    for (int i = 0; i < ref[id].size(); i++) {
+      if (nc[ref[id][i]] == false) {
+        valid = false;
+        break;
+      }
+    }
+    if (valid == true) {
+       result = result + smbexp[id];
+       nc[id] = true; 
+    }
+    // Case 3: Unsolved dependences:
+    else {
+      q.push(id);
+    }
   }
   return result;
 }
@@ -621,21 +665,22 @@ std::string RecoverExpressions::calculateTopLoopCost(Loop *L,
   std::string exp = std::string();
   int inst = getStatitcLoopCost(L);
   exp += "int tm_cost" + std::to_string(lid) + " = (" + std::to_string(inst); 
-  std::map<std::string, std::string> mexp;
+  std::map<int, std::string> mexp;
+  std::map<int, std::vector<int> > ref;
   int id = lid;
   for (Loop *SubLoop : L->getSubLoops()) {
-    exp += " + " + calculateLoopCost(SubLoop, mexp);
+    exp += " + tmc" + std::to_string(calculateLoopCost(SubLoop, mexp, ref));
   }
   exp += ");\n";
-  std::string solexp = getUniqueString(mexp);
+  std::string solexp = getUniqueString(mexp, ref);
   solexp += exp;
-  errs() << solexp;
   comp = solexp;
   return ("tm_cost" + std::to_string(id));
 }
 
-std::string RecoverExpressions::calculateLoopCost(Loop *L, std::map<std::string,
-                                std::string> & smbexp) {
+int RecoverExpressions::calculateLoopCost(Loop *L, std::map<int,
+                                          std::string> & smbexp,
+                                          std::map<int, std::vector<int> > & ref) {
   std::string exp = std::string();
   std::string sexp = std::string(); 
   int inst = getStatitcLoopCost(L);
@@ -644,11 +689,13 @@ std::string RecoverExpressions::calculateLoopCost(Loop *L, std::map<std::string,
   exp += "int tmc" + std::to_string(id) + " = ";
   exp += calculateLoopRangeCost(L) + " * (" + std::to_string(inst);
   for (Loop *SubLoop : L->getSubLoops()) { 
-    exp += " + " + calculateLoopCost(SubLoop, smbexp);
+    int rid = calculateLoopCost(SubLoop, smbexp, ref);
+    ref[id].push_back(rid);
+    exp += " + tmc" + std::to_string(rid); 
   }
   exp += ");\n";
-  smbexp[exp] = "tmc" + std::to_string(id);
-  return smbexp[exp];
+  smbexp[id] = exp;
+  return id;
 }
 
 bool RecoverExpressions::isValidPrivateStr(std::set<Value*> V) {
@@ -659,7 +706,6 @@ bool RecoverExpressions::isValidPrivateStr(std::set<Value*> V) {
   }
   if ((hasInst == false) || (V.size() == 0))
     return true;
-  errs() << "Test = " << ((V.size() > 0) && (getPrivateStr(V) != std::string())) << "\n";
   if ((V.size() > 0) && (getPrivateStr(V) != std::string()))
     return true;
   return false;
@@ -673,7 +719,6 @@ bool RecoverExpressions::isValidSharedStr(std::set<Value*> V) {
   }
   if ((hasInst == false) || (V.size() == 0))
     return true;
-  errs() << "Test = " << ((V.size() > 0) && (getSharedStr(V) != std::string())) << "\n";
   if ((V.size() > 0) && (getSharedStr(V) != std::string()))
     return true;
   return false;
@@ -689,7 +734,6 @@ std::string RecoverExpressions::getSharedStr(std::set<Value*> V) {
       I = cast<Instruction>(It);
   }
   if (I == nullptr) {
-    errs() << "Error 1\n";
     return std::string();
   }
   Module *M = I->getParent()->getParent()->getParent();
@@ -707,7 +751,6 @@ std::string RecoverExpressions::getSharedStr(std::set<Value*> V) {
     i++;
   }
   str += ")";
-  //errs() << str << "\n";
   return str;
 }
 
@@ -721,7 +764,6 @@ std::string RecoverExpressions::getPrivateStr(std::set<Value*> V) {
       I = cast<Instruction>(It);
   }
   if (I == nullptr) {
-    errs() << "Error 1\n";
     return std::string();
   }
   Module *M = I->getParent()->getParent()->getParent();
@@ -739,7 +781,6 @@ std::string RecoverExpressions::getPrivateStr(std::set<Value*> V) {
     i++;
   }
   str += ")";
-  //errs() << str << "\n";
   return str;
 }
 
@@ -820,8 +861,6 @@ bool RecoverExpressions::analyzeLoop (Loop* L, int Line, int LastLine,
     r = RPM.regionofBasicBlock((L->getHeader()), rp);
  
   if (!ptrRA->RegionsRangeData[r].HasFullSideEffectInfo) {
-    errs() << "Cannot collect info\n";
-    r->dump(); 
     return false;
   }
     
@@ -877,45 +916,58 @@ bool RecoverExpressions::analyzeLoop (Loop* L, int Line, int LastLine,
     RPM.clearCommands();
   }
   // HERE
-  int thld = ((RUNTIME_COST * THRESHOLD) / N_WORKERS);
+  int thld = ((RUNTIME_COST * THRESHOLD) * N_WORKERS);
   std::string cmpadd = std::string();
   std::string cmpif = " if(" + calculateTopLoopCost(L, cmpadd);
-  cmpif += " > " + std::to_string(thld) + ")";
+  cmpif += " > " + std::to_string(thld) + ")";// + std::to_string(thld) + ")";
   output += cmpadd;
   output += getDataPragmaRegion(vctLower, vctUpper, vctPtMA);
   output += cmpif + "\n{\n";
+  errs() << "Output: \n" << output << "\n\n";
   addCommentToLine(output, Line + 1);
   addCommentToLine("}\n}\n", LastLine); 
+  errs() << "Pragma is:\n" << output << "\n\n";
   annotateExternalLoop((L->getHeader()->begin()));
   return true;
+}
 
- /* 
-  expression += getDataPragma(vctLower, vctUpper, vctPtMA);
+bool RecoverExpressions::analyzeTopLoop (Loop* L, int Line, int LastLine,
+                                        PtrRangeAnalysis *ptrRA, 
+                                        RegionInfoPass *rp, AliasAnalysis *aa,
+                                        ScalarEvolution *se, LoopInfo *li,
+                                        DominatorTree *dt) {
+  // Initilize The Analisys with Default Values.
+  Module *M = L->getLoopPredecessor()->getParent()->getParent();
+  const DataLayout DT = DataLayout(M);
+  RecoverPointerMD RPM;
+  std::string computationName = "TM" + std::to_string(getNewIndex());
+  RPM.setNAME(computationName);
+  RPM.setRecoverNames(rn);
+  RPM.initializeNewVars();
+ 
+  Region *r = RPM.regionofBasicBlock((L->getLoopPreheader()), rp);
 
-  if (isValid()) {
-    std::string result = std::string(); 
-    if (getIndex() > 0) {
-      result += "long long int " + NAME + "[";
-      result += std::to_string(getNewIndex()) + "];\n";
-      result += getUniqueString();
-    }
-    result += expression;
-
-    if (OMPF == OMP_GPU)
-      Rst.setTrueOMP();
-
-    Rst.setName("RST_"+NAME);
-    Rst.getBounds(vctLower, vctUpper, vctPtr, needR);
-    result = Rst.generateTests(result);
-
-    restric = Rst.isValid();
-    // Use to insert test on parallel pragmas
-    //if (Rst.isValid())
-    //  test = "if(!RST_" + NAME + ")"; 
-    Comments[Line] = result;
+  if (!ptrRA->RegionsRangeData[r].HasFullSideEffectInfo)
+    r = RPM.regionofBasicBlock((L->getHeader()), rp);
+ 
+  if (!ptrRA->RegionsRangeData[r].HasFullSideEffectInfo) {
+    return false;
   }
-  return isValid();
-*/
+  
+  bool exLoop = false;
+  for (Loop *SubLoop : L->getSubLoops()) {
+    Region *R = this->rp->getRegionInfo().getRegionFor(SubLoop->getHeader());
+      if (!R)
+        continue;
+    int start = this->st->getStartRegionLoops(R).first;
+    int end = this->st->getEndRegionLoops(R).first;
+    if (analyzeLoop(SubLoop, start, end, this->ptrRa, this->rp, this->aa,
+                    this->se, this->li, this->dt) == true) {
+      numRA++;
+      exLoop = true;
+    }
+  }
+  annotateExternalLoop((L->getHeader()->begin()));
 }
 
 void RecoverExpressions::getTaskRegions() {
@@ -931,8 +983,9 @@ void RecoverExpressions::getTaskRegions() {
           continue;
         int start = this->st->getStartRegionLoops(R).first;
         int end = this->st->getEndRegionLoops(R).first;
-        analyzeLoop(L, start, end, this->ptrRa, this->rp, this->aa, this->se,
-                    this->li, this->dt);
+        if (analyzeLoop(L, start, end, this->ptrRa, this->rp, this->aa, this->se,
+                    this->li, this->dt))
+          numRA++;
     }
   }
 }

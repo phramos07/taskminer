@@ -100,8 +100,7 @@ void covariance_OMP(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
   int i, j, j1, j2;
 
   /* Determine mean of column vectors of input data matrix */
-
-  map(from : mean[:(M + 1)]) for (j = 1; j < (M + 1); j++) {
+  for (j = 1; j < (M + 1); j++) {
     mean[j] = 0.0;
     for (i = 1; i < (N + 1); i++) {
       mean[j] += data[i * (M + 1) + j];
@@ -110,14 +109,13 @@ void covariance_OMP(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
   }
 
   /* Center the column vectors. */
-  map(tofrom : data[:(M + 1) * (N + 1)]) for (i = 1; i < (N + 1); i++) {
+  for (i = 1; i < (N + 1); i++) {
     for (j = 1; j < (M + 1); j++) {
       data[i * (M + 1) + j] -= mean[j];
     }
   }
 
-/* Calculate the m * m covariance matrix. */
-tofrom: symmat[ : (M + 1) * (N + 1)])
+  /* Calculate the m * m covariance matrix. */
   for (j1 = 1; j1 < (M + 1); j1++) {
     for (j2 = j1; j2 < (M + 1); j2++) {
       symmat[j1 * (M + 1) + j2] = 0.0;

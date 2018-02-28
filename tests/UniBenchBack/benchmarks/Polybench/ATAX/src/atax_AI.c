@@ -51,7 +51,7 @@ void init_array(DATA_TYPE *x, DATA_TYPE *A) {
     {
     int tmc2 = 8192 * (16);
     int tm_cost1 = (15 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057],x[0:8193]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:67117057],x[0:8193]) if(tm_cost1 > 500)
     {
     x[i] = i * M_PI;
     for (j = 0; j < NY; j++) {
@@ -71,7 +71,7 @@ void compareResults(DATA_TYPE *z, DATA_TYPE *z_outputFromGpu) {
   for (i = 0; i < NY; i++) {
     {
     int tm_cost1 = (24);
-    #pragma omp task depend(inout: z[0:8193],z_outputFromGpu[0:8193]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: z[0:8193],z_outputFromGpu[0:8193]) if(tm_cost1 > 500)
     {
     if (percentDiff(z[i], z_outputFromGpu[i]) > PERCENT_DIFF_ERROR_THRESHOLD) {
       fail++;
@@ -94,7 +94,7 @@ void atax_cpu(DATA_TYPE *A, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp) {
   for (i = 0; i < NY; i++) {
     {
     int tm_cost4 = (10);
-    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost4 > 500)
     {
     y[i] = 0;
   }
@@ -105,10 +105,10 @@ void atax_cpu(DATA_TYPE *A, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp) {
   #pragma omp single
   for (i = 0; i < NX; i++) {
     {
-    int tmc3 = 8192 * (23);
     int tmc2 = 8192 * (23);
+    int tmc3 = 8192 * (23);
     int tm_cost1 = (14 + tmc2 + tmc3);
-    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 500)
     {
     tmp[i] = 0;
 
@@ -132,7 +132,7 @@ void atax_OMP(DATA_TYPE *A, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp) {
   for (i = 0; i < NY; i++) {
     {
     int tm_cost5 = (10);
-    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost5 > 41)
+    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost5 > 500)
     {
     y[i] = 0;
   }
@@ -145,7 +145,7 @@ void atax_OMP(DATA_TYPE *A, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp) {
     {
     int tmc4 = 8192 * (23);
     int tm_cost3 = (12 + tmc4);
-    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost3 > 41)
+    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost3 > 500)
     {
     tmp[i] = 0;
     int j;
@@ -163,7 +163,7 @@ void atax_OMP(DATA_TYPE *A, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp) {
     {
     int tmc2 = 8192 * (23);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:67117057],tmp[0:8193],x[0:8193],y[0:8193]) if(tm_cost1 > 500)
     {
     for (i = 0; i < NX; i++) {
       { y[j] = y[j] + A[i * NY + j] * tmp[i]; }

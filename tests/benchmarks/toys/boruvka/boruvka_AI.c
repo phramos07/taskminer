@@ -10,10 +10,27 @@ char cutoff_test = 0;
 // #define SIZE 10000
 
 void fillgraph(int *G, int N) {
+  #pragma omp parallel
+  #pragma omp single
   for (long unsigned i = 0; i < N; i++) {
+    {
+    long long int TM9[7];
+    TM9[0] = 4 * N;
+    TM9[1] = TM9[0] * N;
+    TM9[2] = TM9[1] + TM9[0];
+    TM9[3] = TM9[2] + 4;
+    TM9[4] = TM9[3] / 4;
+    TM9[5] = (TM9[4] > 0);
+    TM9[6] = (TM9[5] ? TM9[4] : 0);
+    int tmc2 = N * (19);
+    int tm_cost1 = (10 + tmc2);
+    #pragma omp task depend(inout: G[0:TM9[6]]) if(tm_cost1 > 6000)
+    {
     for (long unsigned j = 0; j < N; j++) {
       *(G + i * N + j) = rand() % 50 + rand() % 50 + 3;
     }
+  }
+  }
   }
 }
 
@@ -82,12 +99,13 @@ int main(int argc, char *argv[]) {
   if (SIZE < 20)
     printGraph(G, SIZE);
 
-  //fillEdgeInfo
+  // fillEdgeInfo
   for (i = 0; i < SIZE; i++)
     for (j = 0; j < SIZE; j++) {
       edgeTab[i * SIZE + j].src = i;
       edgeTab[i * SIZE + j].dst = j;
-      edgeTab[i * SIZE + j].weight = G[i * SIZE + j] != 0 ? G[i * SIZE + j] : -1;
+      edgeTab[i * SIZE + j].weight =
+          G[i * SIZE + j] != 0 ? G[i * SIZE + j] : -1;
     }
 
   for (i = 0; i < numVertices; i++) {
@@ -95,8 +113,9 @@ int main(int argc, char *argv[]) {
     weight[i] = 1;
   }
 
-  numTrees = numVertices;    // Each vertex is initially in its own subtree
-  usefulEdges = SIZE * SIZE; // An edge is useful if the two vertices are separate
+  numTrees = numVertices; // Each vertex is initially in its own subtree
+  usefulEdges =
+      SIZE * SIZE; // An edge is useful if the two vertices are separate
 
   #pragma omp parallel
   #pragma omp single

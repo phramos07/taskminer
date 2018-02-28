@@ -46,10 +46,19 @@ typedef float DATA_TYPE;
 void init_arrays(DATA_TYPE *data) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 1; i < (M + 1); i++) {
+    {
+    int tmc2 = 10 * (16);
+    int tm_cost1 = (9 + tmc2);
+    #pragma omp task depend(inout: data[2050:4198401]) if(tm_cost1 > 500)
+    {
     for (j = 1; j < (N + 1); j++) {
       data[i * (N + 1) + j] = ((DATA_TYPE)i * j) / M;
     }
+  }
+  }
   }
 }
 
@@ -57,7 +66,14 @@ void compareResults(DATA_TYPE *symmat, DATA_TYPE *symmat_outputFromGpu) {
   int i, j, fail;
   fail = 0;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 1; i < (M + 1); i++) {
+    {
+    int tmc2 = 10 * (28);
+    int tm_cost1 = (11 + tmc2);
+    #pragma omp task depend(inout: symmat[2050:4198401],symmat_outputFromGpu[2050:4198401]) if(tm_cost1 > 500)
+    {
     for (j = 1; j < (N + 1); j++) {
       if (percentDiff(symmat[i * (N + 1) + j],
                       symmat_outputFromGpu[i * (N + 1) + j]) >
@@ -65,6 +81,8 @@ void compareResults(DATA_TYPE *symmat, DATA_TYPE *symmat_outputFromGpu) {
         fail++;
       }
     }
+  }
+  }
   }
   printf("Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f "
          "Percent: %d\n",
@@ -78,15 +96,17 @@ void covariance(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
   #pragma omp parallel
   #pragma omp single
   for (j = 1; j < (M + 1); j++) {
+    {
     int tmc7 = 10 * (17);
     int tm_cost6 = (19 + tmc7);
-    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost6 > 1000)
+    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost6 > 500)
     {
     mean[j] = 0.0;
     for (i = 1; i < (N + 1); i++) {
       mean[j] += data[i * (M + 1) + j];
     }
     mean[j] /= FLOAT_N;
+  }
   }
   }
 
@@ -94,13 +114,15 @@ void covariance(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
   #pragma omp parallel
   #pragma omp single
   for (i = 1; i < (N + 1); i++) {
+    {
     int tmc5 = 10 * (17);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost4 > 1000)
+    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost4 > 500)
     {
     for (j = 1; j < (M + 1); j++) {
       data[i * (M + 1) + j] -= mean[j];
     }
+  }
   }
   }
 
@@ -108,10 +130,11 @@ void covariance(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
   #pragma omp parallel
   #pragma omp single
   for (j1 = 1; j1 < (M + 1); j1++) {
-    int tmc2 = 10 * (24 + tmc3);
+    {
     int tmc3 = 10 * (25);
+    int tmc2 = 10 * (24 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost1 > 500)
     {
     for (j2 = j1; j2 < (M + 1); j2++) {
       symmat[j1 * (M + 1) + j2] = 0.0;
@@ -123,23 +146,20 @@ void covariance(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
     }
   }
   }
+  }
 }
 
 void covariance_OMP(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
   int i, j, j1, j2;
 
-/* Determine mean of column vectors of input data matrix */
-
-#pragma omp target device(GPU_DEVICE)
-#pragma omp target map(to : data[ : (M + 1) * (N + 1)]) \
-                                         map(from : mean[ : (M + 1)])
-#pragma omp parallel for
+  /* Determine mean of column vectors of input data matrix */
   #pragma omp parallel
   #pragma omp single
   for (j = 1; j < (M + 1); j++) {
+    {
     int tmc7 = 10 * (17);
     int tm_cost6 = (19 + tmc7);
-    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost6 > 1000)
+    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost6 > 500)
     {
     mean[j] = 0.0;
     for (i = 1; i < (N + 1); i++) {
@@ -148,35 +168,33 @@ void covariance_OMP(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
     mean[j] /= FLOAT_N;
   }
   }
+  }
 
-/* Center the column vectors. */
-#pragma omp target map(to : mean[ : (M + 1)]) \
-                           map(tofrom : data[ : (M + 1) * (N + 1)])
-#pragma omp parallel for collapse(2)
+  /* Center the column vectors. */
   #pragma omp parallel
   #pragma omp single
   for (i = 1; i < (N + 1); i++) {
+    {
     int tmc5 = 10 * (17);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost4 > 1000)
+    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost4 > 500)
     {
     for (j = 1; j < (M + 1); j++) {
       data[i * (M + 1) + j] -= mean[j];
     }
   }
   }
+  }
 
-/* Calculate the m * m covariance matrix. */
-#pragma omp target map(to : data[ : (M + 1) * (M + 1)]) map( \
-    tofrom : symmat[ : (M + 1) * (N + 1)])
-#pragma omp parallel for collapse(2)
+  /* Calculate the m * m covariance matrix. */
   #pragma omp parallel
   #pragma omp single
   for (j1 = 1; j1 < (M + 1); j1++) {
-    int tmc2 = 10 * (24 + tmc3);
+    {
     int tmc3 = 10 * (25);
+    int tmc2 = 10 * (24 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: data[2050:4198401],mean[1:2049],symmat[2050:4198401]) if(tm_cost1 > 500)
     {
     for (j2 = j1; j2 < (M + 1); j2++) {
       symmat[j1 * (M + 1) + j2] = 0.0;
@@ -186,6 +204,7 @@ void covariance_OMP(DATA_TYPE *data, DATA_TYPE *symmat, DATA_TYPE *mean) {
       }
       symmat[j2 * (M + 1) + j1] = symmat[j1 * (M + 1) + j2];
     }
+  }
   }
   }
 }

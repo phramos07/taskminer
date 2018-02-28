@@ -49,7 +49,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc8 = 1024 * (16);
     int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost7 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost7 > 500)
     {
     for (j = 0; j < NK; j++) {
       A[i * NI + j] = ((DATA_TYPE)i * j) / NI;
@@ -64,7 +64,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc6 = 1024 * (17);
     int tm_cost5 = (9 + tmc6);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost5 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost5 > 500)
     {
     for (j = 0; j < NJ; j++) {
       B[i * NK + j] = ((DATA_TYPE)i * (j + 1)) / NJ;
@@ -79,7 +79,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc4 = 1024 * (17);
     int tm_cost3 = (9 + tmc4);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost3 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost3 > 500)
     {
     for (j = 0; j < NJ; j++) {
       C[i * NL + j] = ((DATA_TYPE)i * (j + 3)) / NL;
@@ -94,7 +94,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc2 = 1024 * (17);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       D[i * NL + j] = ((DATA_TYPE)i * (j + 2)) / NK;
@@ -114,7 +114,7 @@ void compareResults(DATA_TYPE *E, DATA_TYPE *E_GPU) {
     {
     int tmc2 = 1024 * (28);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: E[0:1049601],E_GPU[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: E[0:1049601],E_GPU[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NI; j++) {
       if (percentDiff(E[i * NI + j], E_GPU[i * NI + j]) > ERROR_THRESHOLD) {
@@ -142,7 +142,7 @@ void mm2_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc6 = 1024 * (25);
     int tmc5 = 1024 * (14 + tmc6);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost4 > 500)
     {
     for (j = 0; j < NJ; j++) {
       C[i * NJ + j] = 0.0;
@@ -161,7 +161,7 @@ void mm2_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc3 = 1024 * (25);
     int tmc2 = 1024 * (14 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       E[i * NL + j] = 0.0;
@@ -185,7 +185,7 @@ void mm2_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc6 = 1024 * (25);
     int tmc5 = 1024 * (14 + tmc6);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost4 > 500)
     {
     for (j = 0; j < NJ; j++) {
       C[i * NJ + j] = 0.0;
@@ -205,7 +205,7 @@ void mm2_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc3 = 1024 * (25);
     int tmc2 = 1024 * (14 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:1049601],B[0:1049601],C[0:1049601],D[0:1049601],E[0:1049601]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       E[i * NL + j] = 0.0;

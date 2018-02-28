@@ -45,10 +45,19 @@ typedef float DATA_TYPE;
 void init_arrays(DATA_TYPE *data) {
   int i, j;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 0; i < (M + 1); i++) {
+    {
+    int tmc2 = 1025 * (16);
+    int tm_cost1 = (9 + tmc2);
+    #pragma omp task depend(inout: data[0:1051651]) if(tm_cost1 > 500)
+    {
     for (j = 0; j < (N + 1); j++) {
       data[i * (N + 1) + j] = ((DATA_TYPE)i * j) / (M + 1);
     }
+  }
+  }
   }
 }
 
@@ -60,9 +69,10 @@ void correlation(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
   #pragma omp parallel
   #pragma omp single
   for (j = 1; j < (M + 1); j++) {
+    {
     int tmc9 = 10 * (17);
     int tm_cost8 = (17 + tmc9);
-    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost8 > 1000)
+    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost8 > 500)
     {
     mean[j] = 0.0;
 
@@ -74,14 +84,16 @@ void correlation(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
     mean[j] /= (DATA_TYPE)FLOAT_N;
   }
   }
+  }
 
   // Determine standard deviations of column vectors of data matrix.
   #pragma omp parallel
   #pragma omp single
   for (j = 1; j < (M + 1); j++) {
+    {
     int tmc7 = 10 * (31);
     int tm_cost6 = (42 + tmc7);
-    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost6 > 1000)
+    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost6 > 500)
     {
     stddev[j] = 0.0;
 
@@ -95,15 +107,17 @@ void correlation(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
     stddev[j] = stddev[j] <= EPS ? 1.0 : stddev[j];
   }
   }
+  }
 
   // i - threadIdx.x, j = threadIdx.y
   // Center and reduce the column vectors.
   #pragma omp parallel
   #pragma omp single
   for (i = 1; i < (N + 1); i++) {
+    {
     int tmc5 = 10 * (32);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost4 > 1000)
+    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost4 > 500)
     {
     for (j = 1; j < (M + 1); j++) {
       data[i * (M + 1) + j] -= mean[j];
@@ -111,15 +125,17 @@ void correlation(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
     }
   }
   }
+  }
 
   // Calculate the m * m correlation matrix.
   #pragma omp parallel
   #pragma omp single
   for (j1 = 1; j1 < M; j1++) {
-    int tmc2 = 10 * (24 + tmc3);
+    {
     int tmc3 = 10 * (25);
+    int tmc2 = 10 * (24 + tmc3);
     int tm_cost1 = (15 + tmc2);
-    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost1 > 1000)
+    #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost1 > 500)
     {
     symmat[j1 * (M + 1) + j1] = 1.0;
 
@@ -135,6 +151,7 @@ void correlation(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
     }
   }
   }
+  }
 
   symmat[M * (M + 1) + M] = 1.0;
 }
@@ -143,20 +160,16 @@ void correlation_OMP(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
                      DATA_TYPE *symmat) {
   int i, j, k;
 
-// Determine mean of column vectors of input data matrix
-// Maps data once.
-#pragma omp target device(GPU_DEVICE) map(to : data[ : ( \
-    M + 1) * (N + 1)], mean[ : (M + 1)],                 \
-                             stddev[ : (M + 1)])         \
-                                 map(tofrom : symmat[ : (M + 1) * (N + 1)])
+  // Determine mean of column vectors of input data matrix
+  // Maps data once.
   {
-#pragma omp parallel for
     #pragma omp parallel
     #pragma omp single
     for (j = 1; j < (M + 1); j++) {
+      {
       int tmc9 = 10 * (17);
       int tm_cost8 = (17 + tmc9);
-      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost8 > 1000)
+      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost8 > 500)
       {
       mean[j] = 0.0;
       int i;
@@ -166,15 +179,16 @@ void correlation_OMP(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
       mean[j] /= (DATA_TYPE)FLOAT_N;
     }
     }
+    }
 
-// Determine standard deviations of column vectors of data matrix.
-#pragma omp parallel for
+    // Determine standard deviations of column vectors of data matrix.
     #pragma omp parallel
     #pragma omp single
     for (j = 1; j < (M + 1); j++) {
+      {
       int tmc7 = 10 * (31);
       int tm_cost6 = (35 + tmc7);
-      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost6 > 1000)
+      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost6 > 500)
       {
       stddev[j] = 0.0;
       int i;
@@ -190,16 +204,17 @@ void correlation_OMP(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
       }
     }
     }
+    }
 
-// i - threadIdx.x, j = threadIdx.y
-// Center and reduce the column vectors.
-#pragma omp parallel for collapse(2)
+    // i - threadIdx.x, j = threadIdx.y
+    // Center and reduce the column vectors.
     #pragma omp parallel
     #pragma omp single
     for (i = 1; i < (N + 1); i++) {
+      {
       int tmc5 = 10 * (32);
       int tm_cost4 = (9 + tmc5);
-      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost4 > 1000)
+      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost4 > 500)
       {
       for (j = 1; j < (M + 1); j++) {
         data[i * (M + 1) + j] -= mean[j];
@@ -207,16 +222,17 @@ void correlation_OMP(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
       }
     }
     }
+    }
 
-// Calculate the m * m correlation matrix.
-#pragma omp parallel for
+    // Calculate the m * m correlation matrix.
     #pragma omp parallel
     #pragma omp single
     for (k = 1; k < M; k++) {
-      int tmc2 = 10 * (24 + tmc3);
+      {
       int tmc3 = 10 * (25);
+      int tmc2 = 10 * (24 + tmc3);
       int tm_cost1 = (15 + tmc2);
-      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost1 > 1000)
+      #pragma omp task depend(inout: data[1026:1050625],mean[1:1025],stddev[1:1025],symmat[1026:1050624]) if(tm_cost1 > 500)
       {
       symmat[k * (M + 1) + k] = 1.0;
       int j;
@@ -231,6 +247,7 @@ void correlation_OMP(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
       }
     }
     }
+    }
   }
 
   symmat[M * (M + 1) + M] = 1.0;
@@ -240,7 +257,14 @@ void compareResults(DATA_TYPE *symmat, DATA_TYPE *symmat_outputFromGpu) {
   int i, j, fail;
   fail = 0;
 
+  #pragma omp parallel
+  #pragma omp single
   for (i = 1; i < (M + 1); i++) {
+    {
+    int tmc2 = 10 * (28);
+    int tm_cost1 = (11 + tmc2);
+    #pragma omp task depend(inout: symmat[1026:1050625],symmat_outputFromGpu[1026:1050625]) if(tm_cost1 > 500)
+    {
     for (j = 1; j < (N + 1); j++) {
       if (percentDiff(symmat[i * (N + 1) + j],
                       symmat_outputFromGpu[i * (N + 1) + j]) >
@@ -250,6 +274,8 @@ void compareResults(DATA_TYPE *symmat, DATA_TYPE *symmat_outputFromGpu) {
         // symmat_GPU[i*N + j]);
       }
     }
+  }
+  }
   }
 
   // print results

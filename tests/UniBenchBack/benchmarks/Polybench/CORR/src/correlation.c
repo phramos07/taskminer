@@ -109,61 +109,58 @@ void correlation_OMP(DATA_TYPE *data, DATA_TYPE *mean, DATA_TYPE *stddev,
 
   // Determine mean of column vectors of input data matrix
   // Maps data once.
-    M + 1) * (N + 1)], mean[ : (M + 1)],                                       \
-                             stddev[ : (M + 1)])                               \
-                                 map(tofrom : symmat[ : (M + 1) * (N + 1)])
   {
-      for (j = 1; j < (M + 1); j++) {
-        mean[j] = 0.0;
-        int i;
-        for (i = 1; i < (N + 1); i++) {
-          mean[j] += data[i * (M + 1) + j];
-        }
-        mean[j] /= (DATA_TYPE)FLOAT_N;
-      }
-
-      // Determine standard deviations of column vectors of data matrix.
-      for (j = 1; j < (M + 1); j++) {
-        stddev[j] = 0.0;
-        int i;
-        for (i = 1; i < (N + 1); i++) {
-          stddev[j] += (data[i * (M + 1) + j] - mean[j]) *
-                       (data[i * (M + 1) + j] - mean[j]);
-        }
-
-        stddev[j] /= FLOAT_N;
-        stddev[j] = sqrt(stddev[j]);
-        if (stddev[j] <= EPS) {
-          stddev[j] = 1.0;
-        }
-      }
-
-      // i - threadIdx.x, j = threadIdx.y
-      // Center and reduce the column vectors.
+    for (j = 1; j < (M + 1); j++) {
+      mean[j] = 0.0;
+      int i;
       for (i = 1; i < (N + 1); i++) {
-        for (j = 1; j < (M + 1); j++) {
-          data[i * (M + 1) + j] -= mean[j];
-          data[i * (M + 1) + j] /= (sqrt(FLOAT_N) * stddev[j]);
-        }
+        mean[j] += data[i * (M + 1) + j];
+      }
+      mean[j] /= (DATA_TYPE)FLOAT_N;
+    }
+
+    // Determine standard deviations of column vectors of data matrix.
+    for (j = 1; j < (M + 1); j++) {
+      stddev[j] = 0.0;
+      int i;
+      for (i = 1; i < (N + 1); i++) {
+        stddev[j] += (data[i * (M + 1) + j] - mean[j]) *
+                     (data[i * (M + 1) + j] - mean[j]);
       }
 
-      // Calculate the m * m correlation matrix.
-      for (k = 1; k < M; k++) {
-        symmat[k * (M + 1) + k] = 1.0;
-        int j;
-        for (j = k + 1; j < (M + 1); j++) {
-          symmat[k * (M + 1) + j] = 0.0;
-          int i;
-          for (i = 1; i < (N + 1); i++) {
-            symmat[k * (M + 1) + j] +=
-                (data[i * (M + 1) + k] * data[i * (M + 1) + j]);
-          }
-          symmat[j * (M + 1) + k] = symmat[k * (M + 1) + j];
-        }
+      stddev[j] /= FLOAT_N;
+      stddev[j] = sqrt(stddev[j]);
+      if (stddev[j] <= EPS) {
+        stddev[j] = 1.0;
       }
     }
 
-    symmat[M * (M + 1) + M] = 1.0;
+    // i - threadIdx.x, j = threadIdx.y
+    // Center and reduce the column vectors.
+    for (i = 1; i < (N + 1); i++) {
+      for (j = 1; j < (M + 1); j++) {
+        data[i * (M + 1) + j] -= mean[j];
+        data[i * (M + 1) + j] /= (sqrt(FLOAT_N) * stddev[j]);
+      }
+    }
+
+    // Calculate the m * m correlation matrix.
+    for (k = 1; k < M; k++) {
+      symmat[k * (M + 1) + k] = 1.0;
+      int j;
+      for (j = k + 1; j < (M + 1); j++) {
+        symmat[k * (M + 1) + j] = 0.0;
+        int i;
+        for (i = 1; i < (N + 1); i++) {
+          symmat[k * (M + 1) + j] +=
+              (data[i * (M + 1) + k] * data[i * (M + 1) + j]);
+        }
+        symmat[j * (M + 1) + k] = symmat[k * (M + 1) + j];
+      }
+    }
+  }
+
+  symmat[M * (M + 1) + M] = 1.0;
 }
 
 void compareResults(DATA_TYPE *symmat, DATA_TYPE *symmat_outputFromGpu) {

@@ -47,13 +47,13 @@ void gramschmidt(DATA_TYPE *A, DATA_TYPE *R, DATA_TYPE *Q) {
   #pragma omp single
   for (k = 0; k < N; k++) {
     {
-    int tmc6 = 512 * (29);
-    int tmc5 = 512 * (25);
-    int tmc4 = 10 * (16 + tmc5 + tmc6);
-    int tmc3 = 512 * (23);
     int tmc2 = 512 * (21);
+    int tmc3 = 512 * (23);
+    int tmc5 = 512 * (25);
+    int tmc6 = 512 * (29);
+    int tmc4 = 10 * (16 + tmc5 + tmc6);
     int tm_cost1 = (24 + tmc2 + tmc3 + tmc4);
-    #pragma omp task depend(inout: A[0:262657],Q[0:262657],R[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],Q[0:262657],R[0:262657]) if(tm_cost1 > 500)
     {
     nrm = 0;
     for (i = 0; i < M; i++) {
@@ -87,13 +87,13 @@ void gramschmidt_OMP(DATA_TYPE *A, DATA_TYPE *R, DATA_TYPE *Q) {
   #pragma omp single
   for (k = 0; k < N; k++) {
     {
-    int tmc6 = 512 * (29);
-    int tmc5 = 512 * (25);
-    int tmc4 = 10 * (16 + tmc5 + tmc6);
-    int tmc3 = 512 * (23);
     int tmc2 = 512 * (21);
+    int tmc3 = 512 * (23);
+    int tmc5 = 512 * (25);
+    int tmc6 = 512 * (29);
+    int tmc4 = 10 * (16 + tmc5 + tmc6);
     int tm_cost1 = (24 + tmc2 + tmc3 + tmc4);
-    #pragma omp task depend(inout: A[0:262657],Q[0:262657],R[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],Q[0:262657],R[0:262657]) if(tm_cost1 > 500)
     {
     // CPU
     nrm = 0;
@@ -129,7 +129,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *A2) {
     {
     int tmc2 = 512 * (28);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],A2[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],A2[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       A[i * N + j] = ((DATA_TYPE)(i + 1) * (j + 1)) / (M + 1);
@@ -150,7 +150,7 @@ void compareResults(DATA_TYPE *A, DATA_TYPE *A_outputFromGpu) {
     {
     int tmc2 = 512 * (28);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],A_outputFromGpu[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],A_outputFromGpu[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < N; j++) {
       if (percentDiff(A[i * N + j], A_outputFromGpu[i * N + j]) >

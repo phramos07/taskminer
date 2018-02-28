@@ -90,19 +90,17 @@ void syrkGPU(DATA_TYPE *A, DATA_TYPE *D) {
 
   t_start = rtclock();
 
-  {
-    for (i = 0; i < N; i++) {
-      for (j = 0; j < M; j++) {
-        D[i * M + j] *= beta;
-      }
+  for (i = 0; i < N; i++) {
+    for (j = 0; j < M; j++) {
+      D[i * M + j] *= beta;
     }
+  }
 
-    for (i = 0; i < N; i++) {
-      for (j = 0; j < M; j++) {
-        int k;
-        for (k = 0; k < M; k++) {
-          D[i * M + j] += alpha * A[i * M + k] * A[j * M + k];
-        }
+  for (i = 0; i < N; i++) {
+    for (j = 0; j < M; j++) {
+      int k;
+      for (k = 0; k < M; k++) {
+        D[i * M + j] += alpha * A[i * M + k] * A[j * M + k];
       }
     }
   }

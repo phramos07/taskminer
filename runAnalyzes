@@ -51,8 +51,8 @@ $CLANG $OMP  -g -S -emit-llvm -DLARGE_DATASET ${THIS}/$1 -o result.bc
 
 $OPT -load $ST -instnamer -mem2reg -scopeTree result.bc 
 
-$OPT -load $ST -load $WTM -load $WAI -instnamer -mem2reg -writeInFile -Run-Mode=true \
-   -debug-only=print-tasks -S result.bc -o result2.bc
+$OPT -load $ST -load $WTM -load $WAI -instnamer -mem2reg -loop-simplify -writeInFile -Run-Mode=true \
+   -debug-only=print-tasks -stats -S result.bc -o result2.bc
 
 $CLANGFORM -style="{BasedOnStyle: llvm, IndentWidth: 2}" ${THIS}/$1 &> tmp.txt
 

@@ -50,7 +50,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc8 = 512 * (16);
     int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost7 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost7 > 500)
     {
     for (j = 0; j < NK; j++) {
       A[i * NK + j] = ((DATA_TYPE)i * j) / NI;
@@ -65,7 +65,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc6 = 512 * (17);
     int tm_cost5 = (9 + tmc6);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost5 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost5 > 500)
     {
     for (j = 0; j < NJ; j++) {
       B[i * NJ + j] = ((DATA_TYPE)i * (j + 1)) / NJ;
@@ -80,7 +80,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc4 = 512 * (17);
     int tm_cost3 = (9 + tmc4);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost3 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost3 > 500)
     {
     for (j = 0; j < NM; j++) {
       C[i * NM + j] = ((DATA_TYPE)i * (j + 3)) / NL;
@@ -95,7 +95,7 @@ void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
     {
     int tmc2 = 512 * (17);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       D[i * NL + j] = ((DATA_TYPE)i * (j + 2)) / NK;
@@ -115,7 +115,7 @@ void compareResults(DATA_TYPE *G, DATA_TYPE *G_outputFromGpu) {
     {
     int tmc2 = 512 * (28);
     int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: G[0:262657],G_outputFromGpu[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: G[0:262657],G_outputFromGpu[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       if (percentDiff(G[i * NL + j], G_outputFromGpu[i * NL + j]) >
@@ -145,7 +145,7 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc9 = 512 * (25);
     int tmc8 = 512 * (14 + tmc9);
     int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost7 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost7 > 500)
     {
     for (j = 0; j < NJ; j++) {
       E[i * NJ + j] = 0;
@@ -165,7 +165,7 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc6 = 512 * (25);
     int tmc5 = 512 * (14 + tmc6);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost4 > 500)
     {
     for (j = 0; j < NL; j++) {
       F[i * NL + j] = 0;
@@ -185,7 +185,7 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc3 = 512 * (25);
     int tmc2 = 512 * (14 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       G[i * NL + j] = 0;
@@ -210,7 +210,7 @@ void mm3_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc9 = 512 * (25);
     int tmc8 = 512 * (14 + tmc9);
     int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost7 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost7 > 500)
     {
     for (j = 0; j < NJ; j++) {
       E[i * NJ + j] = 0;
@@ -230,7 +230,7 @@ void mm3_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc6 = 512 * (25);
     int tmc5 = 512 * (14 + tmc6);
     int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost4 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost4 > 500)
     {
     for (j = 0; j < NL; j++) {
       F[i * NL + j] = 0;
@@ -250,7 +250,7 @@ void mm3_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     int tmc3 = 512 * (25);
     int tmc2 = 512 * (14 + tmc3);
     int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost1 > 41)
+    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost1 > 500)
     {
     for (j = 0; j < NL; j++) {
       G[i * NL + j] = 0;
