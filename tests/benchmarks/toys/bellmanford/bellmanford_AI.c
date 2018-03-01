@@ -29,7 +29,7 @@ int main(int argc, char const *argv[]) {
   clock_t beg, end;
 
   int size = atoi(argv[1]);
-  //create graph
+  // create graph
   int **G = (int **)malloc(sizeof(int *) * size);
   int i;
   for (i = 0; i < size; i++)
@@ -52,7 +52,8 @@ int main(int argc, char const *argv[]) {
   return 0;
 }
 
-void graph_bellmanFord(int **G, int *dist, int *prev, int node_start, int size) {
+void graph_bellmanFord(int **G, int *dist, int *prev, int node_start,
+                       int size) {
 // int * dist = new int[SIZE];
 // int * prev = new int[SIZE];
 
@@ -60,7 +61,7 @@ void graph_bellmanFord(int **G, int *dist, int *prev, int node_start, int size) 
   printGraph(G, size);
 #endif
 
-  //for every V in G:
+  // for every V in G:
   // dist(V) = INF
   // prev(V) = nil
   for (unsigned i = 0; i < size; i++) {
@@ -68,12 +69,12 @@ void graph_bellmanFord(int **G, int *dist, int *prev, int node_start, int size) 
     prev[i] = -1;
   }
 
-  //dist(start) = 0;
+  // dist(start) = 0;
   dist[node_start] = 0;
 
-  //repeat(|V| - 1):
-  //for every e in Edges:
-  //update(e);
+  // repeat(|V| - 1):
+  // for every e in Edges:
+  // update(e);
   #pragma omp parallel
   #pragma omp single
   for (unsigned i = 0; i < size - 1; i++)
@@ -86,8 +87,8 @@ void graph_bellmanFord(int **G, int *dist, int *prev, int node_start, int size) 
 #pragma omp taskwait
 }
 
-//update((u,v) in E)
-//dist(v) = min{dist(v), dist(u)+l(u,v)}
+// update((u,v) in E)
+// dist(v) = min{dist(v), dist(u)+l(u,v)}
 void relax_edges(int **G, int src, int dst, int *dist) {
   dist[dst] = min(dist[dst], (dist[src] + G[src][dst]));
   int dist_ = sqrt(pow(rand() - rand(), 2) + pow(rand() - rand(), 2));
