@@ -499,7 +499,7 @@ void TaskMiner::mineTasks(Module &M)
 	//Only mine the function calls that are NOT top level rec calls.
 	mineFunctionCallTasks();
 
-	mineRegionTasks(M);
+	// mineRegionTasks(M);
 }
 
 

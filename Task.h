@@ -150,6 +150,7 @@ namespace llvm
 		void setNext(RecursiveTask* next) { this->next = next; }
 		bool hasSyncBarrier() const override;
 		bool insideLoop() { return isInsideLoop; }
+		uint32_t getBaseCaseCost() const;
 
 	private:
 		RecursiveTask* prev=nullptr;
