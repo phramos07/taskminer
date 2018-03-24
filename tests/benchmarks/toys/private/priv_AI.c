@@ -8,7 +8,7 @@ char cutoff_test = 0;
 #include <omp.h>
 #include <stdlib.h>
 
-int sum_range(int *V, int N, int L, int U, int *A) {
+int sum_range(int *V, int N, int L, int *A) {
   int i = 0, sum = 0;
   #pragma omp parallel
   #pragma omp single
@@ -34,7 +34,7 @@ int sum_range(int *V, int N, int L, int U, int *A) {
     TM13[11] = TM13[10] / 4;
     TM13[12] = (TM13[11] > 0);
     TM13[13] = (TM13[12] ? TM13[11] : 0);
-    #pragma omp task depend(inout: A[0:TM13[13]],V[0:TM13[6]]) if(tm_cost1 > 6000)
+    #pragma omp task depend(inout: A[0:TM13[13]],V[0:TM13[6]])
     {
     int j = 0; // V[i];
     A[i] = 0;
@@ -50,5 +50,10 @@ int sum_range(int *V, int N, int L, int U, int *A) {
   return sum;
 }
 
-int main(int argc, char const *argv[]) { return 0; }
-
+int main(int argc, char const *argv[]) {
+	int n = atoi(argv[1]);
+	int *V = malloc(sizeof(int)*n);
+	int *A = malloc(sizeof(int)*n);
+	sum_range(V, atoi(argv[1]), atoi(argv[1])/10, A); 
+	return 0; 
+}

@@ -15,7 +15,7 @@ CFLAGS =  -I$(IDIR)
 LLVM_FLAGS = -g -S -c -emit-llvm $(CFLAGS)
 OMP_FLAGS = -fopenmp
 OPT_FLAGS = -S -mem2reg -instnamer
-IDIR = .
+IDIR = /Users/pedroramos/programs/csmith-master/runtime
 
 SERIAL_FILES = $(shell find $(SOURCEDIR) -name '*_SER.c')
 AI_FILES = $(shell find $(SOURCEDIR) -name '*_AI.c')
