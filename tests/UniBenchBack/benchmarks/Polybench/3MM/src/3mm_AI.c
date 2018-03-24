@@ -106,7 +106,7 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     TM33[2] = TM33[1] / 4;
     TM33[3] = (TM33[2] > 0);
     TM33[4] = (TM33[3] ? TM33[2] : 0);
-    #pragma omp task depend(inout: A[0:TM33[4]],B[0:262656],E[0:TM33[4]])
+    #pragma omp task depend(in: A[0:TM33[4]],B[0:262656]) depend(inout:E[0:TM33[4]])
     {
     for (j = 0; j < NJ; j++) {
       E[i * NJ + j] = 0;
@@ -132,7 +132,7 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     TM30[2] = TM30[1] / 4;
     TM30[3] = (TM30[2] > 0);
     TM30[4] = (TM30[3] ? TM30[2] : 0);
-    #pragma omp task depend(inout: C[0:TM30[4]],D[0:262656],F[0:TM30[4]])
+    #pragma omp task depend(in: C[0:TM30[4]],D[0:262656]) depend(inout:F[0:TM30[4]])
     {
     for (j = 0; j < NL; j++) {
       F[i * NL + j] = 0;
@@ -158,7 +158,7 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
     TM27[2] = TM27[1] / 4;
     TM27[3] = (TM27[2] > 0);
     TM27[4] = (TM27[3] ? TM27[2] : 0);
-    #pragma omp task depend(inout: E[0:TM27[4]],F[0:262656],G[0:TM27[4]])
+    #pragma omp task depend(in: E[0:TM27[4]],F[0:262656]) depend(inout:G[0:TM27[4]])
     {
     for (j = 0; j < NL; j++) {
       G[i * NL + j] = 0;
