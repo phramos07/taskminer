@@ -44,64 +44,28 @@ typedef float DATA_TYPE;
 void init_array(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D) {
   int i, j;
 
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NI; i++) {
-    {
-    int tmc8 = 512 * (16);
-    int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost7 > 500)
-    {
     for (j = 0; j < NK; j++) {
       A[i * NK + j] = ((DATA_TYPE)i * j) / NI;
     }
   }
-  }
-  }
 
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NK; i++) {
-    {
-    int tmc6 = 512 * (17);
-    int tm_cost5 = (9 + tmc6);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost5 > 500)
-    {
     for (j = 0; j < NJ; j++) {
       B[i * NJ + j] = ((DATA_TYPE)i * (j + 1)) / NJ;
     }
   }
-  }
-  }
 
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NJ; i++) {
-    {
-    int tmc4 = 512 * (17);
-    int tm_cost3 = (9 + tmc4);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost3 > 500)
-    {
     for (j = 0; j < NM; j++) {
       C[i * NM + j] = ((DATA_TYPE)i * (j + 3)) / NL;
     }
   }
-  }
-  }
 
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NM; i++) {
-    {
-    int tmc2 = 512 * (17);
-    int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657]) if(tm_cost1 > 500)
-    {
     for (j = 0; j < NL; j++) {
       D[i * NL + j] = ((DATA_TYPE)i * (j + 2)) / NK;
     }
-  }
-  }
   }
 }
 
@@ -109,22 +73,13 @@ void compareResults(DATA_TYPE *G, DATA_TYPE *G_outputFromGpu) {
   int i, j, fail;
   fail = 0;
 
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NI; i++) {
-    {
-    int tmc2 = 512 * (28);
-    int tm_cost1 = (11 + tmc2);
-    #pragma omp task depend(inout: G[0:262657],G_outputFromGpu[0:262657]) if(tm_cost1 > 500)
-    {
     for (j = 0; j < NL; j++) {
       if (percentDiff(G[i * NL + j], G_outputFromGpu[i * NL + j]) >
           PERCENT_DIFF_ERROR_THRESHOLD) {
         fail++;
       }
     }
-  }
-  }
   }
 
   // print results
@@ -142,10 +97,16 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
   #pragma omp single
   for (i = 0; i < NI; i++) {
     {
-    int tmc9 = 512 * (25);
-    int tmc8 = 512 * (14 + tmc9);
-    int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost7 > 500)
+    long long int TM34[0];
+    int tmc6 = 512 * (25);
+    int tm_cost5 = (14 + tmc6);
+    long long int TM33[5];
+    TM33[0] = i * 2048;
+    TM33[1] = 2048 + TM33[0];
+    TM33[2] = TM33[1] / 4;
+    TM33[3] = (TM33[2] > 0);
+    TM33[4] = (TM33[3] ? TM33[2] : 0);
+    #pragma omp task depend(inout: A[0:TM33[4]],B[0:262656],E[0:TM33[4]])
     {
     for (j = 0; j < NJ; j++) {
       E[i * NJ + j] = 0;
@@ -153,8 +114,8 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
         E[i * NJ + j] += A[i * NK + k] * B[k * NJ + j];
       }
     }
-  }
-  }
+    }
+    }
   }
 
   /* F := C*D */
@@ -162,10 +123,16 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
   #pragma omp single
   for (i = 0; i < NJ; i++) {
     {
-    int tmc6 = 512 * (25);
-    int tmc5 = 512 * (14 + tmc6);
-    int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost4 > 500)
+    long long int TM31[0];
+    int tmc4 = 512 * (25);
+    int tm_cost3 = (14 + tmc4);
+    long long int TM30[5];
+    TM30[0] = i * 2048;
+    TM30[1] = 2048 + TM30[0];
+    TM30[2] = TM30[1] / 4;
+    TM30[3] = (TM30[2] > 0);
+    TM30[4] = (TM30[3] ? TM30[2] : 0);
+    #pragma omp task depend(inout: C[0:TM30[4]],D[0:262656],F[0:TM30[4]])
     {
     for (j = 0; j < NL; j++) {
       F[i * NL + j] = 0;
@@ -173,8 +140,8 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
         F[i * NL + j] += C[i * NM + k] * D[k * NL + j];
       }
     }
-  }
-  }
+    }
+    }
   }
 
   /* G := E*F */
@@ -182,10 +149,16 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
   #pragma omp single
   for (i = 0; i < NI; i++) {
     {
-    int tmc3 = 512 * (25);
-    int tmc2 = 512 * (14 + tmc3);
-    int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost1 > 500)
+    long long int TM28[0];
+    int tmc2 = 512 * (25);
+    int tm_cost1 = (14 + tmc2);
+    long long int TM27[5];
+    TM27[0] = i * 2048;
+    TM27[1] = 2048 + TM27[0];
+    TM27[2] = TM27[1] / 4;
+    TM27[3] = (TM27[2] > 0);
+    TM27[4] = (TM27[3] ? TM27[2] : 0);
+    #pragma omp task depend(inout: E[0:TM27[4]],F[0:262656],G[0:TM27[4]])
     {
     for (j = 0; j < NL; j++) {
       G[i * NL + j] = 0;
@@ -193,8 +166,8 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
         G[i * NL + j] += E[i * NJ + k] * F[k * NL + j];
       }
     }
-  }
-  }
+    }
+    }
   }
 }
 
@@ -202,16 +175,7 @@ void mm3_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
              DATA_TYPE *E, DATA_TYPE *F, DATA_TYPE *G) {
   int i, j, k;
 
-  /* E := A*B */
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NI; i++) {
-    {
-    int tmc9 = 512 * (25);
-    int tmc8 = 512 * (14 + tmc9);
-    int tm_cost7 = (9 + tmc8);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost7 > 500)
-    {
     for (j = 0; j < NJ; j++) {
       E[i * NJ + j] = 0;
       for (k = 0; k < NK; ++k) {
@@ -219,19 +183,9 @@ void mm3_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
       }
     }
   }
-  }
-  }
 
   /* F := C*D */
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NJ; i++) {
-    {
-    int tmc6 = 512 * (25);
-    int tmc5 = 512 * (14 + tmc6);
-    int tm_cost4 = (9 + tmc5);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost4 > 500)
-    {
     for (j = 0; j < NL; j++) {
       F[i * NL + j] = 0;
       for (k = 0; k < NM; ++k) {
@@ -239,27 +193,15 @@ void mm3_OMP(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
       }
     }
   }
-  }
-  }
 
   /* G := E*F */
-  #pragma omp parallel
-  #pragma omp single
   for (i = 0; i < NI; i++) {
-    {
-    int tmc3 = 512 * (25);
-    int tmc2 = 512 * (14 + tmc3);
-    int tm_cost1 = (9 + tmc2);
-    #pragma omp task depend(inout: A[0:262657],B[0:262657],C[0:262657],D[0:262657],E[0:262657],F[0:262657],G[0:262657]) if(tm_cost1 > 500)
-    {
     for (j = 0; j < NL; j++) {
       G[i * NL + j] = 0;
       for (k = 0; k < NJ; ++k) {
         G[i * NL + j] += E[i * NJ + k] * F[k * NL + j];
       }
     }
-  }
-  }
   }
 }
 
