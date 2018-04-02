@@ -517,9 +517,9 @@ Grey boxes show sections in this paper where each phase is discussed.}
 
 \paragraph{Tasks: syntax and scope:}
 Our goal is to identify {\em tasks} in {\em structured} programs.
-A structured program is a program that can be partitioned in {\em hammock
-regions}, a concept introduced by Ferrante {\em et al.}~\cite{Ferrante87} in
-the middle 80's.
+In the context of this work, a structured program is a program that can be
+partitioned in {\em hammock regions}, a concept introduced by Ferrante
+{\em et al.}~\cite{Ferrante87} in the middle 80's.
 For completeness, we re-state it in Definition~\ref{def:hammock}.
 Definition~\ref{def:task} formalizes the notion of task.
 
@@ -527,7 +527,7 @@ Definition~\ref{def:task} formalizes the notion of task.
 \label{def:hammock}
 A Control Flow Graph $G$ is a directed graph with a starting node $s$, and an
 exit node $x$.
-A hammock region $G$ is a subgraph of $G$ with a node $h$ that
+A hammock region $G'$ is a subgraph of $G$ with a node $h$ that
 {\em dominates}\footnote{A node $n_1 \in G$ dominates another node
 $n_2 \in G$ if every path from  $S$ to $n_2$ goes across $n_1$.
 Inversely, $n_1$ post-dominates $n_2$ if every path from $n_2$ to $x$ must
@@ -575,7 +575,7 @@ In this example, each hammock region is formed by one function call:
 \includegraphics[width=1\columnwidth]{images/ex_depends}
 
 \paragraph{The annotation zoo.}
-Our equipment of choice to reveal task parallelism in programs is OpenMP 4.0.
+Our equipment of choice to exploit task parallelism in programs is OpenMP 4.0.
 %This annotation system lets us indicate to compiler
 %and runtime environment when and how tasks must be created.
 We describe below which annotations we are using, and explain, informally, their
@@ -672,8 +672,8 @@ There are several different implementations publicly available, and we have
 adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
 reuses work from Blume {\em et al.}~\cite{Blume94}.
 The only extensions that we have added into \dawn's implementation was
-the ability to handle \textsf{structs}.
-Therefore, we shall not provide further details about part of our work.
+the ability to handle C-like \textsf{structs}.
+Therefore, we shall not provide further details about this part of our work.
 To understand the rest of this paper, it suffices to know that this implementation
 is sufficiently solid to handle the entire C99 language, always terminates, and
 runs in time linear on the size of the program's dependence graph.
@@ -725,8 +725,8 @@ unmistakable:
 \begin{definition}[Windmill -- \cite{Rideau08}]
 \label{def:windmill}
 A windmill is a graph $G_w = G_c \cup G_{v1} \cup \ldots \cup G_{vn}$ formed by
-a strongly connected component $G_c$, its center, plus $n$ components (not
-necessarily strong) $G_{vi}$, the vanes, such that:
+a strongly connected component $G_c$ (its center), plus $n$ components, not
+necessarily strong, $G_{vi}$, the vanes, such that:
 \begin{compactenum}
 \item for any topological ordering of $G_w$, and nodes $n_c \in G_c$,
 $n_v \in G_{vi}$, we have $n_c$ ahead of $n_v$;
@@ -913,23 +913,19 @@ In this context, we call $H_2$ the {\em parent} of $H_1$.
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/expand_alg}
 \caption{Task discovery via expansion of hammock regions.
-\textsf{COST} is the overhead of creating and scheduling threads, as determined
-by a cost model.}
+\textsf{COST} is the overhead of creating and scheduling threads.}
 \label{fig:expand_alg}
 \end{center}
 \end{figure}
 
-The boolean \textsf{CanExpand} in Figure~\ref{fig:expand_alg} is determined by
-the routine \textsf{checkExpansion}.
-This function remains true for as long as the following conditions apply with
-respect to its input \textsf{VANE}:
-(i) \textsf{VANE} is a hammock region with the structural properties of a
+The routine \textsf{checkExpansion} sets the boolean \textsf{CanExpand} in
+Figure~\ref{fig:expand_alg}.
+This function is true as long as the following conditions apply:
+(i) \textsf{VANE} has the structural properties of a
 windmill's vane, i.e., it is contained within a windmill $W$;
-(ii) we can analyze all the memory regions within \textsf{VANE} using the
+(ii) we can analyze the memory regions within \textsf{VANE} using the
 symbolic range analysis of Section~\ref{sub:sra};
 (iii) \textsf{VANE} does not depend on another vane inside the same windmill $W$.
-In the rest of this section, we shall use Figure~\ref{fig:ex_expansion} to
-explain these conditions.
 
 \begin{figure}[h]
 \begin{center}
@@ -944,7 +940,7 @@ $D$ is the set of variables the vane depends on.}
 \end{figure}
 
 The program in Figure~\ref{fig:ex_expansion} (a), which is a slight variation of
-the code earlier seen in Figure~\ref{fig:ex_regions}, contains two windmills.
+the code earlier seen in Figure~\ref{fig:ex_Regions}, contains two windmills.
 The first consists in the \textsf{for} loop at line 1.
 The second, nested in the first, is the \textsf{for} loop at line 2.
 The vanes that sprout from these windmills, are highlighted in the program
@@ -959,9 +955,148 @@ On the other hand, \textsf{Vane-2} can be expanded to include also
 \textsf{Vane-3}, as this expansion does not create new dependences between vanes
 in the same windmill.
 
-\subsection{Limiting the Creation of Recursive Tasks}
-\label{sub:rec}
+\paragraph{Rational:}
+We expand tasks up to a certain threshold \textsf{COST}, which is determined
+by the cost model mentioned in Section~\ref{sub:profit}.
+If the profitability of a task is less than this constant, then parallelism
+might not pay off the cost of managing threads.
+However, if we expand tasks too much, then we might not have much parallelism,
+because code within a task is executed sequentially.
+Thus, determining \textsf{COST} is essential to the performance of our
+optimization.
+In this work, we have determined this parameter empirically for the
+runtime environment to be described in Section~\ref{sec:eval}.
 
+\subsection{Privatization}
+\label{sub:variance}
+
+\Taskminer{} bestow a parallel semantics on code that has been originally
+conceived to run sequentially.
+This semantic gap might lead to race conditions.
+Race conditions happen when annotations cause two or more threads to update
+values that, in the sequential program, are denoted by the same name.
+To avoid such situations, the insertion of annotations requires us to replicate
+some values, making them private to each task.
+We have named such replication {\em privatization}.
+
+\begin{example}[Privatization]
+\label{ex:priv}
+Variables \textsf{i} and \textsf{j} in Figure~\ref{fig:ex_privatize} need to be
+replicated among the tasks that the annotation at line 8 creates.
+The need to replicate \textsf{j} is more apparent: this variable is updated in
+the body of the task pragma, at line 9.
+In the absence of replication, we have a race condition.
+Variable \textsf{i} must also be replicated.
+Each iteration of the loop at line 9 reads a different value of \textsf{i}.
+Thus, each task should receive a different value in this variable.
+In the absence of replication, all the threads would read the same value;  hence,
+parallelization would change the semantics of the program.
+\end{example}
+
+\begin{definition}[The Private Requirement]
+\label{def:private}
+If a variable name has scalar type and contains at least one def-use chain that
+enters the frontier of a task, then this name is said to bear the {\em private
+requirement}.
+The frontier of a task is determined by the \textsf{expand} function seen in
+Figure~\ref{fig:expand_alg}.
+\end{definition}
+
+\begin{example}
+\label{ex:priv_2}
+Variable \textsf{i} must be privatized because it is defined at lines 2 and 10 of
+Figure~\ref{fig:ex_privatize}, and is used at line 9 -- the body of a new task.
+Moreover, this variable has a scalar type, e.g., \textsf{int}.
+Similarly, variable \textsf{j} is defined at line 6, and is used at line 9.
+This property -- the existence of def-use chains entering the task region --
+leads to the insertion of the \textsf{firstprivate} clause at line 8 of
+Figure~\ref{fig:ex_privatize}.
+\end{example}
+
+\noindent
+\paragraph{firstprivate vs depend:} according to Definition~\ref{def:private},
+only names representing scalar values are privatized.
+These names have {\em value semantics}, i.e., they are ``passed
+by copy" if used as actual arguments of functions.
+Memory regions, that is to say, regions whose access happens through pointers,
+are not privatized.
+These regions are, instead, marked as dependences of the task, through the
+\textsf{depend} clause.
+Memory regions are discovered via the symbolic region analysis of
+Section~\ref{sub:sra}.
+In addition to pointers, we do not privatize values defined within
+a task region, and used outside it.
+That is to say: we privatize incoming def-use chains, but do not privatize
+outgoing chains.
+Values having this ``outgoing chain property" are shared by default.
+We indicate this semantics via the \textsf{default(shared)} pragmas, as seen
+in line 8 of Figure~\ref{fig:ex_privatize}.
+
+\subsection{Mapping IR onto Source Code}
+\label{sub:ir}
+
+% Explain rational
+The analyses described in Sections~\ref{sub:sra}-\ref{sub:variance} have
+been implemented at the level of the LLVM intermediate representation.
+We chose to implement those techniques at that level to benefit from the support
+of several data-flow analyses already in place in the LLVM infra-structure.
+In particular, this decision lets us reuse LLVM's scalar
+evolution~\cite[p.18]{Grosser12}, from which we derive our symbolic analysis.
+Additionally, we could reuse LLVM's program dependence graph, and its suite of
+powerful alias analyses.
+This toolbox gave us the necessary means to disambiguate pointers, albeit
+conservatively, and estimate safe limits to memory regions.
+However, our annotations are still inserted in C programs.
+Having them in a high-level programming language has two main advantages:
+they are human-readable, and thus can be debugged, and they are compatible with
+compilers other than \textsf{clang}, such as \textsf{gcc}.
+Thus, a major part of this work was the engineering effort to map
+information from LLVM's intermediate representation back into C.
+
+% Explain machinery: scope tree and simplification
+\noindent
+\textbf{The Scope Tree:}
+To recover high-level information from the low-level IR, we have designed a
+supporting data-structure henceforth named the {\em scope tree}.
+The scope tree maps hammock regions into C constructions, such as
+\textsf{while} and \textsf{if-then-else} blocks.
+Each node of this graph represents a hammock region, augmented with
+meta-information, such as the program part that it represents.
+We keep track of these program parts via debugging information, which is
+appended into the LLVM IR via the \textsf{-g} flag passed to the \textsf{clang}
+compiler.
+We have an edge from node $s_1$ to node $s_2$ if region $s_2$ is nested
+within region $s_2$.
+In the absence of control-flow optimizations such as loop unrolling or
+dead-code elimination, each hammock region corresponds to some structured
+code block (code region delimitable by braces).
+Thus, we can find line numbers for each of the regions that we have marked
+as tasks after the expansion seen in Section~\ref{sub:expansion}.
+
+\noindent
+\textbf{Simplification:}
+before we annotate programs, we proceed to simplify these annotations.
+Simplification happens via a system of rewriting rules, which explores 
+identities.
+Typical identifies include, for instance, $x + 0 = x$,
+$\mathsf{max}(x, x) = x$ and $c \times \mathsf{max}(x, y) =
+\mathsf{max}(c \times x, c \times y)$.
+Identities are applied iteratively, until a fixed-point is reached.
+Because we do not support commutativity, a fixed-point is guaranteed to be
+always reached.
+Notice that the source code that we produce is not totally equivalent to the
+original program augmented with annotations.
+To be able to insert annotations, we format the original code.
+This operation involves, for instance, breaking lines containing multiple
+statements, and inserting delimiting braces within every block in the program,
+even one-liners.
+This said, it is still possible that a task, after expansion, maps to a single
+line that contains multiple statements, such as nested function calls.
+In this case, we do not annotate the target program.
+Section~\ref{sec:eval} provides data about \Taskminer's capacity to
+annotate real-world programs.
+
+\paragraph{Bounding Recursive Tasks}
 Although the OpenMP runtime guarantees correctness, its scheduling policy
 is heavily jeopardized by the excessive queueing up of tasks. Specifically, algorithms
 such as \emph{SparseLU} and \emph{FFT} can suffer bloat because of
@@ -977,68 +1112,6 @@ too small. This technique is illustrated in Figure \ref{fig:ex_cutoff}.
 This parameter's default value is very conservative and so can be easily switched off
 or set by the user. 
 
-\subsection{Separating Private from Shared Variables}
-\label{sub:variance}
-
-As described in Challenge \ref{ch:privatize}, the need for privatization of variables
-arises when tasks write on or read from variables that are shared among tasks but, instead,
-should be private for each task. To distinguish variables that should be replicated among tasks
-from those who shouldn't, we mapped this problem into a simple flow analysis, described
-as follows.
-
-\begin{definition}[Privatization]
-\label{def:privatize}
-A variable $X$ should be made private in a Task Region $T$ if the 
-\emph{Definition-Use Chain} of $X$ crosses
-the frontier of the task creation of $T$.
-\end{definition}
-
-This means that, if a variable $X$ is defined prior to the entry point of $T$, and then
-it is used (read/write) inside $T$, then it should be made private. Figure \ref{fig:ex_privatize}
-shows an example of privatization. 
-
-We only privatize values, not pointers. And for a matter of conservativeness, we set all the
-variables shared by default, and then we run the privatization analysis afterwards to pin out
-variables that should be made private.
-
-\subsection{Mapping IR onto Source Code}
-\label{sub:ir}
-
-All the analyses and techniques described previously in this section are made upon
-an \emph{intermediate representation} (IR) of the program. None of our work would
-be made possible if we couldn't recover information from the IR back to Source Code.
-{\Taskminer} needs not only to insert \emph{pragmas}
-around task regions, but also recover array bounds information and preserve
-soundness regarding scope. The bridge between IR and Source Code information
-has 3 main obstacles to be crossed over:
-
-\begin{compactitem}
-\item \textsf{Source Code mapping}: The first problem is, given a set of instructions in the IR,
-how to map them back to the source code file. {\Taskminer} compiles the source code
-with debugging flags on, in order to extract debugging information that maps
-instructions to lines of code. With these lines of code in hands, we then have to deal
-with two more problems before annotation: scope breaking and array bounds information.
-
-\item \textsf{Array bounds}: To recover array bounds information, we rely on strong 
-alias analyses \pedro{References here?}. We link several kinds of instructions such as
-loads, stores, array indexing and other pointer arithmetic instructions to 
-trace back information to Source Code. We build a symbolic range analysis
-for each pointer, map them to all loads and stores in the program and then come up with
-lower and upper bounds for each. If we cannot properly define the range for all pointers 
-inside a task region, \emph{we don't annotate the task.}
-
-\item \textsf{Scope}: Once the task region is defined in terms of basic blocks in 
-the \emph{Control Flow Graph} in the IR, a problem of scope breaking arises when
-inserting \emph{pragmas} around code fragments in the Source Code. To work around
-this problem, we build a \emph{Scope Tree} in LLVM's front-end (Clang) and before
-we annotate the tasks, we check if the region mapped back to Source Code will break
-any scope in the original program. The scope-breaking risk appears when many instructions
-inside basic blocks map back to their definition (instead of their uses) in the source code,
-which sometimes are outsite the region defined as a task. When that happens, we opt 
-not to annotate the task, because we can't recover enough information to correctly annotate
-the original code.
- 
-\end{compactitem}
 
 \section{Evaluation}
 \label{sec:eval}
