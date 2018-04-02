@@ -3,6 +3,8 @@
 
 #include "Task.h"
 
+#include <stack>
+
 using namespace llvm;
 
 std::set<Value*> Task::getLiveIN() const { return liveIN; }
@@ -380,6 +382,7 @@ raw_ostream& RecursiveTask::print(raw_ostream& os) const
 	printLiveSets(os);
 	printPrivateValues(os);
 	CM.print(os);
+	os << "Total Insts: " << getBaseCaseCost() << "\n";
 
 	return os;	
 }
@@ -413,6 +416,59 @@ void RecursiveTask::resolvePrivateValues()
 		if (isPointerValue(arg) && isa<AllocaInst>(arg))
 			sharedValues.insert(arg);
 	}
+}
+
+uint32_t RecursiveTask::getBaseCaseCost() const
+{
+	uint32_t totalInsts = 0;
+	std::stack<Function*> functions;
+	Function* F = recursiveCall->getCalledFunction();
+	for (Function::iterator bb = F->begin(); bb != F->end(); ++bb)
+	{
+		for (BasicBlock::iterator inst = bb->begin(); inst != bb->end(); ++inst)
+		{
+			// errs() << "Counting inst: ";
+			// inst->print(errs());
+			totalInsts++;
+			if (CallInst* CI = dyn_cast<CallInst>(inst))
+			{
+				if (CI->getCalledFunction() == F || CI->getCalledFunction()->empty())
+					continue;
+				// errs() << "Push into the stack: ";
+				// CI->print(errs());
+				// errs() << "\n";
+				functions.push(CI->getCalledFunction());
+			}
+		}
+	}
+
+	while (!functions.empty()) 
+	{
+		auto F = functions.top();
+		functions.pop();
+		// errs() << "Pop the stack: ";
+		// errs() << F->getName();
+		// errs() << "\n";
+
+		if (F->empty() || F->isIntrinsic())
+			continue;
+		for (auto bb = F->begin(); bb != F->end(); ++bb)
+			for (auto inst = bb->begin(); inst != bb->end(); ++inst)
+			{
+				totalInsts++;
+				if (CallInst* CI = dyn_cast<CallInst>(inst))
+				{
+					// errs() << "Push into the stack: ";
+					// CI->print(errs());
+					// errs() << "\n";
+					if (CI->getCalledFunction() == F || CI->getCalledFunction()->empty())
+						continue;
+					functions.push(CI->getCalledFunction());
+				}
+			}
+	}
+
+	return totalInsts;
 }
 
 bool RegionTask::resolveInsAndOutsSets()
