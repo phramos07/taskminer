@@ -256,7 +256,7 @@ Third, it extracts parameters from the code to estimate when it is profitable to
 create tasks.
 These parameters feed conditional checks, which, at runtime, enable or disable
 the creation of tasks (Section~\ref{sub:profit}) and limit their recursion
-depth (Section~\ref{sub:rec}).
+depth (Section~\ref{sub:ir}).
 Fourth, \Taskminer{} determines which program variables need to be 
 privatized in new tasks, or shared among them (Section~\ref{sub:variance}).
 Finally, it maps all this information back into source code, producing
@@ -427,8 +427,8 @@ instructions. This is further explained in Section \ref{sub:profit}.
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/ex_cutoff}
-\caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks with
-counter associated with function calls.}
+\caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks.
+Example taken from~\cite[Fig.1]{Iwasaki16}.}
 \label{fig:ex_cutoff}
 \end{center}
 \end{figure}
@@ -443,7 +443,7 @@ We introduce Challenge~\ref{ch:cutoff} by quoting Duran {\em et al.}:
 performance is the use of a cut-off technique to reduce the number of tasks
 created}"~\cite{Duran08b}.
 This observation is particularly true in the context of recursive, fine-grain,
-tasks, as we analyze in Section~\ref{sub:rec}.
+tasks, as we analyze in Section~\ref{sub:ir}.
 Figure~\ref{fig:ex_cutoff} provides an example.
 To place a limit on the number of tasks simultaneously in flight, we associate
 the invocation of recursive functions annotated with task pragmas with a
@@ -939,32 +939,33 @@ $D$ is the set of variables the vane depends on.}
 \end{center}
 \end{figure}
 
-The program in Figure~\ref{fig:ex_expansion} (a), which is a slight variation of
-the code earlier seen in Figure~\ref{fig:ex_Regions}, contains two windmills.
-The first consists in the \textsf{for} loop at line 1.
+The program in Figure~\ref{fig:ex_expansion} (a), a slight variation of
+the code seen in Figure~\ref{fig:ex_Regions}, contains two windmills.
+The first consists of the \textsf{for} loop at line 1.
 The second, nested in the first, is the \textsf{for} loop at line 2.
-The vanes that sprout from these windmills, are highlighted in the program
-dependence graph seen in Figure~\ref{fig:ex_expansion} (b).
-The figure shows that we have three task candidates, each one formed by a
+The vanes that sprout from these windmills are highlighted in the program
+dependence graph in Figure~\ref{fig:ex_expansion} (b).
+The figure shows that we have three task candidates, each formed by a
 different vane.
-In order to find the actual tasks, we apply function \textsf{expand}
+To find the actual tasks, we apply function \textsf{expand}
 (Fig.~\ref{fig:expand_alg}) onto the innermost vanes: \textsf{Vane-2} and
 \textsf{Vane-3}.
-The latter cannot be further expanded, because it depends on the former.
-On the other hand, \textsf{Vane-2} can be expanded to include also
+The latter cannot be expanded, as it depends on the former.
+On the other hand, \textsf{Vane-2} can be expanded to include
 \textsf{Vane-3}, as this expansion does not create new dependences between vanes
 in the same windmill.
 
-\paragraph{Rational:}
-We expand tasks up to a certain threshold \textsf{COST}, which is determined
-by the cost model mentioned in Section~\ref{sub:profit}.
+\noindent
+\textbf{Rational:}
+We expand tasks up to the \textsf{COST} threshold, which is determined
+by the cost model seen in Section~\ref{sub:profit}.
 If the profitability of a task is less than this constant, then parallelism
 might not pay off the cost of managing threads.
-However, if we expand tasks too much, then we might not have much parallelism,
-because code within a task is executed sequentially.
+However, if we expand tasks too much, then we might lose parallelism,
+as code in a task runs sequentially.
 Thus, determining \textsf{COST} is essential to the performance of our
 optimization.
-In this work, we have determined this parameter empirically for the
+In this work, we have set this parameter empirically for the
 runtime environment to be described in Section~\ref{sec:eval}.
 
 \subsection{Privatization}
@@ -1097,21 +1098,49 @@ Section~\ref{sec:eval} provides data about \Taskminer's capacity to
 annotate real-world programs.
 
 \paragraph{Bounding Recursive Tasks}
-Although the OpenMP runtime guarantees correctness, its scheduling policy
-is heavily jeopardized by the excessive queueing up of tasks. Specifically, algorithms
-such as \emph{SparseLU} and \emph{FFT} can suffer bloat because of
-too many tasks in the Task Graph\cite{Huynh17}.
+During the evaluation of the \Taskminer, we observed that recursive
+programs experienced performance regressions due to the excessive creation
+of tasks.
+To avoid this kind of slowdown, we currently give users the possibility to
+bound the number of threads ever in flight, via a command line option, e.g.,
+\textsf{./Taskminer -r 12} will limit the number of tasks to 12.
+We implement this feature directly at the source code level, as part of the
+final annotation of code.
+Our solution is simple, yet, as the reader shall perceive in
+Section~\ref{sec:eval}, it brings non-negligible benefits onto recursive
+benchmarks.
+Task bounding is implemented via a global variable, statically linked in the
+program.
+This variable is \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
+We insert code to increment it at the beginning of recursive functions that
+are invoked within task regions, and we insert code to decrement it at each
+return point of said functions.
 
-To solve this problem, we conservatively limit the number of tasks
-that can be created tied to the same Task Region. We do that by two means:
-(1) limiting the creation of recursive tasks by depth; (2) limiting the creation of 
-tasks in the whole program. We do that by setting up static variables to count up
-the depth level in recursive calls. When the depth reaches a certain level, which
-can be defined by the user, task dispatch will be halted, avoiding creation of tasks that are
-too small. This technique is illustrated in Figure \ref{fig:ex_cutoff}. 
-This parameter's default value is very conservative and so can be easily switched off
-or set by the user. 
+\begin{example}[Task Bounding]
+Figure~\ref{fig:ex_cutoff} illustrates the strategy that we
+use to limit the number of tasks in flight due to recursive function
+invocation.
+The parameter \textsf{DEPTH\_CUTOFF} is determined by \Taskminer's users.
+\end{example}
 
+There are more involved ways to bound the number of tasks.
+We believe that the state-of-the-art in the field today is the work of
+Iwasaki and Taura~\cite{Iwasaki16,Iwasaki16B}.
+These authors propose different techniques to limit the creation of tasks,
+be it through the replication of code, be it through the estimation of work,
+given function inputs.
+Pragmas for the conditional creation of tasks, such as the one seen in
+lines 7 and 10 of Figure~\ref{fig:ex_cutoff}, lets us obtain much of the benefit
+of code versioning, as proposed by Iwasaki and Taura.
+However, we found work estimation of recursive functions a task too difficult
+to accomplish in general.
+Quoting~\cite[p.355]{Iwasaki16}: ``{\em there are tasks which essentially do not
+have simple termination conditions (e.g., tasks traversing pointer-based
+trees)}".
+Thus, although simple, our recursion counters are general enough, handling even
+such tasks that are hard to bound symbolically.
+Nevertheless, we still would like to explore further ways to cut-off extremely
+fine-grained tasks in the future.
 
 \section{Evaluation}
 \label{sec:eval}
