@@ -1150,29 +1150,33 @@ fine-grained tasks in the future.
 
 % In the past there has been not much opportunity to take advantage of parallelism on 2 core platforms (especially notebook designs used to limit the number of real cores), but with 6 or 8 core processors entering the main stream, we may take advantage of running more processors slower (lower voltage) or spreading out the workload over a larger die area. It is quite interesting to note that running one core hot will increase the leakage in that area of the die much more (exponentially with temperature), so distributing work over a larger die area results in reduced leakage - having said that, a similar effect can be achieved by migrating the workload from core to core.
 
-\paragraph{On the Implementation of \Taskminer.}
 We have implemented all the techniques described in this paper in
 LLVM~\cite{Lattner04}.
 This decision was motivated by two factors.
 First, the possibility to reuse all the infra-structure already
 available in LLVM to infer symbolic bounds of integer
 expressions~\cite{Mendonca17}.
-Second, given the state-of-the-art support that LLVM already provides to the
-compilation of OpenMP~\cite{Bertolli14,Martineau16,Samuel16}.
-
-We performed a thorough evaluation on \Taskminer{}'s applicability in real programs. Our test framework is divided in five aspects:
-
+Second, the state-of-the-art support that LLVM already provides to the
+compilation of OpenMP~\cite{Antao16,Bertolli14,Martineau16,Samuel16}.
+In this section, we evaluate this implementation, focusing on four research
+questions:
+%
 \begin{compactitem}
-\item \textsf{Performance}: we run \Taskminer on the BOTS Benchmark and show that the programs annotated by taskminer are sometimes as fast as programs annotated manually, and never slower than their sequential counterparts, thus proving it to be a conservative and useful technique. 
-\item \textsf{Optimizations}: we show some optimizations that can be applied to \Taskminer in order to improve performance of the annotated programs.
-\item \textsf{Versatility}: we demonstrate \Taskminer's versatility when it is able to find tasks in several different program paradigms.
-\item \textsf{Applicability}: we run \Taskminer on larger benchmarks to show the potential of finding task parallelism in big applications.
-\item \textsf{Practicality}: here we present \Taskminer's runtime and show that it can be easily used by a programmer to find task parallelism in applications. We evidence \Taskminer's practicality when compared to the method of manually finding parallelism, determining data dependences annotating the program.
+\item \textsf{[Performance]}: how do our automatically annotated programs
+compare against their sequential counterparts, or against manually annotated
+versions?
+\item \textsf{[Optimizations]}: what is the impact of the cost model
+(Section~\ref{sub:profit}) and recursion bounding (Section~\ref{sub:ir}) onto
+the programs that we annotate?
+\item \textsf{[Versatility]}: how effective is \Taskminer{} in finding
+opportunities to annotate general benchmarks?
+\item \textsf{[Scalability]}: what is the runtime complexity of our
+implementation of \Taskminer?
 \end{compactitem}
 
 %PERFORMANCE
 %Here, we show the results for our small benchmarks (toys & bots)
-\textbf{\textit{Performance}}. 
+\subsection{Performance}. 
 
 \begin{figure}[t!]
 \begin{center}
@@ -1188,7 +1192,7 @@ annotation (this paper) onto the original programs.}
 %OPTIMIZATIONS
 %Here, we show the results on two big optimizations: recursion depth and cost model.
 %We can use the same benchmarks as above.
-\textbf{\textit{Optimizations}}.
+\subsection{Optimizations}.
 
 \begin{figure}[t!]
 \begin{center}
@@ -1203,7 +1207,7 @@ non-trivial speedups.}
 %VERSATILITY
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
 %And the types of tasks that are going to be mined can be easily set, should the programmer ever desires to.
-\textbf{\textit{Versatility}}.
+\subsection{Versatility}.
 
 \begin{table}[h]
 \centering
@@ -1229,14 +1233,7 @@ non-trivial speedups.}
 
 %APPLICABILITY
 %We'll show TaskMiner application on larger benchmarks, such as those of spec or those of the LLVM's test-suite.
-\textbf{\textit{Applicability}}.
-
-
-%PRACTICALITY
-%The main objective here is to show that TaskMiner can be easily utilized by a programmer to find tasks in their source code. 
-%We'll test TaskMiner's running time.
-\textbf{\textit{Practicality}}.
-
+\subsection{Scalability}.
 
 \section{Related Work}
 \label{sec:rw}
