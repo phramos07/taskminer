@@ -305,7 +305,8 @@ In particular, the runtime lets us circumvent the shortcomings that pointer alia
 impose on the automatic parallelization of code.
 Aliasing -- the possibility of two pointers dereferencing the same
 memory region -- either prevents parallelism altogether, or forces compilers to
-resort to complex runtime checks to ensure its correctness~\cite{Alves15,Rus02}.
+resort to complex runtime checks to ensure its
+correctness~\cite{Alves15,Ravishankar14}.
 The OpenMP runtime shields us from this problem, because
 it already checks for dependencies among tasks, and dispatches them in a
 correct order~\cite{LaGrone11}.
