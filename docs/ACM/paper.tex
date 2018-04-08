@@ -154,16 +154,17 @@ Programs]
 This paper reports the design and implementation of a suit of static analyses
 and code generation techniques to annotate programs with OpenMP pragmas for
 task parallelism.
-These techniques deal with problems such as the discovery and use of program
-symbols to estimate the profit of tasks, bound their recursive depth and limit
-the memory regions onto which they operate.
-These techniques have been implemented into the first source-to-source
-compiler able to insert OpenMP pragmas into C/C++ programs without human
-intervention.
-By building onto the solid collection of static analyses available in LLVM,
-and relying on OpenMP's runtime ability to disambiguate pointers, we show that
-we can annotate large and convoluted programs, often replicating the performance
-gains of handmade annotation.
+These techniques approximate the ranges covered by memory regions, bound
+recursive tasks and estimate the profitability of tasks.
+We have used these ideas to implement a source-to-source compiler that inserts 
+OpenMP pragmas into C/C++ programs without any human intervention.
+By building onto the static program analysis literature, and relying on OpenMP's
+runtime ability to disambiguate pointers, we show that we can annotate large and
+convoluted programs, often replicating the performance gains of handmade
+annotation.
+Furthermore, our techniques give us the means to discover, without any 
+development cost, opportunities of parallelism that remained buried in the syntax 
+of well-known benchmarks for many years.
 \end{abstract}
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -664,13 +665,13 @@ E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E
 \end{definition}
 
 % How we do it.
-The program symbols mentioned in Definition~\ref{def:sra} are names that cannot be
-reconstruct as functions of other names.
+The program symbols mentioned in Definition~\ref{def:sra} are names that cannot 
+be reconstruct as functions of other names.
 Examples include global variables, function arguments, and values returned by
 external functions.
-Symbolic range analysis is not a contribution of this paper.
-There are several different implementations publicly available, and we have
-adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
+Symbolic range analysis is not a contribution of this paper: several
+implementations of it exist.
+We have adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
 reuses work from Blume {\em et al.}~\cite{Blume94}.
 The only extensions that we have added into \dawn's implementation was
 the ability to handle C-like \textsf{structs}.
@@ -812,8 +813,7 @@ such that $W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
 
 Definition~\ref{def:swe} is too unconstrained: a function $W(G) = 0$ for any $G$
 satisfies it.
-Naturally, we would like $W$ to approximate the 
-dynamic behavior of programs.
+However, we want $W$ to approximate the dynamic behavior of programs.
 The literature contains heuristics to implement $W$.
 Perhaps, the best-known among these heuristics is the static profiler of
 Wu and Larus~\cite{Wu94}.
@@ -1151,14 +1151,17 @@ fine-grained tasks in the future.
 
 % In the past there has been not much opportunity to take advantage of parallelism on 2 core platforms (especially notebook designs used to limit the number of real cores), but with 6 or 8 core processors entering the main stream, we may take advantage of running more processors slower (lower voltage) or spreading out the workload over a larger die area. It is quite interesting to note that running one core hot will increase the leakage in that area of the die much more (exponentially with temperature), so distributing work over a larger die area results in reduced leakage - having said that, a similar effect can be achieved by migrating the workload from core to core.
 
-We have implemented all the techniques described in this paper in
-LLVM~\cite{Lattner04}.
-This decision was motivated by two factors.
-First, the possibility to reuse all the infra-structure already
-available in LLVM to infer symbolic bounds of integer
-expressions~\cite{Mendonca17}.
-Second, the state-of-the-art support that LLVM already provides to the
-compilation of OpenMP~\cite{Antao16,Bertolli14,Martineau16}.
+\noindent
+\textbf{Runtime Environment:}
+We have implemented the techniques described in this paper in
+LLVM 3.9~\cite{Lattner04}.
+All our experiments were performed in a 64-bits 12-core Intel(R) Xeon(R) CPU
+E5-2620 at 2.00GHz, with 32K of L1 cache, 256K of L2 cache, 15M of L3 cache and
+15Gb of main memory.
+We use OpenMP 4.5, from November of 2015.
+
+\noindent
+\textbf{Research Questions:}
 In this section, we evaluate this implementation, focusing on four research
 questions:
 %
@@ -1175,9 +1178,21 @@ opportunities to annotate general benchmarks?
 implementation of \Taskminer?
 \end{compactitem}
 
+\noindent
+\textbf{Benchmarking:}
+we have used different benchmarks in our experiments.
+In Sections~\ref{sub:performance} and~\ref{sub:optimizations} we use
+\textsf{BSC-Bots}\footnote{\url{https://github.com/bsc-pm/bots/tree/master/serial}} and \textsf{Swan}\footnote{\url{http://cuda.dcc.ufmg.br/swan/}}~\cite{Moreira17}.
+In Section~\ref{sub:versatility} we use the LLVM test suite, and in
+Section~\ref{sub:scalability} we use random programs produced with
+\textsf{CSmith}~\cite{Yang11}.
+Runtime numbers are averages of five executions.
+We have not changed manually any of the benchmarks.
+
 %PERFORMANCE
 %Here, we show the results for our small benchmarks (toys & bots)
-\subsection{Performance}. 
+\subsection{Performance}.
+\label{sub:performance}
 
 \begin{figure}[htb]
 \begin{center}
@@ -1194,6 +1209,7 @@ annotation (this paper) onto the original programs.}
 %Here, we show the results on two big optimizations: recursion depth and cost model.
 %We can use the same benchmarks as above.
 \subsection{Optimizations}.
+\label{sub:optimizations}
 
 \begin{figure}[htb]
 \begin{center}
@@ -1209,6 +1225,7 @@ non-trivial speedups.}
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
 %And the types of tasks that are going to be mined can be easily set, should the programmer ever desires to.
 \subsection{Versatility}.
+\label{sub:versatility}
 
 \begin{table}[h]
 \centering
@@ -1235,6 +1252,7 @@ non-trivial speedups.}
 %APPLICABILITY
 %We'll show TaskMiner application on larger benchmarks, such as those of spec or those of the LLVM's test-suite.
 \subsection{Scalability}.
+\label{sub:scalability}
 
 \section{Related Work}
 \label{sec:rw}
@@ -1261,7 +1279,7 @@ tejedor:hpdc:2011} and OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}  which have
 been extensively used to task-parallelize applications. Such
 programming models come with tools that help programmers find the
 best annotations for their code. For example,  Tareador
-\cite{ayguade:wcae:2015} enables a programmer, by means of a graphical interface,
+\cite{Ayguade15} enables a programmer, by means of a graphical interface,
 to annotate sequential code, thus allowing the identification of potential task
 parallelization opportunities.
 Contrary to Tareador,  this paper proposes an approach that enables the
