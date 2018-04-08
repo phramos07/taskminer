@@ -34,7 +34,7 @@
 
 %% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
-\citestyle{acmauthoryear}
+%\citestyle{acmauthoryear}
 
 %% Packages that we are using in this version of the work:
 \usepackage{amsmath}
@@ -1239,56 +1239,79 @@ non-trivial speedups.}
 \section{Related Work}
 \label{sec:rw}
 
+Mainstream compilers have only recently added support to OpenMP 4.0's task
+parallelism.
+An implementation of \textsf{clang} supporting tasks was released in March 14th,
+2014\footnote{\url{https://clang-omp.github.io/}}.
+A few weeks later, in April 22nd, 2014, such support was also announced in
+\textsf{gcc} 4.9.
+Thus, because the necessary infra-structure for the implementation of tasks is
+relatively new, currently there are no tools, other than the \Taskminer,
+that annotate programs automatically with these directives.
+Nevertheless, there exists a long string of research aiming at the automatic
+parallelization of programs.
+In this section, we examine some elements in this list that relate to our
+work.
+
+Directive-based code annotation standards provide programmers with an easy-to-use
+parallel programming model.
+Task-based extensions to these standards have resulted in OpenMP 4.X,
+StarSs \cite{bellens:sc:2006, perez:iccc:2008, planas:hpca:2009,
+tejedor:hpdc:2011} and OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}  which have
+been extensively used to task-parallelize applications. Such
+programming models come with tools that help programmers find the
+best annotations for their code. For example,  Tareador
+\cite{ayguade:wcae:2015} enables a programmer, by means of a graphical interface,
+to annotate sequential code, thus allowing the identification of potential task
+parallelization opportunities.
+Contrary to Tareador,  this paper proposes an approach that enables the
+automatic insertion of OpenMP task annotations to relevant fragments of a
+sequential program.
+
+The techniques that we use to map program regions to tasks is similar to
+analyses previously used in the generation of code for data-flow machines.
 Data-flow programming was originally proposed as a candidate to enable
 task-based parallelism \cite{agrawal:ipdps:2010, chan:spaa:2007,
 gupta:micro:2011}.  Agrawal et al. \cite{agrawal:ipdps:2010}  extended
-data-flow programming  with task input/otuput  specifications in  Cilk++.
-Vandierendonck et al.  \cite{vandierendonck:hotpar:2011} also extended Cilk++
-by adding dependency clauses that facilitated the design of complex
-parallelization patterns. Both works presented a unified scheduler based on
-fork-join parallelism \cite{vandierendonck:pact:2011} which enabled the
-execution of task-based dataflow applications. Other approaches have also used
-data-flow task graphs to exploit parallelism, like Data-Driven Tasks
+data-flow programming  with task input/output specifications in  Cilk++.
+Vandierendonck et al.  \cite{vandierendonck:hotpar:2011} further extended Cilk++
+with dependency clauses to facilitate the design of complex
+parallelization patterns. Both groups presented a unified scheduler based on
+fork-join parallelism \cite{vandierendonck:pact:2011} that enabled the
+execution of task-based applications. Other approaches have also used
+data-flow graphs to exploit parallelism, like Data-Driven Tasks
 \cite{tasirlar:icpp:2011}, where the programmer can use put/await clauses to
-determine the task arguments before execution.  These works focused on
-data-flow programming  models and unfortunately  have not been adopted by most
-programmers. Function-based task parallelism was proposed by Gupta et al
-\cite{gupta:micro:2011} with the goal of using function arguments  as a way to
-specify task  dependencies. Although their work seemed sound, programming using
-such approach is a cumbersome task, when compared to modern directive-based
-parallelization. 
+determine task arguments before execution.
+Function-based task parallelism was proposed by Gupta {\em et al.}
+\cite{gupta:micro:2011} to use function arguments  as a way to
+specify task  dependencies.
+Notice that such research efforts focused on giving to programmers the tools to
+{\em construct} parallel programs.
+The automatic annotation of ordinary programs with data-flow constructs was not
+among their goals.
 
-Many systems have been developed aiming at (semi) automatically extracting task
-parallelism from sequential programs. Examples of such systems are OSCAR
+Many systems have been developed to extract task parallelism from sequential
+programs (semi) automatically.
+Examples include OSCAR
 (Optimally SCheduled Advanced multiprocessoR), Multigrain Parallelizing
 Compiler \cite{ishizaka:journal:2000, kasahara:iwlcpc:2000},  MAPS (MPSoC
 Application Programming  Studio) \cite{castrillon:tii:2013, ceng:dac:2008}, and
 DiscoPoP (Discovery of Potential Parallelism) \cite{discopop, li:jss:2016}.
-Although most of these systems have succeeded in achieving their goals, overall
-they have not managed to engage most programmers in using them. Besides
-parallelization systems, tools like Paraver \cite{extrae, paraver}, Aftermath
-\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, and TEMANEJO
+Besides parallelization systems, tools like Paraver \cite{extrae, paraver},
+Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, and TEMANEJO
 \cite{brinkmann:parco:2011, brinkmann:journal:2013, temanejo} were  designed to
-enable performance analysis, debugging, and vizualization of task programming
-executions. 
-
-More recently, directive based sequential code annotation  standards have
-provided programmers with a very clean and easy to use parallel programming
-model. Task based extensions to these standards have resulted in OpenMP 4.X,
-StarSs \cite{bellens:sc:2006, perez:iccc:2008, planas:hpca:2009,
-tejedor:hpdc:2011} and OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}  which have
-been extensively used to task-parallelize a large number of applications. Such
-programming models have the support of tools that help programmers find the
-best annotations for their code. For example,  Tareador
-\cite{ayguade:wcae:2015} enables a programmer, by means of a simple API and a
-graphical representation,  to iteratively annotate sequential code, thus
-allowing the identification of potential task parallelization opportunities.
-Contrary to Tareador,  this paper proposes an approach that enables the
-automatic insertion OpenMP task annotations to relevant fragments of a
-sequential program.
-
-
-
+enable performance analysis and visualization of task-based programs.
+Although these tools help the programmer in adapting code
+to run in parallel, they are not fully automatic.
+For instance, the work that is the closest of ours, in reach and effectiveness,
+in our opinion, is the suite of techniques proposed by Ravishankar {\em et
+al.}~\cite{Ravishankar14}.
+The type of irregular loops that they handle is impressive; however,
+the lack of the runtime support \`{a} la OpenMP 4.X still requires them to
+modify code before parallelization.
+In their words: ``{\em For all benchmarks and applications, all functions were 
+inlined, and arrays of structures were converted to structures of arrays for use
+with our prototype compiler.}"
 
 % Talk about annotations vs libraries, e.g., Wool, Intel TBB. See: "A Comparison of some recent Task-based Parallel Programming Models"
 
