@@ -1182,7 +1182,8 @@ implementation of \Taskminer?
 \textbf{Benchmarking:}
 we have used different benchmarks in our experiments.
 In Sections~\ref{sub:performance} and~\ref{sub:optimizations} we use
-\textsf{BSC-Bots}\footnote{\url{https://github.com/bsc-pm/bots/tree/master/serial}} and \textsf{Swan}\footnote{\url{http://cuda.dcc.ufmg.br/swan/}}~\cite{Moreira17}.
+\textsf{BSC-Bots}\footnote{\url{https://github.com/bsc-pm/bots/tree/master/serial}}~\cite{Duran09} and
+\textsf{Swan}\footnote{\url{http://cuda.dcc.ufmg.br/swan/}}~\cite{Moreira17}.
 In Section~\ref{sub:versatility} we use the LLVM test suite, and in
 Section~\ref{sub:scalability} we use random programs produced with
 \textsf{CSmith}~\cite{Yang11}.
@@ -1196,12 +1197,12 @@ We have not changed manually any of the benchmarks.
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=1.1\columnwidth]{images/EVAL1_bots_and_toys.png}
+\includegraphics[width=1\columnwidth]{images/TM_Performance}
 \caption{Speedup comparisons -- automatic annotations compare favourably against
 manual interventions, and lead to great performance gains.
 The Y-axis shows the speedup of either manual intervention, or automatic
 annotation (this paper) onto the original programs.}
-\label{fig:Absolute_speedups}
+\label{fig:TM_Performance}
 \end{center}
 \end{figure}
 
@@ -1242,7 +1243,7 @@ its annotated versions even surpassed some of the original in performance.
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=1\columnwidth]{images/EVAL2_opt.png}
+\includegraphics[width=1\columnwidth]{images/Stub}
 \caption{The benefit of our optimizations.
 Each optimization (cost model and recursion bounds) lead to
 non-trivial speedups.}
@@ -1272,7 +1273,7 @@ clear that the cost model greatly improved {\Taskminer}.
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=1\columnwidth]{images/EVAL3_test-suite.png}
+\includegraphics[width=1\columnwidth]{images/Stub}
 \caption{{\Taskminer}'s performance in the real world. This chart shows that our algorithm also performs
 well on programs that are not deemed inherently parallel, being able to find hidden parallelism
 in 20 programs from LLVM's Test Suite.}
