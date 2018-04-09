@@ -1194,9 +1194,9 @@ We have not changed manually any of the benchmarks.
 \subsection{Performance}
 \label{sub:performance}
 
-\begin{figure}[htb]
+\begin{figure}[h]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/Absolute_speedups}
+\includegraphics[width=1.1\columnwidth]{images/EVAL1_bots_and_toys.png}
 \caption{Speedup comparisons -- automatic annotations compare favourably against
 manual interventions, and lead to great performance gains.
 The Y-axis shows the speedup of either manual intervention, or automatic
@@ -1204,6 +1204,35 @@ annotation (this paper) onto the original programs.}
 \label{fig:Absolute_speedups}
 \end{center}
 \end{figure}
+
+In order to evaluate {\Taskminer}'s performance, we picked the \textsf{BSC-Bots} along with
+five other single source programs\footnote{Toy benchmarks: Boruvka's MST algorithm;
+Bellman-Ford's shortest path algorithm; Book filter, an algorithm that performs operations on lines from
+a text; Private, the algorithm from Figure \ref{fig:ex_privatize}; and the Depth-first search algorithm.}
+and produced four versions for each single source file: the sequential original program; a parallel version
+of the program, annotated by hand; a parallel version automatically annotated by {\Taskminer}, without
+the task cost model; a parallel version annotated by {\Taskminer} with the cost model enabled. Figure
+\ref{fig:Absolute_speedups} show {\Taskminer}'s overall performance compared to the original
+sequential and manually annotated programs. For simplification purposes, we address
+the difference between the automatic samples in regards to the cost model in section
+\ref{sub:optimizations}.
+
+{\Taskminer}'s annotated programs were faster than their sequential counterparts in 13 of the 16
+programs. Most of the programs in these benchmarks were classic Divide and Conquer algorithms, such as \textit{Strassen}'s matrix multiplication, \textit{knapsack.c} and \textit{fft.c}.
+In 6 of them, the automatically annotated programs were close and sometimes even slightly
+above the manually annotated ones. In the programs \textit{fib.c}, \textit{floorplan.c} and
+\textit{bellmandford.c}, although the
+{\Taskminer}'s version fell behind the sequential ones, it was also faster than the manually annotated
+versions, which were clearly slower than the original programs. The manually annotated versions for all
+the \textsf{BSC-Bots} benchmarks were obtained from \cite{Duran09}. Regarding the \textit{bellmanford.c}
+benchmark, we believe that the slowdown was due to small tasks being dispatched. Even the cost model
+wasn't able to pay off for this difference.
+In the \textit{fib.c} program, both parallel versions (automatic and manual) were far slower than
+the original, specially for big entries. We believe that the compiler we utilized optimized the
+classic sequential fibonacci algorithm, while the \textsf{OpenMP} runtime didn't.
+Overall, {\Taskminer} has proven to be able to find all the tasks in the \textsf{BSC-Bots} benchmarks and
+its annotated versions even surpassed some of the original in performance.
+
 
 %OPTIMIZATIONS
 %Here, we show the results on two big optimizations: recursion depth and cost model.
@@ -1213,19 +1242,52 @@ annotation (this paper) onto the original programs.}
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/Opt_Speedups}
+\includegraphics[width=1\columnwidth]{images/EVAL2_opt.png}
 \caption{The benefit of our optimizations.
-Each optimization (profitability analysis and recursion bounds) lead to
+Each optimization (cost model and recursion bounds) lead to
 non-trivial speedups.}
 \label{fig:Opt_Speedups}
 \end{center}
 \end{figure}
+
+In most of the benchmarks, the presence of task cost estimates made little difference in performance of
+the automatically annotated programs. In some of them, the cost model was very decisive to 
+guarantee a speed up against the sequential versions, though. These can be seen in Figure \ref{fig:Opt_Speedups}.
+A coarse gain in speed up was noticed in the \textit{nqueens.c} program, in which the recursion bounding
+avoided the creation of smaller and exponentially increasing tasks, which caused a significant speed
+up in its execution. 
+If on one hand, the cost model is able to avoid the creation and the dispatch of tasks that are too small
+and are not going to pay off for the runtime cost, on the other hand computing the cost for tasks can add
+some overhead to the programs. This is easily seen in the \textit{bellmanford} program. For larger
+matrices, larger is the number of paths to be computed, so in this case, {\Taskminer} will try to
+compute the cost for every task, which we believe caused this minor slowdown. However, it's
+clear that the cost model greatly improved {\Taskminer}.
+
 
 %VERSATILITY
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
 %And the types of tasks that are going to be mined can be easily set, should the programmer ever desires to.
 \subsection{Versatility}
 \label{sub:versatility}
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/EVAL3_test-suite.png}
+\caption{{\Taskminer}'s performance in the real world. This chart shows that our algorithm also performs
+well on programs that are not deemed inherently parallel, being able to find hidden parallelism
+in 20 programs from LLVM's Test Suite.}
+\label{fig:testsuite}
+\end{center}
+\end{figure}
+
+Our tool has also performed well on \textsf{LLVM's Test Suite}, being able to even find hidden parallelism.
+From a total of XX single source programs,
+{\Taskminer} automatically produced parallel annotated versions of 20 of them, as seen in Figure
+\ref{fig:testsuite}. We were able to not only find hidden parallelism in those programs, which are not
+considered inherently parallel, but also produce these parallel versions automatically. Amongst
+those programs, one caught our attention: \textit{misc/lowercase.c}, which applies a function to every
+string in the text. The automatically annotated version of this program was 3.5 times faster than
+the sequential one. We have also nice speed up numbers in \textit{misc/ffbench} and \textit{misc/mandel-2}.
 
 \begin{table}[h]
 \centering
@@ -1244,15 +1306,31 @@ non-trivial speedups.}
 \textbf{nqueens}   & \checkmark         &                       & \checkmark      \\ \hline
 \textbf{knapsack}  & \checkmark         &                       & \checkmark      \\ \hline
 \textbf{health}    & \checkmark         & \checkmark            & \checkmark      \\ \hline
-\textbf{jacobi}    &                    &                       &                 \\ \hline
+\textbf{jacobi}    &                    &  \checkmark                     &                 \\ \hline
 \end{tabular}
 \end{table}
 
+{\Taskminer}'s versatility also arises in regards to the diversity of types of task parallelism that it
+can find in a program. Table \ref{tab:types} shows all types of tasks found in our main benchmarks.
+There are 3 types of tasks: recursive, which arises from vanes in Divide and Conquer
+algorithms; function call, which arises within loops that are not clearly parallel; and region, which 
+are similar to function calls, but instead are entire fragments of code within loops that can be executed in
+parallel. We provide the user complete decision power to mine for any type of tasks they wish when
+running our tool. 
 
-%APPLICABILITY
-%We'll show TaskMiner application on larger benchmarks, such as those of spec or those of the LLVM's test-suite.
+%SCALABILITY
 \subsection{Scalability}
 \label{sub:scalability}
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/TM_Runtime}
+\caption{Runtime of \Taskminer{} vs size of input programs.
+Each dot represents one of the 100 program generated by \textsf{CSmit}.
+We have fit a degree-2 polynomial on this dataset.}
+\label{fig:TM_Runtime}
+\end{center}
+\end{figure}
 
 The analyses that we have described in Section~\ref{sec:sol} have a worst-case
 quadratic time.
@@ -1269,16 +1347,6 @@ in 1.2 seconds.
 the $R^2$ of polynomials of degree 1, 2, 3 and 4 is, respectively, 0.795,
 0.890, 0.909 and 0.911, suggesting very small differences between polynomials
 of degree 2 or more.
-
-\begin{figure}[htb]
-\begin{center}
-\includegraphics[width=0.9\columnwidth]{images/TM_Runtime}
-\caption{Runtime of \Taskminer{} vs size of input programs.
-Each dot represents one of the 100 program generated by \textsf{CSmit}.
-We have fit a degree-2 polynomial on this dataset.}
-\label{fig:TM_Runtime}
-\end{center}
-\end{figure}
 
 \section{Related Work}
 \label{sec:rw}
