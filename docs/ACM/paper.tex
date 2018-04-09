@@ -1276,53 +1276,64 @@ clear that the cost model greatly improved {\Taskminer}.
 \subsection{Versatility}
 \label{sub:versatility}
 
+The benchmarks used in Section~\ref{sub:performance} have been written to
+demonstrate the power of different parallel systems; hence, they have already
+been written in a way that simplifies the discovery of parallelism in programs.
+In this section, we address the following question: ``can \Taskminer" find
+parallelism in general programs?
+To answer it, we have applied \Taskminer{} onto the 219 C programs available in
+the LLVM test suite, and have compared the annotated version
+against the sequential version compiled with \textsf{clang} -O3.
+\Taskminer{} annotates a benchmark if it can find symbolic bounds to every
+memory access (load or store) used within a region marked as a task candidate.
+Under this constraint, we have been able to discover tasks in 63 benchmarks.
+Figure~\ref{fig:TM_Versatility} relates the number of tasks and the number of
+instructions in benchmarks.
+To avoid counting multiple C files for the same benchmark,
+Figure~\ref{fig:TM_Versatility} contains only benchmarks that are
+constituted by a single file (present in LLVM's \textsf{SingleSource} folder).
+As this experiment demonstrates, \Taskminer{} {\em can annotate a non-trivial
+number of real-world benchmarks}.
+
 \begin{figure}[htb]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/TM_Versatility}
-\caption{{\Taskminer}'s performance in the real world. This chart shows that our algorithm also performs
-well on programs that are not deemed inherently parallel, being able to find hidden parallelism
-in 20 programs from LLVM's Test Suite.}
+\caption{Relation between number of task regions and program size.
+Each benchmark is a complete C file.}
 \label{fig:TM_Versatility}
 \end{center}
 \end{figure}
 
-Our tool has also performed well on \textsf{LLVM's Test Suite}, being able to even find hidden parallelism.
-From a total of XX single source programs,
-{\Taskminer} automatically produced parallel annotated versions of 20 of them, as seen in Figure
-\ref{fig:testsuite}. We were able to not only find hidden parallelism in those programs, which are not
-considered inherently parallel, but also produce these parallel versions automatically. Amongst
-those programs, one caught our attention: \textit{misc/lowercase.c}, which applies a function to every
-string in the text. The automatically annotated version of this program was 3.5 times faster than
-the sequential one. We have also nice speed up numbers in \textit{misc/ffbench} and \textit{misc/mandel-2}.
+Most of the benchmarks, e.g., 27, that have been automatically annotated did not
+give us speedups, because the regions marked as tasks were too small to influence
+the program's runtime.
+We have observed slowdowns in 17 benchmarks.
+In this case, interactions between data-structures end up forcing the OpenMP
+runtime to serialize execution of tasks.
+And we have measured speedups above 5\% in 19 benchmarks.
+In one case, \textsf{Misc/lowercase}, the speedup is above 3.5x, and in
+three cases, it goes beyond 1.5x.
+Figure~\ref{fig:TM_GeneralProgs} summarizes these findings.
 
-\begin{table}[h]
-\centering
-\caption{Different kinds of tasks among the BOTS benchmarks. {\Taskminer}'s versaitily allows the user to define which type of tasks should be mined, annotated or cared for.}
-\label{tab:types}
-\begin{tabular}{|r|c|c|c|}
-\hline
-                   & \textbf{Recursive} & \textbf{FunctionCall} & \textbf{Region} \\ \hline
-\textbf{fft}       & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{fib}       & \checkmark         &                       &                 \\ \hline
-\textbf{floorplan} & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{sort}      & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{sparselu}  &                    & \checkmark            & \checkmark      \\ \hline
-\textbf{strassen}  & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{uts}       & \checkmark         &                       &                 \\ \hline
-\textbf{nqueens}   & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{knapsack}  & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{health}    & \checkmark         & \checkmark            & \checkmark      \\ \hline
-\textbf{jacobi}    &                    &  \checkmark                     &                 \\ \hline
-\end{tabular}
-\end{table}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/TM_GeneralProgs}
+\caption{20 best speedups obtained by \Taskminer{} when applied onto the LLVM
+test suite.
+The larger the bar, the better.
+\textbf{LoC} stands for ``Lines of C".}
+\label{fig:TM_GeneralProgs}
+\end{center}
+\end{figure}
 
-{\Taskminer}'s versatility also arises in regards to the diversity of types of task parallelism that it
-can find in a program. Table \ref{tab:types} shows all types of tasks found in our main benchmarks.
-There are 3 types of tasks: recursive, which arises from vanes in Divide and Conquer
-algorithms; function call, which arises within loops that are not clearly parallel; and region, which 
-are similar to function calls, but instead are entire fragments of code within loops that can be executed in
-parallel. We provide the user complete decision power to mine for any type of tasks they wish when
-running our tool. 
+
+%{\Taskminer}'s versatility also arises in regards to the diversity of types of task parallelism that it
+%can find in a program. Table \ref{tab:types} shows all types of tasks found in our main benchmarks.
+%There are 3 types of tasks: recursive, which arises from vanes in Divide and Conquer
+%algorithms; function call, which arises within loops that are not clearly parallel; and region, which 
+%are similar to function calls, but instead are entire fragments of code within loops that can be executed in
+%parallel. We provide the user complete decision power to mine for any type of tasks they wish when
+%running our tool. 
 
 %SCALABILITY
 \subsection{Scalability}
