@@ -1195,45 +1195,50 @@ We have not changed manually any of the benchmarks.
 \subsection{Performance}
 \label{sub:performance}
 
+Figure~\ref{fig:TM_Performance} compares the runtime of programs produced by
+\Taskminer{} against either the original -- sequential -- program (the baseline,
+compiled with \textsf{clang} -O3)
+or versions of said programs annotated manually.
+In this experiment we use the two benchmarks mentioned in the beginning of this
+Section: \textsf{BSC-Bots}~\cite{Duran09} (\textsf{fft} to \textsf{jacobi}
+in Fig.~\ref{fig:TM_Performance}) and \textsf{Swan}~\cite{Moreira17}
+(\textsf{dfs} to \textsf{private}).
+Both these benchmarks come with sequential and parallel versions.
+
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/TM_Performance}
 \caption{Speedup comparisons -- automatic annotations compare favourably against
 manual interventions, and lead to great performance gains.
-The Y-axis shows the speedup of either manual intervention, or automatic
-annotation (this paper) onto the original programs.}
+The Y-axis shows the speedup of either manual intervention or the \Taskminer{}
+(this paper) upon the original programs, in number of times.
+Small numbers in boxes show speedup achieved by \Taskminer.}
 \label{fig:TM_Performance}
 \end{center}
 \end{figure}
 
-In order to evaluate {\Taskminer}'s performance, we picked the \textsf{BSC-Bots} along with
-five other single source programs\footnote{Toy benchmarks: Boruvka's MST algorithm;
-Bellman-Ford's shortest path algorithm; Book filter, an algorithm that performs operations on lines from
-a text; Private, the algorithm from Figure \ref{fig:ex_privatize}; and the Depth-first search algorithm.}
-and produced four versions for each single source file: the sequential original program; a parallel version
-of the program, annotated by hand; a parallel version automatically annotated by {\Taskminer}, without
-the task cost model; a parallel version annotated by {\Taskminer} with the cost model enabled. Figure
-\ref{fig:Absolute_speedups} show {\Taskminer}'s overall performance compared to the original
-sequential and manually annotated programs. For simplification purposes, we address
-the difference between the automatic samples in regards to the cost model in section
-\ref{sub:optimizations}.
-
-{\Taskminer}'s annotated programs were faster than their sequential counterparts in 13 of the 16
-programs. Most of the programs in these benchmarks were classic Divide and Conquer algorithms, such as \textit{Strassen}'s matrix multiplication, \textit{knapsack.c} and \textit{fft.c}.
-In 6 of them, the automatically annotated programs were close and sometimes even slightly
-above the manually annotated ones. In the programs \textit{fib.c}, \textit{floorplan.c} and
-\textit{bellmandford.c}, although the
-{\Taskminer}'s version fell behind the sequential ones, it was also faster than the manually annotated
-versions, which were clearly slower than the original programs. The manually annotated versions for all
-the \textsf{BSC-Bots} benchmarks were obtained from \cite{Duran09}. Regarding the \textit{bellmanford.c}
-benchmark, we believe that the slowdown was due to small tasks being dispatched. Even the cost model
-wasn't able to pay off for this difference.
-In the \textit{fib.c} program, both parallel versions (automatic and manual) were far slower than
-the original, specially for big entries. We believe that the compiler we utilized optimized the
-classic sequential fibonacci algorithm, while the \textsf{OpenMP} runtime didn't.
-Overall, {\Taskminer} has proven to be able to find all the tasks in the \textsf{BSC-Bots} benchmarks and
-its annotated versions even surpassed some of the original in performance.
-
+The programs annotated by \Taskminer{} were faster than their sequential
+counterparts in 13 of the 16 samples.
+Most of the programs in these benchmarks were classic Divide and Conquer algorithms, such as \textsf{Strassen}'s matrix multiplication, \textsf{knapsack}
+and \textsf{fft}.
+In 6 of them, the automatically annotated programs were close and sometimes even 
+slightly above the manually annotated versions.
+In three examples where \Taskminer{} fell behind the original samples, e.g.,
+\textsf{fib}, \textsf{floorplan} and \textsf{bellmandford} (\textsf{bell-ford}),
+it produced code faster than the manually annotated competitor.
+Visual inspection of \textsf{bellmanford} shows that the version parallelized
+manually is dispatching an large number of small tasks.
+Our cost model can prune some of these small tasks, but not enough to win
+on the sequential version.
+We emphasize that the human-annotated versions of our benchmarks have not
+been tested originally in our architecture.
+For instance, \textsf{BSC-Bots} was evaluated on an SGI Altix 4700
+with 128 processors~\cite{Duran09}.
+Thus, this difference in hardware might be accountable for the slowdown in
+some of the manually annotated samples.
+Nevertheless, this experiment lets demonstrate that {\em \Taskminer{} can
+deliver non-negligible speedups comparable with sequential and manually
+annotated programs}.
 
 %OPTIMIZATIONS
 %Here, we show the results on two big optimizations: recursion depth and cost model.
@@ -1273,11 +1278,11 @@ clear that the cost model greatly improved {\Taskminer}.
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=1\columnwidth]{images/Stub}
+\includegraphics[width=1\columnwidth]{images/TM_Versatility}
 \caption{{\Taskminer}'s performance in the real world. This chart shows that our algorithm also performs
 well on programs that are not deemed inherently parallel, being able to find hidden parallelism
 in 20 programs from LLVM's Test Suite.}
-\label{fig:testsuite}
+\label{fig:TM_Versatility}
 \end{center}
 \end{figure}
 
