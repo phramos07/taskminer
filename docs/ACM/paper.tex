@@ -151,7 +151,7 @@ Programs]
 \email{fernando@dcc.ufmg.br}          %% \email is recommended
 
 \begin{abstract}
-This paper reports the design and implementation of a suit of static analyses
+This paper describes the design and implementation of a suit of static analyses
 and code generation techniques to annotate programs with OpenMP pragmas for
 task parallelism.
 These techniques approximate the ranges covered by memory regions, bound
@@ -249,10 +249,10 @@ The purpose of this work is to address this omission.
 This paper describes \Taskminer, a source-to-source compiler that exposes task
 parallelism in C/C++ programs.
 To fulfil this goal, \Taskminer{} solves different challenges.
-First, it finds program regions, e.g., loops or functions, that can be
+First, it determines symbolic bounds to the memory blocks accessed within
+programs (Section~\ref{sub:sra}).
+Second, it finds program regions, e.g., loops or functions, that can be
 effectively mapped onto tasks (Section~\ref{sub:identification}).
-Second, it determines symbolic bounds to the memory blocks accessed within
-those regions (Section~\ref{sub:sra}).
 Third, it extracts parameters from the code to estimate when it is profitable to
 create tasks.
 These parameters feed conditional checks, which, at runtime, enable or disable
@@ -267,19 +267,21 @@ In this paper, we defend the thesis that automatic task annotations are
 effective and useful.
 Our techniques enhance the productivity of developers, because they save them
 the time to annotate programs.
+In Section~\ref{sec:eval}, we show that we have been able to achieve almost
+four-fold speedups onto standard benchmarks (not-used in parallel programming),
+with zero programming cost.
 \Taskminer{} receives as input C code, and produces, as output, a C
 program annotated with human-readable OpenMP task directives.
 We are currently able to annotate non-trivial programs, involving every
 sort of composite type available in the C language, e.g., arrays, structs,
 unions and pointers to these aggregates.
 Some of these programs, such as those taken from the
-Kastor~\cite{Virouleau14} or Bots~\cite{Duran09}
-benchmark suites, are large and complex; thus, their manual annotation is a
-time consuming and error prone task.
+Kastor~\cite{Virouleau14}, Bots~\cite{Duran09} or the LLVM~\cite{Lattner04} test
+suites, are large and complex.
 Yet, our automatically annotated programs not only approximate the execution
 times of the parallel versions of those benchmarks, but are much faster than
-\guido{Numbers?}
-their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
+their sequential --unannotated-- versions, as we report in
+Section~\ref{sec:eval}.
 
 \section{Challenges}
 \label{sec:ovf}
@@ -1344,7 +1346,7 @@ In one case, \textsf{MiBench/office-stringsearch}, our program was 11x slower.
 Nevertheless, we have measured speedups above 5\% in 19 benchmarks.
 In \textsf{Misc/lowercase}, the speedup is above 3.5x, and in
 three cases, it is above 1.5x.
-Figure~\ref{fig:TM_GeneralProgs} summarizes these findings.
+Figure~\ref{fig:TM_GeneralProgs} shows our 10 largest speedups.
 We emphasize that this experiment did not involve any human intervention.
 Hence, {\em \Taskminer{} enables the discovery of parallelism at
 zero programming cost}.
@@ -1383,8 +1385,7 @@ We have fit a degree-2 polynomial on this dataset.}
 \end{center}
 \end{figure}
 
-The analyses that we have described in Section~\ref{sec:sol} have a worst-case
-quadratic time.
+The analyses described in Section~\ref{sec:sol} have a worst-case quadratic time.
 This is the worst-case scenario of the symbolic range analysis of
 Section~\ref{sub:sra} and the task-expansion algorithm of
 Section~\ref{sub:expansion}.
@@ -1405,7 +1406,7 @@ of degree 2 or more.
 Mainstream compilers have only recently added support to OpenMP 4.0's task
 parallelism.
 An implementation of \textsf{clang} supporting tasks was released in March 14th,
-2014\footnote{\url{https://clang-omp.github.io/}}.
+2014.
 A few weeks later, in April 22nd, 2014, such support was also announced in
 \textsf{gcc} 4.9.
 Thus, because the necessary infra-structure for the implementation of tasks is
@@ -1481,8 +1482,28 @@ with our prototype compiler.}"
 \section{Conclusion}
 \label{sec:conc}
 
-\pedro{As future work, we plan on performing Autotuning on {\Taskminer} to find good default parameters.
-Autotuning works for data-flow applications have been already done in \cite{Trancoso17, Emani15}}.
+This paper has described a methodology to annotate programs with task
+parallel pragmas, which we could demonstrate to be effective
+on general programs.
+This methodology does not introduce any fundamentally new static analysis or code 
+optimization; in this field, we claim no contribution.
+Instead, our contributions lay into the overall design that eventually
+emerged from a two-years long effort to combine existing compilation techniques
+towards the goal of profiting from the powerful runtime system that OpenMP's
+task parallelism brings forward.
+During this period, we went through many dead-ends; too many, indeed, for a
+11-pages report.
+Nevertheless, this experience lets us single out a few elements from the
+compiler literature, such as symbolic range analysis and windmills, which we
+could use to solve challenges related to automatic code annotation.
+Much work is still left to be done, until we can reach a stage in which
+automatic annotations can beat consistently manual interventions.
+In particular, our methodology asks for more aggressive tuning strategies.
+Techniques such as Trancoso's~\cite{Trancoso17}, Iwasaki's~\cite{Iwasaki16B}
+or Emani's~\cite{Emani15} have already been shown to be effective in this
+domain, and we want to explore them further.
+More specifically, a future release of \Taskminer{} is already expected to
+feature Iwasaki's cut-off~\cite{Iwasaki16B}.
 
 \bibliography{references}
 
