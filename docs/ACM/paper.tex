@@ -850,7 +850,7 @@ W(\mbox{instr}) = \mbox{given by the spec.}
 \\\\
 \textsc{[Branch]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ W(S_3) = w_3}
-{W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + w_2 + w_3}
+{W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + \mbox{max}(w_2 + w_3)}
 \\\\
 \textsc{[LoopInf]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ \mathit{Iter}(S_1) = \infty}
@@ -1296,6 +1296,8 @@ Pruning at higher levels of the recursion tree lets them deliver
 non-negligible speedups onto the baseline programs.
 Were pruning absent, then we would observe slowdowns in \textsf{health}
 and \textsf{nqueens}.
+This experiment shows that {\em our optimizations are effective to
+improve the quality of the code that we generate}.
 
 %VERSATILITY
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
@@ -1303,8 +1305,8 @@ and \textsf{nqueens}.
 \subsection{Versatility}
 \label{sub:versatility}
 
-The benchmarks used in Section~\ref{sub:performance} have been written to
-demonstrate the power of different parallel systems; hence, they have already
+The benchmarks used in Section~\ref{sub:performance} have been coded to
+demonstrate the power of parallel systems; hence, they have
 been written in a way that simplifies the discovery of parallelism in programs.
 In this section, we address the following question: ``can \Taskminer" find
 parallelism in general programs?
@@ -1315,10 +1317,10 @@ against the sequential version compiled with \textsf{clang} -O3.
 memory access (load or store) used within a region marked as a task candidate.
 Under this constraint, we have been able to discover tasks in 63 benchmarks.
 Figure~\ref{fig:TM_Versatility} relates the number of tasks and the number of
-instructions in benchmarks.
+instructions in the 30 largest benchmarks that we analyze.
 To avoid counting multiple C files for the same benchmark,
-Figure~\ref{fig:TM_Versatility} contains only benchmarks that are
-constituted by a single file (present in LLVM's \textsf{SingleSource} folder).
+Figure~\ref{fig:TM_Versatility} contains only benchmarks that
+consists of a single file (present in LLVM's \textsf{SingleSource} folder).
 As this experiment demonstrates, \Taskminer{} {\em can annotate a non-trivial
 number of real-world benchmarks}.
 
@@ -1337,16 +1339,21 @@ the program's runtime.
 We have observed slowdowns in 17 benchmarks.
 In this case, interactions between data-structures end up forcing the OpenMP
 runtime to serialize execution of tasks.
-And we have measured speedups above 5\% in 19 benchmarks.
-In one case, \textsf{Misc/lowercase}, the speedup is above 3.5x, and in
-three cases, it goes beyond 1.5x.
+Most of these slowdowns were inferior to 10\%.
+In one case, \textsf{MiBench/office-stringsearch}, our program was 11x slower.
+Nevertheless, we have measured speedups above 5\% in 19 benchmarks.
+In \textsf{Misc/lowercase}, the speedup is above 3.5x, and in
+three cases, it is above 1.5x.
 Figure~\ref{fig:TM_GeneralProgs} summarizes these findings.
+We emphasize that this experiment did not involve any human intervention.
+Hence, {\em \Taskminer{} enables the discovery of parallelism at
+zero programming cost}.
 
-\begin{figure}[htb]
+\begin{figure}[t!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/TM_GeneralProgs}
-\caption{Speedups obtained by \Taskminer{} when applied onto the LLVM
-test suite.
+\caption{Speedups (in number of times) obtained by \Taskminer{} when applied onto
+the LLVM test suite.
 The larger the bar, the better.
 \textbf{LoC} stands for ``Lines of C".}
 \label{fig:TM_GeneralProgs}
