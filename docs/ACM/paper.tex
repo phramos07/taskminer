@@ -1182,30 +1182,19 @@ implementation of \Taskminer?
 \textbf{Benchmarking:}
 we have used different benchmarks in our experiments.
 In Sections~\ref{sub:performance} and~\ref{sub:optimizations} we use
-\textsf{BSC-Bots}\footnote{\url{https://github.com/bsc-pm/bots/tree/master/serial}}~\cite{Duran09} and
-\textsf{Swan}\footnote{\url{http://cuda.dcc.ufmg.br/swan/}}~\cite{Moreira17}.
+\textsf{BSC-Bots} (\url{https://github.com/bsc-pm/bots/tree/master/serial})~\cite{Duran09} and
+\textsf{Swan} (\url{http://cuda.dcc.ufmg.br/swan/})~\cite{Moreira17}.
 In Section~\ref{sub:versatility} we use the LLVM test suite, and in
 Section~\ref{sub:scalability} we use random programs produced with
 \textsf{CSmith}~\cite{Yang11}.
-Runtime numbers are averages of five executions.
-We have not changed manually any of the benchmarks.
+Runtimes are averages of five executions.
+No benchmark has been changed manually.
 
-%PERFORMANCE
-%Here, we show the results for our small benchmarks (toys & bots)
 \subsection{Performance}
 \label{sub:performance}
 
-Figure~\ref{fig:TM_Performance} compares the runtime of programs produced by
-\Taskminer{} against either the original -- sequential -- program (the baseline,
-compiled with \textsf{clang} -O3)
-or versions of said programs annotated manually.
-In this experiment we use the two benchmarks mentioned in the beginning of this
-Section: \textsf{BSC-Bots}~\cite{Duran09} (\textsf{fft} to \textsf{jacobi}
-in Fig.~\ref{fig:TM_Performance}) and \textsf{Swan}~\cite{Moreira17}
-(\textsf{dfs} to \textsf{private}).
-Both these benchmarks come with sequential and parallel versions.
 
-\begin{figure}[h]
+\begin{figure}[b!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/TM_Performance}
 \caption{Speedup comparisons -- automatic annotations compare favourably against
@@ -1216,6 +1205,16 @@ Small numbers in boxes show speedup achieved by \Taskminer.}
 \label{fig:TM_Performance}
 \end{center}
 \end{figure}
+
+Figure~\ref{fig:TM_Performance} compares the runtime of programs produced by
+\Taskminer{} against either the original program (the baseline,
+compiled with \textsf{clang} -O3)
+or versions of said programs annotated manually.
+In this experiment we use the benchmarks \textsf{BSC-Bots}~\cite{Duran09} (\textsf{fft} to \textsf{jacobi}
+in Fig.~\ref{fig:TM_Performance}) and \textsf{Swan}~\cite{Moreira17}
+(\textsf{dfs} to \textsf{private}).
+Both these benchmarks come with sequential and parallel (manually
+annotated) versions.
 
 The programs annotated by \Taskminer{} were faster than their sequential
 counterparts in 13 of the 16 samples.
@@ -1246,29 +1245,57 @@ annotated programs}.
 \subsection{Optimizations}
 \label{sub:optimizations}
 
-\begin{figure}[htb]
+\begin{figure}[b!]
 \begin{center}
-\includegraphics[width=1\columnwidth]{images/Stub}
-\caption{The benefit of our optimizations.
-Each optimization (cost model and recursion bounds) lead to
-non-trivial speedups.}
-\label{fig:Opt_Speedups}
+\includegraphics[width=1\columnwidth]{images/Optimizations}
+\caption{Benefit of task pruning (Secs.~\ref{sub:profit} and~\ref{sub:ir}).
+\textbf{RFC}: tasks created within \underline{R}ecursive \underline{F}unction
+\underline{C}alls.
+\textbf{NRC}: interprocedural tasks created around
+\underline{N}on-\underline{R}ecursive function \underline{C}alls.
+\underline{Reg}: tasks involving \underline{Reg}ions without function calls.
+}
+\label{fig:Optimizations}
 \end{center}
 \end{figure}
 
-In most of the benchmarks, the presence of task cost estimates made little difference in performance of
-the automatically annotated programs. In some of them, the cost model was very decisive to 
-guarantee a speed up against the sequential versions, though. These can be seen in Figure \ref{fig:Opt_Speedups}.
-A coarse gain in speed up was noticed in the \textit{nqueens.c} program, in which the recursion bounding
-avoided the creation of smaller and exponentially increasing tasks, which caused a significant speed
-up in its execution. 
-If on one hand, the cost model is able to avoid the creation and the dispatch of tasks that are too small
-and are not going to pay off for the runtime cost, on the other hand computing the cost for tasks can add
-some overhead to the programs. This is easily seen in the \textit{bellmanford} program. For larger
-matrices, larger is the number of paths to be computed, so in this case, {\Taskminer} will try to
-compute the cost for every task, which we believe caused this minor slowdown. However, it's
-clear that the cost model greatly improved {\Taskminer}.
+This paper describes two ways to optimize task placement.
+Both these techniques are based on the idea of ``task pruning": we avoid
+creating tasks if we deem them unprofitable.
+The first technique prunes tasks judged unprofitable by the cost-model of
+Section~\ref{sub:profit}; the second prunes tasks that are too deep in the
+recursion stack, as described in Section~\ref{sub:ir}.
+Figure~\ref{fig:Optimizations} illustrates the benefits of these two techniques.
+We show the gains -- in terms of speedup over the baseline -- of the three
+benchmarks that
+benefit the most from each type of task pruning, among those earlier seen in
+Figure~\ref{fig:TM_Performance}.
 
+In three benchmarks, \textsf{private}, \textsf{boruvka} and
+\textsf{bellman-ford}, the cost model avoids creating tasks around loops that
+initialize data-structures.
+For instance, the following loop, in line 75 of \textsf{bellmanford.c}, would be
+parallelized by \Taskminer, were it not for the cost-model marking it as
+unprofitable:
+
+\begin{verbatim}
+  for (long unsigned i = 0; i < N; i++)
+    for (long unsigned j = 0; j < N; j++)
+      *(G + i * N + j) = rand();
+\end{verbatim}
+
+Similarly, recursion bounding (Sec.~\ref{sub:ir}), although
+simple, is effective in eliminating the excessive number of tasks.
+Figure~\ref{fig:Optimizations} shows the effect of this optimization upon
+three \textsf{BSC-Bots} benchmarks: \textsf{health}, \textsf{nqueens} and
+\textsf{strassen}.
+These programs were designed to illustrate the parallelization of
+divide-and-conquer algorithms~\cite{Duran09}, and contain a large number of
+recursive calls (see \textbf{RFC}) in Figure~\ref{fig:Optimizations}.
+Pruning at higher levels of the recursion tree lets them deliver
+non-negligible speedups onto the baseline programs.
+Were pruning absent, then we would observe slowdowns in \textsf{health}
+and \textsf{nqueens}.
 
 %VERSATILITY
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
