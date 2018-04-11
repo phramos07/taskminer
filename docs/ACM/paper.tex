@@ -236,7 +236,7 @@ the same computation independently on different data.
 Another form of parallelism, based on tasks, remains still uncharted land in what
 concerns automatic annotation.
 Such fact is unfortunate, since much of the power of current annotation
-systems lays on their ability to create tasks~\cite{Ayguade09}.
+systems lies in their ability to create tasks~\cite{Ayguade09}.
 %\guido{Why the ability to create tasks makes such programs similar to irregular code?
 %Which features of irregular code are resposible for such similarities? Not clear to the 
 %reader}
@@ -248,7 +248,7 @@ The purpose of this work is to address this omission.
 
 This paper describes \Taskminer, a source-to-source compiler that exposes task
 parallelism in C/C++ programs.
-To fulfil this goal, \Taskminer{} solves different challenges.
+To fulfill this goal, \Taskminer{} solves different challenges.
 First, it determines symbolic bounds to the memory blocks accessed within
 programs (Section~\ref{sub:sra}).
 Second, it finds program regions, e.g., loops or functions, that can be
@@ -293,7 +293,7 @@ Such techniques solve four challenges, which Section~\ref{sub:dif}
 illustrates with examples.
 However, before we dive into these challenges, the reader must understand
 the main benefits of using a runtime environment such as OpenMP's, for
-such advantages have guided most of our designing decisions.
+such advantages have guided most of our design decisions.
 Section~\ref{sub:adv} introduces this discussion.
 
 \subsection{The OpenMP Runtime System}
@@ -350,12 +350,12 @@ The meaning of the pragmas used in the examples is explained in
 Section~\ref{sec:sol}}.
 The book is given as an array of pointers.
 Each pointer leads to a string representing a potentially different line.
-Out parallelization of this program consists in firing off a task
+Our parallelization of this program consists in firing off a task
 to process each line.
 Figure~\ref{fig:ex_book_filter} has been annotated by
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, by assuring that the annotated dependencies
+created at lines 9 and 11, by reassuring that the annotated dependencies
 {\tt line} and {\tt pattern}
 are respected at runtime.
 
@@ -367,7 +367,7 @@ from the burden of having to track dependences between pointers statically.
 However, the automatic insertion of effective task annotations into
 programs still required us to deal with a number of challenges.
 If left unsolved, these challenges would restrict our interventions
-to trivial annotations -- hardly be of any use.
+to trivial annotations, which would hardly be of any use.
 Our first challenge is inherent to any automatic parallelization system.
 
 \begin{Challenge}
@@ -420,7 +420,7 @@ innermost loop is formed by five instructions.
 Thus, we approximate the amount of work performed by a task with the
 expression \textsf{5 * M}.
 We use the runtime value of \textsf{M} to determine, during the execution of the
-program, if we create a task, or not.
+program, if we create a task or not.
 Such test is carried out by the guard at line 7 of the figure, which is part of
 OpenMP's syntax. Also, we provide a reliable estimate on the \emph{workload cutoff}
 from which a task can be safely spawned without producing performance overhead.
@@ -446,7 +446,7 @@ We introduce Challenge~\ref{ch:cutoff} by quoting Duran {\em et al.}:
 ``{\em In task parallel languages, an important factor for achieving a good
 performance is the use of a cut-off technique to reduce the number of tasks
 created}"~\cite{Duran08b}.
-This observation is particularly true in the context of recursive, fine-grain,
+This observation is particularly true in the context of recursive, fine-grained
 tasks, as we analyze in Section~\ref{sub:ir}.
 Figure~\ref{fig:ex_cutoff} provides an example.
 To place a limit on the number of tasks simultaneously in flight, we associate
@@ -485,7 +485,7 @@ As an example, variable \textsf{j} in Figure~\ref{fig:ex_privatize} must
 be privatized.
 In the absence of such action, that variable will be shared among all the
 tasks created at line 5 of Figure~\ref{fig:ex_privatize}.
-Because \textsf{j} is written within these tasks, race conditions would
+Because \textsf{j} is written to within these tasks, race conditions would
 ensue.
 Section~\ref{sub:variance} explains how we distinguish private from
 shared variables.
@@ -502,12 +502,12 @@ shared variables.
 Figure~\ref{fig:alg_main} provides a high-level view of a source-to-source
 compiler that incorporates the techniques discussed in this paper.
 The many parts of this algorithm shall be explained throughout this section.
-This pseudo-code uses several concepts well-known in the compiler's
+This pseudo-code uses several concepts well-known in the compilers
 literature, such as control flow graphs~\cite{Kildall73} and
 dependence graphs~\cite{Ferrante87}.
 In the rest of this section we explain how we have combined this previous
 knowledge to delimit and annotate tasks in structured programs.
-Our presentation focus on the new elements that we had to add onto known
+Our presentation focuses on the new elements that we had to add onto known
 techniques, in order to adapt them to our purposes.
 
 \begin{figure}[b]
@@ -523,7 +523,7 @@ Grey boxes show sections in this paper where each phase is discussed.}
 Our goal is to identify {\em tasks} in {\em structured} programs.
 In the context of this work, a structured program is a program that can be
 partitioned in {\em hammock regions}, a concept introduced by Ferrante
-{\em et al.}~\cite{Ferrante87} in the middle 80's.
+{\em et al.}~\cite{Ferrante87} in the middle 1980's.
 For completeness, we re-state it in Definition~\ref{def:hammock}.
 Definition~\ref{def:task} formalizes the notion of task.
 
@@ -551,7 +551,7 @@ and a set $M_o$ of memory regions representing data that $T$ writes.
 
 Definition~\ref{def:task} uses the concept of {\em memory region}.
 Syntactically, memory regions are described by program variables and/or pointers
-plus ranges of dereferensable offsets.
+plus ranges of dereferenceable offsets.
 Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$,
 if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
 $T_1$.
@@ -564,7 +564,7 @@ A set $T$ of $n$ tasks is a correct parallelization of a program $P$ if:
 \begin{compactenum}
 \item $T$ does not contain cyclic dependence relations;
 \item the execution of the tasks in $T$ in any ordering determined by dependence
-relations, leads to the same results as the sequential execution of $P$.
+relations leads to the same results as the sequential execution of $P$.
 \end{compactenum}
 \end{definition}
 
@@ -584,7 +584,7 @@ Our equipment of choice to exploit task parallelism in programs is OpenMP 4.0.
 %and runtime environment when and how tasks must be created.
 We describe below which annotations we are using, and explain, informally, their
 semantics.
-Full overviews of the syntax and semantics of these annotations is publicly
+Full overviews of the syntax and semantics of these annotations are publicly
 available\footnote{For a quick overview, we refer the reader to the leaflet
 ``Summary of OpenMP 4.0 C/C++ Syntax", which is made available by the OpenMP
 group.}; hence, we shall not dive into their details.
@@ -593,7 +593,7 @@ group.}; hence, we shall not dive into their details.
 \item \textsf{parallel} (\textit{clauses}): forms a team of threads
 which will execute the marked program region in parallel.
 \item \textsf{single} (\textit{clauses}): specifies that a
-program region must be executed by one thread in the team.
+program region must be executed by a single thread in the team.
 \item \textsf{task} (\textit{clauses}): creates a new task.
 \item \textsf{taskwait}: defines a synchronization point where
 threads must wait for the completion of child tasks.
@@ -668,14 +668,14 @@ E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E
 
 % How we do it.
 The program symbols mentioned in Definition~\ref{def:sra} are names that cannot 
-be reconstruct as functions of other names.
+be reconstructed as functions of other names.
 Examples include global variables, function arguments, and values returned by
 external functions.
 Symbolic range analysis is not a contribution of this paper: several
 implementations of it exist.
 We have adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
 reuses work from Blume {\em et al.}~\cite{Blume94}.
-The only extensions that we have added into \dawn's implementation was
+The only extensions that we have added into \dawn 's implementation was
 the ability to handle C-like \textsf{structs}.
 Therefore, we shall not provide further details about this part of our work.
 To understand the rest of this paper, it suffices to know that this implementation
@@ -689,7 +689,7 @@ The example below clarifies this observation.
 
 \begin{example}
 \label{ex:sra}
-Symbolic range analysis, when applied onto Figure~\ref{fig:ex_Regions}, gives us
+Symbolic range analysis, when applied onto Figure~\ref{fig:ex_Regions}, give us
 $R(\mathsf{i}) = [0, \mathsf{N} - 1]$, and $R(\mathsf{j}) = [0, \mathsf{M} - 1]$.
 The memory access \textsf{V[i*N + j]} at line 9, when combined with this
 information, yields the symbolic region that appears in the task annotation at
@@ -767,11 +767,11 @@ A topological ordering of the dependence graph does not impose any order among
 these two hypothetical replicas of the same structure.
 
 Windmills gives us structural properties to identify tasks.
-We can find them via a depth-search traversal of the program's dependence
+We can find them via a depth-first search traversal of the program's dependence
 graph.
 Function \textsf{findVanes}, in Figure~\ref{fig:alg_main} implements this
 search.
-However, not every windmill lead us to profitable tasks.
+However, not every windmill leads us to profitable tasks.
 Furthermore, some windmills cannot be annotated, due to the inability of
 range analysis to find bounds to the memory they access.
 We deal with these shortcomings in the next two sections.
@@ -780,7 +780,7 @@ We deal with these shortcomings in the next two sections.
 \label{sub:profit}
 
 % Explain the tension between large and small tasks.
-The benefit of creating tasks depend on two factors:
+The benefit of creating tasks depends on two factors:
 runtime cost, and parallelism.
 This tension leads to a sweet spot in the size of tasks, where size is
 measured as the amount of code they execute.
@@ -823,7 +823,7 @@ In this paper, we adopted a different approach: we reuse the symbolic range
 analysis of Section~\ref{sub:sra} to augment static data with dynamic information.
 In other words, we use symbolic range analysis to construct expressions that
 represent the number of iterations of loops.
-Similar approach has already been used to decide when to migrate virtual memory
+A similar approach has already been used to decide when to migrate virtual memory
 pages in NUMA architectures~\cite{Piccoli14}.
 OpenMP 4.0 contains syntax to enable the conditional creation of tasks.
 Our symbolic analysis lets us build predicates for such conditional expressions.
@@ -962,7 +962,7 @@ in the same windmill.
 \textbf{Rational:}
 We expand tasks up to the \textsf{COST} threshold, which is determined
 by the cost model seen in Section~\ref{sub:profit}.
-If the profitability of a task is less than this constant, then parallelism
+If the profitability of a task is smaller than this constant, then parallelism
 might not pay off the cost of managing threads.
 However, if we expand tasks too much, then we might lose parallelism,
 as code in a task runs sequentially.
@@ -974,7 +974,7 @@ runtime environment to be described in Section~\ref{sec:eval}.
 \subsection{Privatization}
 \label{sub:variance}
 
-\Taskminer{} bestow a parallel semantics on code that has been originally
+\Taskminer{} bestows a parallel semantics on code that has been originally
 conceived to run sequentially.
 This semantic gap might lead to race conditions.
 Race conditions happen when annotations cause two or more threads to update
@@ -1044,7 +1044,7 @@ The analyses described in Sections~\ref{sub:sra}-\ref{sub:variance} have
 been implemented at the level of the LLVM intermediate representation.
 We chose to implement those techniques at that level to benefit from the support
 of several data-flow analyses already in place in the LLVM infra-structure.
-In particular, this decision lets us reuse LLVM's scalar
+In particular, this decision let us reuse LLVM's scalar
 evolution~\cite[p.18]{Grosser12}, from which we derive our symbolic analysis.
 Additionally, we could reuse LLVM's program dependence graph, and its suite of
 powerful alias analyses.
@@ -1228,7 +1228,7 @@ In three examples where \Taskminer{} fell behind the original samples, e.g.,
 \textsf{fib}, \textsf{floorplan} and \textsf{bellmandford} (\textsf{bell-ford}),
 it produced code faster than the manually annotated competitor.
 Visual inspection of \textsf{bellmanford} shows that the version parallelized
-manually is dispatching an large number of small tasks.
+manually is dispatching a large number of small tasks.
 Our cost model can prune some of these small tasks, but not enough to win
 on the sequential version.
 We emphasize that the human-annotated versions of our benchmarks have not
@@ -1237,7 +1237,7 @@ For instance, \textsf{BSC-Bots} was evaluated on an SGI Altix 4700
 with 128 processors~\cite{Duran09}.
 Thus, this difference in hardware might be accountable for the slowdown in
 some of the manually annotated samples.
-Nevertheless, this experiment lets demonstrate that {\em \Taskminer{} can
+Nevertheless, this experiment demonstrates that {\em \Taskminer{} can
 deliver non-negligible speedups comparable with sequential and manually
 annotated programs}.
 
@@ -1467,7 +1467,7 @@ Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, and TEMANEJO
 enable performance analysis and visualization of task-based programs.
 Although these tools help the programmer in adapting code
 to run in parallel, they are not fully automatic.
-For instance, the work that is the closest of ours, in reach and effectiveness,
+For instance, the work that is the closest to ours, in reach and effectiveness,
 in our opinion, is the suite of techniques proposed by Ravishankar {\em et
 al.}~\cite{Ravishankar14}.
 The type of irregular loops that they handle is impressive; however,
