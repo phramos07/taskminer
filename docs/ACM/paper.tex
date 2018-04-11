@@ -173,32 +173,26 @@ zero programming cost.
  \begin{CCSXML}
 <ccs2012>
 <concept>
+<concept_id>10010147.10010169.10010175</concept_id>
+<concept_desc>Computing methodologies~Parallel programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10011777.10011014</concept_id>
+<concept_desc>Computing methodologies~Concurrent programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
 <concept_id>10011007.10011006.10011041</concept_id>
 <concept_desc>Software and its engineering~Compilers</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
-<concept>
-<concept_id>10011007.10011006.10011008.10011024.10011035</concept_id>
-<concept_desc>Software and its engineering~Procedures, functions and subroutines</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-<concept>
-<concept_id>10003752.10003766.10003776</concept_id>
-<concept_desc>Theory of computation~Regular languages</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-<concept>
-<concept_id>10003752.10010124.10010131.10010134</concept_id>
-<concept_desc>Theory of computation~Operational semantics</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
 </ccs2012>
 \end{CCSXML}
 
+\ccsdesc[500]{Computing methodologies~Parallel programming languages}
+\ccsdesc[500]{Computing methodologies~Concurrent programming languages}
 \ccsdesc[500]{Software and its engineering~Compilers}
-\ccsdesc[300]{Software and its engineering~Procedures, functions and subroutines}
-\ccsdesc[300]{Theory of computation~Regular languages}
-\ccsdesc[300]{Theory of computation~Operational semantics}
 
 \keywords{Parallelism, Tasks, OpenMP}
 
@@ -1210,14 +1204,14 @@ Small numbers in boxes show speedup achieved by \Taskminer.}
 \end{figure}
 
 Figure~\ref{fig:TM_Performance} compares the runtime of programs produced by
-\Taskminer{} against either the original program (the baseline,
-compiled with \textsf{clang} -O3)
+\Taskminer{} against either the original program
 or versions of said programs annotated manually.
 In this experiment we use the benchmarks \textsf{BSC-Bots}~\cite{Duran09} (\textsf{fft} to \textsf{jacobi}
 in Fig.~\ref{fig:TM_Performance}) and \textsf{Swan}~\cite{Moreira17}
 (\textsf{dfs} to \textsf{private}).
 Both these benchmarks come with sequential and parallel (manually
 annotated) versions.
+Baseline and annotated sources are compiled with gcc-6.
 
 The programs annotated by \Taskminer{} were faster than their sequential
 counterparts in 13 of the 16 samples.
@@ -1315,7 +1309,7 @@ In this section, we address the following question: ``can \Taskminer" find
 parallelism in general programs?
 To answer it, we have applied \Taskminer{} onto the 219 C programs available in
 the LLVM test suite, and have compared the annotated version
-against the sequential version compiled with \textsf{clang} -O3.
+against the sequential version compiled.
 \Taskminer{} annotates a benchmark if it can find symbolic bounds to every
 memory access (load or store) used within a region marked as a task candidate.
 Under this constraint, we have been able to discover tasks in 63 benchmarks.
