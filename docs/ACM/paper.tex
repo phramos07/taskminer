@@ -34,7 +34,7 @@
 
 %% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
-\citestyle{acmauthoryear}
+%\citestyle{acmauthoryear}
 
 %% Packages that we are using in this version of the work:
 \usepackage{amsmath}
@@ -151,19 +151,21 @@ Programs]
 \email{fernando@dcc.ufmg.br}          %% \email is recommended
 
 \begin{abstract}
-This paper reports the design and implementation of a suit of static analyses
+This paper describes the design and implementation of a suit of static analyses
 and code generation techniques to annotate programs with OpenMP pragmas for
 task parallelism.
-These techniques deal with problems such as the discovery and use of program
-symbols to estimate the profit of tasks, bound their recursive depth and limit
-the memory regions onto which they operate.
-These techniques have been implemented into the first source-to-source
-compiler able to insert OpenMP pragmas into C/C++ programs without human
-intervention.
-By building onto the solid collection of static analyses available in LLVM,
-and relying on OpenMP's runtime ability to disambiguate pointers, we show that
-we can annotate large and convoluted programs, often replicating the performance
-gains of handmade annotation.
+These techniques approximate the ranges covered by memory regions, bound
+recursive tasks and estimate the profitability of tasks.
+We have used these ideas to implement a source-to-source compiler that inserts 
+OpenMP pragmas into C/C++ programs without any human intervention.
+By building onto the static program analysis literature, and relying on OpenMP's
+runtime ability to disambiguate pointers, we show that we can annotate large and
+convoluted programs, often replicating the performance gains of handmade
+annotation.
+Furthermore, our techniques give us the means to discover opportunities of
+parallelism that remained buried in the syntax  of well-known benchmarks for many
+years -- sometimes leading to up to four-fold speedups on a 12-core machine at
+zero programming cost.
 \end{abstract}
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -171,32 +173,26 @@ gains of handmade annotation.
  \begin{CCSXML}
 <ccs2012>
 <concept>
+<concept_id>10010147.10010169.10010175</concept_id>
+<concept_desc>Computing methodologies~Parallel programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10011777.10011014</concept_id>
+<concept_desc>Computing methodologies~Concurrent programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
 <concept_id>10011007.10011006.10011041</concept_id>
 <concept_desc>Software and its engineering~Compilers</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
-<concept>
-<concept_id>10011007.10011006.10011008.10011024.10011035</concept_id>
-<concept_desc>Software and its engineering~Procedures, functions and subroutines</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-<concept>
-<concept_id>10003752.10003766.10003776</concept_id>
-<concept_desc>Theory of computation~Regular languages</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-<concept>
-<concept_id>10003752.10010124.10010131.10010134</concept_id>
-<concept_desc>Theory of computation~Operational semantics</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
 </ccs2012>
 \end{CCSXML}
 
+\ccsdesc[500]{Computing methodologies~Parallel programming languages}
+\ccsdesc[500]{Computing methodologies~Concurrent programming languages}
 \ccsdesc[500]{Software and its engineering~Compilers}
-\ccsdesc[300]{Software and its engineering~Procedures, functions and subroutines}
-\ccsdesc[300]{Theory of computation~Regular languages}
-\ccsdesc[300]{Theory of computation~Operational semantics}
 
 \keywords{Parallelism, Tasks, OpenMP}
 
@@ -210,12 +206,12 @@ effective means to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
 OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
-Tareador~\cite{Ayguade15}.
+OmpSs~\cite{bueno:icpp:2011, duran:ppl:2011}.
 Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %\guido{What do you mean by modern accelerators? Not clear.}
 Combined with modern hardware accelerators such as GPUs and FPGAs, they have led
-to substantial performance gains~\cite{Bertolli14,Martineau16,Mendonca17,Poesia17,Reyes12,Samuel16,Wienke12}.
+to substantial performance gains~\cite{Bertolli14,Martineau16,Mendonca17,Poesia17,Reyes12,Antao16,Wienke12}.
 %\guido{Suppport what?}
 Nevertheless, although convenient, the use of annotations is not straightforward, 
 and still lacks supporting tools that help programmers to check if annotations
@@ -235,7 +231,7 @@ the same computation independently on different data.
 Another form of parallelism, based on tasks, remains still uncharted land in what
 concerns automatic annotation.
 Such fact is unfortunate, since much of the power of current annotation
-systems lays on their ability to create tasks~\cite{Ayguade09}.
+systems lies in their ability to create tasks~\cite{Ayguade09}.
 %\guido{Why the ability to create tasks makes such programs similar to irregular code?
 %Which features of irregular code are resposible for such similarities? Not clear to the 
 %reader}
@@ -247,16 +243,16 @@ The purpose of this work is to address this omission.
 
 This paper describes \Taskminer, a source-to-source compiler that exposes task
 parallelism in C/C++ programs.
-To fulfil this goal, \Taskminer{} solves different challenges.
-First, it finds program regions, e.g., loops or functions, that can be
+To fulfill this goal, \Taskminer{} solves different challenges.
+First, it determines symbolic bounds to the memory blocks accessed within
+programs (Section~\ref{sub:sra}).
+Second, it finds program regions, e.g., loops or functions, that can be
 effectively mapped onto tasks (Section~\ref{sub:identification}).
-Second, it determines symbolic bounds to the memory blocks accessed within
-those regions (Section~\ref{sub:sra}).
 Third, it extracts parameters from the code to estimate when it is profitable to
 create tasks.
 These parameters feed conditional checks, which, at runtime, enable or disable
 the creation of tasks (Section~\ref{sub:profit}) and limit their recursion
-depth (Section~\ref{sub:rec}).
+depth (Section~\ref{sub:ir}).
 Fourth, \Taskminer{} determines which program variables need to be 
 privatized in new tasks, or shared among them (Section~\ref{sub:variance}).
 Finally, it maps all this information back into source code, producing
@@ -266,19 +262,21 @@ In this paper, we defend the thesis that automatic task annotations are
 effective and useful.
 Our techniques enhance the productivity of developers, because they save them
 the time to annotate programs.
+In Section~\ref{sec:eval}, we show that we have been able to achieve almost
+four-fold speedups onto standard benchmarks (not-used in parallel programming),
+with zero programming cost.
 \Taskminer{} receives as input C code, and produces, as output, a C
 program annotated with human-readable OpenMP task directives.
 We are currently able to annotate non-trivial programs, involving every
 sort of composite type available in the C language, e.g., arrays, structs,
 unions and pointers to these aggregates.
 Some of these programs, such as those taken from the
-Kastor~\cite{Virouleau14} or Bots~\cite{Duran09}
-benchmark suites, are large and complex; thus, their manual annotation is a
-time consuming and error prone task.
+Kastor~\cite{Virouleau14}, Bots~\cite{Duran09} or the LLVM~\cite{Lattner04} test
+suites, are large and complex.
 Yet, our automatically annotated programs not only approximate the execution
-times of the parallel versions of those benchmarks, but are much faster than
-\guido{Numbers?}
-their sequential --unannotated-- versions, as we report in Section~\ref{sec:eval}.
+times of the parallel versions of those benchmarks, but are in general faster
+than their sequential --unannotated-- versions, as we report in
+Section~\ref{sec:eval}.
 
 \section{Challenges}
 \label{sec:ovf}
@@ -290,7 +288,7 @@ Such techniques solve four challenges, which Section~\ref{sub:dif}
 illustrates with examples.
 However, before we dive into these challenges, the reader must understand
 the main benefits of using a runtime environment such as OpenMP's, for
-such advantages have guided most of our designing decisions.
+such advantages have guided most of our design decisions.
 Section~\ref{sub:adv} introduces this discussion.
 
 \subsection{The OpenMP Runtime System}
@@ -305,7 +303,8 @@ In particular, the runtime lets us circumvent the shortcomings that pointer alia
 impose on the automatic parallelization of code.
 Aliasing -- the possibility of two pointers dereferencing the same
 memory region -- either prevents parallelism altogether, or forces compilers to
-resort to complex runtime checks to ensure its correctness~\cite{Alves15,Rus02}.
+resort to complex runtime checks to ensure its
+correctness~\cite{Alves15,Ravishankar14}.
 The OpenMP runtime shields us from this problem, because
 it already checks for dependencies among tasks, and dispatches them in a
 correct order~\cite{LaGrone11}.
@@ -346,12 +345,12 @@ The meaning of the pragmas used in the examples is explained in
 Section~\ref{sec:sol}}.
 The book is given as an array of pointers.
 Each pointer leads to a string representing a potentially different line.
-Out parallelization of this program consists in firing off a task
+Our parallelization of this program consists in firing off a task
 to process each line.
 Figure~\ref{fig:ex_book_filter} has been annotated by
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, by assuring that the annotated dependencies
+created at lines 9 and 11, by reassuring that the annotated dependencies
 {\tt line} and {\tt pattern}
 are respected at runtime.
 
@@ -363,7 +362,7 @@ from the burden of having to track dependences between pointers statically.
 However, the automatic insertion of effective task annotations into
 programs still required us to deal with a number of challenges.
 If left unsolved, these challenges would restrict our interventions
-to trivial annotations -- hardly be of any use.
+to trivial annotations, which would hardly be of any use.
 Our first challenge is inherent to any automatic parallelization system.
 
 \begin{Challenge}
@@ -416,7 +415,7 @@ innermost loop is formed by five instructions.
 Thus, we approximate the amount of work performed by a task with the
 expression \textsf{5 * M}.
 We use the runtime value of \textsf{M} to determine, during the execution of the
-program, if we create a task, or not.
+program, if we create a task or not.
 Such test is carried out by the guard at line 7 of the figure, which is part of
 OpenMP's syntax. Also, we provide a reliable estimate on the \emph{workload cutoff}
 from which a task can be safely spawned without producing performance overhead.
@@ -427,8 +426,8 @@ instructions. This is further explained in Section \ref{sub:profit}.
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/ex_cutoff}
-\caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks with
-counter associated with function calls.}
+\caption{Challenge~\ref{ch:cutoff}: bounding the creation of recursive tasks.
+Example taken from~\cite[Fig.1]{Iwasaki16}.}
 \label{fig:ex_cutoff}
 \end{center}
 \end{figure}
@@ -442,8 +441,8 @@ We introduce Challenge~\ref{ch:cutoff} by quoting Duran {\em et al.}:
 ``{\em In task parallel languages, an important factor for achieving a good
 performance is the use of a cut-off technique to reduce the number of tasks
 created}"~\cite{Duran08b}.
-This observation is particularly true in the context of recursive, fine-grain,
-tasks, as we analyze in Section~\ref{sub:rec}.
+This observation is particularly true in the context of recursive, fine-grained
+tasks, as we analyze in Section~\ref{sub:ir}.
 Figure~\ref{fig:ex_cutoff} provides an example.
 To place a limit on the number of tasks simultaneously in flight, we associate
 the invocation of recursive functions annotated with task pragmas with a
@@ -481,7 +480,7 @@ As an example, variable \textsf{j} in Figure~\ref{fig:ex_privatize} must
 be privatized.
 In the absence of such action, that variable will be shared among all the
 tasks created at line 5 of Figure~\ref{fig:ex_privatize}.
-Because \textsf{j} is written within these tasks, race conditions would
+Because \textsf{j} is written to within these tasks, race conditions would
 ensue.
 Section~\ref{sub:variance} explains how we distinguish private from
 shared variables.
@@ -498,12 +497,12 @@ shared variables.
 Figure~\ref{fig:alg_main} provides a high-level view of a source-to-source
 compiler that incorporates the techniques discussed in this paper.
 The many parts of this algorithm shall be explained throughout this section.
-This pseudo-code uses several concepts well-known in the compiler's
+This pseudo-code uses several concepts well-known in the compilers
 literature, such as control flow graphs~\cite{Kildall73} and
 dependence graphs~\cite{Ferrante87}.
 In the rest of this section we explain how we have combined this previous
 knowledge to delimit and annotate tasks in structured programs.
-Our presentation focus on the new elements that we had to add onto known
+Our presentation focuses on the new elements that we had to add onto known
 techniques, in order to adapt them to our purposes.
 
 \begin{figure}[b]
@@ -517,9 +516,9 @@ Grey boxes show sections in this paper where each phase is discussed.}
 
 \paragraph{Tasks: syntax and scope:}
 Our goal is to identify {\em tasks} in {\em structured} programs.
-A structured program is a program that can be partitioned in {\em hammock
-regions}, a concept introduced by Ferrante {\em et al.}~\cite{Ferrante87} in
-the middle 80's.
+In the context of this work, a structured program is a program that can be
+partitioned in {\em hammock regions}, a concept introduced by Ferrante
+{\em et al.}~\cite{Ferrante87} in the middle 1980's.
 For completeness, we re-state it in Definition~\ref{def:hammock}.
 Definition~\ref{def:task} formalizes the notion of task.
 
@@ -527,7 +526,7 @@ Definition~\ref{def:task} formalizes the notion of task.
 \label{def:hammock}
 A Control Flow Graph $G$ is a directed graph with a starting node $s$, and an
 exit node $x$.
-A hammock region $G$ is a subgraph of $G$ with a node $h$ that
+A hammock region $G'$ is a subgraph of $G$ with a node $h$ that
 {\em dominates}\footnote{A node $n_1 \in G$ dominates another node
 $n_2 \in G$ if every path from  $S$ to $n_2$ goes across $n_1$.
 Inversely, $n_1$ post-dominates $n_2$ if every path from $n_2$ to $x$ must
@@ -547,7 +546,7 @@ and a set $M_o$ of memory regions representing data that $T$ writes.
 
 Definition~\ref{def:task} uses the concept of {\em memory region}.
 Syntactically, memory regions are described by program variables and/or pointers
-plus ranges of dereferensable offsets.
+plus ranges of dereferenceable offsets.
 Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$,
 if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
 $T_1$.
@@ -560,7 +559,7 @@ A set $T$ of $n$ tasks is a correct parallelization of a program $P$ if:
 \begin{compactenum}
 \item $T$ does not contain cyclic dependence relations;
 \item the execution of the tasks in $T$ in any ordering determined by dependence
-relations, leads to the same results as the sequential execution of $P$.
+relations leads to the same results as the sequential execution of $P$.
 \end{compactenum}
 \end{definition}
 
@@ -575,12 +574,12 @@ In this example, each hammock region is formed by one function call:
 \includegraphics[width=1\columnwidth]{images/ex_depends}
 
 \paragraph{The annotation zoo.}
-Our equipment of choice to reveal task parallelism in programs is OpenMP 4.0.
+Our equipment of choice to exploit task parallelism in programs is OpenMP 4.0.
 %This annotation system lets us indicate to compiler
 %and runtime environment when and how tasks must be created.
 We describe below which annotations we are using, and explain, informally, their
 semantics.
-Full overviews of the syntax and semantics of these annotations is publicly
+Full overviews of the syntax and semantics of these annotations are publicly
 available\footnote{For a quick overview, we refer the reader to the leaflet
 ``Summary of OpenMP 4.0 C/C++ Syntax", which is made available by the OpenMP
 group.}; hence, we shall not dive into their details.
@@ -589,7 +588,7 @@ group.}; hence, we shall not dive into their details.
 \item \textsf{parallel} (\textit{clauses}): forms a team of threads
 which will execute the marked program region in parallel.
 \item \textsf{single} (\textit{clauses}): specifies that a
-program region must be executed by one thread in the team.
+program region must be executed by a single thread in the team.
 \item \textsf{task} (\textit{clauses}): creates a new task.
 \item \textsf{taskwait}: defines a synchronization point where
 threads must wait for the completion of child tasks.
@@ -663,17 +662,17 @@ E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E
 \end{definition}
 
 % How we do it.
-The program symbols mentioned in Definition~\ref{def:sra} are names that cannot be
-reconstruct as functions of other names.
+The program symbols mentioned in Definition~\ref{def:sra} are names that cannot 
+be reconstructed as functions of other names.
 Examples include global variables, function arguments, and values returned by
 external functions.
-Symbolic range analysis is not a contribution of this paper.
-There are several different implementations publicly available, and we have
-adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
+Symbolic range analysis is not a contribution of this paper: several
+implementations of it exist.
+We have adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
 reuses work from Blume {\em et al.}~\cite{Blume94}.
-The only extensions that we have added into \dawn's implementation was
-the ability to handle \textsf{structs}.
-Therefore, we shall not provide further details about part of our work.
+The only extensions that we have added into \dawn 's implementation was
+the ability to handle C-like \textsf{structs}.
+Therefore, we shall not provide further details about this part of our work.
 To understand the rest of this paper, it suffices to know that this implementation
 is sufficiently solid to handle the entire C99 language, always terminates, and
 runs in time linear on the size of the program's dependence graph.
@@ -685,7 +684,7 @@ The example below clarifies this observation.
 
 \begin{example}
 \label{ex:sra}
-Symbolic range analysis, when applied onto Figure~\ref{fig:ex_Regions}, gives us
+Symbolic range analysis, when applied onto Figure~\ref{fig:ex_Regions}, give us
 $R(\mathsf{i}) = [0, \mathsf{N} - 1]$, and $R(\mathsf{j}) = [0, \mathsf{M} - 1]$.
 The memory access \textsf{V[i*N + j]} at line 9, when combined with this
 information, yields the symbolic region that appears in the task annotation at
@@ -725,8 +724,8 @@ unmistakable:
 \begin{definition}[Windmill -- \cite{Rideau08}]
 \label{def:windmill}
 A windmill is a graph $G_w = G_c \cup G_{v1} \cup \ldots \cup G_{vn}$ formed by
-a strongly connected component $G_c$, its center, plus $n$ components (not
-necessarily strong) $G_{vi}$, the vanes, such that:
+a strongly connected component $G_c$ (its center), plus $n$ components, not
+necessarily strong, $G_{vi}$, the vanes, such that:
 \begin{compactenum}
 \item for any topological ordering of $G_w$, and nodes $n_c \in G_c$,
 $n_v \in G_{vi}$, we have $n_c$ ahead of $n_v$;
@@ -740,11 +739,11 @@ share vertices (thus, sharing edges is also impossible).
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/ex_windmill}
 \caption{Examples of program dependence graphs.
-Nodes that form centers of windmills are coloured in gray.
+Nodes that form centers of windmills are colored in gray.
 Data-dependence edges are solid; control-dependence edges are dashed.
 Vanes of windmills appear within dotted boxes.
 (a) PDG for Figure~\ref{fig:ex_book_filter};
-(b) PDG for Figure~\ref{fig:ex_Regions}}
+(b) PDG for Figure~\ref{fig:ex_Regions}.}
 \label{fig:ex_windmill}
 \end{center}
 \end{figure}
@@ -763,11 +762,11 @@ A topological ordering of the dependence graph does not impose any order among
 these two hypothetical replicas of the same structure.
 
 Windmills gives us structural properties to identify tasks.
-We can find them via a depth-search traversal of the program's dependence
+We can find them via a depth-first search traversal of the program's dependence
 graph.
 Function \textsf{findVanes}, in Figure~\ref{fig:alg_main} implements this
 search.
-However, not every windmill lead us to profitable tasks.
+However, not every windmill leads us to profitable tasks.
 Furthermore, some windmills cannot be annotated, due to the inability of
 range analysis to find bounds to the memory they access.
 We deal with these shortcomings in the next two sections.
@@ -776,7 +775,7 @@ We deal with these shortcomings in the next two sections.
 \label{sub:profit}
 
 % Explain the tension between large and small tasks.
-The benefit of creating tasks depend on two factors:
+The benefit of creating tasks depends on two factors:
 runtime cost, and parallelism.
 This tension leads to a sweet spot in the size of tasks, where size is
 measured as the amount of code they execute.
@@ -811,8 +810,7 @@ such that $W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
 
 Definition~\ref{def:swe} is too unconstrained: a function $W(G) = 0$ for any $G$
 satisfies it.
-Naturally, we would like $W$ to approximate the 
-dynamic behavior of programs.
+However, we want $W$ to approximate the dynamic behavior of programs.
 The literature contains heuristics to implement $W$.
 Perhaps, the best-known among these heuristics is the static profiler of
 Wu and Larus~\cite{Wu94}.
@@ -820,10 +818,10 @@ In this paper, we adopted a different approach: we reuse the symbolic range
 analysis of Section~\ref{sub:sra} to augment static data with dynamic information.
 In other words, we use symbolic range analysis to construct expressions that
 represent the number of iterations of loops.
-Similar approach has already been used to decide when to migrate virtual memory
+A similar approach has already been used to decide when to migrate virtual memory
 pages in NUMA architectures~\cite{Piccoli14}.
 OpenMP 4.0 contains syntax to enable the conditional creation of tasks.
-Our symbolic analysis lets us build predicates for such conditional expressions.
+Our symbolic analysis lets us build predicates for such conditionals.
 
 \begin{example}
 \label{ex:cond_task}
@@ -845,11 +843,11 @@ in the OpenMP runtime, and it is determined empirically.
 W(\mbox{instr}) = \mbox{given by the spec.}
 \\\\
 \textsc{[Seq]} &
-\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2}{W(S_1;S_2;) = w_2}
+\inferrule{W(S_1) = w_1 \\ W(S_2) = w_2}{W(S_1;S_2;) = w_1 + w_2}
 \\\\
 \textsc{[Branch]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ W(S_3) = w_3}
-{W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + w_2 + w_3}
+{W(\mbox{if}(S_1) \ S_2; \ \mbox{else} \ S_3;) = w_1 + \mbox{max}(w_2, w_3)}
 \\\\
 \textsc{[LoopInf]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2 \\ \mathit{Iter}(S_1) = \infty}
@@ -865,10 +863,12 @@ W(\mbox{instr}) = \mbox{given by the spec.}
 \end{figure}
 
 % Explain how we use symbolic information to compute costs.
-The declarative rules in Figure~\ref{fig:swe} sketches the heuristics that
-we use to compute the SWE for a given hammock region $S$.
+The declarative rules in Figure~\ref{fig:swe} sketch the heuristics that
+we use to compute the SWE for a hammock region $S$.
 Rule \textsc{LoopInf} applies on loops whose number of iterations we cannot bound
 via some symbolic expression computed statically.
+We assume that loops execute 10 times, following previous
+statistics~\cite{Wu94}.
 Rule \textsc{LoopExp} represents loops that we can analyze using our Symbolic
 Range Analysis.
 The auxiliary function $\mathit{Iter}(S)$ returns a symbolic expression that
@@ -890,8 +890,9 @@ Instead, the reader shall notice that Figure~\ref{fig:alg_main} receives a
 cost model as a parameter.
 For the experiments in Section~\ref{sec:eval}, we have determined a small
 collection of constants related to the creation of threads in our target
-architecture, including the value of \textsf{WORK\_CUTOFF}, seen in
-Example~\ref{ex:cond_task}.
+architecture.
+As an example, the value of \textsf{WORK\_CUTOFF}, seen in
+Example~\ref{ex:cond_task}, in our setting, is roughly 500 cycles.
 
 % Discuss the expansion algorithm.
 \subsection{Task Expansion}
@@ -913,23 +914,19 @@ In this context, we call $H_2$ the {\em parent} of $H_1$.
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/expand_alg}
 \caption{Task discovery via expansion of hammock regions.
-\textsf{COST} is the overhead of creating and scheduling threads, as determined
-by a cost model.}
+\textsf{COST} is the overhead of creating and scheduling threads.}
 \label{fig:expand_alg}
 \end{center}
 \end{figure}
 
-The boolean \textsf{CanExpand} in Figure~\ref{fig:expand_alg} is determined by
-the routine \textsf{checkExpansion}.
-This function remains true for as long as the following conditions apply with
-respect to its input \textsf{VANE}:
-(i) \textsf{VANE} is a hammock region with the structural properties of a
+The routine \textsf{checkExpansion} sets the boolean \textsf{CanExpand} in
+Figure~\ref{fig:expand_alg}.
+This function is true as long as the following conditions apply:
+(i) \textsf{VANE} has the structural properties of a
 windmill's vane, i.e., it is contained within a windmill $W$;
-(ii) we can analyze all the memory regions within \textsf{VANE} using the
+(ii) we can analyze the memory regions within \textsf{VANE} using the
 symbolic range analysis of Section~\ref{sub:sra};
 (iii) \textsf{VANE} does not depend on another vane inside the same windmill $W$.
-In the rest of this section, we shall use Figure~\ref{fig:ex_expansion} to
-explain these conditions.
 
 \begin{figure}[h]
 \begin{center}
@@ -943,102 +940,208 @@ $D$ is the set of variables the vane depends on.}
 \end{center}
 \end{figure}
 
-The program in Figure~\ref{fig:ex_expansion} (a), which is a slight variation of
-the code earlier seen in Figure~\ref{fig:ex_regions}, contains two windmills.
-The first consists in the \textsf{for} loop at line 1.
+The program in Figure~\ref{fig:ex_expansion} (a), a slight variation of
+the code seen in Figure~\ref{fig:ex_Regions}, contains two windmills.
+The first consists of the \textsf{for} loop at line 1.
 The second, nested in the first, is the \textsf{for} loop at line 2.
-The vanes that sprout from these windmills, are highlighted in the program
-dependence graph seen in Figure~\ref{fig:ex_expansion} (b).
-The figure shows that we have three task candidates, each one formed by a
+The vanes that sprout from these windmills are highlighted in the program
+dependence graph in Figure~\ref{fig:ex_expansion} (b).
+The figure shows that we have three task candidates, each formed by a
 different vane.
-In order to find the actual tasks, we apply function \textsf{expand}
+To find the actual tasks, we apply function \textsf{expand}
 (Fig.~\ref{fig:expand_alg}) onto the innermost vanes: \textsf{Vane-2} and
 \textsf{Vane-3}.
-The latter cannot be further expanded, because it depends on the former.
-On the other hand, \textsf{Vane-2} can be expanded to include also
+The latter cannot be expanded, as it depends on the former.
+On the other hand, \textsf{Vane-2} can be expanded to include
 \textsf{Vane-3}, as this expansion does not create new dependences between vanes
 in the same windmill.
 
-\subsection{Limiting the Creation of Recursive Tasks}
-\label{sub:rec}
+\noindent
+\textbf{Rational:}
+We expand tasks up to the \textsf{COST} threshold, which is determined
+by the cost model seen in Section~\ref{sub:profit}.
+If the profitability of a task is smaller than this constant, then parallelism
+might not pay off the cost of managing threads.
+However, if we expand tasks too much, then we might lose parallelism,
+as code in a task runs sequentially.
+Thus, determining \textsf{COST} is essential to the performance of our
+optimization.
+In this work, we have set this parameter empirically for the
+runtime environment to be described in Section~\ref{sec:eval}.
 
-Although the OpenMP runtime guarantees correctness, its scheduling policy
-is heavily jeopardized by the excessive queueing up of tasks. Specifically, algorithms
-such as \emph{SparseLU} and \emph{FFT} can suffer bloat because of
-too many tasks in the Task Graph\cite{Huynh17}.
-
-To solve this problem, we conservatively limit the number of tasks
-that can be created tied to the same Task Region. We do that by two means:
-(1) limiting the creation of recursive tasks by depth; (2) limiting the creation of 
-tasks in the whole program. We do that by setting up static variables to count up
-the depth level in recursive calls. When the depth reaches a certain level, which
-can be defined by the user, task dispatch will be halted, avoiding creation of tasks that are
-too small. This technique is illustrated in Figure \ref{fig:ex_cutoff}. 
-This parameter's default value is very conservative and so can be easily switched off
-or set by the user. 
-
-\subsection{Separating Private from Shared Variables}
+\subsection{Privatization}
 \label{sub:variance}
 
-As described in Challenge \ref{ch:privatize}, the need for privatization of variables
-arises when tasks write on or read from variables that are shared among tasks but, instead,
-should be private for each task. To distinguish variables that should be replicated among tasks
-from those who shouldn't, we mapped this problem into a simple flow analysis, described
-as follows.
+\Taskminer{} bestows a parallel semantics on code that has been originally
+conceived to run sequentially.
+This semantic gap might lead to race conditions.
+Race conditions happen when annotations cause two or more threads to update
+values that, in the sequential program, are denoted by the same name.
+To avoid such situations, the insertion of annotations requires us to replicate
+some values, making them private to each task.
+We have named such replication {\em privatization}.
 
-\begin{definition}[Privatization]
-\label{def:privatize}
-A variable $X$ should be made private in a Task Region $T$ if the 
-\emph{Definition-Use Chain} of $X$ crosses
-the frontier of the task creation of $T$.
+\begin{example}[Privatization]
+\label{ex:priv}
+Variables \textsf{i} and \textsf{j} in Figure~\ref{fig:ex_privatize} need to be
+replicated among the tasks that the annotation at line 8 creates.
+The need to replicate \textsf{j} is more apparent: this variable is updated in
+the body of the task pragma, at line 9.
+In the absence of replication, we have a race condition.
+Variable \textsf{i} must also be replicated.
+Each iteration of the loop at line 9 reads a different value of \textsf{i}.
+Thus, each task should receive a different value in this variable.
+In the absence of replication, all the threads would read the same value;  hence,
+parallelization would change the semantics of the program.
+\end{example}
+
+\begin{definition}[The Private Requirement]
+\label{def:private}
+If a variable name has scalar type and contains at least one def-use chain that
+enters the frontier of a task, then this name is said to bear the {\em private
+requirement}.
+The frontier of a task is determined by the \textsf{expand} function seen in
+Figure~\ref{fig:expand_alg}.
 \end{definition}
 
-This means that, if a variable $X$ is defined prior to the entry point of $T$, and then
-it is used (read/write) inside $T$, then it should be made private. Figure \ref{fig:ex_privatize}
-shows an example of privatization. 
+\begin{example}
+\label{ex:priv_2}
+Variable \textsf{i} must be privatized because it is defined at lines 2 and 10 of
+Figure~\ref{fig:ex_privatize}, and is used at line 9 -- the body of a new task.
+Moreover, this variable has a scalar type, e.g., \textsf{int}.
+Similarly, variable \textsf{j} is defined at line 6, and is used at line 9.
+This property -- the existence of def-use chains entering the task region --
+leads to the insertion of the \textsf{firstprivate} clause at line 8 of
+Figure~\ref{fig:ex_privatize}.
+\end{example}
 
-We only privatize values, not pointers. And for a matter of conservativeness, we set all the
-variables shared by default, and then we run the privatization analysis afterwards to pin out
-variables that should be made private.
+\noindent
+\paragraph{firstprivate vs depend:} according to Definition~\ref{def:private},
+only names representing scalar values are privatized.
+These names have {\em value semantics}, i.e., they are ``passed
+by copy" if used as actual arguments of functions.
+Memory regions, that is to say, regions whose access happens through pointers,
+are not privatized.
+These regions are, instead, marked as dependences of the task, through the
+\textsf{depend} clause.
+Memory regions are discovered via the symbolic region analysis of
+Section~\ref{sub:sra}.
+In addition to pointers, we do not privatize values defined within
+a task region, and used outside it.
+That is to say: we privatize incoming def-use chains, but do not privatize
+outgoing chains.
+Values having this ``outgoing chain property" are shared by default.
+We indicate this semantics via the \textsf{default(shared)} pragmas, as seen
+in line 8 of Figure~\ref{fig:ex_privatize}.
 
 \subsection{Mapping IR onto Source Code}
 \label{sub:ir}
 
-All the analyses and techniques described previously in this section are made upon
-an \emph{intermediate representation} (IR) of the program. None of our work would
-be made possible if we couldn't recover information from the IR back to Source Code.
-{\Taskminer} needs not only to insert \emph{pragmas}
-around task regions, but also recover array bounds information and preserve
-soundness regarding scope. The bridge between IR and Source Code information
-has 3 main obstacles to be crossed over:
+% Explain rational
+The analyses described in Sections~\ref{sub:sra}-\ref{sub:variance} have
+been implemented at the level of the LLVM intermediate representation.
+We chose to implement those techniques at that level to benefit from the support
+of several data-flow analyses already in place in the LLVM infra-structure.
+In particular, this decision let us reuse LLVM's scalar
+evolution~\cite[p.18]{Grosser12}, from which we derive our symbolic analysis.
+Additionally, we could reuse LLVM's program dependence graph, and its suite of
+powerful alias analyses.
+This toolbox gave us the necessary means to disambiguate pointers, albeit
+conservatively, and estimate safe limits to memory regions.
+However, our annotations are still inserted in C programs.
+Having them in a high-level programming language has two main advantages:
+they are human-readable, and thus can be debugged, and they are compatible with
+compilers other than \textsf{clang}, such as \textsf{gcc}.
+Thus, a major part of this work was the engineering effort to map
+information from LLVM's intermediate representation back into C.
 
-\begin{compactitem}
-\item \textsf{Source Code mapping}: The first problem is, given a set of instructions in the IR,
-how to map them back to the source code file. {\Taskminer} compiles the source code
-with debugging flags on, in order to extract debugging information that maps
-instructions to lines of code. With these lines of code in hands, we then have to deal
-with two more problems before annotation: scope breaking and array bounds information.
+% Explain machinery: scope tree and simplification
+\noindent
+\textbf{The Scope Tree:}
+To recover high-level information from the low-level IR, we have designed a
+supporting data-structure henceforth named the {\em scope tree}.
+The scope tree maps hammock regions into C constructions, such as
+\textsf{while} and \textsf{if-then-else} blocks.
+Each node of this graph represents a hammock region, augmented with
+meta-information, such as the program part that it represents.
+We keep track of these program parts via debugging information, which is
+appended into the LLVM IR via the \textsf{-g} flag passed to the \textsf{clang}
+compiler.
+We have an edge from node $s_1$ to node $s_2$ if region $s_2$ is nested
+within region $s_2$.
+In the absence of control-flow optimizations such as loop unrolling or
+dead-code elimination, each hammock region corresponds to some structured
+code block (code region delimitable by braces).
+Thus, we can find line numbers for each of the regions that we have marked
+as tasks after the expansion seen in Section~\ref{sub:expansion}.
 
-\item \textsf{Array bounds}: To recover array bounds information, we rely on strong 
-alias analyses \pedro{References here?}. We link several kinds of instructions such as
-loads, stores, array indexing and other pointer arithmetic instructions to 
-trace back information to Source Code. We build a symbolic range analysis
-for each pointer, map them to all loads and stores in the program and then come up with
-lower and upper bounds for each. If we cannot properly define the range for all pointers 
-inside a task region, \emph{we don't annotate the task.}
+\noindent
+\textbf{Simplification:}
+before we annotate programs, we proceed to simplify these annotations.
+Simplification happens via a system of rewriting rules, which explores 
+identities.
+Typical identifies include, for instance, $x + 0 = x$,
+$\mathsf{max}(x, x) = x$ and $c \times \mathsf{max}(x, y) =
+\mathsf{max}(c \times x, c \times y)$.
+Identities are applied iteratively, until a fixed-point is reached.
+Because we do not support commutativity, a fixed-point is guaranteed to be
+always reached.
+Notice that the source code that we produce is not totally equivalent to the
+original program augmented with annotations.
+To be able to insert annotations, we format the original code.
+This operation involves, for instance, breaking lines containing multiple
+statements, and inserting delimiting braces within every block in the program,
+even one-liners.
+This said, it is still possible that a task, after expansion, maps to a single
+line that contains multiple statements, such as nested function calls.
+In this case, we do not annotate the target program.
+Section~\ref{sec:eval} provides data about \Taskminer's capacity to
+annotate real-world programs.
 
-\item \textsf{Scope}: Once the task region is defined in terms of basic blocks in 
-the \emph{Control Flow Graph} in the IR, a problem of scope breaking arises when
-inserting \emph{pragmas} around code fragments in the Source Code. To work around
-this problem, we build a \emph{Scope Tree} in LLVM's front-end (Clang) and before
-we annotate the tasks, we check if the region mapped back to Source Code will break
-any scope in the original program. The scope-breaking risk appears when many instructions
-inside basic blocks map back to their definition (instead of their uses) in the source code,
-which sometimes are outsite the region defined as a task. When that happens, we opt 
-not to annotate the task, because we can't recover enough information to correctly annotate
-the original code.
- 
-\end{compactitem}
+\paragraph{Bounding Recursive Tasks}
+During the evaluation of the \Taskminer, we observed that recursive
+programs experienced performance regressions due to the excessive creation
+of tasks.
+To avoid this kind of slowdown, we currently give users the possibility to
+bound the number of threads ever in flight, via a command line option, e.g.,
+\textsf{./Taskminer -r 12} will limit the number of tasks to 12.
+We implement this feature directly at the source code level, as part of the
+final annotation of code.
+Our solution is simple, yet, as the reader shall perceive in
+Section~\ref{sec:eval}, it brings non-negligible benefits onto recursive
+benchmarks.
+Task bounding is implemented via a global variable, statically linked in the
+program.
+This variable is \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
+We insert code to increment it at the beginning of recursive functions that
+are invoked within task regions, and we insert code to decrement it at each
+return point of said functions.
+
+\begin{example}[Task Bounding]
+Figure~\ref{fig:ex_cutoff} illustrates the strategy that we
+use to limit the number of tasks in flight due to recursive function
+invocation.
+The parameter \textsf{DEPTH\_ CUTOFF} is determined by \Taskminer's users.
+\end{example}
+
+There are more involved ways to bound the number of tasks.
+We believe that the state-of-the-art in the field today is the work of
+Iwasaki and Taura~\cite{Iwasaki16,Iwasaki16B}.
+These authors propose different techniques to limit the creation of tasks,
+be it through the replication of code, be it through the estimation of work,
+given function inputs.
+Pragmas for the conditional creation of tasks, such as the one seen in
+lines 7 and 10 of Figure~\ref{fig:ex_cutoff}, lets us obtain much of the benefit
+of code versioning, as proposed by Iwasaki and Taura.
+However, we found work estimation of recursive functions a task too difficult
+to accomplish in general.
+Quoting~\cite[p.355]{Iwasaki16}: ``{\em there are tasks which essentially do not
+have simple termination conditions (e.g., tasks traversing pointer-based
+trees)}".
+Thus, although simple, our recursion counters are general enough, handling even
+such tasks that are hard to bound symbolically.
+Nevertheless, we still would like to explore further ways to cut-off extremely
+fine-grained tasks in the future.
 
 \section{Evaluation}
 \label{sec:eval}
@@ -1048,104 +1151,360 @@ the original code.
 
 % In the past there has been not much opportunity to take advantage of parallelism on 2 core platforms (especially notebook designs used to limit the number of real cores), but with 6 or 8 core processors entering the main stream, we may take advantage of running more processors slower (lower voltage) or spreading out the workload over a larger die area. It is quite interesting to note that running one core hot will increase the leakage in that area of the die much more (exponentially with temperature), so distributing work over a larger die area results in reduced leakage - having said that, a similar effect can be achieved by migrating the workload from core to core.
 
-\paragraph{On the Implementation of \Taskminer.}
-We have implemented all the techniques described in this paper in
-LLVM~\cite{Lattner04}.
-This decision was motivated by two factors.
-First, the possibility to reuse all the infra-structure already
-available in LLVM to infer symbolic bounds of integer
-expressions~\cite{Mendonca17}.
-Second, given the state-of-the-art support that LLVM already provides to the
-compilation of OpenMP~\cite{Bertolli14,Martineau16,Samuel16}.
+\noindent
+\textbf{Runtime Environment:}
+We have implemented the techniques described in this paper in
+LLVM 3.9~\cite{Lattner04}.
+All our experiments were performed in a 64-bits 12-core Intel(R) Xeon(R) CPU
+E5-2620 at 2.00GHz, with 32K of L1 cache, 256K of L2 cache, 15M of L3 cache and
+15Gb of main memory.
+We use OpenMP 4.5, from November of 2015.
 
-We performed a thorough evaluation on \Taskminer{}'s applicability in real programs. Our test framework is divided in five aspects:
-
+\noindent
+\textbf{Research Questions:}
+In this section, we evaluate this implementation, focusing on four research
+questions:
+%
 \begin{compactitem}
-\item \textsf{Performance}: we run \Taskminer on the BOTS Benchmark and show that the programs annotated by taskminer are sometimes as fast as programs annotated manually, and never slower than their sequential counterparts, thus proving it to be a conservative and useful technique. 
-\item \textsf{Optimizations}: we show some optimizations that can be applied to \Taskminer in order to improve performance of the annotated programs.
-\item \textsf{Versatility}: we demonstrate \Taskminer's versatility when it is able to find tasks in several different program paradigms.
-\item \textsf{Applicability}: we run \Taskminer on larger benchmarks to show the potential of finding task parallelism in big applications.
-\item \textsf{Practicality}: here we present \Taskminer's runtime and show that it can be easily used by a programmer to find task parallelism in applications. We evidence \Taskminer's practicality when compared to the method of manually finding parallelism, determining data dependences annotating the program.
+\item \textsf{[Performance]}: how do our automatically annotated programs
+compare against their sequential counterparts, or against manually annotated
+versions?
+\item \textsf{[Optimizations]}: what is the impact of the cost model
+(Section~\ref{sub:profit}) and recursion bounding (Section~\ref{sub:ir}) onto
+the programs that we annotate?
+\item \textsf{[Versatility]}: how effective is \Taskminer{} in finding
+opportunities to annotate general benchmarks?
+\item \textsf{[Scalability]}: what is the runtime complexity of our
+implementation of \Taskminer?
 \end{compactitem}
 
-%PERFORMANCE
-%Here, we show the results for our small benchmarks (toys & bots)
-\textbf{\textit{Performance}}. 
+\noindent
+\textbf{Benchmarking:}
+we have used different benchmarks in our experiments.
+In Sections~\ref{sub:performance} and~\ref{sub:optimizations} we use
+\textsf{BSC-Bots} (\url{https://github.com/bsc-pm/bots/tree/master/serial})~\cite{Duran09} and
+\textsf{Swan} (\url{http://cuda.dcc.ufmg.br/swan/})~\cite{Moreira17}.
+In Section~\ref{sub:versatility} we use the LLVM test suite, and in
+Section~\ref{sub:scalability} we use random programs produced with
+\textsf{CSmith}~\cite{Yang11}.
+Runtimes are averages of five executions.
+No benchmark has been changed manually.
 
-\begin{figure}[t!]
+\subsection{Performance}
+\label{sub:performance}
+
+
+\begin{figure}[b!]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/Absolute_speedups}
+\includegraphics[width=1\columnwidth]{images/TM_Performance}
 \caption{Speedup comparisons -- automatic annotations compare favourably against
 manual interventions, and lead to great performance gains.
-The Y-axis shows the speedup of either manual intervention, or automatic
-annotation (this paper) onto the original programs.}
-\label{fig:Absolute_speedups}
+The Y-axis shows the speedup of either manual intervention or the \Taskminer{}
+(this paper) upon the original programs, in number of times.
+Small numbers in boxes show speedup achieved by \Taskminer.}
+\label{fig:TM_Performance}
 \end{center}
 \end{figure}
+
+Figure~\ref{fig:TM_Performance} compares the runtime of programs produced by
+\Taskminer{} against either the original program
+or versions of said programs annotated manually.
+In this experiment we use the benchmarks \textsf{BSC-Bots}~\cite{Duran09} (\textsf{fft} to \textsf{jacobi}
+in Fig.~\ref{fig:TM_Performance}) and \textsf{Swan}~\cite{Moreira17}
+(\textsf{dfs} to \textsf{private}).
+Both these benchmarks come with sequential and parallel (manually
+annotated) versions.
+Baseline and annotated sources are compiled with gcc-6.
+
+The programs annotated by \Taskminer{} were faster than their sequential
+counterparts in 13 of the 16 samples.
+Most of the programs in these benchmarks were classic Divide and Conquer algorithms, such as \textsf{Strassen}'s matrix multiplication, \textsf{knapsack}
+and \textsf{fft}.
+In 6 of them, the automatically annotated programs were close and sometimes even 
+slightly above the manually annotated versions.
+In three examples where \Taskminer{} fell behind the original samples, e.g.,
+\textsf{fib}, \textsf{floorplan} and \textsf{bellmandford} (\textsf{bell-ford}),
+it produced code faster than the manually annotated competitor.
+Visual inspection of \textsf{bellmanford} shows that the version parallelized
+manually is dispatching a large number of small tasks.
+Our cost model can prune some of these small tasks, but not enough to win
+on the sequential version.
+We emphasize that the human-annotated versions of our benchmarks have not
+been tested originally in our architecture.
+For instance, \textsf{BSC-Bots} was evaluated on an SGI Altix 4700
+with 128 processors~\cite{Duran09}.
+Thus, this difference in hardware might be accountable for the slowdown in
+some of the manually annotated samples.
+Nevertheless, this experiment demonstrates that {\em \Taskminer{} can
+deliver non-negligible speedups comparable with sequential and manually
+annotated programs}.
 
 %OPTIMIZATIONS
 %Here, we show the results on two big optimizations: recursion depth and cost model.
 %We can use the same benchmarks as above.
-\textbf{\textit{Optimizations}}.
+\subsection{Optimizations}
+\label{sub:optimizations}
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{images/Opt_Speedups}
-\caption{The benefit of our optimizations.
-Each optimization (profitability analysis and recursion bounds) lead to
-non-trivial speedups.}
-\label{fig:Opt_Speedups}
+\includegraphics[width=1\columnwidth]{images/Optimizations}
+\caption{Benefit of task pruning (Secs.~\ref{sub:profit} and~\ref{sub:ir}).
+\textbf{RFC}: tasks created within \underline{R}ecursive \underline{F}unction
+\underline{C}alls.
+\textbf{NRC}: interprocedural tasks created around
+\underline{N}on-\underline{R}ecursive function \underline{C}alls.
+\underline{Reg}: tasks involving \underline{Reg}ions without function calls.
+}
+\label{fig:Optimizations}
 \end{center}
 \end{figure}
+
+This paper describes two ways to optimize task placement.
+Both these techniques are based on the idea of ``task pruning": we avoid
+creating tasks if we deem them unprofitable.
+The first technique prunes tasks judged unprofitable by the cost-model of
+Section~\ref{sub:profit}; the second prunes tasks that are too deep in the
+recursion stack, as described in Section~\ref{sub:ir}.
+Figure~\ref{fig:Optimizations} illustrates the benefits of these two techniques.
+We show the gains -- in terms of speedup over the baseline -- of the three
+benchmarks that
+benefit the most from each type of task pruning, among those earlier seen in
+Figure~\ref{fig:TM_Performance}.
+
+In three benchmarks, \textsf{private}, \textsf{boruvka} and
+\textsf{bellman-ford}, the cost model avoids creating tasks around loops that
+initialize data-structures.
+For instance, the following loop, in line 75 of \textsf{bellmanford.c}, would be
+parallelized by \Taskminer, were it not for the cost-model marking it as
+unprofitable:
+
+\begin{verbatim}
+  for (long unsigned i = 0; i < N; i++)
+    for (long unsigned j = 0; j < N; j++)
+      *(G + i * N + j) = rand();
+\end{verbatim}
+
+Similarly, recursion bounding (Sec.~\ref{sub:ir}), although
+simple, is effective in eliminating the excessive number of tasks.
+Figure~\ref{fig:Optimizations} shows the effect of this optimization upon
+three \textsf{BSC-Bots} benchmarks: \textsf{health}, \textsf{nqueens} and
+\textsf{strassen}.
+These programs were designed to illustrate the parallelization of
+divide-and-conquer algorithms~\cite{Duran09}, and contain a large number of
+recursive calls (see \textbf{RFC}) in Figure~\ref{fig:Optimizations}.
+Pruning at higher levels of the recursion tree lets them deliver
+non-negligible speedups onto the baseline programs.
+Were pruning absent, then we would observe slowdowns in \textsf{health}
+and \textsf{nqueens}.
+This experiment shows that {\em our optimizations are effective to
+improve the quality of the code that we generate}.
 
 %VERSATILITY
 %The goal here is to show that TaskMiner is a versatile tool, capable of finding many types of task parallelism in the code. 
 %And the types of tasks that are going to be mined can be easily set, should the programmer ever desires to.
-\textbf{\textit{Versatility}}.
+\subsection{Versatility}
+\label{sub:versatility}
 
-\begin{table}[h]
-\centering
-\caption{Different kinds of tasks among the BOTS benchmarks. {\Taskminer}'s versaitily allows the user to define which type of tasks should be mined, annotated or cared for.}
-\label{tab:types}
-\begin{tabular}{|r|c|c|c|}
-\hline
-                   & \textbf{Recursive} & \textbf{FunctionCall} & \textbf{Region} \\ \hline
-\textbf{fft}       & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{fib}       & \checkmark         &                       &                 \\ \hline
-\textbf{floorplan} & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{sort}      & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{sparselu}  &                    & \checkmark            & \checkmark      \\ \hline
-\textbf{strassen}  & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{uts}       & \checkmark         &                       &                 \\ \hline
-\textbf{nqueens}   & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{knapsack}  & \checkmark         &                       & \checkmark      \\ \hline
-\textbf{health}    & \checkmark         & \checkmark            & \checkmark      \\ \hline
-\textbf{jacobi}    &                    &                       &                 \\ \hline
-\end{tabular}
-\end{table}
+The benchmarks used in Section~\ref{sub:performance} have been coded to
+demonstrate the power of parallel systems; hence, they have
+been written in a way that simplifies the discovery of parallelism in programs.
+In this section, we address the following question: ``can \Taskminer" find
+parallelism in general programs?
+To answer it, we have applied \Taskminer{} onto the 219 C programs available in
+the LLVM test suite, and have compared the annotated version
+against the sequential version compiled.
+\Taskminer{} annotates a benchmark if:
+(i) it can find symbolic bounds to every
+memory access used in a vane; and
+(ii) the vane is large enough to pay for the cost of creating threads.
+Under these constraints, we have discovered tasks in 63 benchmarks.
+Figure~\ref{fig:TM_Versatility} relates the number of tasks and the number of
+instructions in the 30 largest benchmarks that we have used.
+To avoid counting multiple C files for the same benchmark,
+Figure~\ref{fig:TM_Versatility} contains only benchmarks that
+consists of a single file (present in LLVM's \textsf{SingleSource} folder).
+As this experiment demonstrates, \Taskminer{} {\em can annotate a non-trivial
+number of real-world benchmarks}.
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/TM_Versatility}
+\caption{Relation between number of task regions and program size.
+Each benchmark is a complete C file.}
+\label{fig:TM_Versatility}
+\end{center}
+\end{figure}
+
+Most of the benchmarks, e.g., 27, that have been automatically annotated did not
+give us speedups, because the regions marked as tasks were too small to influence
+the program's runtime.
+We have observed slowdowns in 17 benchmarks.
+In this case, interactions between data-structures end up forcing the OpenMP
+runtime to serialize execution of tasks.
+Most of these slowdowns were inferior to 10\%.
+In one case, \textsf{MiBench/office-stringsearch}, our program was 11x slower.
+Nevertheless, we have measured speedups above 5\% in 19 benchmarks.
+In \textsf{Misc/lowercase}, the speedup is above 3.5x, and in
+three cases, it is above 1.5x.
+Figure~\ref{fig:TM_GeneralProgs} shows our 10 largest speedups.
+We emphasize that this experiment did not involve any human intervention.
+Hence, {\em \Taskminer{} enables the discovery of parallelism at
+zero programming cost}.
+
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[width=1\columnwidth]{images/TM_GeneralProgs}
+\caption{Speedups (in number of times) obtained by \Taskminer{} when applied onto
+the LLVM test suite.
+The larger the bar, the better.
+\textbf{LoC} stands for ``Lines of C".}
+\label{fig:TM_GeneralProgs}
+\end{center}
+\end{figure}
 
 
-%APPLICABILITY
-%We'll show TaskMiner application on larger benchmarks, such as those of spec or those of the LLVM's test-suite.
-\textbf{\textit{Applicability}}.
+%{\Taskminer}'s versatility also arises in regards to the diversity of types of task parallelism that it
+%can find in a program. Table \ref{tab:types} shows all types of tasks found in our main benchmarks.
+%There are 3 types of tasks: recursive, which arises from vanes in Divide and Conquer
+%algorithms; function call, which arises within loops that are not clearly parallel; and region, which 
+%are similar to function calls, but instead are entire fragments of code within loops that can be executed in
+%parallel. We provide the user complete decision power to mine for any type of tasks they wish when
+%running our tool. 
 
+%SCALABILITY
+\subsection{Scalability}
+\label{sub:scalability}
 
-%PRACTICALITY
-%The main objective here is to show that TaskMiner can be easily utilized by a programmer to find tasks in their source code. 
-%We'll test TaskMiner's running time.
-\textbf{\textit{Practicality}}.
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.9\columnwidth]{images/TM_Runtime}
+\caption{Runtime of \Taskminer{} vs size of input programs.
+Each dot represents one of the 100 program generated by \textsf{CSmit}.
+We have fit a degree-2 polynomial on this dataset.
+We cannot control the size of programs produced by CSmith; hence, it is
+difficult to push the limit above 5,000 LoC.}
+\label{fig:TM_Runtime}
+\end{center}
+\end{figure}
 
+The analyses described in Section~\ref{sec:sol} have a worst-case quadratic time.
+This is the worst-case scenario of the symbolic range analysis of
+Section~\ref{sub:sra} and the task-expansion algorithm of
+Section~\ref{sub:expansion}.
+Nevertheless, our implementation is fast in practice.
+To support this statement, we have used \textsf{CSmith}~\cite{Yang11}, a random
+code generator, to produce 100 programs of varying sizes, which we then fed to
+the \Taskminer.
+Figure~\ref{fig:TM_Runtime} shows the result of this experiment.
+Our largest program had 4,999 lines of C, and \Taskminer{} could process it
+in 1.2 seconds.
+the $R^2$ of polynomials of degree 1, 2, 3 and 4 is, respectively, 0.795,
+0.890, 0.909 and 0.911, suggesting very small differences between polynomials
+of degree 2 or more.
 
 \section{Related Work}
 \label{sec:rw}
+
+Mainstream compilers have only recently added support to OpenMP 4.0's task
+parallelism.
+An implementation of \textsf{clang} supporting tasks was released in March 14th,
+2014.
+A few weeks later, in April 22nd, 2014, such support was also announced in
+\textsf{gcc} 4.9.
+Because the necessary infra-structure for the implementation of tasks is
+new, currently there are no tools, other than \Taskminer,
+that annotate programs with these directives.
+Nevertheless, there exist much research aiming at the automatic
+parallelization of programs.
+This section examines elements in this list related to our
+work.
+
+Directive-based code annotation standards provide programmers with an easy-to-use
+parallel programming model.
+Task-based extensions to these standards have resulted in OpenMP 4.X,
+StarSs \cite{bellens:sc:2006, perez:iccc:2008, planas:hpca:2009,
+tejedor:hpdc:2011} and OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}.
+Such programming models come with tools that help programmers to find the
+best annotations for their code. For example,  Tareador
+\cite{Ayguade15} enables a programmer, by means of a graphical interface,
+to annotate sequential code, thus allowing the identification of potential task
+parallelization opportunities.
+Contrary to Tareador,  this paper proposes an approach that enables the
+automatic insertion of OpenMP task annotations to relevant fragments of a
+sequential program.
+
+The techniques that we use to map program regions to tasks is similar to
+analyses previously used in the generation of code for data-flow machines.
+Data-flow programming was originally proposed as a candidate to enable
+task-based parallelism \cite{agrawal:ipdps:2010, chan:spaa:2007,
+gupta:micro:2011}.  Agrawal et al. \cite{agrawal:ipdps:2010}  extended
+data-flow programming  with task input/output specifications in  Cilk++.
+Vandierendonck et al.  \cite{vandierendonck:hotpar:2011} further extended Cilk++
+with dependency clauses to facilitate the design of complex
+parallelization patterns. Both groups presented a unified scheduler based on
+fork-join parallelism \cite{vandierendonck:pact:2011} that enabled the
+execution of task-based applications. Other approaches have also used
+data-flow graphs to exploit parallelism, like Data-Driven Tasks
+\cite{tasirlar:icpp:2011}, where the programmer can use put/await clauses to
+determine task arguments before execution.
+Function-based task parallelism was proposed by Gupta {\em et al.}
+\cite{gupta:micro:2011} to use function arguments  as a way to
+specify task  dependencies.
+Notice that such research efforts focused on giving to programmers the tools to
+{\em construct} parallel programs.
+The automatic annotation of ordinary programs with data-flow constructs was not
+among their goals.
+
+Many systems have been developed to extract task parallelism from sequential
+programs (semi) automatically.
+Examples include OSCAR
+(Optimally SCheduled Advanced multiprocessoR), Multigrain Parallelizing
+Compiler \cite{ishizaka:journal:2000, kasahara:iwlcpc:2000},  MAPS (MPSoC
+Application Programming  Studio) \cite{castrillon:tii:2013, ceng:dac:2008}, and
+DiscoPoP (Discovery of Potential Parallelism) \cite{discopop, li:jss:2016}.
+Besides parallelization systems, tools like Paraver \cite{extrae, paraver},
+Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, and TEMANEJO
+\cite{brinkmann:parco:2011, brinkmann:journal:2013, temanejo} were  designed to
+enable performance analysis and visualization of task-based programs.
+Although these tools help the programmer in adapting code
+to run in parallel, they are not fully automatic.
+For instance, the work that is the closest to ours, in reach and effectiveness,
+in our opinion, is the suite of techniques proposed by Ravishankar {\em et
+al.}~\cite{Ravishankar14}.
+The type of irregular loops that they handle is impressive; however,
+the lack of the runtime support \`{a} la OpenMP 4.X still requires them to
+modify code before parallelization.
+In their words: ``{\em For all benchmarks and applications, all functions were 
+inlined, and arrays of structures were converted to structures of arrays for use
+with our prototype compiler.}"
 
 % Talk about annotations vs libraries, e.g., Wool, Intel TBB. See: "A Comparison of some recent Task-based Parallel Programming Models"
 
 \section{Conclusion}
 \label{sec:conc}
 
-\pedro{As future work, we plan on performing Autotuning on {\Taskminer} to find good default parameters.
-Autotuning works for data-flow applications have been already done in \cite{Trancoso17, Emani15}}.
+This paper has described a methodology to annotate programs with task
+parallel pragmas, which we could demonstrate to be effective
+on general programs.
+This methodology does not introduce any fundamentally new static analysis or code 
+optimization; in this field, we claim no contribution.
+Instead, our contributions lay into the overall design that eventually
+emerged from a two-years long effort to combine existing compilation techniques
+towards the goal of profiting from the powerful runtime system that OpenMP's
+task parallelism brings forward.
+During this period, we went through many dead-ends; too many, indeed, for a
+11-pages report.
+Nevertheless, this experience lets us single out a few elements from the
+compiler literature, such as symbolic range analysis and windmills, which we
+could use to solve challenges related to automatic code annotation.
+Much work is still left to be done, until we can reach a stage in which
+automatic annotations can beat consistently manual interventions.
+In particular, our methodology asks for more aggressive tuning strategies.
+Techniques such as Trancoso's~\cite{Trancoso17}, Iwasaki's~\cite{Iwasaki16B}
+or Emani's~\cite{Emani15} have already been shown to be effective in this
+domain, and we want to explore them further.
+More specifically, a future release of \Taskminer{} is already expected to
+feature Iwasaki's cut-off~\cite{Iwasaki16B}.
 
 \bibliography{references}
 

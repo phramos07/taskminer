@@ -12,6 +12,45 @@ std::set<Value*> Task::getLiveOUT() const { return liveOUT; }
 std::set<Value*> Task::getLiveINOUT() const { return liveINOUT; }
 std::set<BasicBlock*> Task::getbbs() const { return bbs; }
 
+bool Task::isSafeForAnnotation() const
+{
+	for (auto bb : bbs)
+	{
+		for (BasicBlock::iterator inst = bb->begin(); inst != bb->end(); inst++)
+		{
+			if (GetElementPtrInst* GEPI = dyn_cast<GetElementPtrInst>(inst))
+			{
+				if (isGlobal(GEPI))
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool Task::isGlobal(Value* I) const
+{
+	if (GlobalValue* GV = dyn_cast<GlobalValue>(I))
+		return true;
+	else if (LoadInst* LI = dyn_cast<LoadInst>(I))
+		return isGlobal(LI->getPointerOperand());
+	else if (StoreInst* SI = dyn_cast<StoreInst>(I))
+		return isGlobal(SI->getPointerOperand());
+	else if (GetElementPtrInst* GEPI = dyn_cast<GetElementPtrInst>(I))
+		return isGlobal(GEPI->getPointerOperand());
+	else if (PHINode* phi = dyn_cast<PHINode>(I))
+	{
+		bool phiOperands = true;
+		for (int i = 0; i < phi->getNumOperands(); i++)
+			phiOperands |= isGlobal(phi->getOperand(i));
+
+		return phiOperands;
+	}
+
+	return false;
+}
+
 AccessType Task::getTypeFromInst(Instruction* I)
 {
 	if (dyn_cast<GetElementPtrInst>(I))
@@ -175,8 +214,13 @@ raw_ostream& FunctionCallTask::print(raw_ostream& os) const
 	os << "\nHas sync barrier?\n";
 	os << this->hasSyncBarrier();
 	// this->outerMost->print(os);
-
 	os << "\n";
+	os << "Is safe for annotation? ";
+	if (isSafeForAnnotation())
+		os << " yes\n";
+	else
+		os << " no\n";
+
 	return os;
 }
 
@@ -383,6 +427,11 @@ raw_ostream& RecursiveTask::print(raw_ostream& os) const
 	printPrivateValues(os);
 	CM.print(os);
 	os << "Total Insts: " << getBaseCaseCost() << "\n";
+	os << "Is safe for annotation? ";
+	if (isSafeForAnnotation())
+		os << " yes\n";
+	else
+		os << " no\n";
 
 	return os;	
 }
@@ -573,6 +622,11 @@ raw_ostream& RegionTask::print(raw_ostream& os) const
 	printPrivateValues(os);
 	CM.print(os);
 	os << "\nEntry BB:" << header->getName() << "\n";
+	os << "Is safe for annotation? ";
+	if (isSafeForAnnotation())
+		os << " yes\n";
+	else
+		os << " no\n";
 
 	return os;	
 }

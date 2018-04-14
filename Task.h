@@ -66,6 +66,8 @@ namespace llvm
 		void addBasicBlock(BasicBlock* bb) { bbs.insert(bb); }
 		bool hasLoadInstructionInDependence() const;
 		virtual bool hasSyncBarrier() const {return false; }
+		bool isSafeForAnnotation() const;
+		bool isGlobal(Value* I) const;
 
 		//Printing to output stream methods
 		virtual raw_ostream& print(raw_ostream& os) const;
