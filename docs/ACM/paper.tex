@@ -206,7 +206,7 @@ effective means to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
 OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
-Tareador~\cite{Ayguade15}.
+OmpSs~\cite{bueno:icpp:2011, duran:ppl:2011}.
 Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %\guido{What do you mean by modern accelerators? Not clear.}
@@ -821,7 +821,7 @@ represent the number of iterations of loops.
 A similar approach has already been used to decide when to migrate virtual memory
 pages in NUMA architectures~\cite{Piccoli14}.
 OpenMP 4.0 contains syntax to enable the conditional creation of tasks.
-Our symbolic analysis lets us build predicates for such conditional expressions.
+Our symbolic analysis lets us build predicates for such conditionals.
 
 \begin{example}
 \label{ex:cond_task}
@@ -863,10 +863,12 @@ W(\mbox{instr}) = \mbox{given by the spec.}
 \end{figure}
 
 % Explain how we use symbolic information to compute costs.
-The declarative rules in Figure~\ref{fig:swe} sketches the heuristics that
-we use to compute the SWE for a given hammock region $S$.
+The declarative rules in Figure~\ref{fig:swe} sketch the heuristics that
+we use to compute the SWE for a hammock region $S$.
 Rule \textsc{LoopInf} applies on loops whose number of iterations we cannot bound
 via some symbolic expression computed statically.
+We assume that loops execute 10 times, following previous
+statistics~\cite{Wu94}.
 Rule \textsc{LoopExp} represents loops that we can analyze using our Symbolic
 Range Analysis.
 The auxiliary function $\mathit{Iter}(S)$ returns a symbolic expression that
@@ -888,8 +890,9 @@ Instead, the reader shall notice that Figure~\ref{fig:alg_main} receives a
 cost model as a parameter.
 For the experiments in Section~\ref{sec:eval}, we have determined a small
 collection of constants related to the creation of threads in our target
-architecture, including the value of \textsf{WORK\_CUTOFF}, seen in
-Example~\ref{ex:cond_task}.
+architecture.
+As an example, the value of \textsf{WORK\_CUTOFF}, seen in
+Example~\ref{ex:cond_task}, in our setting, is roughly 500 cycles.
 
 % Discuss the expansion algorithm.
 \subsection{Task Expansion}
@@ -1310,11 +1313,13 @@ parallelism in general programs?
 To answer it, we have applied \Taskminer{} onto the 219 C programs available in
 the LLVM test suite, and have compared the annotated version
 against the sequential version compiled.
-\Taskminer{} annotates a benchmark if it can find symbolic bounds to every
-memory access (load or store) used within a region marked as a task candidate.
-Under this constraint, we have been able to discover tasks in 63 benchmarks.
+\Taskminer{} annotates a benchmark if:
+(i) it can find symbolic bounds to every
+memory access used in a vane; and
+(ii) the vane is large enough to pay for the cost of creating threads.
+Under these constraints, we have discovered tasks in 63 benchmarks.
 Figure~\ref{fig:TM_Versatility} relates the number of tasks and the number of
-instructions in the 30 largest benchmarks that we analyze.
+instructions in the 30 largest benchmarks that we have used.
 To avoid counting multiple C files for the same benchmark,
 Figure~\ref{fig:TM_Versatility} contains only benchmarks that
 consists of a single file (present in LLVM's \textsf{SingleSource} folder).
