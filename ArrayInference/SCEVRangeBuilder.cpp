@@ -6,6 +6,14 @@
 using namespace llvm;
 using namespace lge;
 
+void SCEVRangeBuilder::setLoop(Loop *L) {
+  this->LL = L;
+}
+
+bool SCEVRangeBuilder::isLoopUsed() {
+  return this->hasLL;
+}
+
 Value *SCEVRangeBuilder::getSavedExpression(const SCEV *S,
                                             Instruction *InsertPt, bool Upper) {
   auto I = InsertedExpressions.find(std::make_tuple(S, InsertPt, Upper));
@@ -14,6 +22,29 @@ Value *SCEVRangeBuilder::getSavedExpression(const SCEV *S,
     return I->second;
 
   return NULL;
+}
+
+void SCEVRangeBuilder::addLExpr (Loop *L, Value *Ptr, const SCEVAddRecExpr *Exp) {
+  if (lExpr.count(L) == 0) {
+    std::map<Value*, std::vector<const SCEVAddRecExpr *> > ptrs;
+    lExpr[L] = ptrs;
+  }
+  lExpr[L][Ptr].push_back(Exp);
+}
+
+std::vector<const SCEVAddRecExpr *> SCEVRangeBuilder::getAllExpr(Loop *L, Value *Ptr) {
+  if (lExpr.count(L) == 0) {
+    std::vector<const SCEVAddRecExpr *> ptrs;
+    return ptrs;
+  }
+  if (lExpr[L].count(Ptr) == 0) {
+    errs() << "Bug\n";
+    if (Ptr)
+      Ptr->dump();
+    std::vector<const SCEVAddRecExpr *> ptrs;
+    return ptrs;
+  }
+  return lExpr[L][Ptr];
 }
 
 void SCEVRangeBuilder::rememberExpression(const SCEV *S, Instruction *InsertPt,
@@ -226,6 +257,129 @@ Value *SCEVRangeBuilder::visitUDivExpr(const SCEVUDivExpr *Expr, bool Upper) {
   return InsertBinop(Instruction::UDiv, Lhs, Rhs);
 }
 
+Value *SCEVRangeBuilder::findStep(const SCEVAddRecExpr *Expr, bool Upper) {
+  Type *OpTy = SE->getEffectiveSCEVType(Expr->getStart()->getType());
+  const SCEV *StepSCEV =
+    SE->getTruncateOrSignExtend(Expr->getStepRecurrence(*SE), OpTy);
+  Value *Step = expand(StepSCEV, Upper);
+  Step = InsertNoopCastOfTo(Step, OpTy);
+  return Step;
+}
+
+PHINode *SCEVRangeBuilder::getInductionVariable(Loop *L) {
+   BasicBlock *H = L->getHeader();
+ 
+   BasicBlock *Incoming = nullptr, *Backedge = nullptr;
+   pred_iterator PI = pred_begin(H);
+   assert(PI != pred_end(H) && "Loop must have at least one backedge!");
+   Backedge = *PI++;
+   if (PI == pred_end(H))
+     return nullptr; // dead loop
+   Incoming = *PI++;
+   if (PI != pred_end(H))
+     return nullptr; // multiple backedges?
+ 
+   if (L->contains(Incoming)) {
+     if (L->contains(Backedge))
+       return nullptr;
+     std::swap(Incoming, Backedge);
+   } else if (!L->contains(Backedge))
+     return nullptr;
+ 
+   // Loop over all of the PHI nodes, looking for a canonical indvar.
+   for (BasicBlock::iterator I = H->begin(); isa<PHINode>(I); ++I) {
+     PHINode *PN = cast<PHINode>(I);
+     if (ConstantInt *CI =
+             dyn_cast<ConstantInt>(PN->getIncomingValueForBlock(Incoming)))
+         if (Instruction *Inc =
+                 dyn_cast<Instruction>(PN->getIncomingValueForBlock(Backedge)))
+           if (Inc->getOpcode() == Instruction::Add && Inc->getOperand(0) == PN)
+             if (ConstantInt *CI = dyn_cast<ConstantInt>(Inc->getOperand(1)))
+                 return PN;
+   }
+   return nullptr;
+ }
+
+Value *SCEVRangeBuilder::getPHIStart(Loop *L) {
+   BasicBlock *H = L->getHeader();
+ 
+   BasicBlock *Incoming = nullptr, *Backedge = nullptr;
+   pred_iterator PI = pred_begin(H);
+   assert(PI != pred_end(H) && "Loop must have at least one backedge!");
+   Backedge = *PI++;
+   if (PI == pred_end(H))
+     return nullptr; // dead loop
+   Incoming = *PI++;
+   if (PI != pred_end(H))
+     return nullptr; // multiple backedges?
+ 
+   if (L->contains(Incoming)) {
+     if (L->contains(Backedge))
+       return nullptr;
+     std::swap(Incoming, Backedge);
+   } else if (!L->contains(Backedge))
+     return nullptr;
+ 
+   // Loop over all of the PHI nodes, looking for a canonical indvar.
+   for (BasicBlock::iterator I = H->begin(); isa<PHINode>(I); ++I) {
+     PHINode *PN = cast<PHINode>(I);
+     if (ConstantInt *CI =
+             dyn_cast<ConstantInt>(PN->getIncomingValueForBlock(Incoming)))
+         if (Instruction *Inc =
+                 dyn_cast<Instruction>(PN->getIncomingValueForBlock(Backedge)))
+           if (Inc->getOpcode() == Instruction::Add && Inc->getOperand(0) == PN)
+             if (ConstantInt *CII = dyn_cast<ConstantInt>(Inc->getOperand(1)))
+                 return CI;
+   }
+   return nullptr;
+} 
+
+/*Value *SCEVRangeBuilder::calculateStepBy(Loop *L, bool Upper) {
+  const SCEVAddRecExpr* Expr = lExpr[L];
+  return findStep(Expr, Upper);
+}*/
+
+Value *SCEVRangeBuilder::calculateAccessWindow(Loop *L, Value *Bound,
+                                               Value *Rbound, bool Upper) {
+  Type *OpTy = SE->getEffectiveSCEVType(Bound->getType());  
+  Value *V1 = InsertNoopCastOfTo(Rbound, OpTy);
+  Value *V2 = InsertBinop(Instruction::Sub, Bound, Rbound);
+   
+  return V2;
+}
+
+/*Value *SCEVRangeBuilder::addSymbExp(Loop *L, Value *UP, bool Upper) {
+   const SCEVAddRecExpr* Expr = lExpr[L];
+   if (!getInductionVariable(L))
+     return nullptr;
+    Type *OpTy = SE->getEffectiveSCEVType(UP->getType());    
+    Value *V1 = getInductionVariable(L);
+    Value *VC = getPHIStart(L);
+    Value *V2 = findStep(Expr, Upper); 
+    UP = InsertNoopCastOfTo(UP, OpTy);
+    if (!V1 || !V2)
+      return nullptr;
+    
+    if (V2 == DUMMY_VAL) 
+      return DUMMY_VAL;
+
+    V1 = InsertCast(Instruction::SExt, V1, OpTy);
+    V2 = InsertNoopCastOfTo(V2, OpTy);
+    if (!Upper) {
+      if (ConstantInt *CI = dyn_cast<ConstantInt>(VC)) {
+        if (!CI->isZero()) {
+          VC = InsertCast(Instruction::SExt, VC, OpTy);
+          V1 = InsertBinop(Instruction::Sub, V1, VC);
+        }
+      }
+    }  
+
+    Value *V3 = InsertBinop(Instruction::Mul, V1, V2);  
+    Value *Bound = InsertBinop(Instruction::Add, UP, V3);
+
+    return Bound;
+}*/
+
 // Compute bounds for an expression of the type {%start, +, %step}<%loop>.
 // - upper: upper(%start) + upper(%step) * upper(backedge_taken(%loop))
 // - lower_bound: lower_bound(%start)
@@ -239,56 +393,93 @@ Value *SCEVRangeBuilder::visitAddRecExpr(const SCEVAddRecExpr *Expr,
   //   }
   // In this case, the result expanding is ((n - 1) * (n - 1))
   // But the correct result is (((n-1) * n) / 2)
+  Loop *L = const_cast<Loop*>(Expr->getLoop());
+  addLExpr(L, PPtr, Expr);
+  addLExpr(L, getInductionVariable(L), Expr);
+  //lExpr[L] = Expr;
   if (Expr->isQuadratic())
     return nullptr;
- 
+
+  if ((LL == L) && (relAnalysisMode == true)) {
+    hasLL = true;
+    return expand(Expr->getStart(), Upper);
+  }
+
   // lower.
-  if (!Upper)
+  if (!Upper) {
     return expand(Expr->getStart(), /*Upper*/ false);
-
-  // upper.
-  // Cast all values to the effective start value type.
-  Type *OpTy = SE->getEffectiveSCEVType(Expr->getStart()->getType());
-  const SCEV *StartSCEV = SE->getTruncateOrSignExtend(Expr->getStart(), OpTy);
-  const SCEV *StepSCEV =
+  }
+  else {
+    // upper.
+    // Cast all values to the effective start value type.
+    Type *OpTy = SE->getEffectiveSCEVType(Expr->getStart()->getType());
+    const SCEV *StartSCEV = SE->getTruncateOrSignExtend(Expr->getStart(), OpTy);
+    const SCEV *StepSCEV =
       SE->getTruncateOrSignExtend(Expr->getStepRecurrence(*SE), OpTy);
-  const SCEV *BEdgeCountSCEV;
-  const Loop *L = Expr->getLoop();
+    const SCEV *BEdgeCountSCEV;
+    const Loop *L = Expr->getLoop();
 
-  // Try to compute a symbolic limit for the loop iterations, so we can fix a
-  // bound for a recurrence over it. If a BE count limit is not available for
-  // the loop, check if an artificial limit was provided for it.
-  if (SE->hasLoopInvariantBackedgeTakenCount(L))
-    BEdgeCountSCEV = SE->getBackedgeTakenCount(L);
-  else if (ArtificialBECounts.count(L))
-    BEdgeCountSCEV = ArtificialBECounts[L];
-  else
-    return nullptr;
+    // Try to compute a symbolic limit for the loop iterations, so we can fix a
+    // bound for a recurrence over it. If a BE count limit is not available for
+    // the loop, check if an artificial limit was provided for it.
+    if (SE->hasLoopInvariantBackedgeTakenCount(L))
+      BEdgeCountSCEV = SE->getBackedgeTakenCount(L);
+    else if (ArtificialBECounts.count(L))
+      BEdgeCountSCEV = ArtificialBECounts[L];
+    else
+      return nullptr;
 
-  BEdgeCountSCEV = SE->getTruncateOrSignExtend(BEdgeCountSCEV, OpTy);
-  Value *Start = expand(StartSCEV, Upper);
-  Value *Step = expand(StepSCEV, Upper);
-  Value *BEdgeCount = expand(BEdgeCountSCEV, Upper);
+    BEdgeCountSCEV = SE->getTruncateOrSignExtend(BEdgeCountSCEV, OpTy);
+    Value *Start = expand(StartSCEV, Upper);
+    Value *Step = expand(StepSCEV, Upper);
+    Value *BEdgeCount = expand(BEdgeCountSCEV, Upper);
 
-  if (!Start || !Step || !BEdgeCount)
-    return nullptr;
+    if (!Start || !Step || !BEdgeCount)
+      return nullptr;
 
-  // Build the actual computation.
-  Start = InsertNoopCastOfTo(Start, OpTy);
-  Step = InsertNoopCastOfTo(Step, OpTy);
-  BEdgeCount = InsertNoopCastOfTo(BEdgeCount, OpTy);
-  Value *Mul = InsertBinop(Instruction::Mul, Step, BEdgeCount);
-  Value *Bound = InsertBinop(Instruction::Add, Start, Mul);
+    // Build the actual computation.
+    Start = InsertNoopCastOfTo(Start, OpTy);
+    Step = InsertNoopCastOfTo(Step, OpTy);
+    BEdgeCount = InsertNoopCastOfTo(BEdgeCount, OpTy);
+    Value *Mul = InsertBinop(Instruction::Mul, Step, BEdgeCount);
+    Value *Bound = InsertBinop(Instruction::Add, Start, Mul);
 
-  // From this point on, we already know this bound can be computed.
-  if (AnalysisMode)
-    return DUMMY_VAL;
+    // From this point on, we already know this bound can be computed.
+    if (AnalysisMode)
+      return DUMMY_VAL;
 
-  // Convert the result back to the original type if needed.
-  Type *Ty = SE->getEffectiveSCEVType(Expr->getType());
-  const SCEV *BoundCast =
+    // Convert the result back to the original type if needed.
+    Type *Ty = SE->getEffectiveSCEVType(Expr->getType());
+    const SCEV *BoundCast =
       SE->getTruncateOrSignExtend(SE->getUnknown(Bound), Ty);
-  return expand(BoundCast, Upper);
+    return expand(BoundCast, Upper);
+  }
+
+/*  if (LL == Expr->getLoop()) {
+    if (!Expr->getLoop()->getCanonicalInductionVariable())
+      return nullptr;
+    
+    Type *OpTy = SE->getEffectiveSCEVType(Expr->getStart()->getType());    
+    Value *V1 = Expr->getLoop()->getCanonicalInductionVariable();
+    Value *V2 = RV; 
+    if (!V1 || !V2)
+      return nullptr;
+    
+    if (V2 == DUMMY_VAL) 
+      return DUMMY_VAL;
+    
+    V1 = InsertCast(Instruction::SExt, V1, OpTy);
+    V2 = InsertNoopCastOfTo(V2, OpTy);
+
+    errs() << " V1 = " << *V1 << "\n";
+    errs() << " V2 = " << *V2 << "\n";
+
+    Value *nexp = InsertBinop(Instruction::Mul, V1, V2);  
+    if (nexp && (nexp != DUMMY_VAL))
+      nexp->dump();
+    //return nexp;
+  }
+  return RV;*/
 }
 
 // Simply expand all operands and save them on the expression cache. We then
@@ -438,8 +629,9 @@ Value *SCEVRangeBuilder::getULowerOrUpperBound(
   Value *BestBound = expand(Expr, Upper);
   ++It;
 
-  if (!BestBound)
+  if (!BestBound) {
     return nullptr;
+  }
 
   while (It != ExprList.end()) {
     Expr = *It;
@@ -467,11 +659,13 @@ Value *SCEVRangeBuilder::getULowerOrUpperBound(
 
 Value *
 SCEVRangeBuilder::getULowerBound(const std::vector<const SCEV *> &ExprList) {
+  hasLL = false;
   return getULowerOrUpperBound(ExprList, /*Upper*/ false);
 }
 
 Value *
 SCEVRangeBuilder::getUUpperBound(const std::vector<const SCEV *> &ExprList) {
+  hasLL = false;
   return getULowerOrUpperBound(ExprList, /*Upper*/ true);
 }
 
@@ -495,6 +689,65 @@ SCEVRangeBuilder::canComputeBoundsFor(const std::set<const SCEV *> &ExprList) {
       return false;
 
   return true;
+}
+
+Value *SCEVRangeBuilder::getAddRectULowerOrUpperBound(
+       std::vector<const SCEVAddRecExpr*> vct, bool Upper) {
+  std::vector<const SCEV*> vctmp;
+  std::map<const SCEV*, const SCEVAddRecExpr*> maddr;
+  for (int i = 0, ie = vct.size(); i < ie; i++) {
+    vctmp.push_back(vct[i]);
+    maddr[vct[i]] = vct[i];
+  }
+  const std::vector<const SCEV*>* ExprList =
+       const_cast<std::vector<const SCEV*>* >((&vctmp));
+
+  if (ExprList->size() < 1)
+    return nullptr;
+
+  auto It = ExprList->begin();
+  const SCEV *Expr = *It;
+  Value *BestBound = expand(Expr, false);
+//  Type *ITy = Type::getInt64Ty(BestBound->getType()->getContext());
+//  BestBound = InsertCast(Instruction::PtrToInt, BestBound, ITy);
+  //Value *Step = findStep(maddr[Expr], false);
+  //errs() << "Step = " << *Step << " || BBound = " << *BestBound << "\n";
+  //if (BestBound->getType() != Step->getType()) 
+  //  BestBound = InsertNoopCastOfTo(BestBound, Step->getType());
+  //BestBound = InsertBinop(Instruction::UDiv, BestBound, Step);
+
+  ++It;
+
+  if (!BestBound)
+    return nullptr;
+
+  while (It != ExprList->end()) {
+    Expr = *It;
+    Value *NewBound = expand(Expr, false);
+//    NewBound = InsertCast(Instruction::PtrToInt, NewBound, ITy);
+    //Step = findStep(maddr[Expr], false);
+    //if (NewBound->getType() != Step->getType()) 
+    //  NewBound = InsertNoopCastOfTo(NewBound, Step->getType());
+    //NewBound = InsertBinop(Instruction::UDiv, NewBound, Step);
+
+    Value *Cmp;
+
+    if (!NewBound)
+      return nullptr;
+    // The old bound is promoted on type conflicts.
+    if (BestBound->getType() != NewBound->getType())
+      NewBound = InsertNoopCastOfTo(NewBound, BestBound->getType());
+
+    if (Upper)
+      Cmp = InsertICmp(ICmpInst::ICMP_UGT, NewBound, BestBound);
+    else
+      Cmp = InsertICmp(ICmpInst::ICMP_ULT, NewBound, BestBound);
+
+    BestBound =
+        InsertSelect(Cmp, NewBound, BestBound, (Upper ? "umax" : "umin"));
+    ++It;
+  }
+  return BestBound;
 }
 
 Value *SCEVRangeBuilder::stretchPtrUpperBound(Value *BasePtr,

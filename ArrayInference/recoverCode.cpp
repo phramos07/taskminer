@@ -309,12 +309,12 @@ std::string RecoverCode::getGenericExp (Instruction *I,
     return std::string();
   }
 
-  if (value1 == "0" && signal == "+") {
+  if (value1 == "0" && (signal == "+" || signal == "-")) {
     *var = op2;
     return value2;
   }
 
-  if (value2 == "0" && signal == "+") {
+  if (value2 == "0" && (signal == "+" || signal == "-")) {
     *var = op1;
     return value1;
   }
