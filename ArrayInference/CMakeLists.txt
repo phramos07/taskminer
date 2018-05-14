@@ -18,5 +18,6 @@ add_library(LLVMArrayInference MODULE
   testRFCall.cpp
   recoverPointerMD.cpp
   extractSourceData.cpp
+  PtrRelativeRangeAnalysis.cpp
 )
 

@@ -22,7 +22,7 @@
 
 #ifndef myutils2
 #define myutils2
-
+#include "PtrRelativeRangeAnalysis.h"
 #include "recoverPointerMD.h"
 #endif
 
@@ -153,7 +153,7 @@ class RecoverExpressions : public FunctionPass {
 
   // Provide the cost using the phi nodes well knowed.
   // The default cost (case cannot be represented by symbols) is ten.
-  std::string calculateLoopRangeCost(Loop *L);
+  std::string calculateLoopRangeCost(Loop *L, std::string & rst);
 
   // Count the instructions inside the loop.
   int getStatitcLoopCost(Loop *L);
@@ -166,7 +166,8 @@ class RecoverExpressions : public FunctionPass {
 
   // The map contains (source code symbol / provided annotator symbol).
   int calculateLoopCost(Loop *L, std::map<int, std::string> & smbexp,
-                        std::map<int, std::vector<int> > & ref);
+                        std::map<int, std::vector<int> > & ref,
+                        std::string & rst);
 
 public:
 
@@ -203,6 +204,7 @@ public:
       AU.addRequired<RegionReconstructor>(); 
       AU.addRequired<ScopeTree>();
       AU.addRequired<PtrRangeAnalysis>();
+      AU.addRequired<PtrRRangeAnalysis>();
       AU.setPreservesAll();
   }
 
@@ -215,6 +217,7 @@ public:
   RegionReconstructor *rr;
   ScopeTree *st;
   PtrRangeAnalysis *ptrRa;
+  PtrRRangeAnalysis *ptrRea;
   std::list<Task*> tasksList;
 };
 

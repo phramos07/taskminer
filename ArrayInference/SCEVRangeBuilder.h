@@ -47,6 +47,7 @@ class SCEVRangeBuilder : private SCEVExpander {
   LoopInfo *LI;
   DominatorTree *DT;
   Region *R;
+  Loop *LL;
   const DataLayout &DL;
   bool CurrentUpper; // Which bound is currently being extracted. Used mainly
                      // by methods of SCEVExpander, which are not aware of
@@ -59,6 +60,18 @@ class SCEVRangeBuilder : private SCEVExpander {
   std::map<const Loop *, const SCEV *> ArtificialBECounts; // Holds artificially
                                                            // created back-edge
                                                            // counts for loops.
+  bool hasLL;
+  bool relAnalysisMode;
+  Value *PPtr;
+
+  typedef std::map<Value*, std::vector<const SCEVAddRecExpr *> > dataExp;
+
+  std::map<Loop*, dataExp> lExpr;
+  //std::map<Loop*, const SCEVAddRecExpr *> lExpr;
+
+  void addLExpr (Loop *L, Value *Ptr, const SCEVAddRecExpr *Exp);
+
+  bool isLoppUsed();
 
   void setAnalysisMode(bool Val) { AnalysisMode = Val; }
 
@@ -66,6 +79,8 @@ class SCEVRangeBuilder : private SCEVExpander {
       std::map<const Loop *, const SCEV *> ArtificialBECounts) {
     this->ArtificialBECounts = ArtificialBECounts;
   }
+
+  Value *findStep(const SCEVAddRecExpr *Expr, bool Upper);
 
   // If the caller doesn't specify which bound to compute, we assume the same of
   // the last expanded expression. Usually called by methods defined in
@@ -140,11 +155,13 @@ class SCEVRangeBuilder : private SCEVExpander {
 
   // Interceptors for SCEVExpander methods, so we can avoid actual instruction
   // generation during analysis mode.
-  Value *InsertBinop(Instruction::BinaryOps Op, Value *Lhs, Value *Rhs);
-  Value *InsertCast(Instruction::CastOps Op, Value *V, Type *SestTy);
-  Value *InsertICmp(CmpInst::Predicate P, Value *Lhs, Value *Rhs);
-  Value *InsertSelect(Value *V, Value *T, Value *F, const Twine &Name = "");
-  Value *InsertNoopCastOfTo(Value *V, Type *Ty);
+//  Value *InsertBinop(Instruction::BinaryOps Op, Value *Lhs, Value *Rhs);
+//  Value *InsertCast(Instruction::CastOps Op, Value *V, Type *SestTy);
+//  Value *InsertICmp(CmpInst::Predicate P, Value *Lhs, Value *Rhs);
+//  Value *InsertSelect(Value *V, Value *T, Value *F, const Twine &Name = "");
+//  Value *InsertNoopCastOfTo(Value *V, Type *Ty);
+
+  Value *getPHIStart(Loop *L);
 
   // Generates the lower or upper bound for a set of unsigned expressions. More
   // details in the method implementation header.
@@ -157,13 +174,51 @@ public:
       : SCEVExpander(*SE, DL, "scevrange"), SE(SE), AA(AA), LI(LI), DT(DT),
         R(R), DL(DL), CurrentUpper(true), AnalysisMode(false) {
     SetInsertPoint(InsertPtr);
+    setRelAnalysisMode(false);
   }
+
+  const SCEVAddRecExpr* getScevTo(Loop *L) {
+        return lExpr[L][getInductionVariable(L)][0]; }
+
+  // Return true if the loop "LL" was used into current analysis.
+  bool isLoopUsed();
+
+  void setPPtr(Value *Ptr) { PPtr = Ptr; }
+
+  std::vector<const SCEVAddRecExpr *> getAllExpr(Loop *L, Value *Ptr);
+
+  void setRelAnalysisMode(bool Val) { relAnalysisMode = Val; } 
+
+  PHINode *getInductionVariable(Loop *L);
+
+  Value *calculateAccessWindow(Loop *L, Value *Bound, Value *Rbound, bool Upper);
+
+  // Adds a symbolic exp to compute the correct bounds.
+  Value *addSymbExp(Loop *L, Value *UP, bool Upper);
+
+  Value *calculateStepBy(Loop *L,  bool Upper);
+
+  // Sets the Loop to analysis.
+  void setLoop(Loop *L);
 
   // Returns the minimum value an SCEV can assume.
   Value *getLowerBound(const SCEV *S) { return expand(S, /*Upper*/ false); }
 
   // Returns the maximum value an SCEV can assume.
   Value *getUpperBound(const SCEV *S) { return expand(S, /*Upper*/ true); }
+
+  Value *findStep(Loop *L, bool Upper) { return findStep(getScevTo(L), Upper); }
+
+  Value *getAddRectULowerOrUpperBound(std::vector<const SCEVAddRecExpr*> vct,
+         bool Upper);
+
+  // Interceptors for SCEVExpander methods, so we can avoid actual instruction
+  // generation during analysis mode.
+  Value *InsertBinop(Instruction::BinaryOps Op, Value *Lhs, Value *Rhs);
+  Value *InsertCast(Instruction::CastOps Op, Value *V, Type *SestTy);
+  Value *InsertICmp(CmpInst::Predicate P, Value *Lhs, Value *Rhs);
+  Value *InsertSelect(Value *V, Value *T, Value *F, const Twine &Name = "");
+  Value *InsertNoopCastOfTo(Value *V, Type *Ty);
 
   // Generate the smallest lower bound and greatest upper bound for a set of
   // expressions. All expressions are assumed to be type consistent (all of the
