@@ -211,7 +211,7 @@ Annotations work as a meta-language: they let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %\guido{What do you mean by modern accelerators? Not clear.}
 Combined with modern hardware accelerators such as GPUs and FPGAs, they have led
-to substantial performance gains~\cite{Bertolli14,Martineau16,Mendonca17,Poesia17,Reyes12,Antao16,Wienke12}.
+to substantial performance gains~\cite{Bertolli14,Mendonca17,Poesia17}.
 %\guido{Suppport what?}
 Nevertheless, although convenient, the use of annotations is not straightforward, 
 and still lacks supporting tools that help programmers to check if annotations
@@ -225,7 +225,7 @@ are correct and/or effective.
 %Moreover, because they are used in tandem with imperative programming languages,
 %such troubles are only made worse by pointer aliasing.
 There exist tools that insert automatic annotations in
-programs~\cite{Amini12,Guelton12,Mendonca16,Pingali11,Nugteren14}.
+programs~\cite{Mendonca16,Pingali11}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
 Another form of parallelism, based on tasks, remains still uncharted land in what
@@ -238,7 +238,7 @@ systems lies in their ability to create tasks~\cite{Ayguade09}.
 As we illustrate in Section~\ref{sub:adv}, task parallelism -- the power to run
 different routines simultaneously on independent data -- brings annotation systems
 closer to irregular programs such as those that process graphs and
-worklists~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
+worklists~\cite{Pingali11}.
 The purpose of this work is to address this omission.
 
 This paper describes \Taskminer, a source-to-source compiler that exposes task
@@ -271,7 +271,7 @@ We are currently able to annotate non-trivial programs, involving every
 sort of composite type available in the C language, e.g., arrays, structs,
 unions and pointers to these aggregates.
 Some of these programs, such as those taken from the
-Kastor~\cite{Virouleau14}, Bots~\cite{Duran09} or the LLVM~\cite{Lattner04} test
+Kastor~\cite{Virouleau14}, Bots~\cite{Duran09} or the LLVM test
 suites, are large and complex.
 Yet, our automatically annotated programs not only approximate the execution
 times of the parallel versions of those benchmarks, but are in general faster

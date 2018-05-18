@@ -78,75 +78,76 @@
 Programs]
 {TaskMiner: Identificação Automática de Tarefas}
 
-\author{Pedro Henrique Ramos Costa}
-\authornote{with author1 note}          %% \authornote is optional;
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Researcher}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
-}
-\email{pedroramos@dcc.ufmg.br}
 
-\author{Gleison Souza Diniz Mendonc\c{c}a}
-\authornote{with author1 note}          %% \authornote is optional;
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Researcher}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
-}
-\email{gleison.mendonca@dcc.ufmg.br}
 
-\author{Guilherme Mendes Leobas}
-\authornote{with author1 note}          %% \authornote is optional;
-\orcid{nnnn-nnnn-nnnn-nnnn}
+\author{Pedro Ramos*, Gleison Souza, Guilherme Leobas, Fernando M Q Pereira}
+%\authornote{with author1 note}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Researcher}
-  \department{DCC}
+  %\position{Researcher}
+  %\department{DCC}
   \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+ % \postcode{31.270-213}
+ % \country{Brazil}
 }
-\email{guihermel@dcc.ufmg.br}
+\email{ pedroramos, gleison, guilherme, fernando @dcc.ufmg.br}
 
-\author{Fernando M Q Pereira}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Professor}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
-}
-\email{fernando@dcc.ufmg.br}          %% \email is recommended
+%\author{Gleison Souza Diniz Mendonc\c{c}a}
+%\authornote{with author1 note}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%\affiliation{
+ % \position{Researcher}
+%  \department{DCC}
+ % \institution{UFMG}
+ % \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
+%}
+%\email{gleison.mendonca@dcc.ufmg.br}
+
+%\author{Guilherme Mendes Leobas}
+%\authornote{with author1 note}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%\affiliation{
+%  \position{Researcher}
+%  \department{DCC}
+%  \institution{UFMG}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
+%}
+%\email{guihermel@dcc.ufmg.br}
+
+%\author{Fernando M Q Pereira}
+%\authornote{with author1 note}
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%affiliation{
+ % \position{Professor}
+ % \department{DCC}
+ % \institution{UFMG}
+ % \streetaddress{6627 Antonio Carlos Avenue}
+ % \city{Belo Horizonte}
+ % \state{Minas Gerais}
+ % \postcode{31.270-213}
+ % \country{Brazil}
+%}
+%\email{fernando@dcc.ufmg.br}          %% \email is recommended
 
 \begin{abstract}
 Este artigo apresenta \Taskminer{}, uma ferramenta capaz de encontrar paralelismo de tarefas
 em código C automaticamente. \Taskminer{} lida com problemas clássicos de paralelismo irregular como
 encontrar os limites simbólicos de acesso à memória em tempo de execução, remoção de dependências
-estáticas espúrias, contornar condições de corrida ao transformar código sequencial em código paralelo, e
-principalmente, encontrar o equilíbrio entre tamanho de uma tarefa e excesso de paralelismo, em contraste com
-o custo de manutenção de tarefas pelo ambiente de execução. Para contornar esses problemas,
+estáticas espúrias, condições de corrida ao transformar código sequencial em código paralelo, e
+principalmente, encontrar o equilíbrio entre tamanho de uma tarefa e excesso de paralelismo, o eterno contraste entre tarefas grandes e sequenciais e tarefas pequenas e paralelas. Para contornar esses problemas,
 \Taskminer{} implementa uma série de otimizações e análises em representação intermediária do LLVM, resultando
-em um compilador fonte-a-fonte capaz de analisar código C e inserir no mesmo anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente, além de encontrar paralelismo escondido em programas sequenciais, absolutamente sem intervenção humana.
+em um compilador fonte-a-fonte capaz de analisar código C e inserir no mesmo anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente. A ferramenta também se mostra capaz de encontrar paralelismo escondido em programas sequenciais, absolutamente sem intervenção humana.
 \end{abstract}
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -188,22 +189,22 @@ em paradigmas paralelos, visando maior eficiência e velocidade. Nesse contexto,
 anotação como OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
 OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} e
-OmpSs~\cite{bueno:icpp:2011, duran:ppl:2011}
+OmpSs~\cite{duran:ppl:2011}
 atuam como metalinguagem, conferindo ao programador
 poder semântico para transformar um programa originalmente sequencial
 em um programa paralelo. Tais sistemas mostram-se muito promissores quando
-combinados com aceleradores como GPUs e FPGAs~\cite{Bertolli14,Martineau16,Mendonca17,Poesia17,Reyes12,Antao16,Wienke12}.
+combinados com aceleradores como GPUs e FPGAs~\cite{Mendonca17,Poesia17}.
 Entretanto, apesar de conveniente, o uso desses sistemas não é automático e
 requer exaustiva escrutinação de olho humano para garantia de corretude e eficiência.
 
 Embora já existam ferramentas que inserem anotações automaticamente 
-em programas~\cite{Amini12,Guelton12,Mendonca16,Pingali11,Nugteren14},
+em programas~\cite{Mendonca16,Pingali11},
 todas essas tecnologias exploram somente paralelismo de dados.  Porém, grande
 parte do poder de sistemas de anotação provém da capacidade de se criar \textit{tarefas}
 durante a execução do programa~\cite{Ayguade09}. Dessa forma, o propósito desse trabalho
 é apresentar um algoritmo capaz de minerar oportunidades para paralelismo de tarefas
 em programas sequênciais e anotá-los automaticamente. Como descrito na seção \ref{sec:ovf},
-essas anotações conferem ao programa irregular semântica de algoritmos em grafos e/ou \textit{worklists}~\cite{Ben-Nun17,Kulkarni11,Pingali11}.
+essas anotações conferem ao programa irregular semântica de algoritmos em grafos e/ou \textit{worklists}~\cite{Pingali11}.
 
 O presente artigo descreve {\Taskminer}, um compilador fonte-a-fonte que expõe
 paralelismo de tarefas em programas C/C++. {\Taskminer} lida com diversos desafios 
@@ -225,7 +226,7 @@ de alcançar ganhos de quase 4x em benchmarks não usualmente paralelos, como de
 recebe como input um programa escrito em C e produz como output um programa também em C,
 mas anotado com diretivas OpenMP legíveis. {\Taskminer} anota programas não triviais, envolvendo
 todo tipo de construto da linguagem C como arranjos, estruturas, uniões e ponteiros para esses tipos.
-Alguns desses programas provém de benchmarks complexos como Kastor~\cite{Virouleau14}, Bots~\cite{Duran09}  e a suíte de testes do LLVM~\cite{Lattner04}.
+Alguns desses programas provém de benchmarks complexos como Kastor~\cite{Virouleau14}, Bots~\cite{Duran09}  e a suíte de testes do LLVM.
 As versões anotadas pelo {\Taskminer} se aproximam das versões anotadas manualmente em
 desempenho, e são mais rápidos que as versões sequenciais.
 
@@ -300,30 +301,8 @@ nunca é excedido. Esse limite é pré-determinado na fase de configuração do
 {\Taskminer}, assim como o limite de trabalho mínimo
 por tarefa. Dessa forma, observa-se que a geração 
 de código executada pelo {\Taskminer} é dependente de dois parâmetros,
-\textsf{DEPTH\_CUTOFF} e \textsf{WORK\_CUTOFF}. 
-Eles possuem valores por padrão, mas podem ser configurados pelo usuário.
-
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[width=1\columnwidth]{images/ex_privatize}
-\caption{A variável \textsf{j} deve ser replicada em todas as tarefas para evitar condições de corrida.}
-\label{fig:ex_privatize}
-\end{center}
-\end{figure}
-
-Por fim,  um último problema surge ao transformar um programa originalmente
-sequencial em um programa paralelo. Condições de corrida evidenciam
-quais variáveis devem ser replicadas e
-quais podem ser compartilhadas pelas tarefas. 
-Assim como o problema de determinar os limites de acesso à memória, 
-se não resolvido, esse problema pode levar à programas incorretos.
-Esse processo de replicação de variáveis em todas as tarefas criadas se chama \textit{privatização}. 
-Na Figura~\ref{fig:ex_privatize}, por exemplo,
-a variávei \textsf{j} deve ser privatizada. 
-Caso não seja, ela será compartilhada por todas as tarefas 
-criadas na linha 5 da Figura~\ref{fig:ex_privatize}. 
-{\Taskminer} utiliza uma técnica descrita na seção~\ref{sec:sol} 
-para resolver esse problema.	
+\textsf{PROFUNDIDADE\_MAX} e \textsf{CUSTO\_MIN}. 
+Eles possuem valores por padrão, mas podem ser configurados pelo usuário.	
 
 \section{Solu\c{c}\~{a}o}
 \label{sec:sol}
@@ -445,8 +424,8 @@ E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E
 Símbolos de programa são nomes que não podem ser construídos como funções de
 outros nomes. Exemplos incluem variáveis globais, argumentos de função e valores retornados
 por funções externas. Análise de limtes simbólicos não é uma contribuição deste artigo. A técnica
-escolhida para as análises do {\Taskminer} é aquela implementada no compilador \dawn{} \cite{Mendonca17},
-que, por sua vez, reusa trabalho de Blume {\em et al.}~\cite{Blume94}. Para este trabalho, é apenas
+escolhida para as análises do {\Taskminer} é aquela implementada no compilador \dawn{} \cite{Mendonca17}.
+Para este trabalho, é apenas
 suficiente saber que essa implementação é sólida o suficiente para lidar com toda a linguagem C99, sempre termina
 e executa em tempo quadrático no número de variáveis do programa, no pior caso.
 
@@ -471,7 +450,7 @@ se lê dados que $s_1$ escreve. $s_2$ tem uma dependência de controle de $s_1$ 
 a execução de $s_2$ a partir do resultado de um \textit{branch}, por exemplo.
 \end{definition}
 
-Tarefas candidatas são \textbf{hélices em moinhos}. {\em Moinhos} são uma família de grafos ~\ref{Rideau08}.
+Tarefas candidatas são \textbf{hélices em moinhos}. {\em Moinhos} são uma família de grafos ~\cite{Rideau08}.
 Moinhos existem como subgrafos do grafo de dependências. 
 
 \begin{definition} [Moinho]
@@ -591,7 +570,7 @@ Essas regras são implementadas durante o passo de estimativa da lucratividade.
 \paragraph{O Modelo de Custo.}
 Um modelo de custo é uma coleção de parâmetros que determinam o impacto
 da criação e manutenção de tarefas em uma determinada arquitetura.
-A literatura lista técnicas analíticas~\cite{Baghsorkhi10} e empíricas~\cite{Poesia17}
+A literatura lista técnicas analíticas e empíricas~\cite{Poesia17}
 para a construção do modelo. Um modelo de custo automático não é o objetivo deste trabalho.
 Pelo contrário, o algoritmo do {\Taskminer} recebe um modelo de custo como parâmetro.
 Para os experimentos descritos na Seção ~\ref{sec:eval}, utilizou-se constantes
@@ -653,30 +632,6 @@ a criação da tarefa não é desejável. Porém, se a tarefa é expandida demai
 há perda de paralelismo: o código executa sequencialmente. Portanto, determinar o \textsf{CUSTO}
 é essencial para o desempenho do {\Taskminer}.
 
-\subsection{Privatização de variáveis}
-\label{sub:variance}
-
-Para evitar condições de corrida, a inserção de anotações com semântica paralela
-em programas sequenciais exige a replicação de alguns valores, tornando-os privados para cada tarefa.
-Essa medida é chamada de {\em privatização}.
-
-Se uma variável escalar contém pelo menos uma cadeia de definição-e-uso que entra
-a fronteira de uma tarefa, então essa variável deve ser privatizada. A fronteira de uma 
-tarefa é determinada pela função de expansão vista na Figura~\ref{fig:expand_alg}.
-
-\begin{example}[Privatização]
-\label{ex:priv}
-Variáveis \textsf{i} e \textsf{j} na Figura~\ref{fig:ex_privatize} devem ser replicadas
-nas tarefas indicadas pela anotação na linha 8.
-A variável \textsf{i} é definida nas linhas 2 e 10, e utilizada na linha 9, que faz
-parte do corpo de uma nova tarefa; \textsf{j} é definida na linha 6 e utilizada na linha 9.
-Dessa forma, ambas possuem uma cadeia de definição-e-uso que ultrapassa a fronteira
-de uma tarefa. Cada iteração do laço na linha 9 lê um valor diferente para \textsf{i}; portanto,
-cada tarefa deve receber um valor diferente nesta variável. Na ausência de privatização, cada {\em thread}
-leria o mesmo valor, de forma que a paralelização desse código o tornaria incorreto.
-A privatização de \textsf{i} e\textsf{j} evita as condições de corrida e mantém o programa correto.
-\end{example}
-
 \subsection{Anotando o código fonte}
 \label{sub:ir}
 
@@ -710,10 +665,10 @@ esta variável é incrementada para indicar a criação de uma nova tarefa; e de
 \begin{example}[Limitação de tarefas]
 A Figura~\ref{fig:ex_cutoff} ilustra a estratégia utilizada pelo {\Taskminer} para limitar
 o número de tarefas criadas durante a invocação de uma função recursiva.
-O parâmetro \textsf{DEPHT\_CUTOFF} é determinado pelo usuário.
+O parâmetro \textsf{PROFUNDIDADE\_MAX} é determinado pelo usuário.
 \end{example}
 
-Há outras formas de limitar o número de tarefas recursivas~\cite{Iwasaki16,Iwasaki16B}.
+Há outras formas de limitar o número de tarefas recursivas~\cite{Iwasaki16}.
 Porém, o trabalho de estimar funções recursivas é muito difícil e não é o foco deste trabalho.
 Portanto, embora simples, essa medida é genérica o suficiente para lidar com tarefas difíceis de se
 limitar simbolicamente. Como trabalho futuro, pretende-se explorar melhores maneiras de
@@ -722,7 +677,7 @@ limitar tarefas extremamente pequenas.
 \section{Avalia\c{c}\~{a}o Experimental}
 \label{sec:eval}
 
-O {\Taskminer} foi implementado em LLVM 3.9~\cite{Lattner04}. Todos os experimentos
+O {\Taskminer} foi implementado em LLVM 3.9. Todos os experimentos
 foram executados em uma máquina de 12 núcleos 64-bits Intel(R) Xeon(R) CPU E5-2620, 2.00GHz, com 32K de cache L1, 256K de cache L2 e 15M de cache L3, e 15Gb de memória RAM. Utilizou-se OpenMP 4.5, lançado em 
 Novembro de 2015.
 
@@ -865,50 +820,27 @@ do LLVM. Quanto maior a barra, maior o ganho de desempenho.
 %running our tool. 
 
 %SCALABILITY
-\subsection{Escalabilidade}
-\label{sub:scalability}
-
-\begin{figure}[htb]
-\begin{center}
-\includegraphics[width=0.9\columnwidth]{images/TM_Runtime}
-\caption{Tempo de execução do \Taskminer{} versus tamanho dos programas.
-Cada ponto representa um dos 100 programas gerados pelo \textsf{CSmith}.
-A curva é uma aproximação polinomial de grau 2. O tamanho máximo obtido 
-nos programas gerados pelo CSmith foi de 5.000 LoC.}
-\label{fig:TM_Runtime}
-\end{center}
-\end{figure}
-
-As análises descritas neste artigo possuem complexidade de tempo quadrática no pior caso.
-Para testar a complexidade do algoritmo implementado na ferramenta \Taskminer{}, 
-utilizou-se \textsf{CSmith}~\cite{Yang11}, um gerador de código aleatório, para produzir 
-100 programas de tamanhos variados, os quais foram alimentados ao \Taskminer{}. 
-A Figura~\ref{fig:TM_Runtime} mostra o resultado desse experimento.
-O maior programa obtido teve 4.999 linhas de código, as quais foram processadas
-pelo \Taskminer{} em 1.2 segundos.
 
 \section{Trabalhos Relacionados}
 \label{sec:rw}
 
-Compiladores modernos adicionaram suporte ao paralelismo de tarefas do OpenMP apenas recentemente. Uma implementação
+Compiladores modernos adicionaram suporte ao paralelismo de tarefas do OpenMP apenas recentemente. Uma implementa-\c{c}\~{a}o
 do compilador \textsf{clang} com esse suporte foi lançado em Março de 2014, por exemplo. Uma vez que a infra-estrutura necessária para
 a implementação de tarefas é nova, não existem ferramentas além do {\Taskminer} capazes de anotar programas
 automaticamente com essas diretivas.
 Padrões de anotação baseados em diretivas provém aos programadores um modelo de programação paralela prático e fácil. Exemplos
 de modelos que permitem paralelismo de tarefas são OpenMP 4.X,
-StarSs \cite{bellens:sc:2006, perez:iccc:2008, planas:hpca:2009,
-tejedor:hpdc:2011} e OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}.
+StarSs \cite{planas:hpca:2009} e OmpSs \cite{duran:ppl:2011}.
 Por exemplo, Tareador \cite{Ayguade15} apresenta uma interface gráfica para identificação de potencial paralelismo e anotação de código sequencial.
 Ao contrário do Tareador, {\Taskminer} executa essa tarefa automaticamente.
 
 A técnica utilizada pelo {\Taskminer} para identificação de tarefas se assemelha às análises usadas durante
 geração de código para máquinas de fluxo de dados. Programação de fluxo de dados foi originalmente proposta 
-para facilitar paralelismo de tarefas~\cite{agrawal:ipdps:2010, chan:spaa:2007,
-gupta:micro:2011}. Agrawal et al. \cite{agrawal:ipdps:2010} estendeu esse modelo
-com inputs e outpus em Cilk++, que foi extendido novamente por ~\cite{vandierendonck:hotpar:2011} 
+para facilitar paralelismo de tarefas~\cite{gupta:micro:2011}. Agrawal et al. \cite{agrawal:ipdps:2010} extendeu esse modelo
+com inputs e outpus em Cilk++, que foi extendido novamente ~\cite{vandierendonck:hotpar:2011} 
 com cláusulas de dependência para facilitar
 o projeto de padrões complexos de paralelsimo. Ambos apresentaram um escalonador unificado
-baseado em paralelismo \textit{fork-join} \cite{vandierendonck:pact:2011} que permitiu
+baseado em paralelismo \textit{fork-join} que permitiu
 a execução de aplicações baseadas em tarefas. Outras abordagens também utilizaram grafos
 de fluxo de dados para explorar paralelismo, como Tarefas Movidas à Dados \cite{tasirlar:icpp:2011},
 em que o programador pode manipular cláusulas para determinar os argumentos da tarefa
@@ -919,10 +851,10 @@ em nenhum desses trabalhos.
 
 Muitos sistemas foram desenvolvidos para extrair paralelismo de tarefas a partir de código sequencial.
 Exemplos incluem OSCAR, Multigrain Parallelizing
-Compiler \cite{ishizaka:journal:2000, kasahara:iwlcpc:2000},  MAPS \cite{castrillon:tii:2013, ceng:dac:2008}, e
-DiscoPoP \cite{discopop, li:jss:2016}. Ferramentas como Paraver \cite{extrae, paraver},
+Compiler \cite{kasahara:iwlcpc:2000},  MAPS \cite{ceng:dac:2008}, e
+DiscoPoP \cite{discopop, li:jss:2016}. Ferramentas como Paraver \cite{paraver},
 Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, e TEMANEJO
-\cite{brinkmann:parco:2011, brinkmann:journal:2013, temanejo} foram implementadas para 
+\cite{brinkmann:parco:2011} foram implementadas para 
 permitir análise de desempenho e visualização de programas baseados em tarefas.
 Apesar de ajudar o programar a adaptar o código paralelo, essas ferramentas não são 
 inteiramente automáticas como o {\Taskminer}.
