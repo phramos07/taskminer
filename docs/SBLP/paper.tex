@@ -80,7 +80,7 @@ Programs]
 
 
 
-\author{Pedro Ramos*, Gleison Souza, Guilherme Leobas, Fernando M Q Pereira}
+\author{Pedro Ramos, Gleison Souza, Guilherme Leobas, Fernando Magno Quint\~{a}o Pereira}
 %\authornote{with author1 note}          %% \authornote is optional;
 %\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
@@ -93,7 +93,7 @@ Programs]
  % \postcode{31.270-213}
  % \country{Brazil}
 }
-\email{ pedroramos, gleison, guilherme, fernando @dcc.ufmg.br}
+\email{[pedroramos, gleison, guilherme, fernando]@dcc.ufmg.br}
 
 %\author{Gleison Souza Diniz Mendonc\c{c}a}
 %\authornote{with author1 note}          %% \authornote is optional;
@@ -142,11 +142,10 @@ Programs]
 
 \begin{abstract}
 Este artigo apresenta \Taskminer{}, uma ferramenta capaz de encontrar paralelismo de tarefas
-em código C automaticamente. \Taskminer{} lida com problemas clássicos de paralelismo irregular como
-encontrar os limites simbólicos de acesso à memória em tempo de execução, remoção de dependências
-estáticas espúrias, condições de corrida ao transformar código sequencial em código paralelo, e
-principalmente, encontrar o equilíbrio entre tamanho de uma tarefa e excesso de paralelismo, o eterno contraste entre tarefas grandes e sequenciais e tarefas pequenas e paralelas. Para contornar esses problemas,
-\Taskminer{} implementa uma série de otimizações e análises em representação intermediária do LLVM, resultando
+em código C automaticamente. \Taskminer{} lida com problemas clássicos de paralelismo irregular 
+como a delimitação simbólica de regiões de memória, remoção de dependências
+estáticas espúrias, detecção de condições de corrida, e a estimativa de benefício de tarefas grandes porém sequenciais e tarefas pequenas porém paralelas. Para contornar esses problemas,
+\Taskminer{} implementa uma série de otimizações e análises em representa\-ção intermediária do LLVM, resultando
 em um compilador fonte-a-fonte capaz de analisar código C e inserir no mesmo anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente. A ferramenta também se mostra capaz de encontrar paralelismo escondido em programas sequenciais, absolutamente sem intervenção humana.
 \end{abstract}
 
@@ -186,37 +185,33 @@ em um compilador fonte-a-fonte capaz de analisar código C e inserir no mesmo an
 É inegável que computação paralela e distribuída é hoje a alternativa mais procurada por 
 desenvolvedores em sua busca por desempenho. Programadores tem cada vez mais investido
 em paradigmas paralelos, visando maior eficiência e velocidade. Nesse contexto, sistemas de
-anotação como OpenMP~\cite{JaegerCP15},
-OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
-OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} e
-OmpSs~\cite{duran:ppl:2011}
-atuam como metalinguagem, conferindo ao programador
+anotação como OpenMP~\cite{JaegerCP15} e
+OpenACC~\cite{OpenACC20} atuam como metalinguagens, conferindo ao programador
 poder semântico para transformar um programa originalmente sequencial
 em um programa paralelo. Tais sistemas mostram-se muito promissores quando
 combinados com aceleradores como GPUs e FPGAs~\cite{Mendonca17,Poesia17}.
 Entretanto, apesar de conveniente, o uso desses sistemas não é automático e
 requer exaustiva escrutinação de olho humano para garantia de corretude e eficiência.
 
-Embora já existam ferramentas que inserem anotações automaticamente 
-em programas~\cite{Mendonca16,Pingali11},
-todas essas tecnologias exploram somente paralelismo de dados.  Porém, grande
+Embora existam ferramentas que anotem programas automaticamente~\cite{Mendonca16,Pingali11},
+essas tecnologias exploram somente paralelismo de dados.  Porém, grande
 parte do poder de sistemas de anotação provém da capacidade de se criar \textit{tarefas}
 durante a execução do programa~\cite{Ayguade09}. Dessa forma, o propósito desse trabalho
 é apresentar um algoritmo capaz de minerar oportunidades para paralelismo de tarefas
 em programas sequênciais e anotá-los automaticamente. Como descrito na seção \ref{sec:ovf},
 essas anotações conferem ao programa irregular semântica de algoritmos em grafos e/ou \textit{worklists}~\cite{Pingali11}.
 
-O presente artigo descreve {\Taskminer}, um compilador fonte-a-fonte que expõe
+Este artigo descreve {\Taskminer}, um compilador fonte-a-fonte que expõe
 paralelismo de tarefas em programas C/C++. {\Taskminer} lida com diversos desafios 
-do universo do paralelismo irregular. Primeiro, deve-se determinar os limites
+relacionados a paralelismo irregular. Primeiro, ele determinar os limites
 simbólicos dos blocos de memória acessados dentro de cada programa. Depois,
-encontra-se regiões ou fragmentos de código (laços ou funções) que podem 
-ser efetivamente mapeados à tarefas. Então, deve-se extrair parâmetros capazes
+ele encontra fragmentos de código (laços ou funções) que podem 
+ser efetivamente mapeados à tarefas. Então, ele extrai parâmetros capazes
 de estimar o custo da tarefa em questão. Esses parâmetros estão dinamicamente atrelados
 às anotações e são capazes de ativar ou desativar a criação de tarefas durante a execução do programa,
-ou de limitar a profundidade de tarefas geradas recursivamente. Após feito isso, deve-se determinar
-quais variáveis serão privatizadas em novas tarefas, ou compartilhadas por tarefas concorrentes.
-Finalmente, deve-se mapear todas essas informações de volta ao código fonte, produzindo
+ou de limitar a profundidade de tarefas geradas recursivamente. \Taskminer{} também determina
+quais variáveis serão replicadas em novas tarefas, ou compartilhadas por tarefas concorrentes.
+Finalmente, ele mapeia todas essas informações de volta ao código fonte, produzindo
 anotações legíveis.
 
 Este trabalho defende a tese de que a anotação automática de tarefas é útil à medida que
@@ -226,7 +221,7 @@ de alcançar ganhos de quase 4x em benchmarks não usualmente paralelos, como de
 recebe como input um programa escrito em C e produz como output um programa também em C,
 mas anotado com diretivas OpenMP legíveis. {\Taskminer} anota programas não triviais, envolvendo
 todo tipo de construto da linguagem C como arranjos, estruturas, uniões e ponteiros para esses tipos.
-Alguns desses programas provém de benchmarks complexos como Kastor~\cite{Virouleau14}, Bots~\cite{Duran09}  e a suíte de testes do LLVM.
+Alguns desses programas provém de benchmarks complexos como Bots~\cite{Duran09}  e a coleção de testes do LLVM.
 As versões anotadas pelo {\Taskminer} se aproximam das versões anotadas manualmente em
 desempenho, e são mais rápidos que as versões sequenciais.
 
