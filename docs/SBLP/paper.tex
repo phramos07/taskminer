@@ -846,7 +846,10 @@ automaticamente de maneira correta.
 
 Este trabalho apresentou \Taskminer{}, uma ferramenta capaz de identificar automaticamente oportunidades de paralelismo de tarefas e anotá-las com diretivas OpenMP. \Taskminer{} implementa algoritmos de análise de código em representação intermediária do LLVM e contorna problemas clássicos no paralelismo irregular. Apesar das dificuldades, \Taskminer{} prova-se eficiente e competitivo, sendo capaz de anotar programas não triviais e encontrar paralelismo escondido sem custo adicional. 
 
-Entretanto, ainda falha quando não consegue analisar os limites de memória estaticamente. Além disso, \Taskminer{} implementa uma heurística simples demais para estimar o custo de uma tarefa, que não é firme o suficiente para garantir a lucratividade de uma anotação. Como trabalho futuro, pretende-se implementar heurísticas de estimativa de custo que sejam mais precisas, para refinar o algoritmo do \Taskminer{}.
+Embora já possa ser usado em produção de código paralelo, \Taskminer{} ainda apresenta espaço
+para melhorias.
+Em particular, \Taskminer{} implementa uma heurística simples demais para estimar o custo de uma tarefa.
+Dada a sua simplicidade, essa heurística não é firme o suficiente para garantir a lucratividade de uma anotação. Como trabalho futuro, pretende-se implementar heurísticas de estimativa de custo que sejam mais precisas, para refinar o algoritmo do \Taskminer{}.
 
 \bibliography{references}
 
