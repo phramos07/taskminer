@@ -1,0 +1,215 @@
+> ------------------------
+> PACT'18 Paper #124 Reviews and Comments
+> ===========================================================================
+> Paper #124 Automatic Identification and Annotation of Tasks in Structured
+> Programs
+>
+>
+> Review #124A
+> ===========================================================================
+>
+> Overall merit
+> -------------
+> 2. Weak reject
+>
+> Reviewer expertise
+> ------------------
+> 4. Expert
+>
+> Paper summary
+> -------------
+> This paper presents TaskMiner, a mechanism to extract OpenMP tasks
+> automatically from C/C++ programs. The proposed approach is
+> interesting and the paper should eventually merit publication. The
+> approach seems reasonable although additional details would be useful.
+> More importantly the paper does not discuss restrictions on OpenMP
+> task dependencies, which makes the correctness of the implementation
+> unclear. In addition, a more detailed discussion and analysis of the
+> results would improve the paper. Overall, the paper should be
+> publishable once a few improvements are completed.
+>
+> Comments for author
+> -------------------
+> The example in Figure 3 shows some limitations of the proposed
+> TaskMiner approach as currently implemented. In particular, the
+> generated code uses the if clause on the OpenMP task construct to
+> limit generation of tasks. However, the if clause merely leads to the
+> generation of an undeferred task. hile the task must be executed
+> immediately, most of the overheads of OpenMP task generation are still
+> implied. In particular, the implementation must create a new data
+> environment for the task. The correct way to end the task generation
+> requires the use of the final clause, which leads to tasks that are
+> mergeable and thus can be merged tasks, for which a data environment
+> does not need to be created.
+>
+> The authors do not discuss the restrictions of the depend clause on
+> OpenMP Task constructs. In particular, "List items used in depend
+> clauses of the same task or sibling tasks must indicate identical
+> storage locations or disjoint storage locations." The implementation
+> does not appear to considerthis restriction so it is unclear if the
+> automatically generated OpenMP tasking code is correct. This issue is
+> significant as the proposed implementation may yield significantly
+> higher parallelism as most OpenMP implementations only enforce
+> dependencies based on the base address of an array section and will
+> not detect that the restriction is violated (let alone enforce the
+> intended dependences).
+>
+> The approach should be able to generate taskloop and taskgroup
+> constructs. Their addition of would significantly increase the overall
+> contribution.
+>
+> The paper would be improved if a list of contributions and a roadmap
+> were are added to the introduction. Currently, both are missing. While
+> the third paragraph of that section is a bit of both it is not quite
+> fully either, let alone sufficient for both.
+>
+> Cilk++ is not annotation based. It's inclusion in the list of
+> annotation systems in the first sentence of the introduction is
+> incorrect.
+>
+> Why isn't a citation for "Whaley's context and flow sensitive
+> analysis" included in the caption of Figure 1?
+>
+> In the statement that in "the absence of such action, that variable
+> will be shared among all the tasks created at line 5 of Figure 4" it
+> should read "line 8".
+>
+> Figure 4 should be top-placed so that the two lines of body text do
+> not appear between it and Figure 3.
+>
+> In the footnote on page 3, it should read "OpenMP ARB" and not "OpenMP group".
+>
+> Should the statement "if region s_2 is nested within region s_2" on
+> page 8 read "if region s_2 is nested within region s_1"? I am fairly
+> certain that it should...
+>
+> The default clause cannot be specified with the private parameter in C
+> and C++. The private and firstprivate parameters are only permitted in
+> Fortran.
+>
+> The y-axis on Figure 10 needs to be labeled. What does the graph show?
+> Runtime in seconds? Speedup? Compared to what? I think it is speedup
+> compared to the sequential version ofthe program but it should be
+> clearly indicated.
+>
+> Including "bel-ford" as one of the three programs that most benefits
+> from your cost model is not convincing since it appears to suffer from
+> slowdown compared to the sequential version. That manula annotations
+> provide even worse performance is irrelevant. Why doesn't your cost
+> model determine that using tasks at all is a bad idea?
+>
+> The conclusion is too focused on a historical/time-line perspective.
+> The conclusion should summarize the content of the paper, not how you
+> came to be writing it.
+>
+>
+>
+> Review #124B
+> ===========================================================================
+>
+> Overall merit
+> -------------
+> 3. Weak accept
+>
+> Reviewer expertise
+> ------------------
+> 2. Some familiarity
+>
+> Paper summary
+> -------------
+> This work addresses the autoparallelization of existing C/C++ programs.
+> It proposes to automatically annotates programs with OpenMP pragmas.
+> But rather than addressing the "forall" use-cases, it more generally
+> considers task parallelism (part of the recent OpenMP4).
+>
+> The contribution of this work is not into the analysis methods used,
+> but rather in achieving a full integration of existing techniques
+> within a tool (TaskMiner).
+> This sounds like a good work, with significant efforts to evaluate it.
+> However I would have appreciate to see how existing techniques (such
+> as the non-OpenMP4 one cited in the related work) perform.
+>
+> The writing is good, and if there is a lot of different concepts
+> addressed in this paper, it remains comprehensible.
+>
+> Comments for author
+> -------------------
+> Comparing against manual parallel implementation makes sense, but I
+> would appreciate to see alternative approaches as well (even ICC would
+> at least give an idea).
+>
+> In the evaluation section I would appreciate to see an evaluation of
+> the cost model used in this work.
+>
+>
+>
+> Review #124C
+> ===========================================================================
+>
+> Overall merit
+> -------------
+> 4. Accept
+>
+> Reviewer expertise
+> ------------------
+> 3. Knowledgeable
+>
+> Paper summary
+> -------------
+> This paper describes a compiler that automatically task-parallelizes a
+> given sequential program.  Named TaskMiner, it analyzes a sequential
+> program and finds a region that can safely run concurrently with other
+> parts of the program.  It was able to automatically speedup 13 out of
+> 16 programs in BSC-Bots and Swan.  The paper also tests its
+> versatility by applying the algorithm to LLVM test suites, programs
+> that are not meant to be run in parallel.
+>
+> Comments for author
+> -------------------
+> I think this is an extensive, in-depth study of extending the scope of
+> automatic parallelization beyond regular loops.  The methodology looks
+> sound and solid and experimental results look good.
+>
+> The paper is well written and is overall easy to follow.  Yet, having
+> a running example or two showing how they end up will help.  In
+> particular, I would like to see a divide-and-conquer example in which
+> a task involves a recursive function call.  How the algorithm
+> discovers accessed region of a task involving a recursive call will be
+> an interesting part of the analysis.  Another thing that was not clear
+> to me unless I miss something is how the algorithm determines where
+> spawned tasks will be synchronized.  The paper discusses how to find
+> "program statements that can run in parallel with the rest of the
+> program" (section 3.2), yet this notion is relative to when they
+> synchronize with the rest of the program.
+>
+>
+>
+> Review #124D
+> ===========================================================================
+>
+> Overall merit
+> -------------
+> 2. Weak reject
+>
+> Reviewer expertise
+> ------------------
+> 3. Knowledgeable
+>
+> Paper summary
+> -------------
+> This paper presents a design and implementation of a static analysis
+> tool and code generation techniques for annotating applications with
+> task parallelism.
+>
+> Comments for author
+> -------------------
+> The paper is well written, with clear motivation and easy to
+> understand. The challenge with work like this is that while it
+> provides a great tool with useful techniques, the chosen techniques by
+> themselves are not very novel and therefore the insights generated may
+> be limited. That said, the tool is quite valuable and the design and
+> implementation of it will be useful to the community, especially when
+> made available publicly. The paper will serve as a useful report of
+> the workings and principles behind the tool but it is unclear whether
+> the PACT audience will find it directly useful due to the limited
+> novelty/insights.
