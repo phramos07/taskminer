@@ -30,9 +30,9 @@ We believe the referee refers to Page4, Line38, Column2, where we wrote: "defaul
 
 Yes, the referee's intuition is correct. We shall fix it.
 
-> Including "bel-ford" as one of the three programs that most benefits from your cost model is not convincing since it appears to suffer from slowdown compared to the sequential version. Why doesn't your cost model determine that using tasks is a bad idea?
+> Including "bel-ford" as one of the programs that benefits from your cost model is not convincing since it suffers from slowdown compared to the sequential version. Why doesn't your cost model determine that using tasks is a bad idea?
 
-Some of the programs that we annotate experiment slowdowns. That's like compiling with gcc-O3, for instance: it slows down some programs, while speeding up others. The problem with bellman-ford is not due to the cost model. This algorithm traverses a graph implemented as an array of arrays. Dependences hinder parallelism whenever two tasks receive the adjacent list of the same node. We experimented similar problems with other irregular benchmarks (see Page10, Line53, Column1).
+TaskMiner is like compiling with gcc-O3, for instance: it slows down some programs, while speeding up others. The problem with bellman-ford is not due to the cost model. This algorithm traverses a graph implemented as an array of arrays. Dependences hinder parallelism whenever two tasks receive the adjacent list of the same node. We experimented similar problems with other irregular benchmarks (see Page10, Line53, Column1).
 
 Review #124B
 
@@ -45,6 +45,10 @@ We are comparing against gcc-O3, with vectorization enabled. The Swan benchmarks
 Figure 11 presented an evaluation in three benchmarks. We also would like to show numbers about some tuning of the cost model. We did not do it due to lack of space.
 
 Review #124C
+
+> How the algorithm discovers accessed region of tasks involving recursive calls?
+
+We use an interprocedural dependence graph.
 
 > How the algorithm determines where spawned tasks will be synchronized?
 
