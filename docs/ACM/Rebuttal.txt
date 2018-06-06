@@ -2,39 +2,43 @@ We thank the referees for all the time and expertise they have put into reviewin
 
 Review #124A
 
-> The example in Figure 3 shows some limitations of the proposed TaskMiner approach as currently implemented. The generated code uses the if clause on the OpenMP task construct to limit generation of tasks. However, the if clause leads to the generation of an undeferred task. While the task must be executed immediately, most of the overheads of OpenMP task generation are still implied. The implementation must create a new data environment for the task. The correct way to end the task generation requires the use of the final clause, which leads to tasks that are mergeable and thus can be merged tasks, for which a data environment does not need to be created.
+> The example in Fig-3 shows limitations of TaskMiner as currently implemented. The generated code uses the if clause on the OpenMP task construct to limit generation of tasks. However, the if clause leads to the generation of an undeferred task. While the task must be executed immediately, most of the overheads of OpenMP task generation are still implied. The implementation must create a new data environment for the task. The correct way to end the task generation requires the use of the final clause, which leads to tasks that are mergeable and thus can be merged tasks, for which a data environment does not need to be created.
 
-We agree with the referee: final tasking is a better solution than conditional tasking. However, gcc-6 does not support 'final+mergeable': it recognizes the pragmas, but does not generate code for them. Notice that although not ideal, the 'if' clause is not incorrect, and it brings runtime improvement because it avoids checking dependences. Fibonacci, our example in Figure 3 is 16x faster to calculate "fib 40" with the conditional pragma plus the task cutoff. Notice also that our cost model already prevents the annotation of very small program regions.
+We agree with the referee: 'final+mergeable' is better. Gcc did not support 'final' when we started the project (see, the last slide of https://openmp.org/wp-content/uploads/sc15-openmp-CT-MK-tasking.pdf). However, although not ideal, the 'if' clause is correct, and it brings runtime gains. We have moved into 'final' already (we use 'final' to limit recursion, and 'if' to implement the dynamic cost model). The fibonacci example in the paper finds the 40th fib number in:
 
-> The authors do not discuss the restrictions of the depend clause on OpenMP Task constructs. "List items used in depend clauses of the same task or sibling tasks must indicate identical storage locations or disjoint storage locations." The implementation  does not appear to consider this restriction so it is unclear if the automatically generated OpenMP tasking code is correct. This issue is significant as the proposed implementation may yield significantly higher parallelism as most OpenMP implementations only enforce  dependencies based on the base address of an array section and will not detect that the restriction is violated (let alone enforce the intended dependences).
+'omp-final': real=7.68s/user=14.25s;
+'omp-if': real=7.51s/user=37.48s;
+'omp+nothing, aka no-optimization': real=1m46.57s/user=11m16.72s
 
-We consider the restriction on list items! We follow Section 2.13.9 of the standard. Even more, we only annotate a region if we can find symbolic limits for all the memory accesses used within that region. This restriction means that we only annotate arrays if we can determine their sections correctly. Also, whenever we annotate different sections within the same array, these sections are disjoint per task. Another restriction is that a region must be profitable (see Page 10, Line 34, Column 1). Given these two restrictions, we found "annotable regions" in 63 out of 219 benchmarks in the LLVM test suite. All these benchmarks have sanity checks to certify correct behavior.
+> The authors do not discuss the restrictions of the depend clause on OpenMP Task constructs. "List items used in depend clauses of the same task or sibling tasks must indicate identical storage locations or disjoint storage locations." The implementation does not appear to consider this restriction so it is unclear if the automatically generated OpenMP tasking code is correct. This issue is significant as the proposed implementation may yield significantly higher parallelism.
 
-> The approach should be able to generate taskloop and taskgroup constructs. Their addition of would significantly increase the overall contribution.
+We consider those restriction! We follow Section 2.13.9 of the standard. Even more, we only annotate a region if we can find symbolic limits for all the memory accesses used within it. We only annotate arrays if we can determine their sections. Whenever we annotate different sections within the same array, these sections are disjoint across tasks. Another restriction is that a region must be profitable (see Page10, Line34, Column1). Given these two restrictions, we found "annotable regions" in 63 out of 219 benchmarks in the test suite. Every benchmark contains sanity checks.
+
+> The approach should generate taskloop and taskgroup constructs.
 
 We agree, and we are working to accommodate task grouping.
 
-> Cilk++ is not annotation based. It's inclusion in the list of  annotation systems in the first sentence of the introduction is incorrect.
+> Cilk++ is not annotation based. It's inclusion in the list in the introduction is incorrect.
 
-We shall fix the text.
+Ok.
 
-> The default clause cannot be specified with the private parameter in C and C++. The private and firstprivate parameters are only permitted in Fortran.
+> The default clause cannot be specified with the private parameter in C and C++.
 
-We believe the referee refers to Page 4, Line 38, Column 2, where we wrote: "default([shared/private])". That was a bad way to write it. We do use private and firstprivate, but never within default. We shall fix that. Notice that in Page 8, Line 12, Column 1, we explain that 'shared' is the only default.
+We believe the referee refers to Page4, Line38, Column2, where we wrote: "default([shared/private])". That was bad writing. We use private and firstprivate, but never within default. We shall fix that. Notice that in Page8, Line12, Column1, we explain that 'shared' is the only default.
 
-> The y-axis on Figure 10 needs to be labeled. What does the graph show? I think it is speedup compared to the sequential version of the program but it should be clearly indicated.
+> The y-axis on Figure 10 needs a label. What does the graph show? I think it is speedup compared to the sequential version of the program.
 
-Yes, the referee's intuition is correct. We shall add labels to the figures.
+Yes, the referee's intuition is correct. We shall fix it.
 
-> Including "bel-ford" as one of the three programs that most benefits from your cost model is not convincing since it appears to suffer from slowdown compared to the sequential version. Why doesn't your cost model determine that using tasks at all is a bad idea?
+> Including "bel-ford" as one of the three programs that most benefits from your cost model is not convincing since it appears to suffer from slowdown compared to the sequential version. Why doesn't your cost model determine that using tasks is a bad idea?
 
-Some of the programs that we annotate experiment slowdowns. That's like compiling with gcc-O3, for instance: it slows down some programs, while speeding up others. The problem with bellman-ford is not due to the cost model. This algorithm traverses a graph implemented as an array of arrays. Dependences hinder parallelism. Dependences happen whenever two threads try to update the adjacent list of the same node. We experimented similar problems with other benchmarks that work with meshes of pointers (see Page 10, Line 53, Column 1).
+Some of the programs that we annotate experiment slowdowns. That's like compiling with gcc-O3, for instance: it slows down some programs, while speeding up others. The problem with bellman-ford is not due to the cost model. This algorithm traverses a graph implemented as an array of arrays. Dependences hinder parallelism whenever two tasks receive the adjacent list of the same node. We experimented similar problems with other irregular benchmarks (see Page10, Line53, Column1).
 
 Review #124B
 
-> Comparing against manual parallel implementation makes sense, but I would appreciate to see alternative approaches as well.
+> Comparing against manual parallel implementation makes sense, but I would appreciate to see alternative approaches.
 
-We are comparing against gcc-O3, which vectorizes some benchmarks. The Swan benchmarks were taken from the Intel SPMD compiler (ISPC). Thus, we can compare against them, if the referee wants. Each one of these benchmarks is written in C and in SPMD. Only the latter is parallelized by ISPC (using vector instructions).
+We are comparing against gcc-O3, with vectorization enabled. The Swan benchmarks were taken from the Intel SPMD compiler (ISPC). We can compare against them. However, each benchmark is written in C and in SPMD. Only the latter is parallelized by ISPC (using vector instructions).
 
 > In the evaluation section I would appreciate to see an evaluation of the cost model used in this work.
 
