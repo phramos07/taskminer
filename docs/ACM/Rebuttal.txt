@@ -6,13 +6,13 @@ Review #124A
 
 We agree with the referee: 'final+mergeable' is better. Gcc did not support 'final' when we started the project (see, the last slide of https://openmp.org/wp-content/uploads/sc15-openmp-CT-MK-tasking.pdf). However, although not ideal, the 'if' clause is correct, and it brings runtime gains. We have moved into 'final' already (we use 'final' to limit recursion, and 'if' to implement the dynamic cost model). The fibonacci example in the paper finds the 40th fib number in:
 
-'omp-final': real=7.68s/user=14.25s;
-'omp-if': real=7.51s/user=37.48s;
+'omp+final': real=7.68s/user=14.25s;
+'omp+if': real=7.51s/user=37.48s;
 'omp+nothing, aka no-optimization': real=1m46.57s/user=11m16.72s
 
 > The authors do not discuss the restrictions of the depend clause on OpenMP Task constructs. "List items used in depend clauses of the same task or sibling tasks must indicate identical storage locations or disjoint storage locations." The implementation does not appear to consider this restriction so it is unclear if the automatically generated OpenMP tasking code is correct. This issue is significant as the proposed implementation may yield significantly higher parallelism.
 
-We consider those restriction! We follow Section 2.13.9 of the standard. Even more, we only annotate a region if we can find symbolic limits for all the memory accesses used within it. We only annotate arrays if we can determine their sections. Whenever we annotate different sections within the same array, these sections are disjoint across tasks. Another restriction is that a region must be profitable (see Page10, Line34, Column1). Given these two restrictions, we found "annotable regions" in 63 out of 219 benchmarks in the test suite. Every benchmark contains sanity checks.
+We consider those restriction! We follow Section 2.13.9 of the standard. We only annotate a region if we can find symbolic limits for all the memory accesses used within it. Whenever we annotate different sections within the same array, these sections are disjoint across tasks. Another restriction is that a region must be profitable (see Page10, Line34, Column1). Given these two restrictions, we found "annotable regions" in 63 out of 219 benchmarks in the test suite. Every benchmark contains sanity checks. We will expand this discussion in the paper.
 
 > The approach should generate taskloop and taskgroup constructs.
 
@@ -42,7 +42,7 @@ We are comparing against gcc-O3, with vectorization enabled. The Swan benchmarks
 
 > In the evaluation section I would appreciate to see an evaluation of the cost model used in this work.
 
-Figure 11 presented an evaluation in three benchmarks. We also would like to show numbers about some tuning of it. We did not do it due to lack of space.
+Figure 11 presented an evaluation in three benchmarks. We also would like to show numbers about some tuning of the cost model. We did not do it due to lack of space.
 
 Review #124C
 
