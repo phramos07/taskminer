@@ -1,5 +1,5 @@
 %% For double-blind review submission
-\documentclass[sigplan,10pt,review]{acmart}
+\documentclass[sigplan,10pt]{acmart}
 \settopmatter{printfolios=true}
 %% For final camera-ready submission
 %\documentclass[acmlarge]{acmart}\settopmatter{}
@@ -20,8 +20,8 @@
 
 %% Conference information (used by SIGPLAN proceedings format)
 %% Supplied to authors by publisher for camera-ready submission
-\acmConference[PL'17]{IEEE}{2018}{Planet Earh}
-\acmYear{2017}
+\acmConference[SBLP'18]{IEEE}{2018}{Brasil}
+\acmYear{2018}
 \acmISBN{978-x-xxxx-xxxx-x/YY/MM}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
 \startPage{1}
@@ -93,7 +93,7 @@
  % \postcode{31.270-213}
  % \country{Brazil}
 }
-\email{[pedroramos, gleison, guilherme, fernando]@dcc.ufmg.br}
+\email{[pedroramos, gleison.mendonca, guilhermel, fernando]@dcc.ufmg.br}
 
 %\author{Gleison Souza Diniz Mendonc\c{c}a}
 %\authornote{with author1 note}          %% \authornote is optional;
@@ -144,7 +144,7 @@
 Este artigo apresenta \Taskminer{}, uma ferramenta que encontra paralelismo de tarefas
 em código C automaticamente. \Taskminer{} lida com problemas clássicos de paralelismo irregular 
 como a delimitação simbólica de regiões de memória, remoção de dependências
-estáticas espúrias, detecção de condições de corrida, e principalmente avaliação do custo do paralelismo. Para solucioná-los,
+estáticas espúrias, detecção de condições de corrida, e, principalmente, a avaliação do custo do paralelismo. Para solucioná-los,
 \Taskminer{} implementa uma série de otimizações em representa\-ção intermediária do LLVM, que analisam código C e inserem anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente. \Taskminer{} também é capaz de encontrar paralelismo escondido em programas sequenciais, sem intervenção humana.
 \end{abstract}
 
@@ -170,11 +170,7 @@ estáticas espúrias, detecção de condições de corrida, e principalmente ava
 </ccs2012>
 \end{CCSXML}
 
-\ccsdesc[500]{Computing methodologies~Parallel programming languages}
-\ccsdesc[500]{Computing methodologies~Concurrent programming languages}
-\ccsdesc[500]{Software and its engineering~Compilers}
-
-\keywords{Parallelism, Tasks, OpenMP}
+\keywords{paralelismo, tarefas, OpenMP, compiladores}
 
 \maketitle
 
@@ -183,7 +179,7 @@ estáticas espúrias, detecção de condições de corrida, e principalmente ava
 
 É inegável que computação paralela e distribuída é hoje uma alternativa muito procurada por 
 desenvolvedores na busca por desempenho. Programadores tem, cada vez mais, investido
-em paradigmas paralelos, visando maior eficiência e velocidade. Nesse contexto, sistemas de
+em paradigmas paralelos visando maior eficiência e velocidade. Nesse contexto, sistemas de
 anotação como OpenMP~\cite{JaegerCP15} e
 OpenACC~\cite{OpenACC20} atuam como metalinguagens, conferindo ao programador
 poder semântico para transformar um programa originalmente sequencial
@@ -198,31 +194,32 @@ parte do poder de sistemas de anotação provém da capacidade de se criar \text
 durante a execução do programa~\cite{Ayguade09}. O propósito desse trabalho
 é apresentar um algoritmo capaz de minerar oportunidades para paralelismo de tarefas
 em programas sequênciais e anotá-los automaticamente. Como descrito na seção \ref{sec:ovf},
-essas anotações conferem ao programa irregular semântica de algoritmos em grafos e/ou \textit{worklists}~\cite{Pingali11}, paradigmas paralelos.
+essas anotações conferem ao programa irregular uma semântica de paradigmas paralelos,
+como aqueles em grafos e/ou em \textit{worklists}~\cite{Pingali11}.
 
 Este artigo descreve {\Taskminer}, um compilador fonte-a-fonte que expõe
 paralelismo de tarefas em programas C/C++. {\Taskminer} lida com desafios 
 relacionados ao paralelismo irregular. Primeiro, ele determina os limites
 simbólicos dos blocos de memória acessados dentro de cada programa. Depois, encontra 
 fragmentos de código (laços ou funções) que podem 
-ser efetivamente mapeados à tarefas. Então, extrai parâmetros capazes
+ser efetivamente mapeados em tarefas. Então, extrai parâmetros capazes
 de estimar o custo da tarefa em questão. Esses parâmetros estão dinamicamente atrelados
 às anotações e são capazes de ativar ou desativar a criação de tarefas durante a execução do programa,
 ou de limitar a profundidade de tarefas geradas recursivamente. \Taskminer{} também determina
-quais variáveis serão replicadas em novas tarefas, ou compartilhadas por tarefas concorrentes.
+quais variáveis serão replicadas em novas tarefas ou compartilhadas por tarefas concorrentes.
 Finalmente, ele mapeia todas essas informações de volta ao código fonte, produzindo
 anotações legíveis.
 
 Defende-se a tese de que a anotação automática de tarefas é útil à medida que
 retira do programador o fardo de procurar, anotar e verificar as anotações, tornando seu
 processo de desenvolvimento mais eficiente. A ferramenta {\Taskminer} é capaz
-de alcançar ganhos de quase 4x em benchmarks não usualmente paralelos, como descrito em \ref{sec:eval}. {\Taskminer}
-recebe como input um programa escrito em C e produz como output um programa também em C,
+de alcançar ganhos de quase 4x em benchmarks não usualmente paralelos, como descrito na Seção \ref{sec:eval}. {\Taskminer}
+recebe como entrada um programa escrito em C e produz como saída um programa também em C,
 mas anotado com diretivas OpenMP legíveis. {\Taskminer} anota programas não triviais, envolvendo
-todo tipo de construto da linguagem C como arranjos, estruturas, uniões e ponteiros para esses tipos.
+todo tipo de construto da linguagem C, como arranjos, estruturas, uniões e ponteiros para esses tipos.
 Alguns desses programas provém de benchmarks complexos como Bots~\cite{Duran09}  e a coleção de testes do LLVM.
 As versões anotadas pelo {\Taskminer} se aproximam das versões anotadas manualmente em
-desempenho, e são mais rápidos que as versões sequenciais.
+desempenho e são mais rápidas que as versões sequenciais.
 
 
 \section{Visão geral}
@@ -231,10 +228,9 @@ desempenho, e são mais rápidos que as versões sequenciais.
 A construção de um compilador como o \Taskminer{} envolve a superação de uma série  de desafios.
 \Taskminer{} recebe como entrada um programa escrito em C e retorna o mesmo programa anotado com 
 diretivas OpenMP. O ambiente de execução OpenMP se encarrega de 
-rastrear dependências entre ponteiros (~\cite{LaGrone11}). Entretanto, a inserção
+rastrear dependências entre ponteiros~\cite{LaGrone11}. Entretanto, a inserção
 automática das anotações é apenas a última etapa. Nesta Seção detalha-se os problemas
-encontrados pelo \Taskminer{} no percalço de mineração de tarefas. A solução para esses problemas será descrita 
-posteriormente na Seção~\ref{sec:sol}.
+encontrados pelo \Taskminer{} no percalço de mineração de tarefas. A solução para esses problemas é descrita na Seção~\ref{sec:sol}.
 
 \begin{figure}[b!]
 \begin{center}
@@ -247,7 +243,7 @@ posteriormente na Seção~\ref{sec:sol}.
 O primeiro desafio encontrado pelo \Taskminer{} consiste em 
 identificar as regiões de memória cobertas por uma tarefa.
 A Figura~\ref{fig:ex_Regions} ilustra esse problema e como resolvê-lo. O programa
-uma matriz \textsf{V}, $\mathsf{M}\times\mathsf{N}$, em formato linear,
+recebe uma matriz \textsf{V}, $\mathsf{M}\times\mathsf{N}$, em formato linear,
 e produz um vetor  \textsf{U} de forma que  \textsf{U[i]} contenha a soma de todos
 os elementos na linha  \textsf{i} da matriz  \textsf{V}. {\Taskminer} determina que cada
 iteração do laço mais externo pode se tornar uma tarefa. Então, cada tarefa neste programa
@@ -260,13 +256,13 @@ A criação de tarefas envolve um custo alto por parte do ambiente de execução
 alocação, escalonamento, concorrência e gerenciamento em tempo real do grafo de dependências.
 Idealmente, são desejáveis tarefas que executem uma quantidade de trabalho
 grande o suficiente para superar este custo. A quantidade de trabalho executado
-por uma tarefa não pode ser descoberta estaticamente \cite{Rice53}. 
-É possível aproximar-se desse custo com
+por uma tarefa não pode ser descoberta estaticamente \cite{Rice53}. Contudo,
+é possível aproximar-se desse custo com
 símbolos nativos do programa, que, em execução, serão substituídos por valores. 
-Por exemplo, na figura~\ref{fig:ex_Regions}
-sabe-se o número de instruções do laço interno. Então aproxima-se a quantidade de trabalho executado
+Por exemplo, na Figura~\ref{fig:ex_Regions}
+sabe-se o número de instruções do laço interno. Então, aproxima-se a quantidade de trabalho executado
 com a expressão \textsf{5 * M}. O valor de \textsf{M} durante a execução será determinante para
-a criação da tarefa. Essa checagem é feita na linha 7 da figura, 
+a criação da tarefa. Essa checagem é feita na linha 7 do exemplo, 
 e faz parte da sintaxe de OpenMP. Além disso, {\Taskminer} propõe
 uma estimativa confiável a respeito do limite mínimo de custo 
 que uma tarefa deve possuir para ser criada sem produzir
@@ -277,7 +273,7 @@ de execução em termos de instruções de máquina.
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/ex_cutoff}
-\caption{limitando a criação de tarefas recursivas.
+\caption{Limitando a criação de tarefas recursivas.
 Exemplo retirado de~\cite[Fig.1]{Iwasaki16}.}
 \label{fig:ex_cutoff}
 \end{center}
@@ -295,7 +291,7 @@ nunca é excedido. Esse limite é pré-determinado na fase de configuração do
 por tarefa. Portanto, a geração 
 de código executada pelo {\Taskminer} é dependente de dois parâmetros,
 \textsf{PROFUNDIDADE\_MAX} e \textsf{CUSTO\_MIN}. 
-Ambos possuem valores padrão, mas são passíveis de configuração.	
+Ambos possuem valores padrão, mas podem ser configurados pelo usuário.	
 
 \section{Solu\c{c}\~{a}o}
 \label{sec:sol}
@@ -308,20 +304,20 @@ Ambos possuem valores padrão, mas são passíveis de configuração.
 \end{center}
 \end{figure}
 
-A figura~\ref{fig:alg_main} descreve o algoritmo executado pela ferramenta {\Taskminer}. 
+A Figura~\ref{fig:alg_main} descreve o algoritmo executado pela ferramenta {\Taskminer}. 
 Ele utiliza conceitos  como
-o grafo de dependências~\cite{Ferrante87} e o 
+o grafo de dependências ~\cite{Ferrante87} e o 
 grafo de fluxo de controle~\cite{Kildall73}. {\Taskminer}
 identifica tarefas em programas estruturados que podem
 ser particionados em regiões \textit{hammock}
 \cite{Ferrante87}.
 
-\begin{Definicao} [Região \textit{Hammock}]
+\begin{Definicao} [Região \textit{hammock}]
 \label{def:hammock}
 Um grafo de fluxo de controle $G$ é um grafo direcionado com um nó de entrada
-$s$ e um nó de saída $x$. Uma região \textit{hammock} $G'$ é um subgrafo de $G$ com um nó $h$ que {em domina}
+$s$ e um nó de saída $x$. Uma região \textit{hammock} $G'$ é um subgrafo de $G$ com um nó $h$ que {\em domina}
 \footnote{Um nó $n_1 \in G$ domina outro nó
-$n_2 \in G$ de todo caminho de  $S$ até $n_2$ atravessa $n_1$.
+$n_2 \in G$ se todo caminho de  $S$ até $n_2$ atravessa $n_1$.
 Inversamente, $n_1$ pós-domina $n_2$ se todo caminho de $n_2$ até $x$ deve passar por $n_1$.} os outros nós em $G$.
 Além disso, existe um nó $w \in G$, $w \notin G'$, tal que $w$ {\em pós-domina} todo nó em $G'$. Nessa definição,
 $h$ é o nó de entrada e $w$ é o nó de saída de $G'$.  
@@ -330,10 +326,10 @@ $h$ é o nó de entrada e $w$ é o nó de saída de $G'$.
 \begin{Definicao} [Tarefa]
 \label{def:task}
 Em um programa $P$, uma tarefa $T$ é uma tupla $(G', M_i, M_o)$ formada
-por uma região \textit{hammock} $G'$ e dois conjuntos $M_i$ e $M_o$, dados de memória lidos e escritos por $T$ respectivamente.
+por uma região \textit{hammock} $G'$ e dois conjuntos $M_i$ e $M_o$, dados de memória lidos e escritos por $T$, respectivamente.
 \end{Definicao}
 
-Regiões de memória são descritas por variáveis do programa ou ponteiros com intervalos derefenciáveis.
+Regiões de memória são descritas por variáveis do programa ou ponteiros com intervalos derrefenciáveis.
 Sejam duas tarefas $T_1 = (G_1, M_{i1}, M_{o1})$ e $T_2 = (G_2, M_{i2}, M_{o2})$, 
 se $M_{o1} \cap M_{i2} \neq \emptyset$ então $T_2$ {\em depende} de $T_1$. Se um programa $P$ está particionado em um 
 conjunto de $n$ tarefas, então ele deve respeitar a Definição \ref{def:corretude} para ser considerado correto:
@@ -355,8 +351,8 @@ Nesse exemplo, cada região \textit{hammock} é constituída por uma chamada de 
 
 \includegraphics[width=1\columnwidth]{images/ex_depends}
 
-{\Taskminer} utiliza OpenMP 4.0 para explorar o paralelismo de tarefas. Detalhes da sintaxe e semântica
-das anotações do OpenMP estão publicamente disponíveis\footnote{``Summary of OpenMP 4.0 C/C++ Syntax", disponibilizado
+{\Taskminer} utiliza OpenMP 4.5 para explorar o paralelismo de tarefas. Detalhes da sintaxe e semântica
+das anotações do OpenMP estão publicamente disponíveis\footnote{``Summary of OpenMP 4.5 C/C++ Syntax", disponibilizado
 pelo grupo OpenMP}. As anotações utilizadas são:
 %
 \begin{compactitem}
@@ -386,7 +382,7 @@ Para produzir uma anotação que criará uma tarefa $T = (G, M_i, M_o)$,
 deve-se determinar as regiões de memória $M_i$ que $T$ lê, e as regiões
 $M_o$ em que $T$ escreve. Para tal, recorre-se à análise de limites simbólicos.
  
-A instrução \textsf{U[i] += V[i*N + j]}, na linha 9 da Figura~\ref{fig:ex_Regions}
+A instrução \textsf{U[i] += V[i*N + j]} na linha 9 da Figura~\ref{fig:ex_Regions}
 contém dois acessos à memória: \textsf{U[i]} e
 \textsf{V[i*N + j]}.
  O primeiro cobre a região de memória $[\mathtt{\&}\mathsf{U},
@@ -407,7 +403,7 @@ símbolo do programa:
 \renewcommand{\arraystretch}{0.9}
 \[
 \begin{array}{rcl}
-E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E, E) \ \ | \\
+E & ::= & z \ \ | \ \ s \ \ | \ \ E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E, E) \ \ | \\
 &  & \mbox{max}(E, E) \ \ | -\infty \ \ | \ \ +\infty
 \end{array}
 \]
@@ -431,7 +427,7 @@ a região simbólica que aparece na anotação da linha 6 na Figura~\ref{fig:ex_
 Uma {\em tarefa candidata} é um conjunto de instruções que podem executar paralelamente.
 Para identificá-las, {\Taskminer} faz uso do {\em Grafo de Dependências}. 
 
-\begin{Definicao} [Grafo de Dependências (PDG)]~\cite{Ferrante87}
+\begin{Definicao} [Grafo de Dependências (PDG) ~\cite{Ferrante87}]
 \label{def:pdg}
 Dado um programa
 $P$, seu PDG contém um vértice para cada instrução $s \in P$. Existe uma aresta de 
@@ -469,17 +465,17 @@ Na imagem, vemos o grafo para a Figura~\ref{fig:ex_Regions} em (b).}
 
 A Figura ~\ref{fig:ex_windmill} mostra dois grafos de dependências e seus
 moinhos. A estrutura de moinhos naturalmente evidencia tarefas candidatas.
-Hélices correspondem à partes do programa que tem alta probabilidade de serem
+Hélices correspondem a partes do programa que tem alta probabilidade de serem
 executadas diversas vezes, pois surgem de um laço: o centro do moinho. Duas execuções
-de uma mesma hélice podem ser paralelas. Esta é uma propriedade do PDG, e uma 
+de uma mesma hélice podem ser paralelas. Esta é uma propriedade do PDG e também uma 
 das motivações originais para este trabalho. Essas duas execuções podem ser vistas como duas instâncias
 da mesma estrutura: a hélice, partindo do mesmo centro do moinho. 
 Uma ordenação topológica desse grafo não impõe
 ordem entre as duas hipotéticas réplicas da mesma hélice.
 
-Moinhos contém propriedades estruturais para identificação de tarefas e são encontrados
+Moinhos possuem propriedades estruturais para identifica-\c{c}\~{a}o de tarefas e são encontrados
 em uma simples busca em profundidade no PDG. Entretanto, nem todo moinho
-evidencia tarefas boas. Ainda, alguns moinhos não podem ser anotados devido à inabiliadde 
+evidencia tarefas rentáveis. Ainda, alguns moinhos não podem ser anotados devido à inabilidade 
 da análise de ponteiros em encontrar limites de acesso à memória. As próximas seções tratam desses
 problemas.
 
@@ -506,17 +502,17 @@ deve-se aproximar esse tamanho
 estaticamente. Assim, define-se a noção de {\em Trabalho Estatico Estimado}:
 
 % Explain the tension between large and small tasks.
-\begin{definition}[Trabalho Estático Estimado (TEE)]
+\begin{Definicao}[Trabalho Estático Estimado (TEE)]
 \label{def:swe}
 Seja $G = G_1 \cup G_2 \cup \ldots \cup G_n$ uma partição de um grafo de controle
-de um $G$ em $n$ regiões hammock {\em disjuntas}.
+de um $G$ em $n$ regiões {\em hammock} {\em disjuntas}.
 Trabalho Estático Estimado ($W(G)$) é definido como um número real não negativo,
 tal que $W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
-\end{definition}
+\end{Definicao}
 
-O objetivo é obter um $W$ próximo ao comportamento dinâmico dos programas.
+O objetivo é obter um $TEE$ próximo ao comportamento dinâmico dos programas.
 A heurística escolhida para este trabalho utiliza a análise de limites
-descrita na Seção \ref{sub:sra} para inserir informações dinâmicas estaticamente,
+descrita na Seção \ref{sec:sra} para inserir informações dinâmicas estaticamente
 através da construção de expressões simbólicas que representam o número de iterações
 de laços. Essas expressões são inseridas em condicionais para a criação da
 tarefa, como na linha 7 da Figura \ref{fig:ex_Regions}.
@@ -526,7 +522,7 @@ tarefa, como na linha 7 da Figura \ref{fig:ex_Regions}.
 \begin{eqnarray*}
 \begin{tabular}{lc}
 \textsc{[Instr]} &
-W(\mbox{instr}) = \mbox{given by the spec.}
+W(\mbox{instr}) = \mbox{TEE, como especificado.}
 \\\\
 \textsc{[Seq]} &
 \inferrule{W(S_1) = w_1 \\ W(S_2) = w_2}{W(S_1;S_2;) = w_1 + w_2}
@@ -550,7 +546,7 @@ W(\mbox{instr}) = \mbox{given by the spec.}
 
 % Explain how we use symbolic information to compute costs.
 As regras declarativas da Figura~\ref{fig:swe} esboçam as heurísticas
-utilizadas para computar o TEE para uma região hammock $S$.
+utilizadas para computar o TEE para uma região {\em hammock} $S$.
 A regra \textsc{LoopInf} aplica-se a laços cujo número de iterações não
 pode ser limitado por uma expressão simbólica computada estaticamente.
 Assume-se que laços executam ao menos 10 vezes~\cite{Wu94}.
@@ -562,9 +558,9 @@ cobertos pelo código em $S$ que controla o número de iterações do laço.
 \paragraph{O Modelo de Custo.}
 O {\Taskminer} recebe um modelo de custo como parâmetro.
 Um modelo de custo é uma coleção de parâmetros que determinam o impacto
-da criação e manutenção de tarefas em uma determinada arquitetura.
-A literatura lista técnicas analíticas e empíricas~\cite{Poesia17}
-para a construção do modelo. 
+da criação e manuten-\c{c}\~{a}o de tarefas em uma determinada arquitetura.
+A literatura lista técnicas analíticas e empíricas
+para a construção do modelo~\cite{Poesia17}. 
 Para os experimentos descritos na Seção ~\ref{sec:eval}, utilizou-se constantes
 relacionadas à criação de {\em threads} em uma determinada arquitetura. Por exemplo,
 a criação de tarefas foi estimada em 500 ciclos para a arquitetura em que os experimentos
@@ -575,11 +571,11 @@ foram realizados.
 \label{sub:expansion}
 
 Expansão de tarefas consiste em encontrar a menor tarefa que é grande o suficiente
-para compensar o custo de criação de {\em threads}. A figura \ref{fig:expand_alg}
-mostra o algoritmo de expansão. Inicia-se o algoritmo atribuindo \textsf{REGIÃO} a
-um grafo hammock $H$ que corresponde a uma hélice em um moinho $W$.
-A decomposição hammock de um programa estruturado é uma árvore~\cite{Ferrante87},
-em que os vértices representam grafos hammock.
+para compensar o custo de criação de {\em threads}. A Figura \ref{fig:expand_alg}
+mostra o algoritmo de expansão. Inicia-se o algoritmo atribuindo \textsf{REGIÃO\_PAI} a
+um grafo {\em hammock} $H$ que corresponde a uma hélice em um moinho $W$.
+A decomposição {\em hammock} de um programa estruturado é uma árvore~\cite{Ferrante87},
+em que os vértices representam grafos {\em hammock}.
 $H_1$ é filho de $H_2$ na árvore se:
 (i) $H_1 \subset H_2$, e (ii) para qualquer 
 nó $H_x$, se $H_1 \subset H_x$ então $H_2 \subset H_x$.
@@ -588,7 +584,7 @@ Nese contexto, $H_2$ é {\em pai} de $H_1$.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/expand_alg}
-\caption{Descoberta de tarefas em regiões hammock.
+\caption{Descoberta de tarefas em regiões {\em hammock}.
 \textsf{CUSTO} é o custo de criação e escalonamento de {\em threads}.}
 \label{fig:expand_alg}
 \end{center}
@@ -636,21 +632,21 @@ para código C.
 % Explain machinery: scope tree and simplification
 \noindent
 \textbf{Árvore de escopos:}
-A árvore de escopos é uma estrutura utilizada pelo {\Taskminer} para mapear regiões hammock em construtos C, como blocos
-\textsf{while} e \textsf{if-then-else}. Cada nó nesta árvore contém {\em meta-dados}
+A árvore de escopos é uma estrutura utilizada pelo {\Taskminer} para mapear regiões {\em hammock} em construtos C, como blocos
+\textsf{while} e \textsf{if-then-else}. Cada nó nesta árvore contém {\em metadados}
 provenientes de informação de depuração obtida durante a compilação para R.I.
 É possível achar o número da linha relacionada à cada nó na árvore de escopos, permitindo
-ao {\Taskminer} a anotação das regiões hammock no código fonte de maneira precisa.
+ao {\Taskminer} a anotação das regiões {\em hammock} no código fonte de maneira precisa.
 
 \paragraph{Limitando a criação de tarefas recursivas}
 Para evitar a criação excessiva de tarefas pequenas, {\Taskminer} dá a opção
-aos usuários de limitar a criação de tarefas. Por exemplo \textsf{./Taskminer -r 12} limita o número
+aos usuários de limitar a criação de tarefas. Por exemplo, \textsf{./Taskminer -r 12} limita o número
 de tarefas criadas a um total de 12 tarefas. Essa solução é implementada na fase de anotação. 
-Essa solução traz claros benefícios em benchmarks recursivos. 
+Essa solução traz claros benefícios em benchmarks recursivos, como mostra-se na Seção \ref{sec:eval}. 
 A variável, chamada de \textsf{taskminer\_depht\_cutoff} na Figura
 \ref{fig:ex_cutoff}, é global e ligada estaticamente. 
-No começo de cada função recursiva,
-esta variável é incrementada para indicar a criação de uma nova tarefa; 
+No começo de cada função recursiva
+esta variável é incrementada para indicar a criação de uma nova tarefa, 
 e decrementada ao sair da função.
 A Figura~\ref{fig:ex_cutoff} ilustra a limitação de tarefas 
 durante invocação recursiva.
@@ -694,8 +690,8 @@ com gcc-6.
 
 As versões anotadas pelo \Taskminer{} foram mais velozes que as sequenciais em 13 dos 16 programas.
 A maioria são algoritmos Dividir \& Conquistar clássicos como multiplicação de matrizes de \textsf{Strassen},
- \textsf{knapsack} (Problema da Mochila) e \textsf{fft}. Em 6 deles, as versões automáticas foram próximas e até
-levemente acima das versões anotadas manualmente. Em 3, \Taskminer{} produziu versões piores que
+ \textsf{knapsack} (Problema da Mochila) e \textsf{fft} (Transformada Rápida de Fourrier). Em 6 deles, as versões automáticas foram próximas e até
+levemente superiores às versões anotadas manualmente. Em 3, \Taskminer{} produziu versões piores que
 as versões sequenciais: \textsf{fib}, \textsf{floorplan} e \textsf{bell-ford}. Ainda assim, produziu versões
 mais rápidas que as anotadas manualmente. Uma inspeção de \textsf{bell-ford} indica que a versão
 paralelizada manualmente dispara um número grande tarefas pequenas. O modelo de custo
@@ -722,7 +718,7 @@ ganhos consideráveis se comparados às versões sequenciais e manualmente anota
 
 Ambas as formas de 
 otimizar a criação de tarefas descritas neste artigo são baseadas na ideia de 
-``poda": evita-se a criação de tarefas consideradas não-lucrativas. 
+{\em poda}: evita-se a criação de tarefas consideradas não-lucrativas. 
 Limita-se a criação de tarefas ditas não lucrativas de acordo com o modelo de custo, 
 conforme explicado na 
 Seção~\ref{sub:profit}; e limita-se a criação de tarefas muito profundas na pilha de recursão, 
@@ -782,12 +778,12 @@ Dos benchmarks anotados, 27 não demonstraram aumento de desempenho em
 relação à versão sequencial,
 pois as tarefas anotadas eram muito pequenas e pouco influenciaram na execução total do programa.
 Em 17 deles, observou-se perda de velocidade: neste caso, interações entre estruturas de dados
-forçaram ao ambiente de execução do OpenMP a serizalizar a execução das tarefas. 
+forçaram o ambiente de execução do OpenMP a serializar a execução das tarefas. 
 Essas perdas foram 
 inferiores à 10\%. 
 
 Obteve-se aumento de desempenho acima de 5\% em 19 programas. 
-Em \textsf{Misc/lowercase}, o fator de crescimento foi acima de 3.5x, e em 3 casos, acima de 1.5x.
+Em \textsf{Misc/lowercase}, o fator de crescimento foi acima de 3,5x, e em 3 casos, acima de 1.5x.
 A Figura~\ref{fig:TM_GeneralProgs} mostra os 10 maiores acréscimos de desempenho obtidos pelo \Taskminer{}.
 Enfatiza-se que esse experimento {\em não contou com nenhum tipo de intervenção humana}.
 Portanto, \Taskminer{} é capaz de encontrar paralelismo automaticamente sem custo de programação.
@@ -821,30 +817,30 @@ do OpenMP apenas recentemente.
 Uma vez que a infra-estrutura necessária para
 a implementação de tarefas é nova, não existem ferramentas 
 além do {\Taskminer} capazes de anotar programas
-automaticamente com diretivas. Exemplos
+automaticamente com diretivas de tarefas. Exemplos
 de modelos que permitem paralelismo de tarefas são OpenMP 4.X,
 StarSs \cite{planas:hpca:2009} e OmpSs \cite{duran:ppl:2011}.
 Por exemplo, Tareador \cite{Ayguade15} apresenta uma interface gráfica para identificação de potencial paralelismo e anotação de código sequencial.
 
 A técnica utilizada pelo {\Taskminer} para identificação de tarefas se assemelha às análises usadas durante
-geração de código para máquinas de fluxo de dados. Muitas abordagens utilizaram grafos
+geração de código para máquinas de fluxo de dados. Muitas abordagens utilizam grafos
 de fluxo de dados para explorar paralelismo, como Tarefas Movidas à Dados \cite{tasirlar:icpp:2011},
 em que o programador pode manipular cláusulas para determinar os argumentos da tarefa
-antes de sua execução. Paralelismo baseado em função também foi proposto em \cite{gupta:micro:2011}
-para utilizar argumentos de funções como especificadores de dependências entre tarefas.
+antes de sua execução. Paralelismo baseado em função também foi proposto
+para utilizar argumentos de funções como especificadores de dependências entre tarefas \cite{gupta:micro:2011}.
 
 Muitos sistemas foram desenvolvidos para extrair paralelismo de tarefas a partir de código sequencial.
 Entretanto, a mineração e inserção automática dessas diretivas não consta como objetivo
 em nenhum desses trabalhos, e \Taskminer{} segue como primeira ferramenta capaz 
-de anotar código como paralelo
-automaticamente de maneira correta.
+de anotar automaticamente código com paralelismo irregular
+de maneira correta.
 
 
 
 \section{Conclus\~{a}o}
 \label{sec:conc}
 
-Este trabalho apresentou \Taskminer{}, uma ferramenta capaz de identificar automaticamente oportunidades de paralelismo de tarefas e anotá-las com diretivas OpenMP. \Taskminer{} implementa algoritmos de análise de código em representação intermediária do LLVM e contorna problemas clássicos no paralelismo irregular. Apesar das dificuldades, \Taskminer{} prova-se eficiente e competitivo, sendo capaz de anotar programas não triviais e encontrar paralelismo escondido sem custo adicional. 
+Este trabalho apresentou \Taskminer{}, uma ferramenta capaz de identificar automaticamente oportunidades de paralelismo de tarefas e anotá-las com diretivas OpenMP. \Taskminer{} implementa algoritmos de análise de código em representação intermediária do LLVM e contorna problemas clássicos no paralelismo irregular. \Taskminer{} prova-se eficiente e competitivo, sendo capaz de anotar programas não triviais e encontrar paralelismo escondido sem custo adicional. 
 
 Embora já possa ser usado em produção de código paralelo, \Taskminer{} ainda apresenta espaço
 para melhorias.
