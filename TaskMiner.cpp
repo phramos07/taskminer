@@ -450,6 +450,9 @@ void TaskMiner::mineRecursiveTasks()
 void TaskMiner::mineRegionTasks(Module &M)
 {
 	errs() << "\tMining Region Tasks...\n";
+	std::map<BasicBlock*, RegionTask*> regionTasksByEntryBlock;
+	std::set<BasicBlock*> entryBlocks;
+
 
 	for (Module::iterator f = M.begin(); f != M.end(); ++f)
 	{
@@ -466,6 +469,10 @@ void TaskMiner::mineRegionTasks(Module &M)
 		{
 			errs() << "\n\n";
 			l->dump();
+			
+			errs() << "Entry Block:";
+			l->getHeader()->dump();
+
 			if (l->getLoopDepth() == 1)
 			{
 				RegionTask* TASK = new RegionTask();
@@ -474,6 +481,15 @@ void TaskMiner::mineRegionTasks(Module &M)
 				{
 					TASK->addBasicBlock(BB);
 				}
+				//HERE: check if there already exists a task whose entry bb is the same as l->getHeader().
+				//If this shit happens, ignore next one.
+				if (entryBlocks.find(l->getHeader()) != entryBlocks.end())
+				{
+					delete TASK;
+					continue;
+				}
+
+				entryBlocks.insert(l->getHeader());
 				tasks.push_back(TASK);
 				NTASKS++;
 				NREGIONTASKS++;
