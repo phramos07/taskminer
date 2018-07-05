@@ -1,8 +1,9 @@
 include ../Makefile.common
 
 2DCONV = 2dconvolution
+BICG = bicg
 
-SUBDIRS = $(2DCONV)
+SUBDIRS = $(2DCONV) $(BICG)
 
 compile:
 	for DIR in $(SUBDIRS); do \

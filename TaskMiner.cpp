@@ -473,8 +473,9 @@ void TaskMiner::mineRegionTasks(Module &M)
 			errs() << "Entry Block:";
 			l->getHeader()->dump();
 
-			if (l->getLoopDepth() == 1)
+			if (l->getLoopDepth() == 2)
 			{
+				l = l->getParentLoop();
 				RegionTask* TASK = new RegionTask();
 				TASK->setHeaderBB(l->getHeader());
 				for (auto BB : l->getBlocks())

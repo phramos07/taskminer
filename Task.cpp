@@ -615,7 +615,9 @@ raw_ostream& RegionTask::print(raw_ostream& os) const
 	os << "\n===========\n" 
 					<< "Type: Region Task"
 					<< "\n===========\n"
-					<< "BBs: \n\t";
+					<< "At: \n";
+	os << this->header->getParent()->getName() << "\n"; 
+	os << "BBs: \n\t";
 	for (auto bb : bbs)
 		os << " " << bb->getName();
 	printLiveSets(os);
