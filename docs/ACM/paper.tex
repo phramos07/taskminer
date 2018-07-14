@@ -327,7 +327,7 @@ this graph~\cite{Planas15}.
 \includegraphics[width=1\columnwidth]{images/ex_book_filter}
 \caption{The benefits of the OpenMP runtime environment.
 Neither the runtime checks of Alves~\cite{Alves15} or Rus~\cite{Rus02}, nor
-Whaley's context and flow sensitive alias analysis would be able to ensure the
+Whaley's context and flow sensitive alias analysis~\cite{Whaley04} would be able to ensure the
 correctness of the automatic parallelization of this program.}
 \label{fig:ex_book_filter}
 \end{center}
@@ -551,18 +551,11 @@ plus ranges of dereferenceable offsets.
 Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$,
 if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
 $T_1$.
-If a program $P$ is partitioned into a set of $n$ tasks, then this partition is
-said to be {\em correct} if it abides by Definition~\ref{def:correctness}.
-
-\begin{definition}[Correctness]
-\label{def:correctness}
-A set $T$ of $n$ tasks is a correct parallelization of a program $P$ if:
-\begin{compactenum}
-\item $T$ does not contain cyclic dependence relations;
-\item the execution of the tasks in $T$ in any ordering determined by dependence
+If a program $P$ is partitioned into a set $T$ of $n$ tasks, then this partition is
+said to be {\em correct} if:
+(i) $T$ does not contain cyclic dependence relations; and
+(ii) the execution of the tasks in $T$ in any ordering determined by dependence
 relations leads to the same results as the sequential execution of $P$.
-\end{compactenum}
-\end{definition}
 
 \begin{example}[Memory Regions]
 \label{ex:regions}
@@ -599,8 +592,8 @@ Some pragmas are associated with lists of clauses.
 There are several of these clauses available in OpenMP 4.0; however, we only use
 the following:
 \begin{compactitem}
-\item \textsf{default([shared/private])}: indicates that variables are either
-shared or replicated among tasks.
+\item \textsf{default(shared)}: indicates that variables are
+shared by default among tasks.
 \item \textsf{firstprivate($v$)}: indicates that $v$ must be replicated among
 tasks, and initialized with its value at the point where the annotation is
 executed.
@@ -610,9 +603,12 @@ to preemption and load balancing.
 \item \textsf{depend}($\mathit{in}/\mathit{out}/\mathit{inout}$):
 determine if data is read ($\mathit{in}$), written ($\mathit{out}$) or both
 within a task region; thus, effectively setting dependences among tasks.
-\item \textsf{if}({\em condition}): this clause defines the conditions
-under which a task is allowed to create threads.
+\item \textsf{if}({\em condition}): this clause leads to the creation of an {\em undeferred}
+task, which must be executed immediately.
 We use it to enforce the cost model.
+\item \textsf{final}({\em condition}) \textsf{mergeable}: this clause limits the creation of
+tasks, and reuses the data environment of the father task.
+We use it prune tasks considered too small, as discussed in Section~\ref{sub:ir}.
 \end{compactitem}
 
 \subsection{Finding Symbolic Bounds of Arrays}
@@ -1159,7 +1155,7 @@ LLVM 3.9~\cite{Lattner04}.
 All our experiments were performed in a 64-bits 12-core Intel(R) Xeon(R) CPU
 E5-2620 at 2.00GHz, with 32K of L1 cache, 256K of L2 cache, 15M of L3 cache and
 15Gb of main memory.
-We use OpenMP 4.5, from November of 2015.
+We use OpenMP 4.0, from November of 2015.
 
 \noindent
 \textbf{Research Questions:}
@@ -1465,7 +1461,7 @@ Application Programming  Studio) \cite{castrillon:tii:2013, ceng:dac:2008}, and
 DiscoPoP (Discovery of Potential Parallelism) \cite{discopop, li:jss:2016}.
 Besides parallelization systems, tools like Paraver \cite{extrae, paraver},
 Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, and TEMANEJO
-\cite{brinkmann:parco:2011, brinkmann:journal:2013, temanejo} were  designed to
+\cite{Brinkmann13} were  designed to
 enable performance analysis and visualization of task-based programs.
 Although these tools help the programmer in adapting code
 to run in parallel, they are not fully automatic.
