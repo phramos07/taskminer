@@ -1,5 +1,5 @@
 %% For double-blind review submission
-\documentclass[sigplan,10pt,review,anonymous]{acmart}
+\documentclass[sigplan,10pt,review]{acmart}
 \settopmatter{printfolios=true}
 %% For final camera-ready submission
 %\documentclass[acmlarge]{acmart}\settopmatter{}
@@ -20,7 +20,7 @@
 
 %% Conference information (used by SIGPLAN proceedings format)
 %% Supplied to authors by publisher for camera-ready submission
-\acmConference[PL'17]{IEEE}{2018}{Planet Earh}
+\acmConference[PACT]{ACM}{2018}{Limassol, Cyprus}
 \acmYear{2017}
 \acmISBN{978-x-xxxx-xxxx-x/YY/MM}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
@@ -71,82 +71,84 @@
 
 \begin{document}
 
-\title[Automatic Identification and Annotation of Tasks in Structured
-Programs]
-{Automatic Identification and Annotation of Tasks in Structured Programs}
+\title[Automatic Annotation of Tasks in Structured
+Code]
+{Automatic Annotation of Tasks in Structured Code}
 
-\author{Pedro Henrique Ramos Costa}
-\authornote{with author1 note}          %% \authornote is optional;
+\author{Pedro Ramos, Gleison Souza}
 \orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Researcher}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
+%  \position{Researcher}
+%  \department{DCC}
+  \institution{UFMG, Brazil}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
 }
 \email{pedroramos@dcc.ufmg.br}
-
-\author{Gleison Souza Diniz Mendonc\c{c}a}
-\authornote{with author1 note}          %% \authornote is optional;
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Researcher}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
-}
 \email{gleison.mendonca@dcc.ufmg.br}
 
-\author{Divino C\'{e}sar}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
+%\author{Gleison Souza Diniz Mendonc\c{c}a}
+%\authornote{with author1 note}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%\affiliation{
+%  \position{Researcher}
+%  \department{DCC}
+%  \institution{UFMG}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
+%}
+%\email{gleison.mendonca@dcc.ufmg.br}
+
+\author{Divino C\'{e}sar, Guido Ara\'{u}jo}
+%\authornote{with author1 note}
+%\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Researcher}
-  \department{IC}
-  \institution{UNICAMP}
-  \streetaddress{Cidade Universit\'{a}ria}
-  \city{Campinas}
-  \state{S\~{a}o Paulo}
-  \postcode{13083-970}
-  \country{Brazil}
+%  \position{Researcher}
+%  \department{IC}
+  \institution{UNICAMP, Brazil}
+%  \streetaddress{Cidade Universit\'{a}ria}
+%  \city{Campinas}
+%  \state{S\~{a}o Paulo}
+%  \postcode{13083-970}
+%  \country{Brazil}
 }
 \email{divcesar@gmail.com}
-
-\author{Guido Ara\'{u}jo}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Professor}
-  \department{IC}
-  \institution{UNICAMP}
-  \streetaddress{Cidade Universit\'{a}ria}
-  \city{Campinas}
-  \state{S\~{a}o Paulo}
-  \postcode{13083-970}
-  \country{Brazil}
-}
 \email{guido@ic.unicamp.br}
 
+%\author{Guido Ara\'{u}jo}
+%\authornote{with author1 note}
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%\affiliation{
+%  \position{Professor}
+%  \department{IC}
+%  \institution{UNICAMP}
+%  \streetaddress{Cidade Universit\'{a}ria}
+%  \city{Campinas}
+%  \state{S\~{a}o Paulo}
+%  \postcode{13083-970}
+%  \country{Brazil}
+%}
+%\email{guido@ic.unicamp.br}
+
 \author{Fernando Magno Quint\~{a}o Pereira}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
+\authornote{This work is sponsored by CNPq, CAPEs, FAPEMIG, FAPESP, LG Electronics and
+the CONTINUUM ANR Project.}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Professor}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
+%  \position{Professor}
+%  \department{DCC}
+  \institution{UFMG, Brazil}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
 }
 \email{fernando@dcc.ufmg.br}          %% \email is recommended
 
@@ -205,16 +207,16 @@ Annotation systems have risen to a place of prominence as a simple and
 effective means to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
-OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
+OpenSs~\cite{MeenderinckJ11} and
 OmpSs~\cite{bueno:icpp:2011, duran:ppl:2011}.
-Annotations work as a meta-language: they let developers grant parallel
+Annotations let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %\guido{What do you mean by modern accelerators? Not clear.}
-Combined with modern hardware accelerators such as GPUs and FPGAs, they have led
+Combined with hardware accelerators such as GPUs and FPGAs, they have led
 to substantial performance gains~\cite{Bertolli14,Mendonca17,Poesia17}.
 %\guido{Suppport what?}
-Nevertheless, although convenient, the use of annotations is not straightforward, 
-and still lacks supporting tools that help programmers to check if annotations
+Nevertheless, although convenient, the use of annotations is not straightforward.
+We still lack tools that help programmers to check if annotations
 are correct and/or effective.
 %replaced:
 %Yet, even if convenient,
@@ -228,7 +230,7 @@ There exist tools that insert automatic annotations in
 programs~\cite{Mendonca16,Pingali11}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
-Another form of parallelism, based on tasks, remains still uncharted land in what
+Task parallelism remains still uncharted land in what
 concerns automatic annotation.
 Such fact is unfortunate, since much of the power of current annotation
 systems lies in their ability to create tasks~\cite{Ayguade09}.
@@ -294,10 +296,9 @@ Section~\ref{sub:adv} introduces this discussion.
 \subsection{The OpenMP Runtime System}
 \label{sub:adv}
 
-The main advantage of using OpenMP annotations to split a program into parallel
-tasks is
-the ability  of leaving the job of  handling dependences to a runtime.
-The OpenMP runtime maintains a task dependence graph which dynamically exposes more parallelism 
+OpenMP task annotations let developers leave to the runtime the job of handling data
+dependences.
+The OpenMP runtime maintains a dependence graph which dynamically exposes more parallelism 
 opportunities than those resulting from a conservative  compile-time  analysis.
 In particular, the runtime lets us circumvent the shortcomings that pointer aliasing
 impose on the automatic parallelization of code.
@@ -446,7 +447,7 @@ tasks, as we analyze in Section~\ref{sub:ir}.
 Figure~\ref{fig:ex_cutoff} provides an example.
 To place a limit on the number of tasks simultaneously in flight, we associate
 the invocation of recursive functions annotated with task pragmas with a
-counter -- \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
+counter -- \textsf{cutoff} in Figure~\ref{fig:ex_cutoff}.
 The guard in line 7 ensures that we never exceed \textsf{DEPTH\_CUTOFF}, a
 predetermined threshold.
 This example, together with Figure~\ref{fig:ex_Regions}, lets us emphasize that
@@ -1112,7 +1113,7 @@ Section~\ref{sec:eval}, it brings non-negligible benefits onto recursive
 benchmarks.
 Task bounding is implemented via a global variable, statically linked in the
 program.
-This variable is \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
+This variable is \textsf{cutoff} in Figure~\ref{fig:ex_cutoff}.
 We insert code to increment it at the beginning of recursive functions that
 are invoked within task regions, and we insert code to decrement it at each
 return point of said functions.
