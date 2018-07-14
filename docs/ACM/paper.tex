@@ -351,7 +351,7 @@ to process each line.
 Figure~\ref{fig:ex_book_filter} has been annotated by
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, by reassuring that the annotated dependencies
+created at lines 10 and 12, by reassuring that the annotated dependencies
 {\tt line} and {\tt pattern}
 are respected at runtime.
 
@@ -471,7 +471,7 @@ Identify private and shared variables.
 \end{Challenge}
 
 The two previous challenges are related to the performance of annotated
-programs: if left unsolved, we shall have correct, albeit inefficient programs.
+code: if left unsolved, we shall have correct, albeit inefficient programs.
 Challenges~\ref{ch:Regions}, and~\ref{ch:privatize}, in turn, are
 related to correctness.
 Challenge~\ref{ch:privatize} asks for the identification of variables that
@@ -480,7 +480,7 @@ This process of replication is called {\em privatization}.
 As an example, variable \textsf{j} in Figure~\ref{fig:ex_privatize} must
 be privatized.
 In the absence of such action, that variable will be shared among all the
-tasks created at line 5 of Figure~\ref{fig:ex_privatize}.
+tasks created at line 8 of Figure~\ref{fig:ex_privatize}.
 Because \textsf{j} is written to within these tasks, race conditions would
 ensue.
 Section~\ref{sub:variance} explains how we distinguish private from
@@ -576,7 +576,7 @@ semantics.
 Full overviews of the syntax and semantics of these annotations are publicly
 available\footnote{For a quick overview, we refer the reader to the leaflet
 ``Summary of OpenMP 4.0 C/C++ Syntax", which is made available by the OpenMP
-group.}; hence, we shall not dive into their details.
+ARB.}; hence, we shall not dive into their details.
 %
 \begin{compactitem}
 \item \textsf{parallel} (\textit{clauses}): forms a team of threads
@@ -647,32 +647,27 @@ region.
 This is a form of abstract interpretation that associates
 an integer variable $v$ with a {\em Symbolic Interval} $R(v) = [l, u]$, where
 $l$ and $u$ are {\em Symbolic Expressions}.
-A symbolic expression $E$ is defined by the grammar below, where $s$ is a
-{\em program symbol}:
-\renewcommand{\arraystretch}{0.9}
-\[
-\begin{array}{rcl}
-E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E, E) \ \ | \\
-&  & \mbox{max}(E, E) \ \ | -\infty \ \ | \ \ +\infty
-\end{array}
-\]
+A symbolic expression $E$ is recursively defined as one of the terms:
+$s, c, E + E, E \times E, \mbox{min}(E, E), \mbox{max}(E, E),$
+$-\infty, +\infty$, where $s$ is a {\em program symbol}, and $c \in \mathbb{Z}$.
 \end{definition}
 
-% How we do it.
-The program symbols mentioned in Definition~\ref{def:sra} are names that cannot 
-be reconstructed as functions of other names.
+The program symbols mentioned in Definition~\ref{def:sra} are names that cannot  be
+reconstructed as functions of other names.
 Examples include global variables, function arguments, and values returned by
 external functions.
 Symbolic range analysis is not a contribution of this paper: several
 implementations of it exist.
 We have adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
-reuses work from Blume {\em et al.}~\cite{Blume94}.
+reuses an implementation by Nazar\'{e} {\em et al.}~\cite{Nazare14}.
 The only extensions that we have added into \dawn 's implementation was
 the ability to handle C-like \textsf{structs}.
 Therefore, we shall not provide further details about this part of our work.
 To understand the rest of this paper, it suffices to know that this implementation
-is sufficiently solid to handle the entire C99 language, always terminates, and
-runs in time linear on the size of the program's dependence graph.
+is sufficiently solid to handle the entire C99 language, always terminates and runs in time 
+linear on the size of the program's dependence graph.
+Our implementation of Symbolic Range Analysis is interprocedural, to handle recursive 
+functions, for instance.
 Thus, in the worst case, it is quadratic on the number of program variables.
 If a program contains an array access $\textsf{V}[E]$, and we have that
 $R(E) = [l, u]$, then the memory region covered by this access is, at least,
@@ -698,23 +693,23 @@ To identify task candidates, we rely on the program's
 {\em Dependence Graph}.
 For completeness, Definition~\ref{def:pdg} revisits this notion.
 
-\begin{definition}[Program Dependence Graph -- \cite{Ferrante87}]
+\begin{definition}[Program Dependence Graph (PDG)~\cite{Ferrante87}]
 \label{def:pdg}
-Given a program $P$, its PDG contains one vertex for each statement $s \in P$.
+The PDG of a program $P$ contains one vertex for each statement $s \in P$.
 There exists an edge from $s_1$ to $s_2$ if the latter depends on the former.
 Statement $s_2$ is {\em data-dependent} on $s_1$ if it reads data that $s_1$
 writes.
-It is {\em control dependent} on $s_1$ if $s_1$ determines the outcome of a
-branch, and depending on this outcome, we might execute $s_2$ or not.
+It is {\em control dependent} on $s_1$ if $s_1$ controls a branch, whose result determines
+if $s_2$ executes.
 \end{definition}
 
 Task candidates are vanes in windmills.
 {\em Windmills} are a family of graphs.
-To the best of our knowledge, the term was coined by Rideau
+The term was adopted by Rideau
 {\em et al.}~\cite{Rideau08} to describe structural relations between register
 copies.
 Our windmills exist as subgraphs of the program's dependence graph.
-We adopt a slightly more general definition than Rideaus'; however, the
+We use a slightly more general definition than Rideaus'; however, the
 metaphor that gave origin to the name: the shape of the graphs, is still
 unmistakable:
 
@@ -757,6 +752,8 @@ These two different executions can be seen as two instances of the same
 structure (the vane), coming out of the same windmill center.
 A topological ordering of the dependence graph does not impose any order among
 these two hypothetical replicas of the same structure.
+Tasks can then be synchronized at the post-dominator of vanes marked to run in parallel
+via the \textsf{taskwait} pragma.
 
 Windmills gives us structural properties to identify tasks.
 We can find them via a depth-first search traversal of the program's dependence
@@ -1065,7 +1062,7 @@ We keep track of these program parts via debugging information, which is
 appended into the LLVM IR via the \textsf{-g} flag passed to the \textsf{clang}
 compiler.
 We have an edge from node $s_1$ to node $s_2$ if region $s_2$ is nested
-within region $s_2$.
+within region $s_1$.
 In the absence of control-flow optimizations such as loop unrolling or
 dead-code elimination, each hammock region corresponds to some structured
 code block (code region delimitable by braces).
@@ -1128,7 +1125,7 @@ These authors propose different techniques to limit the creation of tasks,
 be it through the replication of code, be it through the estimation of work,
 given function inputs.
 Pragmas for the conditional creation of tasks, such as the one seen in
-lines 7 and 10 of Figure~\ref{fig:ex_cutoff}, lets us obtain much of the benefit
+lines 8 and 11 of Figure~\ref{fig:ex_cutoff}, lets us obtain much of the benefit
 of code versioning, as proposed by Iwasaki and Taura.
 However, we found work estimation of recursive functions a task too difficult
 to accomplish in general.
@@ -1197,8 +1194,9 @@ No benchmark has been changed manually.
 \caption{Speedup comparisons -- automatic annotations compare favourably against
 manual interventions, and lead to great performance gains.
 The Y-axis shows the speedup of either manual intervention or the \Taskminer{}
-(this paper) upon the original programs, in number of times.
-Small numbers in boxes show speedup achieved by \Taskminer.}
+(this paper) compared to the original programs, in number of times.
+Small numbers in boxes show speedup achieved by \Taskminer.
+The higher this number, the better.}
 \label{fig:TM_Performance}
 \end{center}
 \end{figure}
@@ -1217,20 +1215,25 @@ The programs annotated by \Taskminer{} were faster than their sequential
 counterparts in 13 of the 16 samples.
 Most of the programs in these benchmarks were classic Divide and Conquer algorithms, such as \textsf{Strassen}'s matrix multiplication, \textsf{knapsack}
 and \textsf{fft}.
-In 6 of them, the automatically annotated programs were close and sometimes even 
-slightly above the manually annotated versions.
+In 6 cases, automatically annotated programs were close or slightly faster than the manually
+annotated versions.
 In three examples where \Taskminer{} fell behind the original samples, e.g.,
 \textsf{fib}, \textsf{floorplan} and \textsf{bellmandford} (\textsf{bell-ford}),
 it produced code faster than the manually annotated competitor.
-Visual inspection of \textsf{bellmanford} shows that the version parallelized
-manually is dispatching a large number of small tasks.
-Our cost model can prune some of these small tasks, but not enough to win
-on the sequential version.
+The version of \textsf{bellmanford} produced by \Taskminer{} is slower than its sequential
+baseline.
+The slowdown is not due to the cost model.
+This algorithm traverses a graph implemented as an array of arrays, and data dependences
+cause serialization at runtime.
+%Visual inspection of \textsf{bellmanford} shows that the version parallelized
+%manually is dispatching a large number of small tasks.
+%Our cost model can prune some of these small tasks, but not enough to win
+%on the sequential version.
 We emphasize that the human-annotated versions of our benchmarks have not
 been tested originally in our architecture.
 For instance, \textsf{BSC-Bots} was evaluated on an SGI Altix 4700
 with 128 processors~\cite{Duran09}.
-Thus, this difference in hardware might be accountable for the slowdown in
+Thus, hardware differences might be accountable for the slowdown in
 some of the manually annotated samples.
 Nevertheless, this experiment demonstrates that {\em \Taskminer{} can
 deliver non-negligible speedups comparable with sequential and manually
