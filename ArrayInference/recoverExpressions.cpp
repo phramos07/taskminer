@@ -94,8 +94,8 @@ void RecoverExpressions::findRecursiveTasks() {
 void RecoverExpressions::insertCutoff(Function *F) {
   int start = st->getMinLineFunction(F) + 1;
   int end = getLastBranchLine(F);
-  addCommentToLine("taskminer_depth_cutoff++;\n", start);
-  addCommentToLine("taskminer_depth_cutoff--;\n", end);
+  addCommentToLine("#pragma omp critical\ntaskminer_depth_cutoff++;\n", start);
+  addCommentToLine("#pragma omp critical\ntaskminer_depth_cutoff--;\n", end);
 }
 
 int RecoverExpressions::getLineNo (Value *V) {
@@ -522,7 +522,7 @@ void RecoverExpressions::analyzeFunction(Function *F) {
           int line = getLineNo(I);
           addCommentToBLine(prag, line);
           if (isRecursive.count(I->getParent()->getParent()) > 0)
-            check = " if(cutoff_test)";
+            check = " final(cutoff_test)";
           if (result != "\n\n[UNDEF\nVALUE]\n\n") {
             output += "#pragma omp task untied default(shared)" + result;
             output += check + "\n";
@@ -616,6 +616,8 @@ int RecoverExpressions::getStatitcLoopCost(Loop *L) {
     for (auto &I : BB->getInstList())
       inst++;
   }
+  //L->dump();
+  //errs() << "Cost = " << inst << "\n";
   return inst;
 }
 
@@ -689,6 +691,8 @@ std::string RecoverExpressions::calculateTopLoopCost(Loop *L,
   std::string solexp = getUniqueString(mexp, ref); 
   exp = rst + solexp + exp;
   comp = exp;
+  ////L->dump();
+ /// errs() << comp << "\n";
   return ("tm_cost" + std::to_string(id));
 }
 
@@ -788,12 +792,15 @@ std::string RecoverExpressions::getPrivateStr(std::set<Value*> V) {
   RPM.setNAME(computationName);
   RPM.setRecoverNames(rn);
   RPM.initializeNewVars();
-  int i = 1;
+  int i = 0;
   for (auto &It : V) {
-    str += analyzeValue(It, &DT, &RPM); 
+    std::string strtmp = analyzeValue(It, &DT, &RPM); 
+    i++;
+    if (strtmp == std::string())
+      continue;
+    str += strtmp;
     if (i != V.size())
       str += ",";
-    i++;
   }
   str += ")";
   return str;
@@ -857,37 +864,55 @@ bool RecoverExpressions::analyzeLoop (Loop* L, int Line, int LastLine,
                                         PtrRangeAnalysis *ptrRA, 
                                         RegionInfoPass *rp, AliasAnalysis *aa,
                                         ScalarEvolution *se, LoopInfo *li,
-                                        DominatorTree *dt) {
-  if (!this->ptrRea->canSelectInfo(L))
+                                        DominatorTree *dt, std::string priv) {
+  if (!this->ptrRea->canSelectInfo(L)) {
     return false;
+  }
   // Initilize The Analisys with Default Values.
   Module *M = L->getLoopPredecessor()->getParent()->getParent();
   const DataLayout DT = DataLayout(M);
   std::map<Value*, std::pair<Value*, Value*> > pointerBounds;
   std::string expression = std::string();
   std::string expressionEnd = std::string();
-  RecoverPointerMD RPM;
+//  RecoverPointerMD RPM;
+  RecoverCode RC;
   std::string computationName = "TM" + std::to_string(getNewIndex());
-  RPM.setNAME(computationName);
+/*  RPM.setNAME(computationName);
   RPM.setRecoverNames(rn);
   RPM.initializeNewVars();
  
   Region *r = RPM.regionofBasicBlock((L->getLoopPreheader()), rp);
+*/
+  RC.setNAME(computationName);
+  RC.setRecoverNames(rn);
+  RC.initializeNewVars();
+ 
+//  Region *r = RPM.regionofBasicBlock((L->getLoopPreheader()), rp);
+  Region *r = RC.regionofBasicBlock((L->getLoopPreheader()), rp);
 
   if (!ptrRA->RegionsRangeData[r].HasFullSideEffectInfo)
-    Region *r = RPM.regionofBasicBlock((L->getHeader()), rp);
+    Region *r = RC.regionofBasicBlock((L->getHeader()), rp);
+//    Region *r = RPM.regionofBasicBlock((L->getHeader()), rp);
 
   if (!ptrRA->RegionsRangeData[r].HasFullSideEffectInfo) {
     return false;
   }
-    
+  for (auto BB = L->block_begin(), BE = L->block_end(); BB != BE; BB++) {
+//    Region *rr = RPM.regionofBasicBlock(*BB, rp);
+    Region *rr = RC.regionofBasicBlock(*BB, rp); 
+    if (r != rr) {
+      r = rr;
+      break;
+    }
+  }
   Instruction *insertPt = r->getEntry()->getTerminator();
   SCEVRangeBuilder rangeBuilder(se, DT, aa, li, dt, r, insertPt);
   Loop *LParent = this->li->getLoopFor(L->getLoopPreheader());
   rangeBuilder.setLoop(LParent);
   // Generate and store both bounds for each base pointer in the region.
   for (auto& pair : ptrRA->RegionsRangeData[r].BasePtrsData) {
-    if (RPM.pointerDclInsideLoop(L,pair.first))
+//    if (RPM.pointerDclInsideLoop(L,pair.first))
+    if (RC.pointerDclInsideLoop(L,pair.first))
       continue;
     // Adds "sizeof(element)" to the upper bound of a pointer, so it gives us
     // the address of the first byte after the memory region.
@@ -910,14 +935,14 @@ bool RecoverExpressions::analyzeLoop (Loop* L, int Line, int LastLine,
 
   for (auto It = pointerBounds.begin(), EIt = pointerBounds.end(); It != EIt;
        ++It) {
-    
     RecoverNames::VarNames nameF = rn->getNameofValue(It->first);
     int var1 = -1, var2 = -1;
   //  std::string lLimit = RPM.getAccessString(It->second.first, nameF.nameInFile, &var1, &DT);
   //  std::string uLimit = RPM.getAccessString(It->second.second, nameF.nameInFile, &var2, &DT);
-    std::string lLimit = RPM.getAccessExpression(It->first, It->second.first, &DT, false);
-    std::string uLimit = RPM.getAccessExpression(It->first, It->second.second, &DT, true);
-
+//    std::string lLimit = RPM.getAccessExpression(It->first, It->second.first, &DT, false);
+//    std::string uLimit = RPM.getAccessExpression(It->first, It->second.second, &DT, true);
+    std::string lLimit = RC.getAccessExpression(It->first, It->second.first, &DT, false);
+    std::string uLimit = RC.getAccessExpression(It->first, It->second.second, &DT, true);
     std::string olLimit = std::string();
     std::string oSize = std::string();
     //RPM.generateCorrectUB(lLimit, uLimit, olLimit, oSize);
@@ -925,28 +950,39 @@ bool RecoverExpressions::analyzeLoop (Loop* L, int Line, int LastLine,
     vctUpper[nameF.nameInFile] = uLimit;
     vctPtMA[nameF.nameInFile] = ptrRA->getPointerAcessType(L, It->first);
     vctPtr[nameF.nameInFile] = It->first;
-    if (!RPM.isValid()) {
+    if (!RC.isValid()) { 
+//    if (!RPM.isValid()) { 
       errs() << "[TRANSFER-PRAGMA-INSERTION] WARNING: unable to generate C " <<
         " code for bounds of pointer: " << (nameF.nameInFile.empty() ?
         "<unable to recover pointer name>" : nameF.nameInFile) << "\n";
-      return RPM.isValid();
+      It->first->dump();
+//      return RPM.isValid();
+      return RC.isValid();
     }
   }
   std::string output = "{\n";
   int thld = ((RUNTIME_COST * THRESHOLD) * N_WORKERS);
   std::string cmpadd = std::string();
-  std::string cmpif = " if(" + calculateTopLoopCost(L, cmpadd);
+  std::string cmpif = " final(" + calculateTopLoopCost(L, cmpadd);
   cmpif += " > " + std::to_string(thld) + ")";// + std::to_string(thld) + ")";
   output += cmpadd;
  
-  if (RPM.getIndex() > 0) {
+/*  if (RPM.getIndex() > 0) {
     output += "long long int " + computationName + "[";
     output += std::to_string(RPM.getNewIndex()) + "];\n";
     output += RPM.getUniqueString();
     RPM.clearCommands();
+  }*/
+  if (RC.getIndex() > 0) {
+    output += "long long int " + computationName + "[";
+    output += std::to_string(RC.getNewIndex()) + "];\n";
+    output += RC.getUniqueString();
+    RC.clearCommands();
   }
+ 
   // HERE
   output += getDataPragmaRegion(vctLower, vctUpper, vctPtMA);
+  output += priv + " ";
   output += cmpif + "\n{\n";
   addCommentToLine(output, Line);
   addCommentToLine("}\n}\n", LastLine); 
@@ -958,7 +994,7 @@ bool RecoverExpressions::analyzeTopLoop (Loop* L, int Line, int LastLine,
                                         PtrRangeAnalysis *ptrRA, 
                                         RegionInfoPass *rp, AliasAnalysis *aa,
                                         ScalarEvolution *se, LoopInfo *li,
-                                        DominatorTree *dt) {
+                                        DominatorTree *dt, std::string priv) {
   // Initilize The Analisys with Default Values.
   Module *M = L->getLoopPredecessor()->getParent()->getParent();
   const DataLayout DT = DataLayout(M);
@@ -978,19 +1014,29 @@ bool RecoverExpressions::analyzeTopLoop (Loop* L, int Line, int LastLine,
   }
   
   bool exLoop = false;
+  //errs() << "Top loop is:\n";
+  //L->dump();
   for (Loop *SubLoop : L->getSubLoops()) {
     Region *R = this->rp->getRegionInfo().getRegionFor(SubLoop->getHeader());
       if (!R)
         continue;
+
+      if (mapped.count(SubLoop) > 0)
+        continue;
+      mapped[SubLoop] = true;
+
     int start = this->st->getStartRegionLoops(R).first;
     int end = this->st->getEndRegionLoops(R).first;
+    //errs() << "Sub Loop is:\n";
+    //SubLoop->dump();
     if (analyzeLoop(SubLoop, start, end, this->ptrRa, this->rp, this->aa,
-                    this->se, this->li, this->dt) == true) {
+                    this->se, this->li, this->dt, priv) == true) {
       numRA++;
       exLoop = true;
     }
   }
-  annotateExternalLoop((L->getHeader()->begin()));
+  if (exLoop)
+    annotateExternalLoop((L->getHeader()->begin()));
 }
 
 void RecoverExpressions::getTaskRegions() {
@@ -998,6 +1044,7 @@ void RecoverExpressions::getTaskRegions() {
   for (auto &I: this->tasksList) {
 //    if (!(I->getCost().aboveThreshold()))
 //      continue;
+    
     if (!I->isSafeForAnnotation())
       continue;
     if (RegionTask *RT = dyn_cast<RegionTask>(I)) {
@@ -1006,10 +1053,14 @@ void RecoverExpressions::getTaskRegions() {
         Region *R = this->rp->getRegionInfo().getRegionFor(BB);
         if (!R)
           continue;
+        if (mapped.count(L) > 0)
+          continue;
+        mapped[L] = true;
         int start = this->st->getStartRegionLoops(R).first;
         int end = this->st->getEndRegionLoops(R).first;
+        std::string priv = getPrivateStr(I->getPrivateValues());
         analyzeTopLoop(L, start, end, this->ptrRa, this->rp, this->aa, this->se,
-                    this->li, this->dt);
+                    this->li, this->dt, priv);
     }
   }
 }

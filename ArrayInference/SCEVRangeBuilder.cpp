@@ -38,9 +38,6 @@ std::vector<const SCEVAddRecExpr *> SCEVRangeBuilder::getAllExpr(Loop *L, Value 
     return ptrs;
   }
   if (lExpr[L].count(Ptr) == 0) {
-    errs() << "Bug\n";
-    if (Ptr)
-      Ptr->dump();
     std::vector<const SCEVAddRecExpr *> ptrs;
     return ptrs;
   }
@@ -258,6 +255,8 @@ Value *SCEVRangeBuilder::visitUDivExpr(const SCEVUDivExpr *Expr, bool Upper) {
 }
 
 Value *SCEVRangeBuilder::findStep(const SCEVAddRecExpr *Expr, bool Upper) {
+  if (!Expr)
+    return nullptr;
   Type *OpTy = SE->getEffectiveSCEVType(Expr->getStart()->getType());
   const SCEV *StepSCEV =
     SE->getTruncateOrSignExtend(Expr->getStepRecurrence(*SE), OpTy);
@@ -267,7 +266,8 @@ Value *SCEVRangeBuilder::findStep(const SCEVAddRecExpr *Expr, bool Upper) {
 }
 
 PHINode *SCEVRangeBuilder::getInductionVariable(Loop *L) {
-   BasicBlock *H = L->getHeader();
+//  return L->getCanonicalInductionVariable(); 
+  BasicBlock *H = L->getHeader();
  
    BasicBlock *Incoming = nullptr, *Backedge = nullptr;
    pred_iterator PI = pred_begin(H);
@@ -394,8 +394,11 @@ Value *SCEVRangeBuilder::visitAddRecExpr(const SCEVAddRecExpr *Expr,
   // In this case, the result expanding is ((n - 1) * (n - 1))
   // But the correct result is (((n-1) * n) / 2)
   Loop *L = const_cast<Loop*>(Expr->getLoop());
+//  Expr->dump();
+  if (PPtr)
   addLExpr(L, PPtr, Expr);
-  addLExpr(L, getInductionVariable(L), Expr);
+  if (getInductionVariable(L))
+    addLExpr(L, getInductionVariable(L), Expr);
   //lExpr[L] = Expr;
   if (Expr->isQuadratic())
     return nullptr;
