@@ -369,10 +369,10 @@ bool RecoverCode::isMallocCall (const CallInst *CI) {
 // instruction:
 std::string RecoverCode::getNameExp (Value *V, std::string name, int *var,
                                               const DataLayout *DT) {
-  if (((!isa<LoadInst>(V) && !isa<StoreInst>(V)) 
+  if (!V || (((!isa<LoadInst>(V) && !isa<StoreInst>(V)) 
         && (!isa<AllocaInst>(V) && !isa<GlobalVariable>(V)))
         && ((!isa<GetElementPtrInst>(V) && !isa<Argument>(V))
-        && !isa<CallInst>(V)) && !isa<PHINode>(V))
+        && !isa<CallInst>(V)) && !isa<PHINode>(V)))
     return std::string();
 
   *var = -1;
@@ -667,7 +667,7 @@ bool RecoverCode::getCmpExp (ICmpInst *ICI, std::string ptrName,
 // Try solve a PHINode, if it has a name, return its name.
 std::string RecoverCode::getPHINode (Value *V, std::string ptrName, int *var,
                                      const DataLayout *DT) {
-  if (!isa<PHINode>(V))
+  if (!V || !isa<PHINode>(V))
     return std::string();
 
   // Try find in all operands of PHINode the name, if the name are the same,
@@ -703,6 +703,12 @@ std::string RecoverCode::getPHINode (Value *V, std::string ptrName, int *var,
 std::string RecoverCode::getAccessString (Value *V, std::string ptrName,
                                                   int *var,
                                                   const DataLayout *DT) {
+  if (!V) {
+    errs() << "NULL PTR USED!\n";
+    setValidFalse();
+  }
+  if (V)
+    V->dump();
   if (!isValid()) {
     return std::string();
   }

@@ -141,7 +141,7 @@ while (!Infile.eof()) {
   }
   // Try identify if console has add a Carriage Return character in the
   // end of the string.
-  if (Line[Line.size() - 1] == CarriageReturn)
+  if (Line.size() > 0 && (Line[Line.size() - 1] == CarriageReturn))
     Line.erase(Line.end() - 1, Line.end());
   
   Line += "\n";
@@ -240,6 +240,7 @@ for (Module::iterator F = M.begin(), FE = M.end(); F != FE; ++F) {
     this->re->N_WORKERS = this->tm->N_WORKERS;
     this->re->RUNTIME_COST = this->tm->RUNTIME_COST;
     this->re->THRESHOLD = this->tm->THRESHOLD;
+    this->re->Comments.erase(this->re->Comments.begin(), this->re->Comments.end());
     this->re = &getAnalysis<RecoverExpressions>(*F);
     copyComments(this->re->Comments);
   }

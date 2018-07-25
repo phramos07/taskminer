@@ -461,6 +461,14 @@ RecoverNames::VarNames RecoverNames::getNameofValue(Value *V) {
   return var;
 }
 
+/*bool findLoopsPHI(Function *F, Instruction *I) {
+  for (auto I = F->begin(), IE = F->end(); I != IE; I++) {
+    Loop *L = this->li->getLoopFor(I);
+    if(L->getCanonicalInductionVariable() == I)
+      
+  } 
+}*/
+
 bool RecoverNames::runOnFunction(Function &F) {
 
   li = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();

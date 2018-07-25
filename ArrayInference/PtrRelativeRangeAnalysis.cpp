@@ -52,6 +52,7 @@ void PtrRRangeAnalysis::updateInfo(Loop *L, PtrRRangeAnalysis::ptrData ptr) {
 }
 
 PHINode *PtrRRangeAnalysis::getInductionVariable(Loop *L) {
+  //return L->getCanonicalInductionVariable();
   BasicBlock *H = L->getHeader();
 
   BasicBlock *Incoming = nullptr, *Backedge = nullptr;
@@ -99,6 +100,8 @@ bool PtrRRangeAnalysis::isValidPtr (Value *V) {
 std::pair<Value *, Value *> PtrRRangeAnalysis::findLoopItRange(Loop *L,
                                                                SCEVRangeBuilder *rangeBuilder) {
   PHINode *PHI = rangeBuilder->getInductionVariable(L);
+  if (!PHI)
+    return std::make_pair(nullptr, nullptr);
   const SCEV *Limit = se->getSCEVAtScope(PHI, L);
   std::vector<const SCEV *> ExprList;
   ExprList.push_back(Limit);
@@ -137,22 +140,23 @@ void PtrRRangeAnalysis::findBounds(Loop *L) {
     //if (rangeBuilder.isLoopUsed())
     //  low = rangeBuilder.addSymbExp(LParent, low, false);
     Value *up = rangeBuilder.getUUpperBound(pair.second.AccessFunctions);
-    //up = rangeBuilder.stretchPtrUpperBound(pair.first, up);
+    up = rangeBuilder.stretchPtrUpperBound(pair.first, up);
     //if (rangeBuilder.isLoopUsed())
     //  up = rangeBuilder.addSymbExp(LParent, up, true);
     ptr[pair.first].constBounds = std::make_pair(low, up);
     rangeBuilder.setRelAnalysisMode(false);
     low = rangeBuilder.getULowerBound(pair.second.AccessFunctions);
     up = rangeBuilder.getUUpperBound(pair.second.AccessFunctions);
-    //up = rangeBuilder.stretchPtrUpperBound(pair.first, up);
+    up = rangeBuilder.stretchPtrUpperBound(pair.first, up);
     ptr[pair.first].bounds = std::make_pair(low, up);
     ptr[pair.first].basePtr = pair.first;
 
     rangeBuilder.setPPtr(rangeBuilder.getInductionVariable(L));
     ptr[pair.first].step =
-        std::make_pair(rangeBuilder.findStep(L, false), rangeBuilder.findStep(L, true));
+        std::make_pair(rangeBuilder.findStep(L, pair.first, false),
+                       rangeBuilder.findStep(L, pair.first, true));
     ptr[pair.first].itRange = findLoopItRange(L, &rangeBuilder);
-    rangeBuilder.setPPtr(pair.first);
+//    rangeBuilder.setPPtr(pair.first);
 
     rangeBuilder.setRelAnalysisMode(true);
 
@@ -167,12 +171,17 @@ Value *PtrRRangeAnalysis::getBaseGlobalPtr(Value *V,
   if (!V) {
     return V;
   }
-  if (!isa<Instruction>(V)) {
+  if (isa<GlobalValue>(V)) {
     if (Constant *C = dyn_cast<Constant>(V)) {
+      if (C->isZeroValue())
+        return C;
       LoadInst *LD = new LoadInst(C, C->getName() + "LD", InsertPt); 
       return LD;
     }
     return V;
+  }
+  if (!isa<Instruction>(V)) {
+   return V;
   }
   Instruction *InsertP = cast<Instruction>(V);
   BasicBlock *BB = InsertP->getParent();
@@ -200,10 +209,12 @@ Value *PtrRRangeAnalysis::convertToInt(Value *V,
                                        SCEVRangeBuilder *rangeBuilder) {
   if (!V)
     return V;
+  
   V = getBaseGlobalPtr(V, rangeBuilder);
-  if (V->getType()->getTypeID() == Type::PointerTyID) 
-    return rangeBuilder->InsertCast(Instruction::PtrToInt, V, 
-                                   V->getType()->getPointerElementType());
+  if (V->getType()->getTypeID() == Type::PointerTyID) {
+      return rangeBuilder->InsertCast(Instruction::PtrToInt, V, 
+                                     Type::getInt64Ty(V->getContext()));
+  }
   if (V->getType()->getTypeID() == Type::ArrayTyID) {
     APInt AI = APInt(64, 0, true);
     Type *Ty = V->getType()->getPointerElementType();
@@ -225,10 +236,10 @@ void PtrRRangeAnalysis::calculatePtrRangeToLoop(Loop *L, Value *Ptr,
   // Finding the Lower and Upper bounds to the Loop's PHI Node.
   Value *PHILower = ptr[Ptr].itRange.first;
   Value *PHI = rangeBuilder->getInductionVariable(L);
-  if (!PHI) {
+  if (!PHI || !ptr[Ptr].step.first) {
     return;
   } 
-  Type *Ty = PHI->getType();
+  Type *Ty = Type::getInt64Ty(PHI->getContext());
   Value *Step = ptr[Ptr].step.first;
   Value *CLB = ptr[Ptr].constBounds.first;
   Value *CUB = ptr[Ptr].constBounds.second;
@@ -247,8 +258,11 @@ void PtrRRangeAnalysis::calculatePtrRangeToLoop(Loop *L, Value *Ptr,
     CUB = convertToInt(CUB, rangeBuilder);
     CUB = rangeBuilder->InsertCast(Instruction::SExt, CUB, Ty);
   }
-  ptr[Ptr].window = CUB;
+  Value *Window = rangeBuilder->InsertBinop(Instruction::Sub, CUB, CLB);
+  ptr[Ptr].window = Window;
   std::vector<const SCEVAddRecExpr *> vct = rangeBuilder->getAllExpr(L, Ptr);
+  if (vct.size() == 0)
+    return;
   Value *Min = rangeBuilder->getAddRectULowerOrUpperBound(vct, false);
   //Min = rangeBuilder->InsertCast(Instruction::PtrToInt, Min, Step->getType());
   Value *Max = rangeBuilder->getAddRectULowerOrUpperBound(vct, true);
@@ -272,10 +286,11 @@ void PtrRRangeAnalysis::calculatePtrRangeToLoop(Loop *L, Value *Ptr,
   Min = convertToInt(Min, rangeBuilder);
   if (Min->getType() != Ty)
     Min = rangeBuilder->InsertCast(Instruction::SExt, Min, Ty);
-  Value *Lower = rangeBuilder->InsertBinop(Instruction::Add, Start, Min);
-  if (Step->getType() != Ty)
-    Lower = rangeBuilder->InsertCast(Instruction::BitCast, Lower, Ty); 
-  Lower = rangeBuilder->InsertBinop(Instruction::Mul, Lower, Step);
+//  Value *Lower = rangeBuilder->InsertBinop(Instruction::Add, Start, Min);
+//  if (Step->getType() != Ty)
+//    Lower = rangeBuilder->InsertCast(Instruction::BitCast, Lower, Ty); 
+  Value *Lower = rangeBuilder->InsertBinop(Instruction::Mul, Start, Step);
+//  Value *Lower = rangeBuilder->InsertBinop(Instruction::Mul, Lower, Step);
   Lower = rangeBuilder->InsertBinop(Instruction::Add, Lower, CLB);
 
   // Upper = PHI - PHILower + Max

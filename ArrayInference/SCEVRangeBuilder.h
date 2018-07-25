@@ -175,10 +175,21 @@ public:
         R(R), DL(DL), CurrentUpper(true), AnalysisMode(false) {
     SetInsertPoint(InsertPtr);
     setRelAnalysisMode(false);
+    PPtr = nullptr;
+    LL = nullptr;
   }
 
   const SCEVAddRecExpr* getScevTo(Loop *L) {
-        return lExpr[L][getInductionVariable(L)][0]; }
+        if (!L || !getInductionVariable(L) || !lExpr.count(L))
+          return nullptr;
+        return lExpr[L][getInductionVariable(L)][0];
+  }
+
+  const SCEVAddRecExpr* getScevTo(Loop *L, Value *Ptr) {
+        if (!L || !Ptr || !lExpr.count(L) || !lExpr[L].count(Ptr))
+          return nullptr;
+        return lExpr[L][Ptr][0];
+  }
 
   // Return true if the loop "LL" was used into current analysis.
   bool isLoopUsed();
@@ -206,6 +217,9 @@ public:
 
   // Returns the maximum value an SCEV can assume.
   Value *getUpperBound(const SCEV *S) { return expand(S, /*Upper*/ true); }
+
+  Value *findStep(Loop *L, Value *Ptr, bool Upper) {
+                 return findStep(getScevTo(L, Ptr), Upper); }
 
   Value *findStep(Loop *L, bool Upper) { return findStep(getScevTo(L), Upper); }
 

@@ -1,5 +1,5 @@
 %% For double-blind review submission
-\documentclass[sigplan,10pt,review,anonymous]{acmart}
+\documentclass[sigplan,10pt,review]{acmart}
 \settopmatter{printfolios=true}
 %% For final camera-ready submission
 %\documentclass[acmlarge]{acmart}\settopmatter{}
@@ -20,7 +20,7 @@
 
 %% Conference information (used by SIGPLAN proceedings format)
 %% Supplied to authors by publisher for camera-ready submission
-\acmConference[PL'17]{IEEE}{2018}{Planet Earh}
+\acmConference[PACT]{ACM}{2018}{Limassol, Cyprus}
 \acmYear{2017}
 \acmISBN{978-x-xxxx-xxxx-x/YY/MM}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
@@ -71,82 +71,84 @@
 
 \begin{document}
 
-\title[Automatic Identification and Annotation of Tasks in Structured
-Programs]
-{Automatic Identification and Annotation of Tasks in Structured Programs}
+\title[Automatic Annotation of Tasks in Structured
+Code]
+{Automatic Annotation of Tasks in Structured Code}
 
-\author{Pedro Henrique Ramos Costa}
-\authornote{with author1 note}          %% \authornote is optional;
+\author{Pedro Ramos, Gleison Souza}
 \orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Researcher}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
+%  \position{Researcher}
+%  \department{DCC}
+  \institution{UFMG, Brazil}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
 }
 \email{pedroramos@dcc.ufmg.br}
-
-\author{Gleison Souza Diniz Mendonc\c{c}a}
-\authornote{with author1 note}          %% \authornote is optional;
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Researcher}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
-}
 \email{gleison.mendonca@dcc.ufmg.br}
 
-\author{Divino C\'{e}sar}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
+%\author{Gleison Souza Diniz Mendonc\c{c}a}
+%\authornote{with author1 note}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%\affiliation{
+%  \position{Researcher}
+%  \department{DCC}
+%  \institution{UFMG}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
+%}
+%\email{gleison.mendonca@dcc.ufmg.br}
+
+\author{Divino C\'{e}sar, Guido Ara\'{u}jo}
+%\authornote{with author1 note}
+%\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Researcher}
-  \department{IC}
-  \institution{UNICAMP}
-  \streetaddress{Cidade Universit\'{a}ria}
-  \city{Campinas}
-  \state{S\~{a}o Paulo}
-  \postcode{13083-970}
-  \country{Brazil}
+%  \position{Researcher}
+%  \department{IC}
+  \institution{UNICAMP, Brazil}
+%  \streetaddress{Cidade Universit\'{a}ria}
+%  \city{Campinas}
+%  \state{S\~{a}o Paulo}
+%  \postcode{13083-970}
+%  \country{Brazil}
 }
 \email{divcesar@gmail.com}
-
-\author{Guido Ara\'{u}jo}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
-\affiliation{
-  \position{Professor}
-  \department{IC}
-  \institution{UNICAMP}
-  \streetaddress{Cidade Universit\'{a}ria}
-  \city{Campinas}
-  \state{S\~{a}o Paulo}
-  \postcode{13083-970}
-  \country{Brazil}
-}
 \email{guido@ic.unicamp.br}
 
+%\author{Guido Ara\'{u}jo}
+%\authornote{with author1 note}
+%\orcid{nnnn-nnnn-nnnn-nnnn}
+%\affiliation{
+%  \position{Professor}
+%  \department{IC}
+%  \institution{UNICAMP}
+%  \streetaddress{Cidade Universit\'{a}ria}
+%  \city{Campinas}
+%  \state{S\~{a}o Paulo}
+%  \postcode{13083-970}
+%  \country{Brazil}
+%}
+%\email{guido@ic.unicamp.br}
+
 \author{Fernando Magno Quint\~{a}o Pereira}
-\authornote{with author1 note}
-\orcid{nnnn-nnnn-nnnn-nnnn}
+\authornote{This work is sponsored by CNPq, CAPEs, FAPEMIG, FAPESP, LG Electronics and
+the CONTINUUM ANR Project.}          %% \authornote is optional;
+%\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
-  \position{Professor}
-  \department{DCC}
-  \institution{UFMG}
-  \streetaddress{6627 Antonio Carlos Avenue}
-  \city{Belo Horizonte}
-  \state{Minas Gerais}
-  \postcode{31.270-213}
-  \country{Brazil}
+%  \position{Professor}
+%  \department{DCC}
+  \institution{UFMG, Brazil}
+%  \streetaddress{6627 Antonio Carlos Avenue}
+%  \city{Belo Horizonte}
+%  \state{Minas Gerais}
+%  \postcode{31.270-213}
+%  \country{Brazil}
 }
 \email{fernando@dcc.ufmg.br}          %% \email is recommended
 
@@ -205,16 +207,16 @@ Annotation systems have risen to a place of prominence as a simple and
 effective means to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
-OpenSs~\cite{MeenderinckJ11}, Cilk++~\cite{Leiserson09} and
+OpenSs~\cite{MeenderinckJ11} and
 OmpSs~\cite{bueno:icpp:2011, duran:ppl:2011}.
-Annotations work as a meta-language: they let developers grant parallel
+Annotations let developers grant parallel
 semantics to syntax originally written to execute sequentially.
 %\guido{What do you mean by modern accelerators? Not clear.}
-Combined with modern hardware accelerators such as GPUs and FPGAs, they have led
+Combined with hardware accelerators such as GPUs and FPGAs, they have led
 to substantial performance gains~\cite{Bertolli14,Mendonca17,Poesia17}.
 %\guido{Suppport what?}
-Nevertheless, although convenient, the use of annotations is not straightforward, 
-and still lacks supporting tools that help programmers to check if annotations
+Nevertheless, although convenient, the use of annotations is not straightforward.
+We still lack tools that help programmers to check if annotations
 are correct and/or effective.
 %replaced:
 %Yet, even if convenient,
@@ -228,7 +230,7 @@ There exist tools that insert automatic annotations in
 programs~\cite{Mendonca16,Pingali11}.
 All these technologies explore data-parallelism -- the possibility of running
 the same computation independently on different data.
-Another form of parallelism, based on tasks, remains still uncharted land in what
+Task parallelism remains still uncharted land in what
 concerns automatic annotation.
 Such fact is unfortunate, since much of the power of current annotation
 systems lies in their ability to create tasks~\cite{Ayguade09}.
@@ -294,10 +296,9 @@ Section~\ref{sub:adv} introduces this discussion.
 \subsection{The OpenMP Runtime System}
 \label{sub:adv}
 
-The main advantage of using OpenMP annotations to split a program into parallel
-tasks is
-the ability  of leaving the job of  handling dependences to a runtime.
-The OpenMP runtime maintains a task dependence graph which dynamically exposes more parallelism 
+OpenMP task annotations let developers leave to the runtime the job of handling data
+dependences.
+The OpenMP runtime maintains a dependence graph which dynamically exposes more parallelism 
 opportunities than those resulting from a conservative  compile-time  analysis.
 In particular, the runtime lets us circumvent the shortcomings that pointer aliasing
 impose on the automatic parallelization of code.
@@ -326,7 +327,7 @@ this graph~\cite{Planas15}.
 \includegraphics[width=1\columnwidth]{images/ex_book_filter}
 \caption{The benefits of the OpenMP runtime environment.
 Neither the runtime checks of Alves~\cite{Alves15} or Rus~\cite{Rus02}, nor
-Whaley's context and flow sensitive alias analysis would be able to ensure the
+Whaley's context and flow sensitive alias analysis~\cite{Whaley04} would be able to ensure the
 correctness of the automatic parallelization of this program.}
 \label{fig:ex_book_filter}
 \end{center}
@@ -350,7 +351,7 @@ to process each line.
 Figure~\ref{fig:ex_book_filter} has been annotated by
 \Taskminer.
 The OpenMP execution environment ensures the correct scheduling of the tasks
-created at lines 9 and 11, by reassuring that the annotated dependencies
+created at lines 10 and 12, by reassuring that the annotated dependencies
 {\tt line} and {\tt pattern}
 are respected at runtime.
 
@@ -446,7 +447,7 @@ tasks, as we analyze in Section~\ref{sub:ir}.
 Figure~\ref{fig:ex_cutoff} provides an example.
 To place a limit on the number of tasks simultaneously in flight, we associate
 the invocation of recursive functions annotated with task pragmas with a
-counter -- \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
+counter -- \textsf{cutoff} in Figure~\ref{fig:ex_cutoff}.
 The guard in line 7 ensures that we never exceed \textsf{DEPTH\_CUTOFF}, a
 predetermined threshold.
 This example, together with Figure~\ref{fig:ex_Regions}, lets us emphasize that
@@ -470,7 +471,7 @@ Identify private and shared variables.
 \end{Challenge}
 
 The two previous challenges are related to the performance of annotated
-programs: if left unsolved, we shall have correct, albeit inefficient programs.
+code: if left unsolved, we shall have correct, albeit inefficient programs.
 Challenges~\ref{ch:Regions}, and~\ref{ch:privatize}, in turn, are
 related to correctness.
 Challenge~\ref{ch:privatize} asks for the identification of variables that
@@ -479,7 +480,7 @@ This process of replication is called {\em privatization}.
 As an example, variable \textsf{j} in Figure~\ref{fig:ex_privatize} must
 be privatized.
 In the absence of such action, that variable will be shared among all the
-tasks created at line 5 of Figure~\ref{fig:ex_privatize}.
+tasks created at line 8 of Figure~\ref{fig:ex_privatize}.
 Because \textsf{j} is written to within these tasks, race conditions would
 ensue.
 Section~\ref{sub:variance} explains how we distinguish private from
@@ -550,18 +551,11 @@ plus ranges of dereferenceable offsets.
 Given two tasks: $T_1 = (G_1, M_{i1}, M_{o1})$ and $T_2 = (G_2, M_{i2}, M_{o2})$,
 if $M_{o1} \cap M_{i2} \neq \emptyset$, then we say that $T_2$ {\em depends} on
 $T_1$.
-If a program $P$ is partitioned into a set of $n$ tasks, then this partition is
-said to be {\em correct} if it abides by Definition~\ref{def:correctness}.
-
-\begin{definition}[Correctness]
-\label{def:correctness}
-A set $T$ of $n$ tasks is a correct parallelization of a program $P$ if:
-\begin{compactenum}
-\item $T$ does not contain cyclic dependence relations;
-\item the execution of the tasks in $T$ in any ordering determined by dependence
+If a program $P$ is partitioned into a set $T$ of $n$ tasks, then this partition is
+said to be {\em correct} if:
+(i) $T$ does not contain cyclic dependence relations; and
+(ii) the execution of the tasks in $T$ in any ordering determined by dependence
 relations leads to the same results as the sequential execution of $P$.
-\end{compactenum}
-\end{definition}
 
 \begin{example}[Memory Regions]
 \label{ex:regions}
@@ -582,7 +576,7 @@ semantics.
 Full overviews of the syntax and semantics of these annotations are publicly
 available\footnote{For a quick overview, we refer the reader to the leaflet
 ``Summary of OpenMP 4.0 C/C++ Syntax", which is made available by the OpenMP
-group.}; hence, we shall not dive into their details.
+ARB.}; hence, we shall not dive into their details.
 %
 \begin{compactitem}
 \item \textsf{parallel} (\textit{clauses}): forms a team of threads
@@ -598,8 +592,8 @@ Some pragmas are associated with lists of clauses.
 There are several of these clauses available in OpenMP 4.0; however, we only use
 the following:
 \begin{compactitem}
-\item \textsf{default([shared/private])}: indicates that variables are either
-shared or replicated among tasks.
+\item \textsf{default(shared)}: indicates that variables are
+shared by default among tasks.
 \item \textsf{firstprivate($v$)}: indicates that $v$ must be replicated among
 tasks, and initialized with its value at the point where the annotation is
 executed.
@@ -609,9 +603,12 @@ to preemption and load balancing.
 \item \textsf{depend}($\mathit{in}/\mathit{out}/\mathit{inout}$):
 determine if data is read ($\mathit{in}$), written ($\mathit{out}$) or both
 within a task region; thus, effectively setting dependences among tasks.
-\item \textsf{if}({\em condition}): this clause defines the conditions
-under which a task is allowed to create threads.
+\item \textsf{if}({\em condition}): this clause leads to the creation of an {\em undeferred}
+task, which must be executed immediately.
 We use it to enforce the cost model.
+\item \textsf{final}({\em condition}) \textsf{mergeable}: this clause limits the creation of
+tasks, and reuses the data environment of the father task.
+We use it prune tasks considered too small, as discussed in Section~\ref{sub:ir}.
 \end{compactitem}
 
 \subsection{Finding Symbolic Bounds of Arrays}
@@ -650,32 +647,27 @@ region.
 This is a form of abstract interpretation that associates
 an integer variable $v$ with a {\em Symbolic Interval} $R(v) = [l, u]$, where
 $l$ and $u$ are {\em Symbolic Expressions}.
-A symbolic expression $E$ is defined by the grammar below, where $s$ is a
-{\em program symbol}:
-\renewcommand{\arraystretch}{0.9}
-\[
-\begin{array}{rcl}
-E & ::= & z \ \ | \ \ s \ \ | E + E \ \ | \ \ E \times E \ \ | \ \  \mbox{min}(E, E) \ \ | \\
-&  & \mbox{max}(E, E) \ \ | -\infty \ \ | \ \ +\infty
-\end{array}
-\]
+A symbolic expression $E$ is recursively defined as one of the terms:
+$s, c, E + E, E \times E, \mbox{min}(E, E), \mbox{max}(E, E),$
+$-\infty, +\infty$, where $s$ is a {\em program symbol}, and $c \in \mathbb{Z}$.
 \end{definition}
 
-% How we do it.
-The program symbols mentioned in Definition~\ref{def:sra} are names that cannot 
-be reconstructed as functions of other names.
+The program symbols mentioned in Definition~\ref{def:sra} are names that cannot  be
+reconstructed as functions of other names.
 Examples include global variables, function arguments, and values returned by
 external functions.
 Symbolic range analysis is not a contribution of this paper: several
 implementations of it exist.
 We have adopted the one in the \dawn{} compiler~\cite{Mendonca17}, which, itself,
-reuses work from Blume {\em et al.}~\cite{Blume94}.
+reuses an implementation by Nazar\'{e} {\em et al.}~\cite{Nazare14}.
 The only extensions that we have added into \dawn 's implementation was
 the ability to handle C-like \textsf{structs}.
 Therefore, we shall not provide further details about this part of our work.
 To understand the rest of this paper, it suffices to know that this implementation
-is sufficiently solid to handle the entire C99 language, always terminates, and
-runs in time linear on the size of the program's dependence graph.
+is sufficiently solid to handle the entire C99 language, always terminates and runs in time 
+linear on the size of the program's dependence graph.
+Our implementation of Symbolic Range Analysis is interprocedural, to handle recursive 
+functions, for instance.
 Thus, in the worst case, it is quadratic on the number of program variables.
 If a program contains an array access $\textsf{V}[E]$, and we have that
 $R(E) = [l, u]$, then the memory region covered by this access is, at least,
@@ -701,23 +693,23 @@ To identify task candidates, we rely on the program's
 {\em Dependence Graph}.
 For completeness, Definition~\ref{def:pdg} revisits this notion.
 
-\begin{definition}[Program Dependence Graph -- \cite{Ferrante87}]
+\begin{definition}[Program Dependence Graph (PDG)~\cite{Ferrante87}]
 \label{def:pdg}
-Given a program $P$, its PDG contains one vertex for each statement $s \in P$.
+The PDG of a program $P$ contains one vertex for each statement $s \in P$.
 There exists an edge from $s_1$ to $s_2$ if the latter depends on the former.
 Statement $s_2$ is {\em data-dependent} on $s_1$ if it reads data that $s_1$
 writes.
-It is {\em control dependent} on $s_1$ if $s_1$ determines the outcome of a
-branch, and depending on this outcome, we might execute $s_2$ or not.
+It is {\em control dependent} on $s_1$ if $s_1$ controls a branch, whose result determines
+if $s_2$ executes.
 \end{definition}
 
 Task candidates are vanes in windmills.
 {\em Windmills} are a family of graphs.
-To the best of our knowledge, the term was coined by Rideau
+The term was adopted by Rideau
 {\em et al.}~\cite{Rideau08} to describe structural relations between register
 copies.
 Our windmills exist as subgraphs of the program's dependence graph.
-We adopt a slightly more general definition than Rideaus'; however, the
+We use a slightly more general definition than Rideaus'; however, the
 metaphor that gave origin to the name: the shape of the graphs, is still
 unmistakable:
 
@@ -760,6 +752,8 @@ These two different executions can be seen as two instances of the same
 structure (the vane), coming out of the same windmill center.
 A topological ordering of the dependence graph does not impose any order among
 these two hypothetical replicas of the same structure.
+Tasks can then be synchronized at the post-dominator of vanes marked to run in parallel
+via the \textsf{taskwait} pragma.
 
 Windmills gives us structural properties to identify tasks.
 We can find them via a depth-first search traversal of the program's dependence
@@ -1068,7 +1062,7 @@ We keep track of these program parts via debugging information, which is
 appended into the LLVM IR via the \textsf{-g} flag passed to the \textsf{clang}
 compiler.
 We have an edge from node $s_1$ to node $s_2$ if region $s_2$ is nested
-within region $s_2$.
+within region $s_1$.
 In the absence of control-flow optimizations such as loop unrolling or
 dead-code elimination, each hammock region corresponds to some structured
 code block (code region delimitable by braces).
@@ -1112,7 +1106,7 @@ Section~\ref{sec:eval}, it brings non-negligible benefits onto recursive
 benchmarks.
 Task bounding is implemented via a global variable, statically linked in the
 program.
-This variable is \textsf{taskminer\_depth\_cutoff} in Figure~\ref{fig:ex_cutoff}.
+This variable is \textsf{cutoff} in Figure~\ref{fig:ex_cutoff}.
 We insert code to increment it at the beginning of recursive functions that
 are invoked within task regions, and we insert code to decrement it at each
 return point of said functions.
@@ -1131,7 +1125,7 @@ These authors propose different techniques to limit the creation of tasks,
 be it through the replication of code, be it through the estimation of work,
 given function inputs.
 Pragmas for the conditional creation of tasks, such as the one seen in
-lines 7 and 10 of Figure~\ref{fig:ex_cutoff}, lets us obtain much of the benefit
+lines 8 and 11 of Figure~\ref{fig:ex_cutoff}, lets us obtain much of the benefit
 of code versioning, as proposed by Iwasaki and Taura.
 However, we found work estimation of recursive functions a task too difficult
 to accomplish in general.
@@ -1158,7 +1152,7 @@ LLVM 3.9~\cite{Lattner04}.
 All our experiments were performed in a 64-bits 12-core Intel(R) Xeon(R) CPU
 E5-2620 at 2.00GHz, with 32K of L1 cache, 256K of L2 cache, 15M of L3 cache and
 15Gb of main memory.
-We use OpenMP 4.5, from November of 2015.
+We use OpenMP 4.0, from November of 2015.
 
 \noindent
 \textbf{Research Questions:}
@@ -1200,8 +1194,9 @@ No benchmark has been changed manually.
 \caption{Speedup comparisons -- automatic annotations compare favourably against
 manual interventions, and lead to great performance gains.
 The Y-axis shows the speedup of either manual intervention or the \Taskminer{}
-(this paper) upon the original programs, in number of times.
-Small numbers in boxes show speedup achieved by \Taskminer.}
+(this paper) compared to the original programs, in number of times.
+Small numbers in boxes show speedup achieved by \Taskminer.
+The higher this number, the better.}
 \label{fig:TM_Performance}
 \end{center}
 \end{figure}
@@ -1220,20 +1215,25 @@ The programs annotated by \Taskminer{} were faster than their sequential
 counterparts in 13 of the 16 samples.
 Most of the programs in these benchmarks were classic Divide and Conquer algorithms, such as \textsf{Strassen}'s matrix multiplication, \textsf{knapsack}
 and \textsf{fft}.
-In 6 of them, the automatically annotated programs were close and sometimes even 
-slightly above the manually annotated versions.
+In 6 cases, automatically annotated programs were close or slightly faster than the manually
+annotated versions.
 In three examples where \Taskminer{} fell behind the original samples, e.g.,
 \textsf{fib}, \textsf{floorplan} and \textsf{bellmandford} (\textsf{bell-ford}),
 it produced code faster than the manually annotated competitor.
-Visual inspection of \textsf{bellmanford} shows that the version parallelized
-manually is dispatching a large number of small tasks.
-Our cost model can prune some of these small tasks, but not enough to win
-on the sequential version.
+The version of \textsf{bellmanford} produced by \Taskminer{} is slower than its sequential
+baseline.
+The slowdown is not due to the cost model.
+This algorithm traverses a graph implemented as an array of arrays, and data dependences
+cause serialization at runtime.
+%Visual inspection of \textsf{bellmanford} shows that the version parallelized
+%manually is dispatching a large number of small tasks.
+%Our cost model can prune some of these small tasks, but not enough to win
+%on the sequential version.
 We emphasize that the human-annotated versions of our benchmarks have not
 been tested originally in our architecture.
 For instance, \textsf{BSC-Bots} was evaluated on an SGI Altix 4700
 with 128 processors~\cite{Duran09}.
-Thus, this difference in hardware might be accountable for the slowdown in
+Thus, hardware differences might be accountable for the slowdown in
 some of the manually annotated samples.
 Nevertheless, this experiment demonstrates that {\em \Taskminer{} can
 deliver non-negligible speedups comparable with sequential and manually
@@ -1464,7 +1464,7 @@ Application Programming  Studio) \cite{castrillon:tii:2013, ceng:dac:2008}, and
 DiscoPoP (Discovery of Potential Parallelism) \cite{discopop, li:jss:2016}.
 Besides parallelization systems, tools like Paraver \cite{extrae, paraver},
 Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, and TEMANEJO
-\cite{brinkmann:parco:2011, brinkmann:journal:2013, temanejo} were  designed to
+\cite{Brinkmann13} were  designed to
 enable performance analysis and visualization of task-based programs.
 Although these tools help the programmer in adapting code
 to run in parallel, they are not fully automatic.
