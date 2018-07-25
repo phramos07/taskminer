@@ -1,5 +1,6 @@
 %% For double-blind review submission
-\documentclass[sigplan,10pt]{acmart}
+%\documentclass[sigplan,10pt]{acmart}
+\documentclass[sigconf]{acmart}
 \settopmatter{printfolios=true}
 %% For final camera-ready submission
 %\documentclass[acmlarge]{acmart}\settopmatter{}
@@ -22,7 +23,7 @@
 %% Supplied to authors by publisher for camera-ready submission
 \acmConference[SBLP'18]{IEEE}{2018}{Brasil}
 \acmYear{2018}
-\acmISBN{978-x-xxxx-xxxx-x/YY/MM}
+\acmISBN{978-1-4503-6480-5/18/09}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
 \startPage{1}
 \fi
@@ -145,7 +146,7 @@ Este artigo apresenta \Taskminer{}, uma ferramenta que encontra paralelismo de t
 em código C automaticamente. \Taskminer{} lida com problemas clássicos de paralelismo irregular 
 como a delimitação simbólica de regiões de memória, remoção de dependências
 estáticas espúrias, detecção de condições de corrida, e, principalmente, a avaliação do custo do paralelismo. Para solucioná-los,
-\Taskminer{} implementa uma série de otimizações em representa\-ção intermediária do LLVM, que analisam código C e inserem anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente. \Taskminer{} também é capaz de encontrar paralelismo escondido em programas sequenciais, sem intervenção humana.
+\Taskminer{} implementa uma série de otimizações em representa\-ção intermedi-ária do LLVM, que analisam código C e inserem anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente. \Taskminer{} também é capaz de encontrar paralelismo escondido em programas sequenciais, sem intervenção humana.
 \end{abstract}
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -221,15 +222,17 @@ Alguns desses programas provém de benchmarks complexos como Bots~\cite{Duran09}
 As versões anotadas pelo {\Taskminer} se aproximam das versões anotadas manualmente em
 desempenho e são mais rápidas que as versões sequenciais.
 
+\Taskminer{} está online e disponível para uso acadêmico em \url{http://cuda.dcc.ufmg.br/taskminer/}.
+
 
 \section{Visão geral}
 \label{sec:ovf}
 
-A construção de um compilador como o \Taskminer{} envolve a superação de uma série  de desafios.
+A construção de um compilador como o \Taskminer{} envolve a supera-ção de uma série  de desafios.
 \Taskminer{} recebe como entrada um programa escrito em C e retorna o mesmo programa anotado com 
 diretivas OpenMP. O ambiente de execução OpenMP se encarrega de 
 rastrear dependências entre ponteiros~\cite{LaGrone11}. Entretanto, a inserção
-automática das anotações é apenas a última etapa. Nesta Seção detalha-se os problemas
+automática das anotações é apenas a última etapa. Nesta Seção detalham-se os problemas
 encontrados pelo \Taskminer{} no percalço de mineração de tarefas. A solução para esses problemas é descrita na Seção~\ref{sec:sol}.
 
 \begin{figure}[b!]
@@ -499,7 +502,7 @@ pode levar à criação de tarefas com tamanhos diferentes.
 Portanto, o tamanho real de uma tarefa só é conhecido ao final 
 de sua execução. Para julgar a rentabilidade de uma tarefa,
 deve-se aproximar esse tamanho
-estaticamente. Assim, define-se a noção de {\em Trabalho Estatico Estimado}:
+estaticamente. Assim, define-se a noção de {\em Trabalho Estático Estimado}:
 
 % Explain the tension between large and small tasks.
 \begin{Definicao}[Trabalho Estático Estimado (TEE)]
@@ -513,7 +516,7 @@ tal que $W(G) = W(G_1) + W(G_2) + \ldots + W(G_n)$.
 O objetivo é obter um $TEE$ próximo ao comportamento dinâmico dos programas.
 A heurística escolhida para este trabalho utiliza a análise de limites
 descrita na Seção \ref{sec:sra} para inserir informações dinâmicas estaticamente
-através da construção de expressões simbólicas que representam o número de iterações
+através da construção de expressões simbó-licas que representam o número de iterações
 de laços. Essas expressões são inseridas em condicionais para a criação da
 tarefa, como na linha 7 da Figura \ref{fig:ex_Regions}.
 
@@ -593,7 +596,7 @@ Nese contexto, $H_2$ é {\em pai} de $H_1$.
 A cada nova expansão, checa-se se a expansão é válida. A expansão é válida se:
 (i) \textsf{HÉLICE} está contida em um moinho $W$;
 (ii) as regiões de memória em \textsf{HÉLICE} podem ser analisadas de acordo com
-a seção \ref{sub:sra};
+a Seção \ref{sec:sra};
 (iii) \textsf{HÉLICE} não depende de uma outra hélice no mesmo moinho $W$.
 
 \begin{figure}[h]
@@ -623,7 +626,7 @@ há perda de paralelismo: o código executa sequencialmente. Portanto, determina
 \subsection{Anotando o código fonte}
 \label{sub:ir}
 
-As análises deste artigo foram implementadas na representação intermediária (R.I.)
+As análises deste artigo foram implementadas na representa\c{c}\~{a}o intermediária (R.I.)
 do LLVM devido à facilidade do uso de análises como evolução escalar~\cite[p.18]{Grosser12} e outras.
 Porém, as anotações são inseridas em código fonte C, então grande
 parte deste trabalho é o mapeamento de informações da R.I. do LLVM de volta
@@ -674,8 +677,8 @@ foram executados em uma máquina de 12 núcleos 64-bits Intel(R) Xeon(R) CPU E5-
 \begin{center}
 \includegraphics[width=1\columnwidth]{images/TM_Performance}
 \caption{Comparações de performance. Anotações automáticas comparam-se favoralmente a intervenções
-manuais, e levam à ganhos de desempenho. No eixo y, ganho de desempenho de cada versão anotada
-pelo {\Taskminer} sobre a versão anotada manualmente. Os números nas caixas representam
+manuais, e levam a ganhos de desempenho. No eixo y, o ganho de desempenho de cada versão anotada
+pelo {\Taskminer} e de cada versão anotada manualmente. Os números nas caixas representam
 o crescimento em velocidade obtido.}
 \label{fig:TM_Performance}
 \end{center}
@@ -685,7 +688,7 @@ A Figura~\ref{fig:TM_Performance} compara o tempo de execução de programas pro
 pelo {\Taskminer} contra versões originais dos mesmos programas anotados manualmente.
 Os {\em benchmarks} utilizados neste experimento são do \textsf{BSC-Bots}~\cite{Duran09} 
 e do \textsf{Swan}~\cite{Moreira17}.
-Ambos vem com versões sequenciais e paralelas (anotadas manualmente). Os códigos foram compilados
+Ambos vêm com versões sequenciais e paralelas (anotadas manualmente). Os códigos foram compilados
 com gcc-6.
 
 As versões anotadas pelo \Taskminer{} foram mais velozes que as sequenciais em 13 dos 16 programas.
@@ -698,6 +701,8 @@ paralelizada manualmente dispara um número grande tarefas pequenas. O modelo de
 do \Taskminer{} poda a criação de tarefas pequenas, mas não o suficiente para vencer o desempenho
 da versão sequencial. Este experimento demonstra que \Taskminer{} pode trazer
 ganhos consideráveis se comparados às versões sequenciais e manualmente anotadas.
+
+Além disso, destaca-se o fato de que as anotações do \Taskminer{} levaram resultados próximos às anotações manuais. Dessa forma, \Taskminer{} retira do programador o fardo de inserir as anotações manualmente.
 
 %OPTIMIZATIONS
 %Here, we show the results on two big optimizations: recursion depth and cost model.
@@ -780,7 +785,7 @@ pois as tarefas anotadas eram muito pequenas e pouco influenciaram na execução
 Em 17 deles, observou-se perda de velocidade: neste caso, interações entre estruturas de dados
 forçaram o ambiente de execução do OpenMP a serializar a execução das tarefas. 
 Essas perdas foram 
-inferiores à 10\%. 
+inferiores à 10\%. Porém, nota-se uma necessidade de desenvolver-se um modelo de custo mais robusto para evitar a geração de programas paralelos que sejam mais lentos que os originais sequenciais. Como trabalho futuro, pretende-se estudar melhores heurísticas para a estimativa do custo de uma tarefa, a fim de diminuir esse tipo de resultado. Observa-se que os programas que resultaram em perda de velocidade possuiam tarefas muito pequenas e irrelevantes proporcionalmente em relação ao resto do programa. É necessário um modelo de custo que considere também o tamanho do programa em relação às poções sequenciais e seus impactos no mesmo.
 
 Obteve-se aumento de desempenho acima de 5\% em 19 programas. 
 Em \textsf{Misc/lowercase}, o fator de crescimento foi acima de 3,5x, e em 3 casos, acima de 1.5x.
@@ -808,34 +813,29 @@ do LLVM. Quanto maior a barra, maior o ganho de desempenho.
 %running our tool. 
 
 %SCALABILITY
-
 \section{Trabalhos Relacionados}
 \label{sec:rw}
 
 Compiladores modernos adicionaram suporte ao paralelismo de tarefas 
-do OpenMP apenas recentemente. 
+do OpenMP apenas recentemente. Uma implementação do \textsf{clang} com suporte a Tasks foi lançada em Março, 2014. Tal suporte foi integrado ao \textsf{gcc} em Abril do mesmo ano.
 Uma vez que a infra-estrutura necessária para
-a implementação de tarefas é nova, não existem ferramentas 
+a implementação de tarefas é nova, não existem ferramentas estáticas
 além do {\Taskminer} capazes de anotar programas
-automaticamente com diretivas de tarefas. Exemplos
-de modelos que permitem paralelismo de tarefas são OpenMP 4.X,
-StarSs \cite{planas:hpca:2009} e OmpSs \cite{duran:ppl:2011}.
-Por exemplo, Tareador \cite{Ayguade15} apresenta uma interface gráfica para identificação de potencial paralelismo e anotação de código sequencial.
+automaticamente com diretivas de tarefas. Entretanto, existe muita pesquisa em paralelização automática de código.
 
-A técnica utilizada pelo {\Taskminer} para identificação de tarefas se assemelha às análises usadas durante
-geração de código para máquinas de fluxo de dados. Muitas abordagens utilizam grafos
-de fluxo de dados para explorar paralelismo, como Tarefas Movidas à Dados \cite{tasirlar:icpp:2011},
-em que o programador pode manipular cláusulas para determinar os argumentos da tarefa
-antes de sua execução. Paralelismo baseado em função também foi proposto
-para utilizar argumentos de funções como especificadores de dependências entre tarefas \cite{gupta:micro:2011}.
+Padrões de anotação de código baseados em diretivas provêm, ao programador, um modelo de programação paralela fácil de se utilizar. Extensões destes padrões baseadas em tarefas resultaram em  OpenMP 4.X,
+StarSs \cite{bellens:sc:2006, perez:iccc:2008, planas:hpca:2009,
+tejedor:hpdc:2011} e OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}. Tais modelos vem com ferramentas que ajudam os programadores a achar as melhores anotações para seus códigos. Por exemplo, Tareador \cite{Ayguade15} permite ao programador, através de uma interface gráfica, a anotar código sequencial, permitindo assim a identificação de potenciais oportunidades de tarefas. Ao contrário do Tareador, este trabalho propõe uma abordagem que permite a inserção automática de anotações OpenMP em fragmentos relevantes de um programa sequencial.
 
-Muitos sistemas foram desenvolvidos para extrair paralelismo de tarefas a partir de código sequencial.
-Entretanto, a mineração e inserção automática dessas diretivas não consta como objetivo
-em nenhum desses trabalhos, e \Taskminer{} segue como primeira ferramenta capaz 
-de anotar automaticamente código com paralelismo irregular
-de maneira correta.
+As técnicas utilizadas neste trabalho para mapear regiões de programas em tarefas é similar às análises muito utilizadas em geração de código para máquinas de fluxo de dados. Programação de fluxo de dados foi originalmente proposto como um paradigma adequado ao paralelismo de tarefas \cite{agrawal:ipdps:2010, chan:spaa:2007,
+gupta:micro:2011}. Este paradigma foi extendido com especificações para entrada e saída de tarefas em Cilk++ \cite{agrawal:ipdps:2010}, e mais tarde Cilk++ foi extendido com cláusulas dependência para facilitar a projeção de padrões de paralelização \cite{vandierendonck:hotpar:2011}. O modelo até então apresentava um escalonador unificado baseado em paralelismo fork-join que permitia a execução de aplicações baseadas em tarefas. Outras abordagens também utilizaram grafos de fluxo de dados para explorar paralelismo, como tarefas de dados, nas quais o programador pode utilizar cláusulas de \textit{put} e \textit{await} para determinar os argumento de uma tarefa antes de sua execução. Paralelismo de tarefas baseado em argumentos de funções também foi proposto para determinação de dependências entre tarefas \cite{gupta:micro:2011}. Nota-se que os esforços listados focam-se em conceder ao programador as ferramentas para construir programas paralelos. A geração automática de programas paralelos simples não estava entre seus objetivos.
 
+Muitos sistemas foram desenvolvidos para extrais paralelismo de tarefas a partir de programas sequenciais de maneira semi-automática. Exemplos incluem OSCAR (Optimally SCheduled Advanced multprocessoR), um compilador-paralelizador \cite{ishizaka:journal:2000}, MAPS (MPSoC Application Programming Studio) \cite{castrillon:tii:2013} e DiscoPoP (Discovery of Potential Parallelism) \cite{li:jss:2016}. Além de sistemas de paralelização, ferramentas como Paraver  \cite{paraver}, Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, e TEMANEJO
+\cite{temanejo} foram projetadas para permitir análise de performance e visualização de programas em tarefas. 
 
+Apesar dessas ferramentas ajudarem o programador a adaptar código para rodar em paralelo, elas não são completamente automáticas. Por exemplo, o trabalho que é mais próximo ao descrito neste artigo é o conjunto de análises estáticas propostas por Ravishankar {\em et al.} \cite{Ravishankar14}. O tipo de laços irregulares com os quais eles lidam é impressionante; porém, a falta de suporte a OpenMP 4.X ainda requer ao programador modificar código antes da paralelização. Nas palavras dos autores, ``{\em para todos os benchmarks e aplicações, todas as funções foram alinhadas, e arranjos de estruturas foram convertidos a estruturas de arranjos para uso em conjunto com o nosso protótipo}", de forma que o sistema modifica o código original para atingir tal paralelismo. \Taskminer{}, por outro lado, não modifica a sintaxe sequencial original.
+
+Em outro contexto, ferramentas foram desenvolvidas para inser-ção de anotações automáticas que expõe paralelismo de dados \cite{Wang2009}. Essas ferramentas, porém, além de explorarem outro tipo de paralelismo, não são completamente estáticas como o \Taskminer{}.
 
 \section{Conclus\~{a}o}
 \label{sec:conc}
@@ -845,7 +845,8 @@ Este trabalho apresentou \Taskminer{}, uma ferramenta capaz de identificar autom
 Embora já possa ser usado em produção de código paralelo, \Taskminer{} ainda apresenta espaço
 para melhorias.
 Em particular, \Taskminer{} implementa uma heurística simples demais para estimar o custo de uma tarefa.
-Dada a sua simplicidade, essa heurística não é firme o suficiente para garantir a lucratividade de uma anotação. Como trabalho futuro, pretende-se implementar heurísticas de estimativa de custo que sejam mais precisas, para refinar o algoritmo do \Taskminer{}.
+Dada a sua simplicidade, essa heurística não é firme o suficiente para garantir a lucratividade de uma anotação. Como trabalho futuro, pretende-se implementar heurísticas de estimativa de custo que sejam mais precisas, para refinar o algoritmo do \Taskminer{}. Embora ainda sob constantes atualizações, uma versão inicial do
+\Taskminer{} está online e disponível para uso acadêmico em \url{http://cuda.dcc.ufmg.br/taskminer/}.
 
 \bibliography{references}
 
