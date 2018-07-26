@@ -71,6 +71,7 @@ class RecoverExpressions : public FunctionPass {
 
   std::set<CallInst*> tasksCalls;
 
+  std::map<Loop*, bool> mapped;
   //===---------------------------------------------------------------------===
 
   // Methods to manage the correct computation auxiliar names.
@@ -142,11 +143,11 @@ class RecoverExpressions : public FunctionPass {
 
   bool analyzeTopLoop (Loop* L, int Line, int LastLine, PtrRangeAnalysis *ptrRA,
                     RegionInfoPass *rp, AliasAnalysis *aa, ScalarEvolution *se,
-                    LoopInfo *li, DominatorTree *dt);
+                    LoopInfo *li, DominatorTree *dt, std::string priv);
 
   bool analyzeLoop (Loop* L, int Line, int LastLine, PtrRangeAnalysis *ptrRA,
                     RegionInfoPass *rp, AliasAnalysis *aa, ScalarEvolution *se,
-                    LoopInfo *li, DominatorTree *dt);
+                    LoopInfo *li, DominatorTree *dt, std::string priv);
 
   std::string getUniqueString (std::map<int, std::string> & smbexp,       
                                std::map<int, std::vector<int> > & ref);
