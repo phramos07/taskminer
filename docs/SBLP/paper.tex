@@ -13,7 +13,7 @@
 \acmVolume{1}
 \acmNumber{1}
 \acmArticle{1}
-\acmYear{2017}
+\acmYear{2018}
 \acmMonth{1}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
 \startPage{1}
@@ -21,7 +21,7 @@
 
 %% Conference information (used by SIGPLAN proceedings format)
 %% Supplied to authors by publisher for camera-ready submission
-\acmConference[SBLP'18]{IEEE}{2018}{Brasil}
+\acmConference[SBLP'18]{XXII Brazilian Symposium on Programming Languages}{2018}{Brasil}
 \acmYear{2018}
 \acmISBN{978-1-4503-6480-5/18/09}
 \acmDOI{10.1145/nnnnnnn.nnnnnnn}
@@ -151,25 +151,34 @@ estáticas espúrias, detecção de condições de corrida, e, principalmente, a
 
 %% 2012 ACM Computing Classification System (CSS) concepts
 %% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
- \begin{CCSXML}
+\begin{CCSXML}
 <ccs2012>
 <concept>
-<concept_id>10010147.10010169.10010175</concept_id>
-<concept_desc>Computing methodologies~Parallel programming languages</concept_desc>
+<concept_id>10010520.10010521.10010528</concept_id>
+<concept_desc>Computer systems organization~Parallel architectures</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
 <concept>
-<concept_id>10010147.10011777.10011014</concept_id>
-<concept_desc>Computing methodologies~Concurrent programming languages</concept_desc>
-<concept_significance>500</concept_significance>
+<concept_id>10010520.10010521.10010528.10010536</concept_id>
+<concept_desc>Computer systems organization~Multicore architectures</concept_desc>
+<concept_significance>100</concept_significance>
 </concept>
 <concept>
 <concept_id>10011007.10011006.10011041</concept_id>
 <concept_desc>Software and its engineering~Compilers</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
+<concept>
+<concept_id>10011007.10011006.10011041.10011047</concept_id>
+<concept_desc>Software and its engineering~Source code generation</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
 </ccs2012>
 \end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Parallel architectures}
+\ccsdesc[500]{Software and its engineering~Compilers}
+\ccsdesc[300]{Software and its engineering~Source code generation}
 
 \keywords{paralelismo, tarefas, OpenMP, compiladores}
 
@@ -823,19 +832,19 @@ a implementação de tarefas é nova, não existem ferramentas estáticas
 além do {\Taskminer} capazes de anotar programas
 automaticamente com diretivas de tarefas. Entretanto, existe muita pesquisa em paralelização automática de código.
 
-Padrões de anotação de código baseados em diretivas provêm, ao programador, um modelo de programação paralela fácil de se utilizar. Extensões destes padrões baseadas em tarefas resultaram em  OpenMP 4.X,
-StarSs \cite{bellens:sc:2006, perez:iccc:2008, planas:hpca:2009,
-tejedor:hpdc:2011} e OmpSs \cite{bueno:icpp:2011, duran:ppl:2011}. Tais modelos vem com ferramentas que ajudam os programadores a achar as melhores anotações para seus códigos. Por exemplo, Tareador \cite{Ayguade15} permite ao programador, através de uma interface gráfica, a anotar código sequencial, permitindo assim a identificação de potenciais oportunidades de tarefas. Ao contrário do Tareador, este trabalho propõe uma abordagem que permite a inserção automática de anotações OpenMP em fragmentos relevantes de um programa sequencial.
+Padrões de anotação de código baseados em diretivas conferem ao programador um modelo de programação paralela fácil de se utilizar. Extensões destes padrões baseadas em tarefas resultaram em  OpenMP 4.X,
+StarSs \cite{planas:hpca:2009,
+tejedor:hpdc:2011} e OmpSs \cite{bueno:icpp:2011}. Tais modelos vem com ferramentas que ajudam os programadores a achar as melhores anotações para seus códigos. Por exemplo, Tareador \cite{Ayguade15} permite ao programador, através de uma interface gráfica, a anotar código sequencial, permitindo assim a identificação de potenciais oportunidades de tarefas. Ao contrário do Tareador, este trabalho propõe uma abordagem que permite a inserção automática de anotações OpenMP em fragmentos relevantes de um programa sequencial.
 
-As técnicas utilizadas neste trabalho para mapear regiões de programas em tarefas é similar às análises muito utilizadas em geração de código para máquinas de fluxo de dados. Programação de fluxo de dados foi originalmente proposto como um paradigma adequado ao paralelismo de tarefas \cite{agrawal:ipdps:2010, chan:spaa:2007,
-gupta:micro:2011}. Este paradigma foi extendido com especificações para entrada e saída de tarefas em Cilk++ \cite{agrawal:ipdps:2010}, e mais tarde Cilk++ foi extendido com cláusulas dependência para facilitar a projeção de padrões de paralelização \cite{vandierendonck:hotpar:2011}. O modelo até então apresentava um escalonador unificado baseado em paralelismo fork-join que permitia a execução de aplicações baseadas em tarefas. Outras abordagens também utilizaram grafos de fluxo de dados para explorar paralelismo, como tarefas de dados, nas quais o programador pode utilizar cláusulas de \textit{put} e \textit{await} para determinar os argumento de uma tarefa antes de sua execução. Paralelismo de tarefas baseado em argumentos de funções também foi proposto para determinação de dependências entre tarefas \cite{gupta:micro:2011}. Nota-se que os esforços listados focam-se em conceder ao programador as ferramentas para construir programas paralelos. A geração automática de programas paralelos simples não estava entre seus objetivos.
+As técnicas utilizadas neste trabalho para mapear regiões de programas em tarefas é similar às análises muito utilizadas em geração de código para máquinas de fluxo de dados. Programação de fluxo de dados foi originalmente proposto como um paradigma adequado ao paralelismo de tarefas \cite{agrawal:ipdps:2010,
+gupta:micro:2011}. Este paradigma foi extendido com especificações para entrada e saída de tarefas em Cilk++ \cite{agrawal:ipdps:2010}, e mais tarde Cilk++ foi extendido com cláusulas de dependência para facilitar a projeção de padrões de paralelização \cite{vandierendonck:hotpar:2011}. O modelo, até então, apresentava um escalonador unificado baseado em paralelismo {\em fork-join} que permitia a execução de aplicações baseadas em tarefas. Outras abordagens também utilizaram grafos de fluxo de dados para explorar paralelismo, como tarefas de dados, nas quais o programador pode utilizar cláusulas de \textit{put} e \textit{await} para determinar os argumentos de uma tarefa antes de sua execução. Paralelismo de tarefas baseado em argumentos de funções também foi proposto para a determinação de dependências entre tarefas \cite{gupta:micro:2011}. Nota-se que os esforços listados focam-se em conceder ao programador as ferramentas para construir programas paralelos. A geração automática de programas paralelos simples não estava entre seus objetivos.
 
-Muitos sistemas foram desenvolvidos para extrais paralelismo de tarefas a partir de programas sequenciais de maneira semi-automática. Exemplos incluem OSCAR (Optimally SCheduled Advanced multprocessoR), um compilador-paralelizador \cite{ishizaka:journal:2000}, MAPS (MPSoC Application Programming Studio) \cite{castrillon:tii:2013} e DiscoPoP (Discovery of Potential Parallelism) \cite{li:jss:2016}. Além de sistemas de paralelização, ferramentas como Paraver  \cite{paraver}, Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, e TEMANEJO
-\cite{temanejo} foram projetadas para permitir análise de performance e visualização de programas em tarefas. 
+Muitos sistemas foram desenvolvidos para extrair paralelismo de tarefas a partir de programas sequenciais de maneira semi-automática. Exemplos incluem OSCAR (Optimally SCheduled Advanced multprocessoR), um compilador-paralelizador \cite{ishizaka:journal:2000}, MAPS (MPSoC Application Programming Studio) \cite{castrillon:tii:2013} e DiscoPoP (Discovery of Potential Parallelism) \cite{li:jss:2016}. Além de sistemas de paralelização, ferramentas como Paraver  \cite{paraver}, Aftermath~\cite{drebes:hipeac:2014}, DAGvis \cite{huynh:wvpa:2015}, e TEMANEJO
+\cite{temanejo} foram projetadas para permitir análises de performance e visualização de programas em tarefas. 
 
-Apesar dessas ferramentas ajudarem o programador a adaptar código para rodar em paralelo, elas não são completamente automáticas. Por exemplo, o trabalho que é mais próximo ao descrito neste artigo é o conjunto de análises estáticas propostas por Ravishankar {\em et al.} \cite{Ravishankar14}. O tipo de laços irregulares com os quais eles lidam é impressionante; porém, a falta de suporte a OpenMP 4.X ainda requer ao programador modificar código antes da paralelização. Nas palavras dos autores, ``{\em para todos os benchmarks e aplicações, todas as funções foram alinhadas, e arranjos de estruturas foram convertidos a estruturas de arranjos para uso em conjunto com o nosso protótipo}", de forma que o sistema modifica o código original para atingir tal paralelismo. \Taskminer{}, por outro lado, não modifica a sintaxe sequencial original.
+Apesar dessas ferramentas ajudarem o programador a adaptar código para rodar em paralelo, elas não são completamente automáticas. Por exemplo, o trabalho que é mais próximo ao descrito neste artigo é o conjunto de análises estáticas propostas por Ravishankar {\em et al.} \cite{Ravishankar14}. O tipo de laços irregulares com os quais eles lidam é impressionante; porém, a falta de suporte a \textsf{OpenMP 4.X} ainda requer ao programador modificar código antes da paralelização. Nas palavras dos autores, ``{\em para todos os benchmarks e aplicações, todas as funções foram alinhadas, e arranjos de estruturas foram convertidos a estruturas de arranjos para uso em conjunto com o nosso protótipo}", de forma que o sistema modifica o código original para atingir o paralelismo desejado. \Taskminer{}, por outro lado, não modifica a sintaxe do programa sequencial original.
 
-Em outro contexto, ferramentas foram desenvolvidas para inser-ção de anotações automáticas que expõe paralelismo de dados \cite{Wang2009}. Essas ferramentas, porém, além de explorarem outro tipo de paralelismo, não são completamente estáticas como o \Taskminer{}.
+Em outro contexto, ferramentas foram desenvolvidas para inser-ção de anotações automáticas que expõe paralelismo de dados \cite{Wang2009}. Essas ferramentas, porém, além de explorarem outro tipo de paralelismo, não são completamente estáticas e automáticas como o \Taskminer{}.
 
 \section{Conclus\~{a}o}
 \label{sec:conc}
