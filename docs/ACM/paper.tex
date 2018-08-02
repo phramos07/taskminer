@@ -137,13 +137,14 @@
 %\email{guido@ic.unicamp.br}
 
 \author{Fernando Magno Quint\~{a}o Pereira}
-\authornote{This work is sponsored by CNPq, CAPEs, FAPEMIG, FAPESP, LG Electronics and
-the CONTINUUM ANR Project.}          %% \authornote is optional;
+\authornote{This work is sponsored by CNPq, CAPEs, FAPEMIG, FAPESP, ANR and LG Electronics.
+While working on this project, Fernando was supported by a grant from the CONTINUUM ANR
+Project (ANR-15-CE25-0007-0).}          %% \authornote is optional;
 %\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
 %  \position{Professor}
 %  \department{DCC}
-  \institution{UFMG, Brazil \& LIRMM, France}
+  \institution{UFMG, Brazil}
 %  \streetaddress{6627 Antonio Carlos Avenue}
 %  \city{Belo Horizonte}
 %  \state{Minas Gerais}
@@ -205,7 +206,7 @@ zero programming cost.
 \label{sec:intro}
 
 Annotation systems have risen to a place of prominence as a simple and
-effective means to write parallel programs.
+effective way to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
 OpenSs~\cite{MeenderinckJ11} and
@@ -1510,10 +1511,12 @@ automatic annotations can beat consistently manual interventions.
 In particular, our methodology asks for more aggressive tuning strategies.
 Techniques such as Trancoso's~\cite{Trancoso17}, Iwasaki's~\cite{Iwasaki16B}
 or Emani's~\cite{Emani15} have already been shown to be effective in this
-domain, and we want to explore them further.
-More specifically, a future release of \Taskminer{} is already expected to
-feature Iwasaki's cut-off~\cite{Iwasaki16B}. \\
-\textbf{Software} available at \url{http://cuda.dcc.ufmg.br/taskminer/}
+domain, and we want to explore them further. \\
+
+\noindent
+\textbf{Software}:
+\Taskminer{} can be used directly through an online interface available at
+\url{http://cuda.dcc.ufmg.br/taskminer/}
 
 \bibliography{references}
 
