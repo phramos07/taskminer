@@ -21,10 +21,14 @@
 
 %% Conference information (used by SIGPLAN proceedings format)
 %% Supplied to authors by publisher for camera-ready submission
-\acmConference[SBLP'18]{XXII Brazilian Symposium on Programming Languages}{2018}{Brasil}
-\acmYear{2018}
+\copyrightyear{2018} 
+\acmYear{2018} 
+\setcopyright{othergov}
+\acmConference[SBLP 2018]{XXII Brazilian Symposium on Programming Languages}{September 20--21, 2018}{SAO CARLOS, Brazil}
+\acmPrice{15.00}
+\acmDOI{10.1145/3264637.3264639}
 \acmISBN{978-1-4503-6480-5/18/09}
-\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+
 \startPage{1}
 \fi
 
@@ -76,12 +80,12 @@
 
 \begin{document}
 
-\title[TaskMiner: Identifica\c{c}\~{a}o Autom\'{a}tica de Tarefas]
-{TaskMiner: Identificação Automática de Tarefas}
+\title[TaskMiner: Automatic Identification of Tasks.]
+{TaskMiner: Automatic Identification of Tasks.}
 
 
 
-\author{Pedro Ramos, Gleison Souza, Guilherme Leobas, Fernando Magno Quint\~{a}o Pereira}
+\author{Pedro Ramos, Gleison Souza, Guilherme Leobas, Fernando Magno Q. Pereira}
 %\authornote{with author1 note}          %% \authornote is optional;
 %\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
@@ -142,11 +146,7 @@
 %\email{fernando@dcc.ufmg.br}          %% \email is recommended
 
 \begin{abstract}
-Este artigo apresenta \Taskminer{}, uma ferramenta que encontra paralelismo de tarefas
-em código C automaticamente. \Taskminer{} lida com problemas clássicos de paralelismo irregular 
-como a delimitação simbólica de regiões de memória, remoção de dependências
-estáticas espúrias, detecção de condições de corrida, e, principalmente, a avaliação do custo do paralelismo. Para solucioná-los,
-\Taskminer{} implementa uma série de otimizações em representa\-ção intermedi-ária do LLVM, que analisam código C e inserem anotações OpenMP automaticamente. \Taskminer{} prova-se eficaz ao encontrar paralelismo apontado manualmente em benchmarks como \textsf{BSC-Bots}~\cite{Duran09}, produzindo programas tão rápidos ou mais velozes que as versões sequenciais e anotadas manualmente. \Taskminer{} também é capaz de encontrar paralelismo escondido em programas sequenciais, sem intervenção humana.
+This paper presents \Taskminer{}, a tool that automatically finds task parallelism in C code. \Taskminer{} solves classic problems of irregular parallelism, such as finding the memory ranges accessed by tasks, removing spurious static dependencies, detecting data-racing conditions and, most importantly, assessing the cost of parallelism for a given task or program. \Taskminer{} implements a suite of optimizations in LLVM's intermediate representation, which in the end insert \textsf{OpenMP} annotations to the code automatically, exposing task parallelism. \Taskminer{} finds parallelism that was previously manually appointed in benchmarks such as \textsf{BSC-Bots}, producing programs that are as fast or even faster than their sequential and manually annotated counterparts. \Taskminer{} also finds hidden parallelism in sequential programs, without human intervention.
 \end{abstract}
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -176,11 +176,13 @@ estáticas espúrias, detecção de condições de corrida, e, principalmente, a
 </ccs2012>
 \end{CCSXML}
 
+
+
 \ccsdesc[500]{Computer systems organization~Parallel architectures}
 \ccsdesc[500]{Software and its engineering~Compilers}
 \ccsdesc[300]{Software and its engineering~Source code generation}
 
-\keywords{paralelismo, tarefas, OpenMP, compiladores}
+\keywords{parallelism, tasks, OpenMP}
 
 \maketitle
 
