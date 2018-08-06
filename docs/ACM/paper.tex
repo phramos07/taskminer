@@ -1,5 +1,6 @@
 %% For double-blind review submission
-\documentclass[sigplan,10pt,review]{acmart}
+\documentclass[sigplan,10pt,screen]{acmart}
+%\documentclass[sigplan,10pt,review]{acmart}
 \settopmatter{printfolios=true}
 %% For final camera-ready submission
 %\documentclass[acmlarge]{acmart}\settopmatter{}
@@ -71,8 +72,7 @@
 
 \begin{document}
 
-\title[Automatic Annotation of Tasks in Structured
-Code]
+\title[Automatic Annotation of Tasks in Structured Code]
 {Automatic Annotation of Tasks in Structured Code}
 
 \author{Pedro Ramos, Gleison Souza}
@@ -105,7 +105,7 @@ Code]
 %}
 %\email{gleison.mendonca@dcc.ufmg.br}
 
-\author{Divino C\'{e}sar, Guido Ara\'{u}jo}
+\author{Divino Soares, Guido Ara\'{u}jo}
 %\authornote{with author1 note}
 %\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
@@ -137,8 +137,9 @@ Code]
 %\email{guido@ic.unicamp.br}
 
 \author{Fernando Magno Quint\~{a}o Pereira}
-\authornote{This work is sponsored by CNPq, CAPEs, FAPEMIG, FAPESP, LG Electronics and
-the CONTINUUM ANR Project.}          %% \authornote is optional;
+\authornote{This work is sponsored by CNPq, CAPEs, FAPEMIG, FAPESP, ANR and LG Electronics.
+While working on this project, Fernando was supported by a grant from the CONTINUUM ANR
+Project (ANR-15-CE25-0007-0).}          %% \authornote is optional;
 %\orcid{nnnn-nnnn-nnnn-nnnn}
 \affiliation{
 %  \position{Professor}
@@ -199,12 +200,13 @@ zero programming cost.
 \keywords{Parallelism, Tasks, OpenMP}
 
 \maketitle
+\renewcommand{\shortauthors}{Ramos, P., Souza, G., Soares, D., Ara\'{u}jo, G., Quint\~{a}o, F.}
 
 \section{Introduction}
 \label{sec:intro}
 
 Annotation systems have risen to a place of prominence as a simple and
-effective means to write parallel programs.
+effective way to write parallel programs.
 Examples of such systems include OpenMP~\cite{JaegerCP15},
 OpenACC~\cite{OpenACC20}, OpenHMPP~\cite{Andion14}, OpenMPC~\cite{Lee10},
 OpenSs~\cite{MeenderinckJ11} and
@@ -1033,21 +1035,28 @@ in line 8 of Figure~\ref{fig:ex_privatize}.
 
 % Explain rational
 The analyses described in Sections~\ref{sub:sra}-\ref{sub:variance} have
-been implemented at the level of the LLVM intermediate representation.
+been implemented at the level of the LLVM intermediate representation, and can be used
+through an online interface\footnote{\Taskminer{} can be
+used at \url{http://cuda.dcc.ufmg.br/taskminer/}}.
 We chose to implement those techniques at that level to benefit from the support
-of several data-flow analyses already in place in the LLVM infra-structure.
-In particular, this decision let us reuse LLVM's scalar
-evolution~\cite[p.18]{Grosser12}, from which we derive our symbolic analysis.
-Additionally, we could reuse LLVM's program dependence graph, and its suite of
-powerful alias analyses.
-This toolbox gave us the necessary means to disambiguate pointers, albeit
-conservatively, and estimate safe limits to memory regions.
-However, our annotations are still inserted in C programs.
-Having them in a high-level programming language has two main advantages:
-they are human-readable, and thus can be debugged, and they are compatible with
-compilers other than \textsf{clang}, such as \textsf{gcc}.
-Thus, a major part of this work was the engineering effort to map
-information from LLVM's intermediate representation back into C.
+of several data-flow analyses already in place in the LLVM infra-structure, such as
+scalar evolution and symbolic execution.
+%In particular, this decision let us reuse LLVM's scalar
+%evolution~\cite[p.18]{Grosser12}, from which we derive our symbolic analysis.
+%Additionally, we could reuse LLVM's program dependence graph, and its suite of
+%powerful alias analyses.
+This toolbox gave us the necessary means to disambiguate pointers
+and estimate safe limits to memory regions.
+Yet, our annotations are still inserted in C programs.
+Having them in a high-level programming language has two advantages:
+readability and portability across compilers.
+However, this modus operandi also brings two challenges.
+First, we cannot annotate partial code: to produce LLVM bitcodes, we need all the type
+definitions used in the target program.
+Second, we need to map information from LLVM's intermediate representation back into C.
+A type inference engine for C let us deal with the first
+challenge~\cite{Melo18}.
+In this section we explain how we deal with the second.
 
 % Explain machinery: scope tree and simplification
 \noindent
@@ -1174,7 +1183,7 @@ implementation of \Taskminer?
 
 \noindent
 \textbf{Benchmarking:}
-we have used different benchmarks in our experiments.
+%we have used different benchmarks in our experiments.
 In Sections~\ref{sub:performance} and~\ref{sub:optimizations} we use
 \textsf{BSC-Bots} (\url{https://github.com/bsc-pm/bots/tree/master/serial})~\cite{Duran09} and
 \textsf{Swan} (\url{http://cuda.dcc.ufmg.br/swan/})~\cite{Moreira17}.
@@ -1182,7 +1191,7 @@ In Section~\ref{sub:versatility} we use the LLVM test suite, and in
 Section~\ref{sub:scalability} we use random programs produced with
 \textsf{CSmith}~\cite{Yang11}.
 Runtimes are averages of five executions.
-No benchmark has been changed manually.
+%No benchmark has been changed manually.
 
 \subsection{Performance}
 \label{sub:performance}
@@ -1379,7 +1388,7 @@ The larger the bar, the better.
 \begin{center}
 \includegraphics[width=0.9\columnwidth]{images/TM_Runtime}
 \caption{Runtime of \Taskminer{} vs size of input programs.
-Each dot represents one of the 100 program generated by \textsf{CSmit}.
+%Each dot represents one of the 100 program generated by \textsf{CSmit}.
 We have fit a degree-2 polynomial on this dataset.
 We cannot control the size of programs produced by CSmith; hence, it is
 difficult to push the limit above 5,000 LoC.}
@@ -1502,9 +1511,12 @@ automatic annotations can beat consistently manual interventions.
 In particular, our methodology asks for more aggressive tuning strategies.
 Techniques such as Trancoso's~\cite{Trancoso17}, Iwasaki's~\cite{Iwasaki16B}
 or Emani's~\cite{Emani15} have already been shown to be effective in this
-domain, and we want to explore them further.
-More specifically, a future release of \Taskminer{} is already expected to
-feature Iwasaki's cut-off~\cite{Iwasaki16B}.
+domain, and we want to explore them further. \\
+
+\noindent
+\textbf{Software}:
+\Taskminer{} can be used directly through an online interface available at
+\url{http://cuda.dcc.ufmg.br/taskminer/}
 
 \bibliography{references}
 
