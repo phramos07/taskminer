@@ -22,7 +22,12 @@ private:
 	uint32_t nOutDeps; // NUMBER OF OUT-DEPS
 
 public:
-	CostModel() {};
+	CostModel() {
+    this->nInsts = 0;
+    this->nWorkers = 0;
+    this->runtimeCost = 0;
+    this->singleTaskCost = 0;
+  };
 	CostModel(uint32_t totalInsts, uint32_t workers)
 	{
 		this->singleTaskCost = totalInsts;
